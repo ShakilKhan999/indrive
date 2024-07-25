@@ -3,6 +3,8 @@ plugins {
     id "kotlin-android"
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id "dev.flutter.flutter-gradle-plugin"
+    id "com.google.gms.google-services"
+
 }
 
 def localProperties = new Properties()
@@ -24,8 +26,8 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace = "com.example.indrive"
-    compileSdk = flutter.compileSdkVersion
+    namespace = "com.callandgo.apps"
+    compileSdk = 34
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -35,11 +37,11 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.indrive"
+        applicationId = "com.callandgo.apps"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        minSdk = 23
+        targetSdk = 34
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
     }
@@ -55,4 +57,10 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+  implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+  implementation("com.google.firebase:firebase-analytics")
+  implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha4'
 }
