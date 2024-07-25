@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:indrive/utils/space_helper.dart';
-import 'package:indrive/utils/style_helper.dart';
+import 'package:indrive/helpers/space_helper.dart';
+import 'package:indrive/helpers/style_helper.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 class RegisterScreen extends StatelessWidget {
