@@ -1,8 +1,8 @@
 
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 
 class CommonComponents{
@@ -13,20 +13,21 @@ class CommonComponents{
 
 
 
-  Widget CommonButton({
+  Widget commonButton({
     required text, required VoidCallback onPressed,  bool disabled=false,
-    Icon? icon, String? imagePath, double borderRadius=24, double fontSize=16
+    Icon? icon, String? imagePath, double borderRadius=24, double fontSize=16, Color color=const Color(0xFF004AAD)
   }){
     return GestureDetector(
       onTap:disabled?null: onPressed,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
         decoration: BoxDecoration(
-          color:disabled?Colors.grey: Colors.green, // Change this to your desired color
+          color:disabled?ColorHelper.lightGreyColor: color, // Change this to your desired color
           borderRadius: BorderRadius.circular(borderRadius), // Rounded corners
         ),
         child: Center(
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               icon ?? (imagePath!=null?Image.asset(imagePath):const SizedBox()),
               SpaceHelper.horizontalSpace5,
@@ -46,11 +47,11 @@ class CommonComponents{
   }
 
 
-  Widget CommonTextPicker({
+  Widget commonTextPicker({
   required String labelText, required TextEditingController textController
 }){
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -59,7 +60,7 @@ class CommonComponents{
             color: Colors.grey.withOpacity(0.5),
             spreadRadius: 1,
             blurRadius: 5,
-            offset: Offset(0, 2), // changes position of shadow
+            offset: const Offset(0, 2), // changes position of shadow
           ),
         ],
       ),
@@ -69,7 +70,7 @@ class CommonComponents{
           Text(
             labelText,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 16.sp,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -80,7 +81,7 @@ class CommonComponents{
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             ),
           ),
           SpaceHelper.verticalSpace5,
