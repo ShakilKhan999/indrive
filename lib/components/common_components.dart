@@ -5,25 +5,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:indrive/helpers/space_helper.dart';
 
-class CommonComponents{
-
-
-  Widget CommonButton({
-    required String text, required VoidCallback onPressed,  bool disabled=false,
-    Icon? icon, String? imagePath, double borderRadius=24, double fontSize=16
-  }){
+class CommonComponents {
+  Widget CommonButton(
+      {required String text,
+      required VoidCallback onPressed,
+      bool disabled = false,
+      Icon? icon,
+      String? imagePath,
+      double borderRadius = 24,
+      double fontSize = 16}) {
     return GestureDetector(
-      onTap:disabled?null: onPressed,
+      onTap: disabled ? null : onPressed,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
         decoration: BoxDecoration(
-          color:disabled?Colors.grey: Colors.green, // Change this to your desired color
+          color: disabled
+              ? Colors.grey
+              : Colors.green, // Change this to your desired color
           borderRadius: BorderRadius.circular(borderRadius), // Rounded corners
         ),
         child: Center(
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              icon ?? (imagePath!=null?Image.asset(imagePath):const SizedBox()),
+              icon ??
+                  (imagePath != null
+                      ? Image.asset(imagePath)
+                      : const SizedBox()),
               SpaceHelper.horizontalSpace5,
               Text(
                 text,
@@ -40,10 +48,9 @@ class CommonComponents{
     );
   }
 
-
-  Widget CommonTextPicker({
-  required String labelText, required TextEditingController textController
-}){
+  Widget CommonTextPicker(
+      {required String labelText,
+      required TextEditingController textController}) {
     return Container(
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -75,15 +82,13 @@ class CommonComponents{
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              contentPadding:
+                  EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             ),
           ),
           SpaceHelper.verticalSpace5,
-
         ],
       ),
     );
   }
-
 }
-
