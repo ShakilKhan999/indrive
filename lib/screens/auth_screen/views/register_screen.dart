@@ -17,18 +17,19 @@ class RegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: const Color.fromARGB(255, 40, 39, 39),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildHeader(),
-            SpaceHelper.verticalSpace10,
-            Obx(() => _authController.otpSubmitted.value
-                ? _buildOTPVerification(context)
-                : _buildPhoneTextFiled(context)),
-          ],
-        ));
+      backgroundColor: ColorHelper.bgColor,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _buildHeader(),
+          SpaceHelper.verticalSpace10,
+          Obx(() => _authController.otpSubmitted.value
+              ? _buildOTPVerification(context)
+              : _buildPhoneTextFiled(context)),
+        ],
+      ),
+    );
   }
 
   Widget _buildGoogleSignIn() {
