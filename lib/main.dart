@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import 'package:indrive/screens/auth_screen/views/register_screen.dart';
+import 'package:indrive/screens/driver/home_screen.dart';
 // import 'package:indrive/screens/auth_screen/views/register_screen.dart';
 import 'package:indrive/utils/app_config.dart';
 
@@ -30,7 +31,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: RegisterScreen(),
+        home: DriverHomeScreen(),
       ),
     );
   }

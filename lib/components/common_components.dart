@@ -1,15 +1,20 @@
-// ignore_for_file: non_constant_identifier_names
 
-import 'package:flutter/cupertino.dart';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:indrive/helpers/space_helper.dart';
 
 class CommonComponents{
 
+  Widget printText({required int fontSize, required String textData, required FontWeight fontWeight, Color? color=Colors.white}){
+    return Text(textData,style: TextStyle(fontWeight: fontWeight,fontSize: fontSize.sp, color: color),);
+  }
+
+
 
   Widget CommonButton({
-    required String text, required VoidCallback onPressed,  bool disabled=false,
+    required text, required VoidCallback onPressed,  bool disabled=false,
     Icon? icon, String? imagePath, double borderRadius=24, double fontSize=16
   }){
     return GestureDetector(
@@ -84,6 +89,8 @@ class CommonComponents{
       ),
     );
   }
+
+
 
 }
 
