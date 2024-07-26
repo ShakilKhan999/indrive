@@ -34,7 +34,7 @@ class LocationPermissionScreen extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.fromLTRB(20.sp, 0.sp, 20.sp, 30.sp),
-      child: commonComponents.CommonButton(
+      child: commonComponents.commonButton(
         text: 'Enable location services',
         onPressed: () async {
           PermissionStatus status = await Permission.location.request();

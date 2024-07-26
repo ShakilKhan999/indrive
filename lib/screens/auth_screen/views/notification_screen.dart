@@ -34,7 +34,7 @@ class NotificationScreen extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.fromLTRB(20.sp, 0.sp, 20.sp, 20.sp),
-      child: commonComponents.CommonButton(
+      child: commonComponents.commonButton(
         text: 'Allow',
         onPressed: () async {
           PermissionStatus status = await Permission.notification.request();
