@@ -13,4 +13,8 @@ class StyleHelper {
     color: Colors.black,
     fontSize: 14.sp,
   );
+  static final TextStyle regular14 = GoogleFonts.inter(
+    color: Colors.white,
+    fontSize: 14.sp,
+  );
 }

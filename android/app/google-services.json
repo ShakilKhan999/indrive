@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "59849463899",
+    "project_id": "callandgo",
+    "storage_bucket": "callandgo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:59849463899:android:90c90348615fabdc3e077e",
+        "android_client_info": {
+          "package_name": "com.callandgo.apps"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "59849463899-3cc0lbfrjm2etsidvrutddf2jd6v845c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.callandgo.apps",
+            "certificate_hash": "acd369b467bf5e9b37df851f50df1d3692e94509"
+          }
+        },
+        {
+          "client_id": "59849463899-ic5tse528t4rhpk5adaqa346drrdaakr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_QMYEnzNIUeW73N0ye9CC8MuIr8nDS18"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "59849463899-ic5tse528t4rhpk5adaqa346drrdaakr.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "59849463899-9li5s3lrs7iu9e8hr78d2q7eg99a9noi.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.callandgo.apps"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

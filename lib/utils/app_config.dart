@@ -1,3 +1,3 @@
 class AppConfig {
-  static String appName = 'In Drive';
+  static String appName = 'Callandgo';
 }
