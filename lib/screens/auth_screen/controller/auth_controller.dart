@@ -11,10 +11,11 @@ import 'package:indrive/helpers/shared_preference_helper.dart';
 import 'package:indrive/models/user_model.dart';
 import 'package:indrive/screens/auth_screen/repository/auth_repository.dart';
 import 'package:indrive/screens/auth_screen/views/register_screen.dart';
-import 'package:indrive/screens/home_screen/views/home_screen.dart';
 import 'package:indrive/utils/firebase_option.dart';
 import 'package:indrive/utils/global_toast_service.dart';
 import 'package:indrive/utils/shared_preference_keys.dart';
+
+import '../../home_screen/views/passenger_home.dart';
 
 class AuthController extends GetxController {
   @override
@@ -45,7 +46,7 @@ class AuthController extends GetxController {
       Timer(
         const Duration(milliseconds: 500),
         () {
-          Get.offAll(() => HomeScreen());
+          Get.offAll(() => PassengerHomeScreen());
         },
       );
     }
@@ -200,7 +201,7 @@ class AuthController extends GetxController {
       var response = await AuthRepository().saveUserData(userModel: userModel);
       if (response) {
         await setLoginType(type: loginType);
-        Get.offAll(() => HomeScreen());
+        Get.offAll(() => PassengerHomeScreen());
       } else {
         showToast(
             toastText: 'Something went wrong. Please try again later',

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/main.dart';
 import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
+import 'package:indrive/screens/auth_screen/views/location_permission_screeen.dart';
 import 'package:pinput/pinput.dart';
 
 import '../../../components/common_components.dart';
@@ -97,7 +98,9 @@ class OTPVerificationPage extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(20.sp, 0.sp, 20.sp, 30.sp),
               child: commonComponents.commonButton(
                 text: 'Submit',
-                onPressed: () {},
+                onPressed: () {
+                  Get.to(() => const LocationPermissionScreen());
+                },
               ),
             ),
           ],
