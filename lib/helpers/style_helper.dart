@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class StyleHelper {
   static final TextStyle heading = GoogleFonts.inter(
     color: Colors.white,
-    fontSize: 16.sp,
+    fontSize: 18.sp,
     fontWeight: FontWeight.bold,
   );
 

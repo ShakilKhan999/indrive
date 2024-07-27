@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/common_button.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/helpers/style_helper.dart';
 import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
+import 'package:indrive/screens/auth_screen/views/location_permission_screeen.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 
 import 'package:pinput/pinput.dart';
@@ -13,6 +15,7 @@ import 'package:pinput/pinput.dart';
 class RegisterScreen extends StatelessWidget {
   RegisterScreen({super.key});
   final AuthController _authController = Get.put(AuthController());
+  final commonComponents = CommonComponents();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,11 +42,20 @@ class RegisterScreen extends StatelessWidget {
           style: StyleHelper.regular14,
         ),
         SpaceHelper.verticalSpace20,
+        // Padding(
+        //   padding: EdgeInsets.fromLTRB(0.sp, 0.sp, 0.sp, 30.sp),
+        //   child: commonComponents.CommonButton(
+        //     text: 'Continue with Google',
+        //     imagePath: 'assets/images/Google_logo.png',height: 25.h,
+        //       width: 25.w,
+        //     onPressed: () {
+        //       _authController.otpSubmitted.value = true;
+        //       _authController.startOtpCountdown();
+        //     },
+        //   ),
+        // ),
         CommonButton(
-            onTap: () {
-              _authController.otpSubmitted.value = true;
-              _authController.startOtpCountdown();
-            },
+            onTap: () {},
             text: 'Continue with Google',
             color: const Color.fromARGB(255, 123, 122, 122),
             icon: Image.asset(
@@ -155,19 +167,34 @@ class RegisterScreen extends StatelessWidget {
                 },
               )),
           SpaceHelper.verticalSpace60,
-          CommonButton(
-            onTap: () {
-              _authController.otpSubmitted.value = true;
-              _authController.startOtpCountdown();
-            },
-            text: 'Get OTP',
-            color: ColorHelper.primaryColor,
-            icon: Icon(
-              Icons.send,
-              color: Colors.white,
-              size: 25.sp,
+          Padding(
+            padding: EdgeInsets.fromLTRB(0.sp, 0.sp, 0.sp, 0.sp),
+            child: commonComponents.CommonButton(
+              text: 'Get OTP',
+              icon: Icon(
+                Icons.send,
+                color: Colors.white,
+                size: 25.sp,
+              ),
+              onPressed: () {
+                _authController.otpSubmitted.value = true;
+                _authController.startOtpCountdown();
+              },
             ),
           ),
+          // CommonButton(
+          //   onTap: () {
+          //     _authController.otpSubmitted.value = true;
+          //     _authController.startOtpCountdown();
+          //   },
+          //   text: 'Get OTP',
+          //   color: ColorHelper.primaryColor,
+          //   icon: Icon(
+          //     Icons.send,
+          //     color: Colors.white,
+          //     size: 25.sp,
+          //   ),
+          // ),
           SpaceHelper.verticalSpace20,
           _buildGoogleSignIn()
         ],
@@ -245,13 +272,24 @@ class RegisterScreen extends StatelessWidget {
               )),
           SpaceHelper.verticalSpace60,
           SpaceHelper.verticalSpace10,
-          CommonButton(
-            onTap: () {
-              _authController.otpSubmitted.value = false;
-            },
-            text: 'Submit',
-            color: ColorHelper.primaryColor,
-          )
+          Padding(
+            padding: EdgeInsets.fromLTRB(20.sp, 0.sp, 20.sp, 30.sp),
+            child: commonComponents.CommonButton(
+              text: 'Submit',
+              onPressed: () {
+                Get.offAll(() => const LocationPermissionScreen(),
+                    transition: Transition.rightToLeft);
+              },
+            ),
+          ),
+          // CommonButton(
+          //   onTap: () {
+          //     Get.offAll(() => const LocationPermissionScreen(),
+          //         transition: Transition.rightToLeft);
+          //   },
+          //   text: 'Submit',
+          //   color: ColorHelper.primaryColor,
+          // )
         ],
       ),
     );
