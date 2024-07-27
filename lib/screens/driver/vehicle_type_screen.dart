@@ -7,8 +7,8 @@ import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/driver/fill_info.dart';
 
-class DriverHomeScreen extends StatelessWidget {
-  const DriverHomeScreen({super.key});
+class VehicleScreen extends StatelessWidget {
+  const VehicleScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -18,7 +18,7 @@ class CommonComponents{
     Icon? icon, String? imagePath, double borderRadius=24, double fontSize=16, Color color=const Color(0xFF004AAD)
   }){
     return GestureDetector(
-      onTap:disabled?null: onPressed,
+      onTap: disabled ? null : onPressed,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
         decoration: BoxDecoration(
@@ -29,7 +29,10 @@ class CommonComponents{
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              icon ?? (imagePath!=null?Image.asset(imagePath):const SizedBox()),
+              icon ??
+                  (imagePath != null
+                      ? Image.asset(imagePath)
+                      : const SizedBox()),
               SpaceHelper.horizontalSpace5,
               Text(
                 text,
@@ -85,7 +88,6 @@ class CommonComponents{
             ),
           ),
           SpaceHelper.verticalSpace5,
-
         ],
       ),
     );
@@ -94,4 +96,3 @@ class CommonComponents{
 
 
 }
-

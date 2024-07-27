@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -16,7 +17,7 @@ class RegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 40, 39, 39),
+      backgroundColor: ColorHelper.bgColor,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -40,9 +41,9 @@ class RegisterScreen extends StatelessWidget {
         ),
         SpaceHelper.verticalSpace20,
         CommonButton(
-            onTap: () {
-              _authController.otpSubmitted.value = true;
-              _authController.startOtpCountdown();
+            onTap: () async {
+              UserInfo? userInfo = await _authController.signInWithGoogle();
+              await _authController.saveUserData(userInfo: userInfo!);
             },
             text: 'Continue with Google',
             color: const Color.fromARGB(255, 123, 122, 122),
