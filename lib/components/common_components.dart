@@ -7,8 +7,10 @@ import 'package:indrive/helpers/space_helper.dart';
 
 class CommonComponents{
 
-  Widget printText({required int fontSize, required String textData, required FontWeight fontWeight, Color? color=Colors.white}){
-    return Text(textData,style: TextStyle(fontWeight: fontWeight,fontSize: fontSize.sp, color: color),);
+  Widget printText({required int fontSize, required String textData, required FontWeight fontWeight, Color? color=Colors.white, int maxLine=1}){
+    return Text(textData,
+      textAlign: TextAlign.start,maxLines: maxLine, overflow: TextOverflow.ellipsis,
+      style: TextStyle(fontWeight: fontWeight,fontSize: fontSize.sp, color: color),);
   }
 
 

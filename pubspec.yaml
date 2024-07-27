@@ -48,6 +48,9 @@ dependencies:
   fluttertoast: ^8.2.6
   permission_handler: ^11.3.1
   shared_preferences: ^2.2.3
+  google_maps_flutter:
+  geolocator:
+  geocoding:
 
 dev_dependencies:
   flutter_test:
