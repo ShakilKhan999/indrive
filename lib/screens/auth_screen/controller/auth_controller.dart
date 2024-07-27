@@ -24,6 +24,7 @@ class AuthController extends GetxController {
   var nameController = TextEditingController().obs;
   var passController = TextEditingController().obs;
   var confirmPassController = TextEditingController().obs;
+  var searchController = TextEditingController().obs;
   var obscureText = true.obs;
   var confirmObscureText = true.obs;
   var isRemember = true.obs;
@@ -31,6 +32,9 @@ class AuthController extends GetxController {
   var otpSubmitted = false.obs;
   var otpTime = '02:30'.obs;
   final TextEditingController phoneNumbercontroller = TextEditingController();
+  var locations =
+      ['Dhaka (ঢাকা)', 'Gazipur City', 'Chittagong', 'Sylhet', 'Khulna'].obs;
+  var selectedLocation = 'Dhaka (ঢাকা)'.obs;
 
   checkCurrentUser() async {
     User? user = FirebaseAuth.instance.currentUser;

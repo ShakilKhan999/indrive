@@ -1,28 +1,38 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 
-class CommonComponents{
-
-  Widget printText({required int fontSize, required String textData, required FontWeight fontWeight, Color? color=Colors.white}){
-    return Text(textData,style: TextStyle(fontWeight: fontWeight,fontSize: fontSize.sp, color: color),);
+class CommonComponents {
+  Widget printText(
+      {required int fontSize,
+      required String textData,
+      required FontWeight fontWeight,
+      Color? color = Colors.white}) {
+    return Text(
+      textData,
+      style: TextStyle(
+          fontWeight: fontWeight, fontSize: fontSize.sp, color: color),
+    );
   }
 
-
-
-  Widget commonButton({
-    required text, required VoidCallback onPressed,  bool disabled=false,
-    Icon? icon, String? imagePath, double borderRadius=24, double fontSize=16, Color color=const Color(0xFF004AAD)
-  }){
+  Widget commonButton(
+      {required text,
+      required VoidCallback onPressed,
+      bool disabled = false,
+      Icon? icon,
+      String? imagePath,
+      double borderRadius = 24,
+      double fontSize = 16,
+      Color color = const Color(0xFF004AAD)}) {
     return GestureDetector(
       onTap: disabled ? null : onPressed,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
         decoration: BoxDecoration(
-          color:disabled?ColorHelper.lightGreyColor: color, // Change this to your desired color
+          color: disabled
+              ? ColorHelper.lightGreyColor
+              : color, // Change this to your desired color
           borderRadius: BorderRadius.circular(borderRadius), // Rounded corners
         ),
         child: Center(
@@ -49,10 +59,9 @@ class CommonComponents{
     );
   }
 
-
-  Widget commonTextPicker({
-  required String labelText, required TextEditingController textController
-}){
+  Widget commonTextPicker(
+      {required String labelText,
+      required TextEditingController textController}) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -84,7 +93,8 @@ class CommonComponents{
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             ),
           ),
           SpaceHelper.verticalSpace5,
@@ -92,7 +102,4 @@ class CommonComponents{
       ),
     );
   }
-
-
-
 }
