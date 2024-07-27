@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:indrive/helpers/color_helper.dart';
@@ -24,7 +22,9 @@ class CommonComponents{
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
         decoration: BoxDecoration(
-          color:disabled?ColorHelper.lightGreyColor: color, // Change this to your desired color
+          color: disabled
+              ? ColorHelper.lightGreyColor
+              : color, // Change this to your desired color
           borderRadius: BorderRadius.circular(borderRadius), // Rounded corners
         ),
         child: Center(
@@ -51,10 +51,9 @@ class CommonComponents{
     );
   }
 
-
-  Widget commonTextPicker({
-  required String labelText, required TextEditingController textController
-}){
+  Widget commonTextPicker(
+      {required String labelText,
+      required TextEditingController textController}) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -86,7 +85,8 @@ class CommonComponents{
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             ),
           ),
           SpaceHelper.verticalSpace5,
@@ -94,7 +94,4 @@ class CommonComponents{
       ),
     );
   }
-
-
-
 }

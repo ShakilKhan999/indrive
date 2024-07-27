@@ -6,10 +6,13 @@ import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/helpers/style_helper.dart';
+import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
 import 'package:indrive/screens/auth_screen/views/user_type_select_screen.dart';
 
 class ConfirmLocationScreen extends StatelessWidget {
-  const ConfirmLocationScreen({super.key});
+  ConfirmLocationScreen({super.key});
+  final commonComponents = CommonComponents();
+  final AuthController authController = Get.put(AuthController());
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +25,7 @@ class ConfirmLocationScreen extends StatelessWidget {
             children: [
               _buildHeadingView(),
               const Spacer(),
-              _buildBottomButtonView(),
+              _buildBottomButtonView(context),
             ],
           ),
         ),
@@ -30,9 +33,7 @@ class ConfirmLocationScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomButtonView() {
-    final commonComponents = CommonComponents();
-
+  Widget _buildBottomButtonView(BuildContext context) {
     return Column(
       children: [
         Padding(
@@ -49,10 +50,9 @@ class ConfirmLocationScreen extends StatelessWidget {
           padding: EdgeInsets.fromLTRB(20.sp, 0.sp, 20.sp, 30.sp),
           child: commonComponents.commonButton(
             text: 'No',
-            disabled: true,
+            color: ColorHelper.greyColor,
             onPressed: () {
-              Get.offAll(() => const UserTypeSelectScreen(),
-                  transition: Transition.rightToLeft);
+              _showLocationSelectionSheet(context);
             },
           ),
         ),
@@ -69,11 +69,99 @@ class ConfirmLocationScreen extends StatelessWidget {
           height: 200.h,
           width: 300.w,
         ),
-        Text(
-          'Are you in Dhaka?',
-          style: StyleHelper.heading,
-        ),
+        Obx(() => Text(
+              'Are you in ${authController.selectedLocation.value}?',
+              style: StyleHelper.heading,
+            )),
       ],
+    );
+  }
+
+  void _showLocationSelectionSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: ColorHelper.bgColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(25.0.sp),
+        ),
+      ),
+      builder: (context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.8,
+          minChildSize: 0.4,
+          maxChildSize: 0.9,
+          expand: false,
+          builder: (context, scrollController) {
+            return SingleChildScrollView(
+              controller: scrollController,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Choose your location',
+                          style: StyleHelper.heading,
+                        ),
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Icon(
+                            Icons.cancel_outlined,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child:
+                        // commonComponents.commonTextPicker(
+                        //     labelText: 'fasf',
+                        //     textController: authController.searchController.value)
+                        TextField(
+                      style: StyleHelper.regular14,
+                      decoration: InputDecoration(
+                        hintText: 'Search',
+                        hintStyle: StyleHelper.regular14,
+                        prefixIcon: const Icon(Icons.search),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25.0),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Obx(() => ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: authController.locations.length,
+                        itemBuilder: (context, index) {
+                          final location = authController.locations[index];
+                          return ListTile(
+                            title: Text(
+                              location,
+                              style: StyleHelper.regular14,
+                            ),
+                            subtitle: const Text('Dhaka District, Bangladesh'),
+                            onTap: () {
+                              authController.selectedLocation.value = location;
+                              Navigator.pop(context);
+                            },
+                          );
+                        },
+                      )),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

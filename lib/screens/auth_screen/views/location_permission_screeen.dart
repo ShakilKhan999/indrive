@@ -46,7 +46,7 @@ class LocationPermissionScreen extends StatelessWidget {
               } else {
                 Get.snackbar('Permission', 'Notification permission denied');
               }
-              Get.offAll(() => const ConfirmLocationScreen(),
+              Get.offAll(() => ConfirmLocationScreen(),
                   transition: Transition.rightToLeft);
             },
           ),
@@ -57,7 +57,7 @@ class LocationPermissionScreen extends StatelessWidget {
             text: 'Skip',
             disabled: true,
             onPressed: () {
-              Get.offAll(() => const ConfirmLocationScreen(),
+              Get.offAll(() => ConfirmLocationScreen(),
                   transition: Transition.rightToLeft);
             },
           ),

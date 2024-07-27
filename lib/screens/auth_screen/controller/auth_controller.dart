@@ -28,6 +28,7 @@ class AuthController extends GetxController {
   var nameController = TextEditingController().obs;
   var passController = TextEditingController().obs;
   var confirmPassController = TextEditingController().obs;
+  var searchController = TextEditingController().obs;
   var obscureText = true.obs;
   var confirmObscureText = true.obs;
   var isRemember = true.obs;
@@ -39,6 +40,9 @@ class AuthController extends GetxController {
   var countryCode = '880'.obs;
   String verificationCode = "";
   int resendforceToken = 0;
+  var locations =
+      ['Dhaka (ঢাকা)', 'Gazipur City', 'Chittagong', 'Sylhet', 'Khulna'].obs;
+  var selectedLocation = 'Dhaka (ঢাকা)'.obs;
 
   checkCurrentUser() async {
     User? user = FirebaseAuth.instance.currentUser;
