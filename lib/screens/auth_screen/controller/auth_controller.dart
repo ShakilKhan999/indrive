@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -6,12 +7,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:indrive/helpers/color_helper.dart';
+import 'package:indrive/helpers/shared_preference_helper.dart';
 import 'package:indrive/models/user_model.dart';
 import 'package:indrive/screens/auth_screen/repository/auth_repository.dart';
 import 'package:indrive/screens/auth_screen/views/register_screen.dart';
 import 'package:indrive/screens/home_screen/views/home_screen.dart';
 import 'package:indrive/utils/firebase_option.dart';
 import 'package:indrive/utils/global_toast_service.dart';
+import 'package:indrive/utils/shared_preference_keys.dart';
 
 class AuthController extends GetxController {
   @override
@@ -31,6 +34,10 @@ class AuthController extends GetxController {
   var otpSubmitted = false.obs;
   var otpTime = '02:30'.obs;
   final TextEditingController phoneNumbercontroller = TextEditingController();
+  final TextEditingController pinPutController = TextEditingController();
+  var countryCode = '880'.obs;
+  String verificationCode = "";
+  int resendforceToken = 0;
 
   checkCurrentUser() async {
     User? user = FirebaseAuth.instance.currentUser;
@@ -103,21 +110,96 @@ class AuthController extends GetxController {
         showToast(
             toastText: 'Something went wrong. Please try again later',
             toastColor: ColorHelper.red);
+        log('Error while sing in with google: $e');
       }
     }
     return user;
   }
 
-  Future saveUserData({required UserInfo userInfo}) async {
+  Future<UserInfo?> signInWithPhoneNumber(String otp) async {
+    UserInfo? user;
+    try {
+      FirebaseAuth auth = FirebaseAuth.instance;
+      final AuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: verificationCode,
+        smsCode: otp,
+      );
+      // final User? user = (await auth.signInWithCredential(credential)).user;
+      // final User? currentUser = auth.currentUser;
+      final UserCredential userCredential =
+          await auth.signInWithCredential(credential);
+      user = userCredential.user?.providerData[0];
+      assert(user?.uid == user!.uid);
+    } catch (e) {
+      showToast(
+          toastText: 'Something went wrong. Please try again later',
+          toastColor: ColorHelper.red);
+      log('Error while sing in with phone: $e');
+    }
+    return user;
+  }
+
+  void verifyPhoneNumber({bool isResend = false, required String phone}) async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    verificationFailed(FirebaseAuthException authException) {}
+
+    codeSent(String verificationId, int? forceToken) async {
+      showToast(
+          toastText: 'Please check your phone for the verification code.',
+          toastColor: ColorHelper.red);
+      verificationCode = verificationId;
+      resendforceToken = forceToken!;
+    }
+
+    codeAutoRetrievalTimeout(String verificationId) {
+      verificationCode = verificationId;
+    }
+
+    verificationCompleted(PhoneAuthCredential phoneAuthCredential) async {}
+
+    if (isResend) {
+      await auth
+          .verifyPhoneNumber(
+              phoneNumber: '+$phone',
+              timeout: const Duration(seconds: 10),
+              verificationCompleted: verificationCompleted,
+              verificationFailed: verificationFailed,
+              codeSent: codeSent,
+              forceResendingToken: resendforceToken,
+              codeAutoRetrievalTimeout: codeAutoRetrievalTimeout)
+          .then((value) {})
+          .catchError((onError) {
+        log('Error while sending otp $onError');
+      });
+    } else {
+      await auth
+          .verifyPhoneNumber(
+              phoneNumber: '+$phone',
+              timeout: const Duration(seconds: 10),
+              verificationCompleted: verificationCompleted,
+              verificationFailed: verificationFailed,
+              codeSent: codeSent,
+              codeAutoRetrievalTimeout: codeAutoRetrievalTimeout)
+          .then((value) {})
+          .catchError((onError) {
+        log('Error while sending otp $onError');
+      });
+    }
+  }
+
+  Future saveUserData(
+      {required UserInfo userInfo, required String loginType}) async {
     try {
       UserModel userModel = UserModel(
         uid: userInfo.uid,
         name: userInfo.displayName,
         email: userInfo.email,
         photo: userInfo.photoURL,
+        phone: userInfo.phoneNumber,
       );
       var response = await AuthRepository().saveUserData(userModel: userModel);
       if (response) {
+        await setLoginType(type: loginType);
         Get.offAll(() => HomeScreen());
       } else {
         showToast(
@@ -129,6 +211,11 @@ class AuthController extends GetxController {
           toastText: 'Something went wrong. Please try again later',
           toastColor: ColorHelper.red);
     }
+  }
+
+  Future setLoginType({required String type}) async {
+    await SharedPreferenceHelper()
+        .setString(key: SharedPreferenceKeys.loginType, value: type);
   }
 
   googleSignOut() async {

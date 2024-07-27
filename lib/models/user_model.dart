@@ -6,6 +6,7 @@ class UserModel {
   bool? isDriver;
   String? lat;
   String? long;
+  String? phone;
 
   UserModel({
     this.uid,
@@ -15,6 +16,7 @@ class UserModel {
     this.isDriver,
     this.lat,
     this.long,
+    this.phone,
   });
 
   Map<String, dynamic> toJson() {
@@ -26,6 +28,7 @@ class UserModel {
       'isDriver': isDriver,
       'lat': lat,
       'long': long,
+      'phone': phone,
     };
   }
 
@@ -38,6 +41,7 @@ class UserModel {
       isDriver: json['isDriver'],
       lat: json['lat'],
       long: json['long'],
+      phone: json['phone'],
     );
   }
 }
