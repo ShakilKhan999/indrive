@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/helpers/style_helper.dart';
-import 'package:indrive/screens/auth_screen/views/confirm_location.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:indrive/screens/auth_screen/views/user_name_screen.dart';
+import 'package:indrive/screens/driver/vehicle_type_screen.dart';
 
-class LocationPermissionScreen extends StatelessWidget {
-  const LocationPermissionScreen({super.key});
+class UserTypeSelectScreen extends StatelessWidget {
+  const UserTypeSelectScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -38,15 +39,9 @@ class LocationPermissionScreen extends StatelessWidget {
         Padding(
           padding: EdgeInsets.fromLTRB(20.sp, 0.sp, 20.sp, 30.sp),
           child: commonComponents.commonButton(
-            text: 'Enable location services',
-            onPressed: () async {
-              PermissionStatus status = await Permission.location.request();
-              if (status.isGranted) {
-                Get.snackbar('Permission', 'Notification permission granted');
-              } else {
-                Get.snackbar('Permission', 'Notification permission denied');
-              }
-              Get.offAll(() => const ConfirmLocationScreen(),
+            text: "Passenger",
+            onPressed: () {
+              Get.offAll(() => UserNameScreen(),
                   transition: Transition.rightToLeft);
             },
           ),
@@ -54,10 +49,10 @@ class LocationPermissionScreen extends StatelessWidget {
         Padding(
           padding: EdgeInsets.fromLTRB(20.sp, 0.sp, 20.sp, 30.sp),
           child: commonComponents.commonButton(
-            text: 'Skip',
-            disabled: true,
+            color: ColorHelper.lightGreyColor,
+            text: 'Driver',
             onPressed: () {
-              Get.offAll(() => const ConfirmLocationScreen(),
+              Get.offAll(() => const VehicleScreen(),
                   transition: Transition.rightToLeft);
             },
           ),
@@ -70,21 +65,20 @@ class LocationPermissionScreen extends StatelessWidget {
     return Column(
       children: [
         SpaceHelper.verticalSpace40,
-        Image.asset(
-          'assets/images/Location_logo.png',
-          height: 300.h,
-          width: 300.w,
-        ),
-        SpaceHelper.verticalSpace10,
         Text(
-          'Turn your location on',
+          'Are you a passenger or a driver',
           style: StyleHelper.heading,
         ),
         SpaceHelper.verticalSpace10,
         Text(
-          "You'll be able to find yourself on the map and drivers\n will be able to find you at the pickup point",
-          textAlign: TextAlign.center,
+          'You can change the mode later',
           style: StyleHelper.regular14,
+        ),
+        SpaceHelper.verticalSpace40,
+        Image.asset(
+          'assets/images/Categori_logo.png',
+          height: 200.h,
+          width: 300.w,
         ),
       ],
     );
