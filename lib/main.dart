@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:indrive/screens/auth_screen/views/register_screen.dart';
+import 'package:indrive/screens/home_screen/views/passenger_home.dart';
 import 'package:indrive/utils/app_config.dart';
 import 'package:indrive/utils/navigation_service.dart';
 import 'utils/firebase_option.dart';
@@ -44,7 +45,7 @@ class _MyAppState extends State<MyApp> {
           useMaterial3: true,
         ),
         // home: PassengerHomeScreen(),
-        home: RegisterScreen(),
+        home: PassengerHomeScreen(),
       ),
     );
   }
