@@ -12,8 +12,8 @@ import '../../../helpers/space_helper.dart';
 import '../../../helpers/style_helper.dart';
 
 class OTPVerificationPage extends StatelessWidget {
-  final String phone;
-  OTPVerificationPage(this.phone, {super.key});
+
+  OTPVerificationPage({super.key});
   final commonComponents = CommonComponents();
 
   final AuthController _authController = Get.find();
@@ -75,6 +75,9 @@ class OTPVerificationPage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
+                      onSubmitted: (value) async {
+                        await _authController.signInWithPhoneNumber(value);
+                      },
                     ),
                     SpaceHelper.verticalSpace10,
                     Text.rich(
@@ -94,15 +97,15 @@ class OTPVerificationPage extends StatelessWidget {
                   ],
                 )),
             SpaceHelper.verticalSpace40,
-            Padding(
-              padding: EdgeInsets.fromLTRB(20.sp, 0.sp, 20.sp, 30.sp),
-              child: commonComponents.commonButton(
-                text: 'Submit',
-                onPressed: () {
-                  Get.to(() => const LocationPermissionScreen());
-                },
-              ),
-            ),
+            // Padding(
+            //   padding: EdgeInsets.fromLTRB(20.sp, 0.sp, 20.sp, 30.sp),
+            //   child: commonComponents.commonButton(
+            //     text: 'Submit',
+            //     onPressed: () {
+                  
+            //     },
+            //   ),
+            // ),
           ],
         ),
       ),

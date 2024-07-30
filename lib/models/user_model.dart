@@ -7,6 +7,7 @@ class UserModel {
   String? lat;
   String? long;
   String? phone;
+  String? signInWith;
 
   UserModel({
     this.uid,
@@ -17,6 +18,7 @@ class UserModel {
     this.lat,
     this.long,
     this.phone,
+    this.signInWith,
   });
 
   Map<String, dynamic> toJson() {
@@ -29,6 +31,7 @@ class UserModel {
       'lat': lat,
       'long': long,
       'phone': phone,
+      'signInWith': signInWith,
     };
   }
 
@@ -42,6 +45,7 @@ class UserModel {
       lat: json['lat'],
       long: json['long'],
       phone: json['phone'],
+      signInWith: json['signInWith'],
     );
   }
 }

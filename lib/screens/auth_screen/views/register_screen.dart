@@ -13,7 +13,6 @@ import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
 import 'package:indrive/screens/auth_screen/views/otp_verification.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 
-
 class RegisterScreen extends StatelessWidget {
   RegisterScreen({super.key});
   final AuthController _authController = Get.put(AuthController());
@@ -117,9 +116,8 @@ class RegisterScreen extends StatelessWidget {
               ),
               onPressed: () {
                 _authController.startOtpCountdown();
-                Get.to(() => OTPVerificationPage(
-                    _authController.countryCode.value +
-                        _authController.phoneNumbercontroller.text));
+                _authController.verifyPhoneNumber();
+                Get.to(() => OTPVerificationPage());
               },
             ),
           ),
