@@ -9,12 +9,14 @@ import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/shared_preference_helper.dart';
+
 import 'package:indrive/models/user_model.dart';
 import 'package:indrive/screens/auth_screen/repository/auth_repository.dart';
 import 'package:indrive/screens/auth_screen/views/register_screen.dart';
 import 'package:indrive/utils/firebase_option.dart';
 import 'package:indrive/utils/global_toast_service.dart';
 import 'package:indrive/utils/shared_preference_keys.dart';
+import 'package:intl/intl.dart';
 
 import '../../home_screen/views/passenger_home.dart';
 import '../views/location_permission_screeen.dart';
@@ -28,9 +30,13 @@ class AuthController extends GetxController {
 
   var emailController = TextEditingController().obs;
   var nameController = TextEditingController().obs;
+  var firstNameController = TextEditingController().obs;
+  var lastNameController = TextEditingController().obs;
+  var driverLicenseController = TextEditingController().obs;
   var passController = TextEditingController().obs;
   var confirmPassController = TextEditingController().obs;
   var searchController = TextEditingController().obs;
+  var carModelNumberController = TextEditingController().obs;
   var obscureText = true.obs;
   var confirmObscureText = true.obs;
   var isRemember = true.obs;
@@ -45,6 +51,42 @@ class AuthController extends GetxController {
   var locations =
       ['Dhaka (ঢাকা)', 'Gazipur City', 'Chittagong', 'Sylhet', 'Khulna'].obs;
   var selectedLocation = 'Dhaka (ঢাকা)'.obs;
+  var selectedDate = ''.obs;
+  final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
+
+  void setSelectedDate(DateTime date) {
+    selectedDate.value = dateFormat.format(date);
+  }
+
+  Future<void> selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null) {
+      setSelectedDate(picked);
+    }
+  }
+
+  final List<String> carBrands = [
+    'Toyota',
+    'Honda',
+    'Ford',
+    'Chevrolet',
+    'Nissan',
+    'BMW',
+    'Mercedes-Benz',
+    'Volkswagen',
+    'Audi',
+    'Hyundai',
+  ].obs;
+  var selectedCarBrand = ''.obs;
+  final List<String> seatNumbers = ["2", "4", "5", "7", "8"].obs;
+  final List<String> carColors = ["Red", "Blue", "Black", "White", "Grey"].obs;
+  var selectedSeatNumber = ''.obs;
+  var selectedCarColor = ''.obs;
 
   checkCurrentUser() async {
     User? user = FirebaseAuth.instance.currentUser;
