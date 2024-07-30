@@ -52,7 +52,7 @@ class UserTypeSelectScreen extends StatelessWidget {
             color: ColorHelper.lightGreyColor,
             text: 'Driver',
             onPressed: () {
-              Get.offAll(() => const VehicleScreen(),
+              Get.offAll(() => VehicleScreen(),
                   transition: Transition.rightToLeft);
             },
           ),

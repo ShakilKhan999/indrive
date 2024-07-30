@@ -29,6 +29,7 @@ class DefaultFirebaseOptions {
     appId: '1:59849463899:android:90c90348615fabdc3e077e',
     messagingSenderId: '59849463899',
     projectId: 'callandgo',
+    storageBucket: "gs://callandgo.appspot.com",
   );
   static const FirebaseOptions ios = FirebaseOptions(
       apiKey: 'AIzaSyCnAWLYFi05RksnO7OEyWsBHkbMuGfDjrQ',

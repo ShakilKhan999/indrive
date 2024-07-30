@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/components/custom_appbar.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
+import 'package:indrive/screens/auth_screen/controller/vehicle_info_controller.dart';
 
 class BasicInfoScreen extends StatelessWidget {
   BasicInfoScreen({super.key});
-  final AuthController _authController = Get.put(AuthController());
+  // final AuthController _authController = Get.put(AuthController());
+  final VehicleInfoController _vehicleInfoController = Get.find();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,7 +47,7 @@ class BasicInfoScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CommonComponents().commonTextPicker(
           labelText: 'First name',
-          textController: _authController.firstNameController.value),
+          textController: _vehicleInfoController.firstNameController.value),
     );
   }
 
@@ -53,7 +56,7 @@ class BasicInfoScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CommonComponents().commonTextPicker(
           labelText: 'Last name',
-          textController: _authController.lastNameController.value),
+          textController: _vehicleInfoController.lastNameController.value),
     );
   }
 
@@ -62,7 +65,7 @@ class BasicInfoScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CommonComponents().commonTextPicker(
           labelText: 'Email',
-          textController: _authController.emailController.value),
+          textController: _vehicleInfoController.emailController.value),
     );
   }
 
@@ -71,7 +74,9 @@ class BasicInfoScreen extends StatelessWidget {
       title: 'Photo',
       imgPath: 'assets/images/addPhotoLogo.png',
       buttonText: 'Add a photo',
-      onButtonPressed: () {},
+      onButtonPressed: () async {
+        _vehicleInfoController.uploadProfilePhoto();
+      },
       instructions: [
         'Clearly face visible',
         'Without sunglasses',
@@ -118,7 +123,7 @@ class BasicInfoScreen extends StatelessWidget {
 
   Widget _buildDatePickerView(BuildContext context) {
     return GestureDetector(
-      onTap: () => _authController.selectDate(context),
+      onTap: () => _vehicleInfoController.selectDate(context),
       child: Obx(
         () => Container(
           width: MediaQuery.of(context).size.width,
@@ -129,9 +134,9 @@ class BasicInfoScreen extends StatelessWidget {
             border: Border.all(color: Colors.black),
           ),
           child: Text(
-            _authController.selectedDate.value.isEmpty
+            _vehicleInfoController.selectedDate.value.isEmpty
                 ? 'Select Date'
-                : _authController.selectedDate.value,
+                : _vehicleInfoController.selectedDate.value,
             style: const TextStyle(fontSize: 16.0),
           ),
         ),

@@ -30,8 +30,6 @@ class AuthController extends GetxController {
 
   var emailController = TextEditingController().obs;
   var nameController = TextEditingController().obs;
-  var firstNameController = TextEditingController().obs;
-  var lastNameController = TextEditingController().obs;
   var driverLicenseController = TextEditingController().obs;
   var passController = TextEditingController().obs;
   var confirmPassController = TextEditingController().obs;
@@ -51,24 +49,6 @@ class AuthController extends GetxController {
   var locations =
       ['Dhaka (ঢাকা)', 'Gazipur City', 'Chittagong', 'Sylhet', 'Khulna'].obs;
   var selectedLocation = 'Dhaka (ঢাকা)'.obs;
-  var selectedDate = ''.obs;
-  final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
-
-  void setSelectedDate(DateTime date) {
-    selectedDate.value = dateFormat.format(date);
-  }
-
-  Future<void> selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null) {
-      setSelectedDate(picked);
-    }
-  }
 
   final List<String> carBrands = [
     'Toyota',
