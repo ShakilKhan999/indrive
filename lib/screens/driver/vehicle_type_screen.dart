@@ -1,14 +1,16 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
+import 'package:indrive/screens/auth_screen/controller/vehicle_info_controller.dart';
 import 'package:indrive/screens/driver/fill_info.dart';
 
 class VehicleScreen extends StatelessWidget {
-  const VehicleScreen({super.key});
+  VehicleScreen({super.key});
+  final VehicleInfoController _vehicleInfoController =
+      Get.put(VehicleInfoController());
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +23,9 @@ class VehicleScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SpaceHelper.verticalSpace35,
-             _buildTopCardView(),
+              _buildTopCardView(),
               SpaceHelper.verticalSpace35,
-             _buildSelectionView(context)
-      
+              _buildSelectionView(context)
             ],
           ),
         ),
@@ -32,8 +33,8 @@ class VehicleScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTopCardView(){
-    return  Container(
+  Widget _buildTopCardView() {
+    return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: ColorHelper.primaryColor,
@@ -45,28 +46,39 @@ class VehicleScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CommonComponents().printText(fontSize: 18, textData: 'Get income with us', fontWeight: FontWeight.bold),
+                CommonComponents().printText(
+                    fontSize: 18,
+                    textData: 'Get income with us',
+                    fontWeight: FontWeight.bold),
                 SpaceHelper.horizontalSpace5,
                 Row(
                   children: [
                     const Icon(Icons.check_circle, color: Colors.white),
                     SpaceHelper.horizontalSpace5,
-                    CommonComponents().printText(fontSize: 15, textData: 'Flexible hours', fontWeight: FontWeight.normal),
+                    CommonComponents().printText(
+                        fontSize: 15,
+                        textData: 'Flexible hours',
+                        fontWeight: FontWeight.normal),
                   ],
                 ),
                 Row(
                   children: [
                     const Icon(Icons.check_circle, color: Colors.white),
                     SpaceHelper.horizontalSpace5,
-                    CommonComponents().printText(fontSize: 15, textData: 'Your prices', fontWeight: FontWeight.normal),
+                    CommonComponents().printText(
+                        fontSize: 15,
+                        textData: 'Your prices',
+                        fontWeight: FontWeight.normal),
                   ],
                 ),
                 Row(
                   children: [
                     const Icon(Icons.check_circle, color: Colors.white),
                     SpaceHelper.horizontalSpace5,
-                    CommonComponents().printText(fontSize: 15, textData: 'Low service payments',fontWeight: FontWeight.normal),
-
+                    CommonComponents().printText(
+                        fontSize: 15,
+                        textData: 'Low service payments',
+                        fontWeight: FontWeight.normal),
                   ],
                 ),
               ],
@@ -81,27 +93,34 @@ class VehicleScreen extends StatelessWidget {
       ),
     );
   }
-  Widget _buildSelectionView(BuildContext context){
-    return  Column(
+
+  Widget _buildSelectionView(BuildContext context) {
+    return Column(
       children: [
         Container(
           height: 60.h,
-          width: MediaQuery.of(context).size.width-30.w,
-          decoration:  BoxDecoration(
-              color:  Colors.black,
-              borderRadius: BorderRadius.circular(12)
-          ),
+          width: MediaQuery.of(context).size.width - 30.w,
+          decoration: BoxDecoration(
+              color: Colors.black, borderRadius: BorderRadius.circular(12)),
           child: Center(
             child: InkWell(
-              onTap: (){
-                Get.to(const DriverInfoPage());
+              onTap: () {
+                _vehicleInfoController.vehicleType.value = 'car';
+                Get.to(const DriverInfoPage(),
+                    transition: Transition.rightToLeft);
               },
               child: ListTile(
                 leading: SizedBox(
-                    height: 30.h,width: 40.h,
+                    height: 30.h,
+                    width: 40.h,
                     child: Image.asset("assets/images/car.png")),
-                title:  CommonComponents().printText(fontSize: 18, textData: "Car", fontWeight: FontWeight.bold),
-                trailing: Icon(Icons.arrow_forward_ios,color: Colors.white,size: 18.sp,),
+                title: CommonComponents().printText(
+                    fontSize: 18, textData: "Car", fontWeight: FontWeight.bold),
+                trailing: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: 18.sp,
+                ),
               ),
             ),
           ),
@@ -109,36 +128,46 @@ class VehicleScreen extends StatelessWidget {
         SpaceHelper.verticalSpace5,
         Container(
           height: 60.h,
-          width: MediaQuery.of(context).size.width-30.w,
-          decoration:  BoxDecoration(
-              color:  Colors.black,
-              borderRadius: BorderRadius.circular(12)
-          ),
+          width: MediaQuery.of(context).size.width - 30.w,
+          decoration: BoxDecoration(
+              color: Colors.black, borderRadius: BorderRadius.circular(12)),
           child: Center(
             child: ListTile(
               leading: SizedBox(
-                  height: 30.h,width: 40.h,
+                  height: 30.h,
+                  width: 40.h,
                   child: Image.asset("assets/images/rickshaw.png")),
-              title:  CommonComponents().printText(fontSize: 18, textData: "Rickshaw", fontWeight: FontWeight.bold),
-              trailing: Icon(Icons.arrow_forward_ios,color: Colors.white,size: 18.sp,),
+              title: CommonComponents().printText(
+                  fontSize: 18,
+                  textData: "Rickshaw",
+                  fontWeight: FontWeight.bold),
+              trailing: Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.white,
+                size: 18.sp,
+              ),
             ),
           ),
         ),
         SpaceHelper.verticalSpace5,
         Container(
           height: 60.h,
-          width: MediaQuery.of(context).size.width-30.w,
-          decoration:  BoxDecoration(
-              color:  Colors.black,
-              borderRadius: BorderRadius.circular(12)
-          ),
+          width: MediaQuery.of(context).size.width - 30.w,
+          decoration: BoxDecoration(
+              color: Colors.black, borderRadius: BorderRadius.circular(12)),
           child: Center(
             child: ListTile(
               leading: SizedBox(
-                  height: 30.h,width: 40.h,
+                  height: 30.h,
+                  width: 40.h,
                   child: Image.asset("assets/images/bike.png")),
-              title:  CommonComponents().printText(fontSize: 18, textData: "Moto", fontWeight: FontWeight.bold),
-              trailing: Icon(Icons.arrow_forward_ios,color: Colors.white,size: 18.sp,),
+              title: CommonComponents().printText(
+                  fontSize: 18, textData: "Moto", fontWeight: FontWeight.bold),
+              trailing: Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.white,
+                size: 18.sp,
+              ),
             ),
           ),
         ),
