@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -16,6 +17,7 @@ import 'package:indrive/utils/global_toast_service.dart';
 import 'package:indrive/utils/shared_preference_keys.dart';
 
 import '../../home_screen/views/passenger_home.dart';
+import '../views/location_permission_screeen.dart';
 
 class AuthController extends GetxController {
   @override
@@ -135,6 +137,7 @@ class AuthController extends GetxController {
           await auth.signInWithCredential(credential);
       user = userCredential.user?.providerData[0];
       assert(user?.uid == user!.uid);
+      Get.to(() => const LocationPermissionScreen());
     } catch (e) {
       showToast(
           toastText: 'Something went wrong. Please try again later',
@@ -144,7 +147,7 @@ class AuthController extends GetxController {
     return user;
   }
 
-  void verifyPhoneNumber({bool isResend = false, required String phone}) async {
+  void verifyPhoneNumber({bool isResend = false}) async {
     FirebaseAuth auth = FirebaseAuth.instance;
     verificationFailed(FirebaseAuthException authException) {}
 
@@ -165,7 +168,8 @@ class AuthController extends GetxController {
     if (isResend) {
       await auth
           .verifyPhoneNumber(
-              phoneNumber: '+$phone',
+              phoneNumber:
+                  '+${countryCode.value}${phoneNumbercontroller.value.text}',
               timeout: const Duration(seconds: 10),
               verificationCompleted: verificationCompleted,
               verificationFailed: verificationFailed,
@@ -179,7 +183,8 @@ class AuthController extends GetxController {
     } else {
       await auth
           .verifyPhoneNumber(
-              phoneNumber: '+$phone',
+              phoneNumber:
+                  '+${countryCode.value}${phoneNumbercontroller.value.text}',
               timeout: const Duration(seconds: 10),
               verificationCompleted: verificationCompleted,
               verificationFailed: verificationFailed,
@@ -195,13 +200,24 @@ class AuthController extends GetxController {
   Future saveUserData(
       {required UserInfo userInfo, required String loginType}) async {
     try {
-      UserModel userModel = UserModel(
-        uid: userInfo.uid,
-        name: userInfo.displayName,
-        email: userInfo.email,
-        photo: userInfo.photoURL,
-        phone: userInfo.phoneNumber,
-      );
+      UserModel? userModel;
+      if (loginType == 'phone') {
+        userModel = UserModel(
+          uid: FirebaseAuth.instance.currentUser!.uid,
+          name: nameController.value.text,
+          phone: '+${countryCode.value}${phoneNumbercontroller.value.text}',
+          signInWith: 'phone',
+        );
+      } else {
+        userModel = UserModel(
+          uid: userInfo.uid,
+          name: userInfo.displayName,
+          email: userInfo.email,
+          photo: userInfo.photoURL,
+          phone: userInfo.phoneNumber,
+          signInWith: 'google',
+        );
+      }
       var response = await AuthRepository().saveUserData(userModel: userModel);
       if (response) {
         await setLoginType(type: loginType);
