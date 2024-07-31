@@ -1,21 +1,134 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_place/google_place.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
 import 'package:indrive/screens/home_screen/home_controller.dart';
+import 'package:indrive/screens/home_screen/views/select_destination.dart';
+import 'package:indrive/utils/app_config.dart';
 
-class PassengerHomeScreen extends StatelessWidget {
-   PassengerHomeScreen({super.key});
+class PassengerHomeScreen extends StatefulWidget {
+   const PassengerHomeScreen({super.key});
+
+  @override
+  State<PassengerHomeScreen> createState() => _PassengerHomeScreenState();
+}
+
+class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
+   List suggestions=[];
 
   final HomeController homeController= Get.put(HomeController());
 
-  final AuthController _authController = Get.find();
+  final AuthController _authController = Get.put(AuthController());
 
-  @override
+   Map<PolylineId, Polyline> polyLines = {};
+   List<LatLng> polylineCoordinates = [];
+
+   getPolyline() async {
+     PolylinePoints polylinePoints = PolylinePoints();
+     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+       AppConfig.mapApiKey,
+       PointLatLng(homeController.startPickedCenter.value.latitude, homeController.startPickedCenter.value.longitude),
+       PointLatLng(homeController.destinationPickedCenter.value.latitude, homeController.destinationPickedCenter.value.longitude),
+       travelMode: TravelMode.driving,
+     );
+     log("polyLineResponse: ${result.points.length}");
+     if (result.points.isNotEmpty) {
+       for (var point in result.points) {
+         polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+       }
+     } else {
+       log("${result.errorMessage}");
+     }
+
+     addPolyLine(polylineCoordinates);
+     setState(() {});
+   }
+
+   addPolyLine(List<LatLng> polylineCoordinates) {
+     PolylineId id = const PolylineId("poly");
+     Polyline polyline = Polyline(
+       polylineId: id,
+       color: Colors.deepPurpleAccent,
+       points: polylineCoordinates,
+       width: 8,
+     );
+     polyLines[id] = polyline;
+     moveCameraToPolyline();
+     setState(() {});
+   }
+
+   void moveCameraToPolyline() {
+     if (polylineCoordinates.isEmpty) return;
+
+     double minLat = polylineCoordinates[0].latitude;
+     double maxLat = polylineCoordinates[0].latitude;
+     double minLng = polylineCoordinates[0].longitude;
+     double maxLng = polylineCoordinates[0].longitude;
+
+     for (var point in polylineCoordinates) {
+       if (point.latitude < minLat) minLat = point.latitude;
+       if (point.latitude > maxLat) maxLat = point.latitude;
+       if (point.longitude < minLng) minLng = point.longitude;
+       if (point.longitude > maxLng) maxLng = point.longitude;
+     }
+
+     LatLngBounds bounds = LatLngBounds(
+       southwest: LatLng(minLat, minLng),
+       northeast: LatLng(maxLat, maxLng),
+     );
+
+     homeController.mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 60));
+   }
+
+
+   void onSearchTextChanged(String query) async {
+     if (query.isNotEmpty) {
+       suggestions.clear();
+       var response = await homeController.googlePlace.autocomplete.get(query);
+       if(response!=null)
+         {
+           AutocompletePrediction autocompletePrediction = response.predictions![0];
+           log("placeDescription : ${autocompletePrediction.description}");
+           var placeDetails = await homeController.googlePlace.details
+               .get(autocompletePrediction.placeId.toString());
+           log("LatLong: ${placeDetails!.result!.geometry!.location!.lat}");
+           for (int i = 0; i < response.predictions!.length; i++) {
+             setState(() {
+               suggestions.add({
+                 'placeId': response.predictions![i].placeId.toString(),
+                 'description': response.predictions![i].description.toString(),
+               });
+             });
+           }
+         }
+       else{
+         log("Response is null");
+       }
+     }
+   }
+
+   @override
+  void initState() {
+   if(homeController.destinationController.text!="")
+     {
+       getPolyline();
+     }
+   else if(homeController.myPlaceName.value=="Searching for you on the map..")
+     {
+       homeController.getUserLocation();
+     }
+    super.initState();
+  }
+
+   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -42,11 +155,18 @@ class PassengerHomeScreen extends StatelessWidget {
               height: MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width,
               child: GoogleMap(
-                onCameraMove: homeController.onCameraMove,
-                onCameraIdle: homeController.onCameraIdle,
+                polylines: {
+                  Polyline(
+                      polylineId: const PolylineId("route"),
+                      points: polylineCoordinates,
+                      color: Colors.blue,
+                      width: 7)
+                },
+                onCameraMove:polyLines.isNotEmpty?null: homeController.onCameraMove,
+                onCameraIdle:polyLines.isNotEmpty?null: homeController.onCameraIdle,
                 myLocationEnabled: true,
                 myLocationButtonEnabled: true,
-                mapType: MapType.terrain,
+                mapType: MapType.normal,
                 onMapCreated: homeController.onMapCreated,
                 initialCameraPosition: CameraPosition(
                   target: homeController.center.value,
@@ -54,12 +174,22 @@ class PassengerHomeScreen extends StatelessWidget {
                 ),
               ),
             )),
+            Positioned(
+             top: 150.h,
+              left: 120.w,
+              child: Obx(()=>homeController.userLocationPicking.value?SizedBox(
+                height: 100.h,
+                width: 100.h,
+                child: Image.asset("assets/images/searching-loading.gif", height: 100.h,
+                  width: 100.h, ),
+              ):const SizedBox()),
+            ),
             Align(
               alignment: Alignment.center,
                 child: Padding(
                   padding:  EdgeInsets.only(bottom: 32.sp),
-                  child: Obx(()=>homeController.cameraMoving.value? Icon(Icons.pin_drop,color: ColorHelper.bgColor,size: 45.sp,)
-                      :Icon(Icons.location_on_outlined,color: ColorHelper.bgColor,size: 45.sp)),
+                  child: Obx(()=> polyLines.isNotEmpty || homeController.userLocationPicking.value?const SizedBox(): homeController.cameraMoving.value? Icon(Icons.pin_drop,color: ColorHelper.blueColor,size: 45.sp,)
+                      :Icon(Icons.location_on_outlined,color: ColorHelper.blueColor,size: 45.sp)),
                 )
             ),
             Align(
@@ -73,16 +203,17 @@ class PassengerHomeScreen extends StatelessWidget {
                     color: ColorHelper.bgColor,
                     borderRadius: const BorderRadius.only(topLeft: Radius.circular(20),topRight: Radius.circular(20))
                 ),
-                child: _buildBottomView(),
+                child: _buildBottomView(context),
               )),
-            )
+            ),
+
           ],
         ),
       ),
     );
   }
 
-  Widget _buildBottomView(){
+  Widget _buildBottomView(BuildContext context){
      return Column(
        children: [
          _buildVehicleSelection(),
@@ -126,6 +257,10 @@ class PassengerHomeScreen extends StatelessWidget {
                  SpaceHelper.horizontalSpace10,
                  Expanded(
                    child: TextField(
+                     controller: homeController.destinationController,
+                     onTap: (){
+                       _buildDestinationBottomSheet(context);
+                     },
 
                      style: TextStyle(color: Colors.white,fontSize: 15.sp),
                      decoration:const InputDecoration(
@@ -273,5 +408,122 @@ class PassengerHomeScreen extends StatelessWidget {
          ],
        ),
      ));
+  }
+
+  void _buildDestinationBottomSheet(BuildContext context)
+  {
+     showModalBottomSheet<void>(
+      backgroundColor: Colors.transparent,
+       scrollControlDisabledMaxHeightRatio: 0.8,
+       context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: 600.h,
+         decoration: BoxDecoration(
+           color: ColorHelper.bgColor,
+           borderRadius: BorderRadius.only(topLeft: Radius.circular(14.sp),topRight: Radius.circular(14.sp))
+         ),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(18.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                 CommonComponents().printText(fontSize: 18, textData: "Enter Destination", fontWeight: FontWeight.bold),
+                  SpaceHelper.verticalSpace15,
+                  Container(
+                    height: 40.h,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[850], // Dark grey background
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      children: [
+                         Icon(Icons.circle_outlined, color: ColorHelper.blueColor), // Search icon
+                        SpaceHelper.horizontalSpace10,
+                        Expanded(
+                          child:  CommonComponents().printText(fontSize: 16, textData: homeController.myPlaceName.value, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SpaceHelper.verticalSpace10,
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[850], // Dark grey background
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.search, color: Colors.grey), // Search icon
+                        SpaceHelper.horizontalSpace10,
+                        Expanded(
+                          child: TextField(
+                            controller: homeController.destinationController,
+                            onChanged: (value) {
+                              onSearchTextChanged(value);
+                            },
+                            style: TextStyle(color: Colors.white,fontSize: 15.sp),
+                            decoration:const InputDecoration(
+                              hintText: 'To', // Placeholder text
+                              hintStyle: TextStyle(color: Colors.grey),
+                              border: InputBorder.none, // No border
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SpaceHelper.verticalSpace10,
+                  InkWell(
+                    onTap: (){
+                      homeController.pickingDestination.value=true;
+                      Get.to(SelectDestination());
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Icon(Icons.location_on_outlined,size: 28.sp,color: Colors.blueAccent,),
+                        SpaceHelper.horizontalSpace5,
+                        CommonComponents().printText(color: Colors.blueAccent,fontSize: 16, textData: "Choose on map", fontWeight: FontWeight.bold),
+                      ],
+                    ),
+                  ),
+                  SpaceHelper.verticalSpace15,
+                  SizedBox(
+                    height: 250.h,
+                    child: ListView.builder(
+                        itemCount: suggestions.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return InkWell(
+                            onTap: ()async{
+
+                              homeController.destinationController.text= suggestions[index]["description"];
+                              var placeDetails = await homeController.googlePlace.details
+                                  .get(suggestions[index]["placeId"]);
+                              log("LatLong: ${placeDetails!.result!.geometry!.location!.lat}");
+                              double? lat=placeDetails.result!.geometry!.location!.lat;
+                              double? lng=placeDetails.result!.geometry!.location!.lng;
+                               homeController.destinationPickedCenter.value =   LatLng(lat!,lng!);
+
+                               Get.offAll(const PassengerHomeScreen());
+                            },
+                            child: ListTile(
+                                leading: const Icon(Icons.location_on_outlined),
+                                trailing: CommonComponents().printText(fontSize: 12, textData: "", fontWeight: FontWeight.bold),
+                                title: CommonComponents().printText(fontSize: 18, textData: suggestions[index]["description"], fontWeight: FontWeight.bold)
+                            ),
+                          );
+                        }),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }
