@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/components/custom_appbar.dart';
 import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
-import 'package:indrive/screens/auth_screen/controller/vehicle_info_controller.dart';
+import 'package:indrive/main.dart';
+import 'package:indrive/screens/driver/driver_info/controller/driver_info_controller.dart';
 
 class BasicInfoScreen extends StatelessWidget {
   BasicInfoScreen({super.key});
   // final AuthController _authController = Get.put(AuthController());
-  final VehicleInfoController _vehicleInfoController = Get.find();
+  final DriverInfoController _driverInfoController = Get.find();
   @override
   Widget build(BuildContext context) {
+    fToast.init(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppbar(titleText: 'Basic info', onTap: () {}),
@@ -47,7 +47,7 @@ class BasicInfoScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CommonComponents().commonTextPicker(
           labelText: 'First name',
-          textController: _vehicleInfoController.firstNameController.value),
+          textController: _driverInfoController.firstNameController.value),
     );
   }
 
@@ -56,7 +56,7 @@ class BasicInfoScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CommonComponents().commonTextPicker(
           labelText: 'Last name',
-          textController: _vehicleInfoController.lastNameController.value),
+          textController: _driverInfoController.lastNameController.value),
     );
   }
 
@@ -65,7 +65,7 @@ class BasicInfoScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CommonComponents().commonTextPicker(
           labelText: 'Email',
-          textController: _vehicleInfoController.emailController.value),
+          textController: _driverInfoController.emailController.value),
     );
   }
 
@@ -75,7 +75,7 @@ class BasicInfoScreen extends StatelessWidget {
       imgPath: 'assets/images/addPhotoLogo.png',
       buttonText: 'Add a photo',
       onButtonPressed: () async {
-        _vehicleInfoController.uploadProfilePhoto();
+        _driverInfoController.uploadProfilePhoto();
       },
       instructions: [
         'Clearly face visible',
@@ -123,7 +123,7 @@ class BasicInfoScreen extends StatelessWidget {
 
   Widget _buildDatePickerView(BuildContext context) {
     return GestureDetector(
-      onTap: () => _vehicleInfoController.selectDate(context),
+      onTap: () => _driverInfoController.selectDate(context),
       child: Obx(
         () => Container(
           width: MediaQuery.of(context).size.width,
@@ -134,9 +134,9 @@ class BasicInfoScreen extends StatelessWidget {
             border: Border.all(color: Colors.black),
           ),
           child: Text(
-            _vehicleInfoController.selectedDate.value.isEmpty
+            _driverInfoController.selectedDate.value.isEmpty
                 ? 'Select Date'
-                : _vehicleInfoController.selectedDate.value,
+                : _driverInfoController.selectedDate.value,
             style: const TextStyle(fontSize: 16.0),
           ),
         ),
@@ -144,25 +144,13 @@ class BasicInfoScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTextView({required String txt}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text("• "),
-        CommonComponents().printText(
-            fontSize: 13,
-            textData: txt,
-            fontWeight: FontWeight.bold,
-            color: Colors.black),
-      ],
-    );
-  }
-
   Widget _buildSubmitButton() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CommonComponents().commonButton(
-        onPressed: () {},
+        onPressed: () {
+          Get.back();
+        },
         text: 'Submit',
       ),
     );

@@ -7,7 +7,7 @@ import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/helpers/style_helper.dart';
 import 'package:indrive/screens/auth_screen/views/user_name_screen.dart';
-import 'package:indrive/screens/driver/vehicle_type_screen.dart';
+import 'package:indrive/screens/driver/driver_info/views/vehicle_type_screen.dart';
 
 class UserTypeSelectScreen extends StatelessWidget {
   const UserTypeSelectScreen({super.key});

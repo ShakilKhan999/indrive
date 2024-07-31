@@ -4,16 +4,19 @@ import 'package:get/get.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/screens/auth_screen/controller/vehicle_info_controller.dart';
-import 'package:indrive/screens/driver/fill_info.dart';
+import 'package:indrive/screens/driver/driver_info/controller/driver_info_controller.dart';
+import 'package:indrive/screens/driver/driver_info/views/fill_info.dart';
+
+import '../../../../main.dart';
 
 class VehicleScreen extends StatelessWidget {
   VehicleScreen({super.key});
-  final VehicleInfoController _vehicleInfoController =
-      Get.put(VehicleInfoController());
+  final DriverInfoController _driverInfoController =
+      Get.put(DriverInfoController());
 
   @override
   Widget build(BuildContext context) {
+    fToast.init(context);
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorHelper.lightGreyColor,
@@ -105,9 +108,8 @@ class VehicleScreen extends StatelessWidget {
           child: Center(
             child: InkWell(
               onTap: () {
-                _vehicleInfoController.vehicleType.value = 'car';
-                Get.to(const DriverInfoPage(),
-                    transition: Transition.rightToLeft);
+                _driverInfoController.vehicleType.value = 'car';
+                Get.to(DriverInfoPage(), transition: Transition.rightToLeft);
               },
               child: ListTile(
                 leading: SizedBox(

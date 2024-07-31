@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -16,8 +15,6 @@ import 'package:indrive/screens/auth_screen/views/register_screen.dart';
 import 'package:indrive/utils/firebase_option.dart';
 import 'package:indrive/utils/global_toast_service.dart';
 import 'package:indrive/utils/shared_preference_keys.dart';
-import 'package:intl/intl.dart';
-
 import '../../home_screen/views/passenger_home.dart';
 import '../views/location_permission_screeen.dart';
 
@@ -30,11 +27,10 @@ class AuthController extends GetxController {
 
   var emailController = TextEditingController().obs;
   var nameController = TextEditingController().obs;
-  var driverLicenseController = TextEditingController().obs;
   var passController = TextEditingController().obs;
   var confirmPassController = TextEditingController().obs;
   var searchController = TextEditingController().obs;
-  var carModelNumberController = TextEditingController().obs;
+
   var obscureText = true.obs;
   var confirmObscureText = true.obs;
   var isRemember = true.obs;
@@ -49,24 +45,6 @@ class AuthController extends GetxController {
   var locations =
       ['Dhaka (ঢাকা)', 'Gazipur City', 'Chittagong', 'Sylhet', 'Khulna'].obs;
   var selectedLocation = 'Dhaka (ঢাকা)'.obs;
-
-  final List<String> carBrands = [
-    'Toyota',
-    'Honda',
-    'Ford',
-    'Chevrolet',
-    'Nissan',
-    'BMW',
-    'Mercedes-Benz',
-    'Volkswagen',
-    'Audi',
-    'Hyundai',
-  ].obs;
-  var selectedCarBrand = ''.obs;
-  final List<String> seatNumbers = ["2", "4", "5", "7", "8"].obs;
-  final List<String> carColors = ["Red", "Blue", "Black", "White", "Grey"].obs;
-  var selectedSeatNumber = ''.obs;
-  var selectedCarColor = ''.obs;
 
   checkCurrentUser() async {
     User? user = FirebaseAuth.instance.currentUser;
@@ -153,8 +131,6 @@ class AuthController extends GetxController {
         verificationId: verificationCode,
         smsCode: otp,
       );
-      // final User? user = (await auth.signInWithCredential(credential)).user;
-      // final User? currentUser = auth.currentUser;
       final UserCredential userCredential =
           await auth.signInWithCredential(credential);
       user = userCredential.user?.providerData[0];
@@ -264,6 +240,11 @@ class AuthController extends GetxController {
   googleSignOut() async {
     GoogleSignIn googleSignIn = GoogleSignIn();
     await googleSignIn.signOut();
+    await FirebaseAuth.instance.signOut();
+    Get.offAll(() => RegisterScreen());
+  }
+
+  signOut() async {
     await FirebaseAuth.instance.signOut();
     Get.offAll(() => RegisterScreen());
   }

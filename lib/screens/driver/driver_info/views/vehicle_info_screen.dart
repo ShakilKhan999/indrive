@@ -3,18 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:indrive/components/common_components.dart';
-
 import 'package:indrive/components/custom_appbar.dart';
 import 'package:indrive/helpers/space_helper.dart';
+import 'package:indrive/screens/driver/driver_info/controller/driver_info_controller.dart';
 
-import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
+import '../../../../main.dart';
 
 class VehicleInfoScreen extends StatelessWidget {
   VehicleInfoScreen({super.key});
-  final AuthController _authController = Get.put(AuthController());
+  final DriverInfoController _driverInfoController =
+      Get.put(DriverInfoController());
 
   @override
   Widget build(BuildContext context) {
+        fToast.init(context);
     return Scaffold(
       appBar: CustomAppbar(titleText: 'Vehicle info', onTap: () {}),
       backgroundColor: Colors.white,
@@ -42,7 +44,9 @@ class VehicleInfoScreen extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CommonComponents().commonButton(
-        onPressed: () {},
+        onPressed: () {
+          Get.back();
+        },
         text: 'Submit',
       ),
     );
@@ -52,10 +56,10 @@ class VehicleInfoScreen extends StatelessWidget {
     return _buildDropdownSearch(
       textData: "Car Brand ",
       hintText: 'Select brand',
-      items: _authController.carBrands,
+      items: _driverInfoController.carBrands,
       searchHintText: 'Select brand...',
       onChanged: (value) {
-        _authController.selectedCarBrand.value = value ?? '';
+        _driverInfoController.selectedCarBrand.value = value ?? '';
       },
     );
   }
@@ -123,7 +127,8 @@ class VehicleInfoScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CommonComponents().commonTextPicker(
           labelText: 'Model Number',
-          textController: _authController.carModelNumberController.value),
+          textController:
+              _driverInfoController.carModelNumberController.value),
     );
   }
 
@@ -134,10 +139,10 @@ class VehicleInfoScreen extends StatelessWidget {
           child: _buildDropdownSearch(
             textData: "Numbers of seat",
             hintText: 'Select seat number',
-            items: _authController.seatNumbers,
+            items: _driverInfoController.seatNumbers,
             searchHintText: 'Search seat numbers...',
             onChanged: (value) {
-              _authController.selectedSeatNumber.value = value ?? '';
+              _driverInfoController.selectedSeatNumber.value = value ?? '';
             },
           ),
         ),
@@ -145,10 +150,10 @@ class VehicleInfoScreen extends StatelessWidget {
           child: _buildDropdownSearch(
             textData: "Colors of the car",
             hintText: 'Select car color',
-            items: _authController.carColors,
+            items: _driverInfoController.carColors,
             searchHintText: 'Search car colors...',
             onChanged: (value) {
-              _authController.selectedCarColor.value = value ?? '';
+              _driverInfoController.selectedCarColor.value = value ?? '';
             },
           ),
         ),

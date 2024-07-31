@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/components/custom_appbar.dart';
 import 'package:indrive/helpers/space_helper.dart';
+import 'package:indrive/screens/driver/driver_info/controller/driver_info_controller.dart';
+
+import '../../../../main.dart';
 
 class NidCardBirthCertificateScreen extends StatelessWidget {
-  const NidCardBirthCertificateScreen({super.key});
+  NidCardBirthCertificateScreen({super.key});
+
+  final DriverInfoController _driverInfoController =
+      Get.put(DriverInfoController());
 
   @override
   Widget build(BuildContext context) {
+        fToast.init(context);
     return Scaffold(
       appBar: CustomAppbar(
           titleText: 'National Identity OR Birth Certificate', onTap: () {}),
@@ -30,7 +38,9 @@ class NidCardBirthCertificateScreen extends StatelessWidget {
       title: 'National Identity Card OR Birth Certificate',
       imgPath: 'assets/images/card_front.png',
       buttonText: 'Add a photo',
-      onButtonPressed: () {},
+      onButtonPressed: () {
+        _driverInfoController.uploadNationalIdCardPhoto();
+      },
     );
   }
 
@@ -38,7 +48,9 @@ class NidCardBirthCertificateScreen extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CommonComponents().commonButton(
-        onPressed: () {},
+        onPressed: () {
+          Get.back();
+        },
         text: 'Submit',
       ),
     );
