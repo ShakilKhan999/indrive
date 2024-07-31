@@ -5,6 +5,7 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_place/google_place.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
@@ -60,8 +61,33 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
        width: 8,
      );
      polyLines[id] = polyline;
+     moveCameraToPolyline();
      setState(() {});
    }
+
+   void moveCameraToPolyline() {
+     if (polylineCoordinates.isEmpty) return;
+
+     double minLat = polylineCoordinates[0].latitude;
+     double maxLat = polylineCoordinates[0].latitude;
+     double minLng = polylineCoordinates[0].longitude;
+     double maxLng = polylineCoordinates[0].longitude;
+
+     for (var point in polylineCoordinates) {
+       if (point.latitude < minLat) minLat = point.latitude;
+       if (point.latitude > maxLat) maxLat = point.latitude;
+       if (point.longitude < minLng) minLng = point.longitude;
+       if (point.longitude > maxLng) maxLng = point.longitude;
+     }
+
+     LatLngBounds bounds = LatLngBounds(
+       southwest: LatLng(minLat, minLng),
+       northeast: LatLng(maxLat, maxLng),
+     );
+
+     homeController.mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 60));
+   }
+
 
    void onSearchTextChanged(String query) async {
      if (query.isNotEmpty) {
@@ -69,11 +95,11 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
        var response = await homeController.googlePlace.autocomplete.get(query);
        if(response!=null)
          {
-           // AutocompletePrediction autocompletePrediction = response!.predictions![0];
-           // log("placeDescription : ${autocompletePrediction.description}");
-           // var placeDetails = await homeController.googlePlace.details
-           //     .get(autocompletePrediction.placeId.toString());
-           // log("LatLong: ${placeDetails!.result!.geometry!.location!.lat}");
+           AutocompletePrediction autocompletePrediction = response.predictions![0];
+           log("placeDescription : ${autocompletePrediction.description}");
+           var placeDetails = await homeController.googlePlace.details
+               .get(autocompletePrediction.placeId.toString());
+           log("LatLong: ${placeDetails!.result!.geometry!.location!.lat}");
            for (int i = 0; i < response.predictions!.length; i++) {
              setState(() {
                suggestions.add({
@@ -94,6 +120,10 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
    if(homeController.destinationController.text!="")
      {
        getPolyline();
+     }
+   else if(homeController.myPlaceName.value=="Searching for you on the map..")
+     {
+       homeController.getUserLocation();
      }
     super.initState();
   }
@@ -129,14 +159,14 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                   Polyline(
                       polylineId: const PolylineId("route"),
                       points: polylineCoordinates,
-                      color:  Colors.blue,
+                      color: Colors.blue,
                       width: 7)
                 },
-                onCameraMove: homeController.onCameraMove,
-                onCameraIdle: homeController.onCameraIdle,
+                onCameraMove:polyLines.isNotEmpty?null: homeController.onCameraMove,
+                onCameraIdle:polyLines.isNotEmpty?null: homeController.onCameraIdle,
                 myLocationEnabled: true,
                 myLocationButtonEnabled: true,
-                mapType: MapType.terrain,
+                mapType: MapType.normal,
                 onMapCreated: homeController.onMapCreated,
                 initialCameraPosition: CameraPosition(
                   target: homeController.center.value,
@@ -144,12 +174,22 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                 ),
               ),
             )),
+            Positioned(
+             top: 150.h,
+              left: 120.w,
+              child: Obx(()=>homeController.userLocationPicking.value?SizedBox(
+                height: 100.h,
+                width: 100.h,
+                child: Image.asset("assets/images/searching-loading.gif", height: 100.h,
+                  width: 100.h, ),
+              ):const SizedBox()),
+            ),
             Align(
               alignment: Alignment.center,
                 child: Padding(
                   padding:  EdgeInsets.only(bottom: 32.sp),
-                  child: Obx(()=>homeController.cameraMoving.value? Icon(Icons.pin_drop,color: ColorHelper.bgColor,size: 45.sp,)
-                      :Icon(Icons.location_on_outlined,color: ColorHelper.bgColor,size: 45.sp)),
+                  child: Obx(()=> polyLines.isNotEmpty || homeController.userLocationPicking.value?const SizedBox(): homeController.cameraMoving.value? Icon(Icons.pin_drop,color: ColorHelper.blueColor,size: 45.sp,)
+                      :Icon(Icons.location_on_outlined,color: ColorHelper.blueColor,size: 45.sp)),
                 )
             ),
             Align(
@@ -165,7 +205,8 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                 ),
                 child: _buildBottomView(context),
               )),
-            )
+            ),
+
           ],
         ),
       ),
@@ -456,11 +497,24 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                     child: ListView.builder(
                         itemCount: suggestions.length,
                         itemBuilder: (BuildContext context, int index) {
-                          return ListTile(
-                              leading: const Icon(Icons.location_on_outlined),
+                          return InkWell(
+                            onTap: ()async{
 
-                              trailing: CommonComponents().printText(fontSize: 12, textData: "2 Km", fontWeight: FontWeight.bold),
-                              title: CommonComponents().printText(fontSize: 18, textData: suggestions[index]["description"], fontWeight: FontWeight.bold)
+                              homeController.destinationController.text= suggestions[index]["description"];
+                              var placeDetails = await homeController.googlePlace.details
+                                  .get(suggestions[index]["placeId"]);
+                              log("LatLong: ${placeDetails!.result!.geometry!.location!.lat}");
+                              double? lat=placeDetails.result!.geometry!.location!.lat;
+                              double? lng=placeDetails.result!.geometry!.location!.lng;
+                               homeController.destinationPickedCenter.value =   LatLng(lat!,lng!);
+
+                               Get.offAll(const PassengerHomeScreen());
+                            },
+                            child: ListTile(
+                                leading: const Icon(Icons.location_on_outlined),
+                                trailing: CommonComponents().printText(fontSize: 12, textData: "", fontWeight: FontWeight.bold),
+                                title: CommonComponents().printText(fontSize: 18, textData: suggestions[index]["description"], fontWeight: FontWeight.bold)
+                            ),
                           );
                         }),
                   ),

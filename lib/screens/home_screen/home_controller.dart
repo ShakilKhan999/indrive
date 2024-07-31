@@ -25,7 +25,6 @@ class HomeController extends GetxController{
   var startPickedCenter =  const LatLng(23.80, 90.41).obs;
   @override
   void onInit() {
-  _getUserLocation();
     super.onInit();
   }
   final TextEditingController destinationController= TextEditingController();
@@ -55,6 +54,7 @@ class HomeController extends GetxController{
     cameraMoving.value=false;
   }
   Future<Position> getCurrentLocation() async {
+    log("getCurrentLocation called");
     bool serviceEnabled;
     LocationPermission permission;
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -77,17 +77,21 @@ class HomeController extends GetxController{
     // When permissions are granted, get the current position.
     return await Geolocator.getCurrentPosition();
   }
-
-  void _getUserLocation() async {
+var userLocationPicking=false.obs;
+  void getUserLocation() async {
+    userLocationPicking.value=true;
+    log("getUserLocation called");
     try {
       Position position = await getCurrentLocation();
       userLat.value=position.latitude;
       userLong.value=position.longitude;
+      log("user long ${userLong.value}");
       center.value=LatLng(userLat.value, userLong.value);
       mapController.animateCamera(CameraUpdate.newLatLng(center.value),);
       getPlaceNameFromCoordinates(userLat.value, userLong.value);
-      log("user long ${userLong.value}");
+      userLocationPicking.value=false;
     } catch (e) {
+      userLocationPicking.value=false;
       log('Failed to get location: $e');
     }
   }
@@ -104,7 +108,7 @@ class HomeController extends GetxController{
             destinationController.text=destinationPlaceName.value;
           }
         else{
-          myPlaceName.value = '${placemark.subLocality}, ${placemark.locality}, ${placemark.administrativeArea}';
+          myPlaceName.value = '${placemark.street}, ${placemark.subLocality}, ${placemark.locality}';
         }
 
         log("myPlaceName: ${myPlaceName.value}");
