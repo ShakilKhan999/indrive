@@ -43,9 +43,8 @@ class RegisterScreen extends StatelessWidget {
         SpaceHelper.verticalSpace20,
         CommonButton(
             onTap: () async {
-              UserInfo? userInfo = await _authController.signInWithGoogle();
-              await _authController.saveUserData(
-                  userInfo: userInfo!, loginType: 'google');
+              _authController.loginType.value = 'google';
+              await _authController.signInWithGoogle();
             },
             text: 'Continue with Google',
             color: const Color.fromARGB(255, 123, 122, 122),
@@ -115,6 +114,7 @@ class RegisterScreen extends StatelessWidget {
                 size: 25.sp,
               ),
               onPressed: () {
+                _authController.loginType.value = 'phone';
                 _authController.startOtpCountdown();
                 _authController.verifyPhoneNumber();
                 Get.to(() => OTPVerificationPage());

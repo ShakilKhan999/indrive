@@ -55,7 +55,7 @@ class UserNameScreen extends StatelessWidget {
             onPressed: () async {
               await _authController.saveUserData(
                   userInfo: FirebaseAuth.instance.currentUser!.providerData[0],
-                  loginType: 'phone');
+                  loginType: _authController.loginType.value);
             },
           ),
         ),

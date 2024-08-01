@@ -37,8 +37,9 @@ class DriverInfoPage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 14.0),
               child: CommonComponents().commonButton(
                   text: "Save All Data",
-                  onPressed: () {
-                    _driverInfoController.saveDriverInfo();
+                  onPressed: ()async {
+                     await _driverInfoController.saveDriverInfo();
+                     
                   },
                   disabled: false),
             )

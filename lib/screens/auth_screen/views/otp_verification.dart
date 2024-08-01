@@ -74,6 +74,7 @@ class OTPVerificationPage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
+                      
                       onSubmitted: (value) async {
                         await _authController.signInWithPhoneNumber(value);
                       },

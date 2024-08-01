@@ -24,4 +24,16 @@ class DriverInfoRepository {
       return false;
     }
   }
+
+  Future<void> updateUserFields(
+      String userId, Map<String, dynamic> fieldsToUpdate) async {
+    try {
+      CollectionReference users =
+          FirebaseFirestore.instance.collection(userCollection);
+      await users.doc(userId).update(fieldsToUpdate);
+      log('User fields updated successfully');
+    } catch (e) {
+      log('Error updating user fields: $e');
+    }
+  }
 }

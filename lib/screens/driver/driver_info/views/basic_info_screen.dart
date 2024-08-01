@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -10,11 +13,13 @@ import 'package:indrive/screens/driver/driver_info/controller/driver_info_contro
 
 class BasicInfoScreen extends StatelessWidget {
   BasicInfoScreen({super.key});
+
   // final AuthController _authController = Get.put(AuthController());
   final DriverInfoController _driverInfoController = Get.find();
   @override
   Widget build(BuildContext context) {
     fToast.init(context);
+    log(FirebaseAuth.instance.currentUser!.uid.toString());
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppbar(titleText: 'Basic info', onTap: () {}),

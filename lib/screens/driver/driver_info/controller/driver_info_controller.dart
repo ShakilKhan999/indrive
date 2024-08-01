@@ -42,7 +42,7 @@ class DriverInfoController extends GetxController {
   var selectedCarColor = ''.obs;
   var selectedCarBrand = ''.obs;
 
-  saveDriverInfo() async {
+  Future saveDriverInfo() async {
     try {
       var uuid = const Uuid();
       String id = uuid.v1();
@@ -86,6 +86,8 @@ class DriverInfoController extends GetxController {
           toastColor: ColorHelper.red);
     }
   }
+
+  
 
   final List<String> carBrands = [
     'Toyota',

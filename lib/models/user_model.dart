@@ -8,6 +8,8 @@ class UserModel {
   String? long;
   String? phone;
   String? signInWith;
+  String? vehicleType;
+  double? vehicleAngle;
 
   UserModel({
     this.uid,
@@ -19,6 +21,8 @@ class UserModel {
     this.long,
     this.phone,
     this.signInWith,
+    this.vehicleType,
+    this.vehicleAngle,
   });
 
   Map<String, dynamic> toJson() {
@@ -32,6 +36,8 @@ class UserModel {
       'long': long,
       'phone': phone,
       'signInWith': signInWith,
+      'vehicleType': vehicleType,
+      'vehicleAngle': vehicleAngle,
     };
   }
 
@@ -46,6 +52,8 @@ class UserModel {
       long: json['long'],
       phone: json['phone'],
       signInWith: json['signInWith'],
+      vehicleType: json['vehicleType'],
+      vehicleAngle: json['vehicleAngle'],
     );
   }
 }

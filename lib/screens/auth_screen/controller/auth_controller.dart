@@ -12,11 +12,15 @@ import 'package:indrive/helpers/shared_preference_helper.dart';
 import 'package:indrive/models/user_model.dart';
 import 'package:indrive/screens/auth_screen/repository/auth_repository.dart';
 import 'package:indrive/screens/auth_screen/views/register_screen.dart';
+import 'package:indrive/screens/auth_screen/views/user_type_select_screen.dart';
+import 'package:indrive/screens/driver/driver_home/views/driver_home_screen.dart';
+import 'package:indrive/screens/driver/driver_info/views/vehicle_type_screen.dart';
 import 'package:indrive/utils/firebase_option.dart';
 import 'package:indrive/utils/global_toast_service.dart';
 import 'package:indrive/utils/shared_preference_keys.dart';
 import '../../home_screen/views/passenger_home.dart';
 import '../views/location_permission_screeen.dart';
+import '../views/user_name_screen.dart';
 
 class AuthController extends GetxController {
   @override
@@ -45,14 +49,22 @@ class AuthController extends GetxController {
   var locations =
       ['Dhaka (ঢাকা)', 'Gazipur City', 'Chittagong', 'Sylhet', 'Khulna'].obs;
   var selectedLocation = 'Dhaka (ঢাকা)'.obs;
+  var isDriver = false.obs;
+  var loginType = ''.obs;
 
   checkCurrentUser() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       Timer(
         const Duration(milliseconds: 500),
-        () {
-          Get.offAll(() => PassengerHomeScreen());
+        () async {
+          bool? isDriver = await SharedPreferenceHelper()
+              .getBool(key: SharedPreferenceKeys.isDriver);
+          if (isDriver!) {
+            Get.offAll(() => DriverHomeScreen());
+          } else {
+            Get.offAll(() => const PassengerHomeScreen());
+          }
         },
       );
     }
@@ -104,6 +116,16 @@ class AuthController extends GetxController {
         final UserCredential userCredential =
             await auth.signInWithCredential(credential);
         user = userCredential.user?.providerData[0];
+        UserModel? userModel = await checkUserExistsOrNot();
+        if (userModel != null) {
+          if (userModel.isDriver!) {
+            Get.offAll(() => DriverHomeScreen());
+          } else {
+            Get.offAll(() => const PassengerHomeScreen());
+          }
+        } else {
+          Get.to(() => const LocationPermissionScreen());
+        }
       } on FirebaseAuthException catch (e) {
         if (e.code == 'account-exists-with-different-credential') {
           showToast(
@@ -135,7 +157,16 @@ class AuthController extends GetxController {
           await auth.signInWithCredential(credential);
       user = userCredential.user?.providerData[0];
       assert(user?.uid == user!.uid);
-      Get.to(() => const LocationPermissionScreen());
+      UserModel? userModel = await checkUserExistsOrNot();
+      if (userModel != null) {
+        if (userModel.isDriver!) {
+          Get.offAll(() => DriverHomeScreen());
+        } else {
+          Get.offAll(() => const PassengerHomeScreen());
+        }
+      } else {
+        Get.to(() => const LocationPermissionScreen());
+      }
     } catch (e) {
       showToast(
           toastText: 'Something went wrong. Please try again later',
@@ -205,21 +236,24 @@ class AuthController extends GetxController {
           name: nameController.value.text,
           phone: '+${countryCode.value}${phoneNumbercontroller.value.text}',
           signInWith: 'phone',
+          isDriver: isDriver.value,
         );
       } else {
         userModel = UserModel(
-          uid: userInfo.uid,
+          uid: FirebaseAuth.instance.currentUser!.uid,
           name: userInfo.displayName,
           email: userInfo.email,
           photo: userInfo.photoURL,
           phone: userInfo.phoneNumber,
           signInWith: 'google',
+          isDriver: isDriver.value,
         );
       }
       var response = await AuthRepository().saveUserData(userModel: userModel);
       if (response) {
         await setLoginType(type: loginType);
-        Get.offAll(() => PassengerHomeScreen());
+
+        Get.offAll(() => UserTypeSelectScreen());
       } else {
         showToast(
             toastText: 'Something went wrong. Please try again later',
@@ -230,6 +264,24 @@ class AuthController extends GetxController {
           toastText: 'Something went wrong. Please try again later',
           toastColor: ColorHelper.red);
     }
+  }
+
+  onPressPassenger() async {
+    isDriver.value = false;
+    await setUserType(type: false);
+    Get.offAll(() => const PassengerHomeScreen(),
+        transition: Transition.rightToLeft);
+  }
+
+  onPressDriver() async {
+    isDriver.value = true;
+    await setUserType(type: true);
+    Get.offAll(() => VehicleScreen(), transition: Transition.rightToLeft);
+  }
+
+  Future setUserType({required bool type}) async {
+    await SharedPreferenceHelper()
+        .setBool(key: SharedPreferenceKeys.isDriver, value: type);
   }
 
   Future setLoginType({required String type}) async {
@@ -247,5 +299,21 @@ class AuthController extends GetxController {
   signOut() async {
     await FirebaseAuth.instance.signOut();
     Get.offAll(() => RegisterScreen());
+  }
+
+  Future<UserModel?> checkUserExistsOrNot() async {
+    try {
+      String userId = FirebaseAuth.instance.currentUser!.uid;
+      var response = await AuthRepository().getUserById(userId: userId);
+      if (response != null) {
+        return response;
+      } else {
+        return response;
+      }
+    } catch (e) {
+      showToast(toastText: 'Something went worng', toastColor: ColorHelper.red);
+      log('Error while checking user: $e');
+      return null;
+    }
   }
 }
