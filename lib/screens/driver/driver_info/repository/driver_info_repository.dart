@@ -13,8 +13,8 @@ class DriverInfoRepository {
     try {
       await _db
           .collection(userCollection)
-          // .doc(uid)
-          // .collection(driverDetials)
+          .doc(uid)
+          .collection(driverDetials)
           .doc(driverInfoDoc)
           .set(driverInfoModel.toJson());
 
