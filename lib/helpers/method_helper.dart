@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -28,6 +29,22 @@ class MethodHelper {
     } catch (e) {
       log('Error when uploading image : $e');
       return null;
+    }
+  }
+
+  Future<bool> updateDocFields(
+      {required String docId,
+      required Map<String, dynamic> fieldsToUpdate,
+      required String collection}) async {
+    try {
+      CollectionReference users =
+          FirebaseFirestore.instance.collection(collection);
+      await users.doc(docId).update(fieldsToUpdate);
+      log('User fields updated successfully');
+      return true;
+    } catch (e) {
+      log('Error updating user fields: $e');
+      return false;
     }
   }
 }

@@ -9,6 +9,7 @@ import 'package:indrive/helpers/method_helper.dart';
 import 'package:indrive/models/driver_info_model.dart';
 import 'package:indrive/screens/driver/driver_home/views/driver_home_screen.dart';
 import 'package:indrive/screens/driver/driver_info/repository/driver_info_repository.dart';
+import 'package:indrive/utils/database_collection_names.dart';
 import 'package:indrive/utils/global_toast_service.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
@@ -70,9 +71,13 @@ class DriverInfoController extends GetxController {
           uid: FirebaseAuth.instance.currentUser!.uid,
           driverInfoDoc: id);
       if (response) {
+        await updateVehicleType();
+        await updateDriver();
+
         showToast(
             toastText: 'Data saved successfully',
             toastColor: ColorHelper.primaryColor);
+
         Get.offAll(() => DriverHomeScreen());
       } else {
         showToast(
@@ -86,8 +91,6 @@ class DriverInfoController extends GetxController {
           toastColor: ColorHelper.red);
     }
   }
-
-  
 
   final List<String> carBrands = [
     'Toyota',
@@ -185,6 +188,28 @@ class DriverInfoController extends GetxController {
       log('national id card image url: ${profilePhotoUrl.value}');
     } else {
       showToast(toastText: 'Empty Image', toastColor: ColorHelper.red);
+    }
+  }
+
+  updateDriver() async {
+    try {
+      await MethodHelper().updateDocFields(
+          docId: FirebaseAuth.instance.currentUser!.uid,
+          fieldsToUpdate: {"isDriver": true},
+          collection: userCollection);
+    } catch (e) {
+      log('Error while updating is driver data: $e');
+    }
+  }
+
+  updateVehicleType() async {
+    try {
+      await MethodHelper().updateDocFields(
+          docId: FirebaseAuth.instance.currentUser!.uid,
+          fieldsToUpdate: {"vehicleType": vehicleType.value},
+          collection: userCollection);
+    } catch (e) {
+      log('Error while updating is vehicle type data: $e');
     }
   }
 }

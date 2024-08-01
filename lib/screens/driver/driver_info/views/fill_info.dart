@@ -22,7 +22,7 @@ class DriverInfoPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-        fToast.init(context);
+    fToast.init(context);
     return SafeArea(
         child: Scaffold(
       backgroundColor: Colors.white.withOpacity(0.9),
@@ -37,9 +37,8 @@ class DriverInfoPage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 14.0),
               child: CommonComponents().commonButton(
                   text: "Save All Data",
-                  onPressed: ()async {
-                     await _driverInfoController.saveDriverInfo();
-                     
+                  onPressed: () async {
+                    await _driverInfoController.saveDriverInfo();
                   },
                   disabled: false),
             )
