@@ -115,8 +115,46 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
      }
    }
 
+   final List<LatLng> _locations = [
+     LatLng(23.784635, 90.347465),
+     LatLng(23.783507, 90.345716),
+     LatLng(23.782662, 90.348999),
+     // Add more LatLng coordinates as needed
+   ];
+
+   final List<double> _rotations = [
+     0.0, 45.0, 90.0,
+     // Add more rotation values as needed
+   ];
+   Set<Marker> _markers = {};
+
+   Future<void> _loadMarkers() async {
+     final BitmapDescriptor markerIcon = await BitmapDescriptor.fromAssetImage(
+       ImageConfiguration(size:Size(24,24)),
+       'assets/images/marker.png',
+     );
+
+     Set<Marker> markers = _locations.asMap().entries.map((entry) {
+       int idx = entry.key;
+       LatLng location = entry.value;
+       double rotation = _rotations[idx % _rotations.length]; // Cycle through rotations
+
+       return Marker(
+         markerId: MarkerId(location.toString()),
+         position: location,
+         icon: markerIcon,
+         rotation: rotation,
+       );
+     }).toSet();
+
+     setState(() {
+       _markers = markers;
+     });
+   }
+
    @override
   void initState() {
+     _loadMarkers();
    if(homeController.destinationController.text!="")
      {
        getPolyline();
@@ -155,6 +193,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
               height: MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width,
               child: GoogleMap(
+                markers: _markers,
                 polylines: {
                   Polyline(
                       polylineId: const PolylineId("route"),
