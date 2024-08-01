@@ -23,10 +23,7 @@ class HomeController extends GetxController{
   var lastPickedCenter =  const LatLng(23.80, 90.41).obs;
   var destinationPickedCenter =  const LatLng(23.80, 90.41).obs;
   var startPickedCenter =  const LatLng(23.80, 90.41).obs;
-  @override
-  void onInit() {
-    super.onInit();
-  }
+  
   final TextEditingController destinationController= TextEditingController();
   GooglePlace googlePlace =
   GooglePlace(AppConfig.mapApiKey);

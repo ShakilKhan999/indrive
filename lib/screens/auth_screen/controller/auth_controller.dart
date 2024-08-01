@@ -20,7 +20,6 @@ import 'package:indrive/utils/global_toast_service.dart';
 import 'package:indrive/utils/shared_preference_keys.dart';
 import '../../home_screen/views/passenger_home.dart';
 import '../views/location_permission_screeen.dart';
-import '../views/user_name_screen.dart';
 
 class AuthController extends GetxController {
   @override

@@ -8,7 +8,6 @@ import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/helpers/style_helper.dart';
 import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
 import 'package:indrive/screens/auth_screen/views/user_name_screen.dart';
-import 'package:indrive/screens/auth_screen/views/user_type_select_screen.dart';
 
 class ConfirmLocationScreen extends StatelessWidget {
   ConfirmLocationScreen({super.key});
