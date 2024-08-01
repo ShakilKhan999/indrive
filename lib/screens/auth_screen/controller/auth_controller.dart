@@ -18,7 +18,7 @@ import 'package:indrive/screens/driver/driver_info/views/vehicle_type_screen.dar
 import 'package:indrive/utils/firebase_option.dart';
 import 'package:indrive/utils/global_toast_service.dart';
 import 'package:indrive/utils/shared_preference_keys.dart';
-import '../../home_screen/views/passenger_home.dart';
+import '../../home/views/passenger_home.dart';
 import '../views/location_permission_screeen.dart';
 
 class AuthController extends GetxController {

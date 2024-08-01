@@ -10,8 +10,8 @@ import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
-import 'package:indrive/screens/home_screen/home_controller.dart';
-import 'package:indrive/screens/home_screen/views/select_destination.dart';
+import 'package:indrive/screens/home/controller/home_controller.dart';
+import 'package:indrive/screens/home/views/select_destination.dart';
 import 'package:indrive/utils/app_config.dart';
 
 class PassengerHomeScreen extends StatefulWidget {
