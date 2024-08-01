@@ -4,8 +4,8 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/screens/home_screen/home_controller.dart';
-import 'package:indrive/screens/home_screen/views/passenger_home.dart';
+import 'package:indrive/screens/home/controller/home_controller.dart';
+import 'package:indrive/screens/home/views/passenger_home.dart';
 
 // ignore: must_be_immutable
 class SelectDestination extends StatelessWidget {

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -51,7 +52,11 @@ class UserNameScreen extends StatelessWidget {
           padding: EdgeInsets.fromLTRB(20.sp, 0.sp, 20.sp, 30.sp),
           child: commonComponents.commonButton(
             text: "Next",
-            onPressed: () {},
+            onPressed: () async {
+              await _authController.saveUserData(
+                  userInfo: FirebaseAuth.instance.currentUser!.providerData[0],
+                  loginType: _authController.loginType.value);
+            },
           ),
         ),
       ],

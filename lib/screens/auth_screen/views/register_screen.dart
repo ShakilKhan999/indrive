@@ -1,6 +1,4 @@
 import 'dart:developer';
-
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -12,7 +10,6 @@ import 'package:indrive/helpers/style_helper.dart';
 import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
 import 'package:indrive/screens/auth_screen/views/otp_verification.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
-
 
 class RegisterScreen extends StatelessWidget {
   RegisterScreen({super.key});
@@ -44,9 +41,8 @@ class RegisterScreen extends StatelessWidget {
         SpaceHelper.verticalSpace20,
         CommonButton(
             onTap: () async {
-              UserInfo? userInfo = await _authController.signInWithGoogle();
-              await _authController.saveUserData(
-                  userInfo: userInfo!, loginType: 'google');
+              _authController.loginType.value = 'google';
+              await _authController.signInWithGoogle();
             },
             text: 'Continue with Google',
             color: const Color.fromARGB(255, 123, 122, 122),
@@ -116,10 +112,10 @@ class RegisterScreen extends StatelessWidget {
                 size: 25.sp,
               ),
               onPressed: () {
+                _authController.loginType.value = 'phone';
                 _authController.startOtpCountdown();
-                Get.to(() => OTPVerificationPage(
-                    _authController.countryCode.value +
-                        _authController.phoneNumbercontroller.text));
+                _authController.verifyPhoneNumber();
+                Get.to(() => OTPVerificationPage());
               },
             ),
           ),

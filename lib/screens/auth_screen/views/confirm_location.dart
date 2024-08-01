@@ -7,7 +7,7 @@ import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/helpers/style_helper.dart';
 import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
-import 'package:indrive/screens/auth_screen/views/user_type_select_screen.dart';
+import 'package:indrive/screens/auth_screen/views/user_name_screen.dart';
 
 class ConfirmLocationScreen extends StatelessWidget {
   ConfirmLocationScreen({super.key});
@@ -41,7 +41,7 @@ class ConfirmLocationScreen extends StatelessWidget {
           child: commonComponents.commonButton(
             text: "Yes, I'm here",
             onPressed: () {
-              Get.offAll(() => const UserTypeSelectScreen(),
+              Get.offAll(() => UserNameScreen(),
                   transition: Transition.rightToLeft);
             },
           ),
@@ -121,11 +121,7 @@ class ConfirmLocationScreen extends StatelessWidget {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child:
-                        // commonComponents.commonTextPicker(
-                        //     labelText: 'fasf',
-                        //     textController: authController.searchController.value)
-                        TextField(
+                    child: TextField(
                       style: StyleHelper.regular14,
                       decoration: InputDecoration(
                         hintText: 'Search',

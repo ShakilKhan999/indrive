@@ -6,12 +6,11 @@ import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/helpers/style_helper.dart';
-import 'package:indrive/screens/auth_screen/views/user_name_screen.dart';
-import 'package:indrive/screens/driver/vehicle_type_screen.dart';
+import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
 
 class UserTypeSelectScreen extends StatelessWidget {
-  const UserTypeSelectScreen({super.key});
-
+   UserTypeSelectScreen({super.key});
+  final AuthController _authController = Get.find();
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -41,8 +40,9 @@ class UserTypeSelectScreen extends StatelessWidget {
           child: commonComponents.commonButton(
             text: "Passenger",
             onPressed: () {
-              Get.offAll(() => UserNameScreen(),
-                  transition: Transition.rightToLeft);
+
+              _authController.onPressPassenger();
+              
             },
           ),
         ),
@@ -52,8 +52,7 @@ class UserTypeSelectScreen extends StatelessWidget {
             color: ColorHelper.lightGreyColor,
             text: 'Driver',
             onPressed: () {
-              Get.offAll(() => const VehicleScreen(),
-                  transition: Transition.rightToLeft);
+              _authController.onPressDriver();
             },
           ),
         ),
