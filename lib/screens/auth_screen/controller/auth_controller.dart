@@ -2,12 +2,15 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:indrive/helpers/color_helper.dart';
+import 'package:indrive/helpers/method_helper.dart';
 import 'package:indrive/helpers/shared_preference_helper.dart';
+import 'package:indrive/models/driver_info_model.dart';
 
 import 'package:indrive/models/user_model.dart';
 import 'package:indrive/screens/auth_screen/repository/auth_repository.dart';
@@ -15,6 +18,7 @@ import 'package:indrive/screens/auth_screen/views/register_screen.dart';
 import 'package:indrive/screens/auth_screen/views/user_type_select_screen.dart';
 import 'package:indrive/screens/driver/driver_home/views/driver_home_screen.dart';
 import 'package:indrive/screens/driver/driver_info/views/vehicle_type_screen.dart';
+import 'package:indrive/utils/database_collection_names.dart';
 import 'package:indrive/utils/firebase_option.dart';
 import 'package:indrive/utils/global_toast_service.dart';
 import 'package:indrive/utils/shared_preference_keys.dart';
@@ -28,13 +32,14 @@ class AuthController extends GetxController {
     checkCurrentUser();
   }
 
-
   var nameController = TextEditingController().obs;
   var passController = TextEditingController().obs;
   var confirmPassController = TextEditingController().obs;
   var searchController = TextEditingController().obs;
   var firstnameController = TextEditingController().obs;
-
+  var emailController = TextEditingController().obs;
+  var fullNameController = TextEditingController().obs;
+  var selectedLocation = 'Dhaka (ঢাকা)'.obs;
 
   var obscureText = true.obs;
   var confirmObscureText = true.obs;
@@ -49,10 +54,41 @@ class AuthController extends GetxController {
   int resendforceToken = 0;
   var locations =
       ['Dhaka (ঢাকা)', 'Gazipur City', 'Chittagong', 'Sylhet', 'Khulna'].obs;
-  var selectedLocation = 'Dhaka (ঢাকা)'.obs;
+
   var isDriver = false.obs;
   var loginType = ''.obs;
+  var currentUser = UserModel().obs;
 
+  getUserData() async {
+    if (FirebaseAuth.instance.currentUser != null) {
+      try {
+        currentUser.value = (await getCurrentUser())!;
+        fullNameController.value.text = currentUser.value.name!;
+        emailController.value.text = currentUser.value.email!;
+        isDriver.value = currentUser.value.isDriver!;
+      } catch (e) {
+        log('Error while fethching user data: $e');
+      }
+    }
+  }
+
+  switchMode() async {
+    if (isDriver.value) {
+      DriverInfoModel? driverInfoModel = await getCurrentUserDriverData();
+      if (driverInfoModel != null) {
+        MethodHelper().updateDocFields(
+            docId: FirebaseAuth.instance.currentUser!.uid,
+            fieldsToUpdate: {"isDriver": TrustedCertificate},
+            collection: userCollection);
+        getUserData();
+        Get.offAll(() => DriverHomeScreen());
+      } else {
+        Get.offAll(() => VehicleTypeScreen());
+      }
+    } else {
+      Get.offAll(() => PassengerHomeScreen());
+    }
+  }
 
   checkCurrentUser() async {
     User? user = FirebaseAuth.instance.currentUser;
@@ -60,9 +96,8 @@ class AuthController extends GetxController {
       Timer(
         const Duration(milliseconds: 500),
         () async {
-          bool? isDriver = await SharedPreferenceHelper()
-              .getBool(key: SharedPreferenceKeys.isDriver);
-          if (isDriver!) {
+          UserModel? userModel = await getCurrentUser();
+          if (userModel!.isDriver!) {
             Get.offAll(() => DriverHomeScreen());
           } else {
             Get.offAll(() => const PassengerHomeScreen());
@@ -332,4 +367,20 @@ class AuthController extends GetxController {
     }
   }
 
+  Future<DriverInfoModel?> getCurrentUserDriverData() async {
+    try {
+      String userId = FirebaseAuth.instance.currentUser!.uid;
+      var response =
+          await AuthRepository().getCurrentUserDriverData(userId: userId);
+      if (response != null) {
+        return response;
+      } else {
+        return response;
+      }
+    } catch (e) {
+      showToast(toastText: 'Something went worng', toastColor: ColorHelper.red);
+      log('Error while checking user: $e');
+      return null;
+    }
+  }
 }

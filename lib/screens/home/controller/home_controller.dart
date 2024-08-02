@@ -33,27 +33,16 @@ class HomeController extends GetxController {
   var lastPickedCenter = const LatLng(23.80, 90.41).obs;
   var destinationPickedCenter = const LatLng(23.80, 90.41).obs;
   var startPickedCenter = const LatLng(23.80, 90.41).obs;
-  var currentUser = UserModel().obs;
-  var emailController = TextEditingController().obs;
-  var fullNameController = TextEditingController().obs;
-  var selectedLocation = 'Dhaka (ঢাকা)'.obs;
+
 
   @override
   void onInit() {
-    getUserData();
+    AuthController authController = Get.find();
+    authController.getUserData();
     super.onInit();
   }
 
-  getUserData() async {
-    try {
-      AuthController authController = Get.find();
-      currentUser.value = (await authController.getCurrentUser())!;
-      fullNameController.value.text = currentUser.value.name!;
-      emailController.value.text = currentUser.value.email!;
-    } catch (e) {
-      log('Error while fethching user data: $e');
-    }
-  }
+
 
   Map<PolylineId, Polyline> polyLines = {};
   var polylineCoordinates = [].obs;
@@ -298,4 +287,5 @@ class HomeController extends GetxController {
       }
     }
   }
+
 }

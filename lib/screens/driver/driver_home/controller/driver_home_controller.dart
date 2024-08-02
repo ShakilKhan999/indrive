@@ -12,29 +12,29 @@ import 'package:indrive/screens/driver/driver_home/repository/driver_repository.
 import 'package:uuid/uuid.dart';
 
 import '../../../../utils/app_config.dart';
+import '../../../auth_screen/controller/auth_controller.dart';
 
-class DriverHomeController extends GetxController{
-  var  userLat=0.0.obs;
-  var  userLong=0.0.obs;
-  var cameraMoving=false.obs;
-  var center =  const LatLng(23.80, 90.41).obs;
+class DriverHomeController extends GetxController {
+  var userLat = 0.0.obs;
+  var userLong = 0.0.obs;
+  var cameraMoving = false.obs;
+  var center = const LatLng(23.80, 90.41).obs;
 
-  GooglePlace googlePlace =
-  GooglePlace(AppConfig.mapApiKey);
+  GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
   late GoogleMapController mapController;
 
   @override
   void onInit() {
+    AuthController authController = Get.find();
+    authController.getUserData();
     getUserLocation();
     listenCall();
     super.onInit();
   }
 
-
   void onMapCreated(GoogleMapController controller) {
     mapController = controller;
   }
-
 
   Future<Position> getCurrentLocation() async {
     log("getCurrentLocation called");
@@ -61,28 +61,32 @@ class DriverHomeController extends GetxController{
     return await Geolocator.getCurrentPosition();
   }
 
-  var userLocationPicking=false.obs;
+  var userLocationPicking = false.obs;
   void getUserLocation() async {
-    userLocationPicking.value=true;
+    userLocationPicking.value = true;
     log("getUserLocation called");
     try {
       Position position = await getCurrentLocation();
-      userLat.value=position.latitude;
-      userLong.value=position.longitude;
+      userLat.value = position.latitude;
+      userLong.value = position.longitude;
       log("user long ${userLong.value}");
-      center.value=LatLng(userLat.value, userLong.value);
-      mapController.animateCamera(CameraUpdate.newLatLng(center.value),);
-      userLocationPicking.value=false;
+      center.value = LatLng(userLat.value, userLong.value);
+      mapController.animateCamera(
+        CameraUpdate.newLatLng(center.value),
+      );
+      userLocationPicking.value = false;
     } catch (e) {
-      userLocationPicking.value=false;
+      userLocationPicking.value = false;
       log('Failed to get location: $e');
     }
   }
+
   AudioPlayer audioPlayer = AudioPlayer();
 
   void playSound() async {
     try {
-      await audioPlayer.play(UrlSource('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'));
+      await audioPlayer.play(UrlSource(
+          'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'));
       print('Audio is playing');
     } catch (e) {
       print('Error playing audio: $e');
@@ -95,26 +99,24 @@ class DriverHomeController extends GetxController{
     return fullUuid.substring(0, length);
   }
 
-var activeCall=[].obs;
-var onTheWay=[].obs;
-  Future<void> listenCall() async{
+  var activeCall = [].obs;
+  var onTheWay = [].obs;
+  Future<void> listenCall() async {
     DriverRepository().listenToCall().listen((event) {
-      activeCall.value = List.generate(event.docs.length,
-              (index) => Trip.fromJson(event.docs[index].data() as Map<String, dynamic>));
+      activeCall.value = List.generate(
+          event.docs.length,
+          (index) =>
+              Trip.fromJson(event.docs[index].data() as Map<String, dynamic>));
 
-       if(activeCall.isNotEmpty)
-        {
-          if(activeCall[0].accepted==false)
-            {
-              getPolyline(picking: false);
-            }
-          else{
-            getPolyline(picking: true);
-          }
-
-          //playSound();
+      if (activeCall.isNotEmpty) {
+        if (activeCall[0].accepted == false) {
+          getPolyline(picking: false);
+        } else {
+          getPolyline(picking: true);
         }
-      else{
+
+        //playSound();
+      } else {
         // audioPlayer.stop();
         // audioPlayer.dispose();
       }
@@ -122,7 +124,6 @@ var onTheWay=[].obs;
       log("active call length: ${activeCall.length.toString()}");
     });
   }
-
 
   Map<PolylineId, Polyline> polyLines = {};
   var polylineCoordinates = [].obs;
@@ -134,12 +135,15 @@ var onTheWay=[].obs;
     PolylinePoints polylinePoints = PolylinePoints();
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
       AppConfig.mapApiKey,
-      picking?
-      PointLatLng(center.value.latitude, center.value.longitude):
-      PointLatLng(activeCall[0].pickLatLng.latitude, activeCall[0].pickLatLng.longitude),
-      picking?
-      PointLatLng(activeCall[0].pickLatLng.latitude, activeCall[0].pickLatLng.longitude):
-      PointLatLng(activeCall[0].dropLatLng.latitude, activeCall[0].dropLatLng.longitude),
+      picking
+          ? PointLatLng(center.value.latitude, center.value.longitude)
+          : PointLatLng(activeCall[0].pickLatLng.latitude,
+              activeCall[0].pickLatLng.longitude),
+      picking
+          ? PointLatLng(activeCall[0].pickLatLng.latitude,
+              activeCall[0].pickLatLng.longitude)
+          : PointLatLng(activeCall[0].dropLatLng.latitude,
+              activeCall[0].dropLatLng.longitude),
       travelMode: TravelMode.driving,
     );
     log("polyLineResponse: ${result.points.length}");
@@ -151,7 +155,9 @@ var onTheWay=[].obs;
       log("${result.errorMessage}");
     }
 
-    addPolyLine(polylineCoordinates.map((geoPoint) => LatLng(geoPoint.latitude, geoPoint.longitude)).toList());
+    addPolyLine(polylineCoordinates
+        .map((geoPoint) => LatLng(geoPoint.latitude, geoPoint.longitude))
+        .toList());
   }
 
   addPolyLine(List<LatLng> polylineCoordinates) {

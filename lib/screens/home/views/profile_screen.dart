@@ -10,7 +10,7 @@ import 'package:indrive/screens/home/controller/home_controller.dart';
 
 class ProfileScreen extends StatelessWidget {
   ProfileScreen({super.key});
-  final HomeController _homeController = Get.find();
+  final AuthController _authController = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +55,7 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildNameEditView() {
     return commonTextField(
-        controller: _homeController.fullNameController.value,
+        controller: _authController.fullNameController.value,
         labelText: 'Full name',
         prefixIcon: const Icon(
           Icons.person_rounded,
@@ -65,7 +65,7 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildEmailEditView() {
     return commonTextField(
-        controller: _homeController.emailController.value,
+        controller: _authController.emailController.value,
         labelText: 'Email',
         enebled: false,
         prefixIcon: const Icon(
@@ -90,7 +90,7 @@ class ProfileScreen extends StatelessWidget {
           SpaceHelper.horizontalSpace10,
           CommonComponents().printText(
               fontSize: 14,
-              textData: _homeController.selectedLocation.value,
+              textData: _authController.selectedLocation.value,
               fontWeight: FontWeight.bold),
         ],
       ),
