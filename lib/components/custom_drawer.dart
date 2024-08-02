@@ -13,7 +13,6 @@ import '../screens/home/views/profile_screen.dart';
 class CustomDrawer extends StatelessWidget {
   CustomDrawer({super.key});
   final AuthController _authController = Get.find();
-  final HomeController _homeController = Get.find();
 
   @override
   Widget build(BuildContext context) {
