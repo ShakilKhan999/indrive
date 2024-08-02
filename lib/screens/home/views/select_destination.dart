@@ -28,7 +28,7 @@ class SelectDestination extends StatelessWidget {
                 myLocationEnabled: true,
                 myLocationButtonEnabled: true,
                 mapType: MapType.terrain,
-                onMapCreated: homeController.onMapCreated,
+                onMapCreated: homeController.onMapCreatedTo,
                 initialCameraPosition: CameraPosition(
                   target: homeController.center.value,
                   zoom: 15.0,
@@ -41,6 +41,7 @@ class SelectDestination extends StatelessWidget {
                   onTap: (){
                     homeController.pickingDestination.value=false;
                     Get.back();
+
                   },
                   child: Container(
                     height: 35.h,width: 35.h,
@@ -66,6 +67,7 @@ class SelectDestination extends StatelessWidget {
                   height: 40.h,width: 150.w,
                   child: Obx(()=>CommonComponents().commonButton(text: "Done",color: ColorHelper.blueColor,borderRadius: 15,
                       onPressed: (){
+                    homeController.getPolyline();
                     homeController.pickingDestination.value=false;
                     Get.back();
                       },
