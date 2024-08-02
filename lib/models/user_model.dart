@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class UserModel {
   String? uid;
   String? name;
@@ -10,6 +12,7 @@ class UserModel {
   String? signInWith;
   String? vehicleType;
   double? vehicleAngle;
+  GeoPoint? latLng;
 
   UserModel({
     this.uid,
@@ -23,6 +26,7 @@ class UserModel {
     this.signInWith,
     this.vehicleType,
     this.vehicleAngle,
+    this.latLng,
   });
 
   Map<String, dynamic> toJson() {
@@ -38,6 +42,7 @@ class UserModel {
       'signInWith': signInWith,
       'vehicleType': vehicleType,
       'vehicleAngle': vehicleAngle,
+      'latlng': latLng,
     };
   }
 
@@ -54,6 +59,7 @@ class UserModel {
       signInWith: json['signInWith'],
       vehicleType: json['vehicleType'],
       vehicleAngle: json['vehicleAngle'],
+      latLng: json['latlng'],
     );
   }
 }

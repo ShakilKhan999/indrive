@@ -28,6 +28,6 @@ class SharedPreferenceHelper {
 
   Future<bool?> getBool({required String key}) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(key);
+    return prefs.getBool(key) ?? false;
   }
 }

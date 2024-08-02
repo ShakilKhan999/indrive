@@ -5,24 +5,27 @@ import 'package:get/get.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
+import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
 
 import '../screens/home/views/profile_screen.dart';
 
 class CustomDrawer extends StatelessWidget {
-  const CustomDrawer({super.key});
-  // final AppContoller appContoller = Get.find();
+  CustomDrawer({super.key});
+  final AuthController _authController = Get.find();
 
   @override
   Widget build(BuildContext context) {
-    return Drawer(
-      backgroundColor: ColorHelper.bgColor,
-      child: Column(
-        children: [
-          _buildProfileView(),
-          _buildDrawerItemView(),
-          const Spacer(),
-          _buildBottomView(context),
-        ],
+    return SafeArea(
+      child: Drawer(
+        backgroundColor: ColorHelper.bgColor,
+        child: Column(
+          children: [
+            _buildProfileView(),
+            _buildDrawerItemView(),
+            const Spacer(),
+            _buildBottomView(context),
+          ],
+        ),
       ),
     );
   }
@@ -89,8 +92,7 @@ class CustomDrawer extends StatelessWidget {
           text: 'Logout',
           color: Colors.white,
           onTap: () {
-            // Get.offAll(() =>
-            //     transition: Transition.noTransition);
+            _authController.signOut();
           },
         ),
       ],

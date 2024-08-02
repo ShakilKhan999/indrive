@@ -67,7 +67,7 @@ class SelectDestination extends StatelessWidget {
                   child: Obx(()=>CommonComponents().commonButton(text: "Done",color: ColorHelper.blueColor,borderRadius: 15,
                       onPressed: (){
                     homeController.pickingDestination.value=false;
-                    Get.offAll(const PassengerHomeScreen());
+                    Get.back();
                       },
                       disabled:homeController.cameraMoving.value?true: false
                   )),

@@ -162,8 +162,10 @@ class AuthController extends GetxController {
       UserModel? userModel = await checkUserExistsOrNot();
       if (userModel != null) {
         if (userModel.isDriver!) {
+          await setUserType(type: userModel.isDriver!);
           Get.offAll(() => DriverHomeScreen());
         } else {
+          await setUserType(type: userModel.isDriver!);
           Get.offAll(() => const PassengerHomeScreen());
         }
       } else {
@@ -291,6 +293,16 @@ class AuthController extends GetxController {
         .setString(key: SharedPreferenceKeys.loginType, value: type);
   }
 
+  signOut() async {
+    String? loginType = await SharedPreferenceHelper()
+        .getStirng(key: SharedPreferenceKeys.loginType);
+    if (loginType == 'phone') {
+      phoneSignOut();
+    } else {
+      googleSignOut();
+    }
+  }
+
   googleSignOut() async {
     GoogleSignIn googleSignIn = GoogleSignIn();
     await googleSignIn.signOut();
@@ -298,7 +310,7 @@ class AuthController extends GetxController {
     Get.offAll(() => RegisterScreen());
   }
 
-  signOut() async {
+  phoneSignOut() async {
     await FirebaseAuth.instance.signOut();
     Get.offAll(() => RegisterScreen());
   }
