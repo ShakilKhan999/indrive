@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 import 'package:indrive/screens/driver/driver_info/views/vehicle_type_screen.dart';
 import 'package:indrive/utils/app_config.dart';
 import 'package:indrive/utils/navigation_service.dart';
-import 'screens/driver/driver_info/views/fill_info.dart';
 import 'utils/firebase_option.dart';
 
 FToast fToast = FToast();

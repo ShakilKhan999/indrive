@@ -33,6 +33,8 @@ class AuthController extends GetxController {
   var passController = TextEditingController().obs;
   var confirmPassController = TextEditingController().obs;
   var searchController = TextEditingController().obs;
+  var firstnameController = TextEditingController().obs;
+  var lastNameController = TextEditingController().obs;
 
   var obscureText = true.obs;
   var confirmObscureText = true.obs;
