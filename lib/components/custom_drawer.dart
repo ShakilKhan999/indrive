@@ -6,14 +6,12 @@ import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
-import 'package:indrive/screens/home/controller/home_controller.dart';
 
 import '../screens/home/views/profile_screen.dart';
 
 class CustomDrawer extends StatelessWidget {
   CustomDrawer({super.key});
   final AuthController _authController = Get.find();
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -40,8 +38,13 @@ class CustomDrawer extends StatelessWidget {
         SpaceHelper.verticalSpace5,
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 6.w),
-          child: CommonComponents()
-              .commonButton(text: 'Driver mode', onPressed: () {}),
+          child: CommonComponents().commonButton(
+              text: _authController.isDriver.value
+                  ? 'Passenger mode'
+                  : 'Driver mode',
+              onPressed: () {
+                _authController.switchMode();
+              }),
         ),
         SpaceHelper.verticalSpace10,
         Padding(
@@ -126,13 +129,16 @@ class CustomDrawer extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Padding(
-                            padding: EdgeInsets.only(left: 3.w),
-                            child: CommonComponents().printText(
-                                fontSize: 15,
-                                textData: 'Name',
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
+                          Obx(
+                            () => Padding(
+                              padding: EdgeInsets.only(left: 3.w),
+                              child: CommonComponents().printText(
+                                  fontSize: 15,
+                                  textData:
+                                      _authController.currentUser.value.name!,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
                           ),
                           SpaceHelper.verticalSpace3,
                           FivePointedStar(
