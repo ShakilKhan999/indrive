@@ -25,7 +25,7 @@ class DriverHomeScreen extends StatelessWidget {
       key: scaffoldKey,
       drawer: CustomDrawer(),
       appBar: AppBar(
-        backgroundColor: ColorHelper.bgColor,
+         backgroundColor: ColorHelper.bgColor,
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(

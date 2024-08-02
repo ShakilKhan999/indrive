@@ -28,13 +28,13 @@ class AuthController extends GetxController {
     checkCurrentUser();
   }
 
-  var emailController = TextEditingController().obs;
+
   var nameController = TextEditingController().obs;
   var passController = TextEditingController().obs;
   var confirmPassController = TextEditingController().obs;
   var searchController = TextEditingController().obs;
   var firstnameController = TextEditingController().obs;
-  var lastNameController = TextEditingController().obs;
+
 
   var obscureText = true.obs;
   var confirmObscureText = true.obs;
@@ -52,6 +52,7 @@ class AuthController extends GetxController {
   var selectedLocation = 'Dhaka (ঢাকা)'.obs;
   var isDriver = false.obs;
   var loginType = ''.obs;
+
 
   checkCurrentUser() async {
     User? user = FirebaseAuth.instance.currentUser;
@@ -118,7 +119,7 @@ class AuthController extends GetxController {
             await auth.signInWithCredential(credential);
         user = userCredential.user?.providerData[0];
         nameController.value.text = user!.displayName!;
-        UserModel? userModel = await checkUserExistsOrNot();
+        UserModel? userModel = await getCurrentUser();
         if (userModel != null) {
           if (userModel.isDriver!) {
             Get.offAll(() => DriverHomeScreen());
@@ -159,7 +160,7 @@ class AuthController extends GetxController {
           await auth.signInWithCredential(credential);
       user = userCredential.user?.providerData[0];
       assert(user?.uid == user!.uid);
-      UserModel? userModel = await checkUserExistsOrNot();
+      UserModel? userModel = await getCurrentUser();
       if (userModel != null) {
         if (userModel.isDriver!) {
           await setUserType(type: userModel.isDriver!);
@@ -315,7 +316,7 @@ class AuthController extends GetxController {
     Get.offAll(() => RegisterScreen());
   }
 
-  Future<UserModel?> checkUserExistsOrNot() async {
+  Future<UserModel?> getCurrentUser() async {
     try {
       String userId = FirebaseAuth.instance.currentUser!.uid;
       var response = await AuthRepository().getUserById(userId: userId);
@@ -330,4 +331,5 @@ class AuthController extends GetxController {
       return null;
     }
   }
+
 }

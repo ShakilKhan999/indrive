@@ -6,12 +6,14 @@ import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
+import 'package:indrive/screens/home/controller/home_controller.dart';
 
 import '../screens/home/views/profile_screen.dart';
 
 class CustomDrawer extends StatelessWidget {
   CustomDrawer({super.key});
   final AuthController _authController = Get.find();
+  final HomeController _homeController = Get.find();
 
   @override
   Widget build(BuildContext context) {

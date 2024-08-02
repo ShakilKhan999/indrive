@@ -6,10 +6,11 @@ import 'package:indrive/components/custom_appbar.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
+import 'package:indrive/screens/home/controller/home_controller.dart';
 
 class ProfileScreen extends StatelessWidget {
   ProfileScreen({super.key});
-  final AuthController _authController = Get.put(AuthController());
+  final HomeController _homeController = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -20,17 +21,18 @@ class ProfileScreen extends StatelessWidget {
         children: [
           Expanded(
             child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SpaceHelper.verticalSpace20,
-                  _buildProfilePictureView(),
-                  _buildFirstNameEditView(),
-                  _buildLastNameEditView(),
-                  _buildEmailEditView(),
-                  _buildLocationEditView(),
-                  SpaceHelper.verticalSpace20,
-                ],
+              child: Obx(
+                () => Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SpaceHelper.verticalSpace20,
+                    _buildProfilePictureView(),
+                    _buildNameEditView(),
+                    _buildEmailEditView(),
+                    _buildLocationEditView(),
+                    SpaceHelper.verticalSpace20,
+                  ],
+                ),
               ),
             ),
           ),
@@ -51,20 +53,10 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFirstNameEditView() {
+  Widget _buildNameEditView() {
     return commonTextField(
-        controller: _authController.firstnameController.value,
-        labelText: 'First name',
-        prefixIcon: const Icon(
-          Icons.person_rounded,
-          color: Colors.white30,
-        ));
-  }
-
-  Widget _buildLastNameEditView() {
-    return commonTextField(
-        controller: _authController.lastNameController.value,
-        labelText: 'Last name',
+        controller: _homeController.fullNameController.value,
+        labelText: 'Full name',
         prefixIcon: const Icon(
           Icons.person_rounded,
           color: Colors.white30,
@@ -73,8 +65,9 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildEmailEditView() {
     return commonTextField(
-        controller: _authController.emailController.value,
+        controller: _homeController.emailController.value,
         labelText: 'Email',
+        enebled: false,
         prefixIcon: const Icon(
           Icons.email,
           color: Colors.white30,
@@ -97,7 +90,7 @@ class ProfileScreen extends StatelessWidget {
           SpaceHelper.horizontalSpace10,
           CommonComponents().printText(
               fontSize: 14,
-              textData: _authController.selectedLocation.value,
+              textData: _homeController.selectedLocation.value,
               fontWeight: FontWeight.bold),
         ],
       ),
@@ -108,7 +101,7 @@ class ProfileScreen extends StatelessWidget {
     return Padding(
       padding:
           EdgeInsets.only(left: 16.0.sp, top: 10.h, right: 16.w, bottom: 20.h),
-      child: CommonComponents().commonButton(text: 'Confirm', onPressed: () {}),
+      child: CommonComponents().commonButton(text: 'Update', onPressed: () {}),
     );
   }
 
@@ -116,6 +109,7 @@ class ProfileScreen extends StatelessWidget {
     required TextEditingController controller,
     required String labelText,
     required Icon prefixIcon,
+    bool enebled = true,
   }) {
     return Container(
       padding:
@@ -127,6 +121,7 @@ class ProfileScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TextField(
+            enabled: enebled,
             cursorColor: Colors.white10,
             style: TextStyle(
               fontSize: 14.sp,
