@@ -16,19 +16,21 @@ class NidCardBirthCertificateScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-        fToast.init(context);
+    fToast.init(context);
     return Scaffold(
       appBar: CustomAppbar(
           titleText: 'National Identity OR Birth Certificate', onTap: () {}),
       backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          SpaceHelper.verticalSpace20,
-          _buildNidBirthCertificateCardInfoView(),
-          SpaceHelper.verticalSpace20,
-          _buildSubmitButton(),
-          SpaceHelper.verticalSpace40,
-        ],
+      body: Obx(
+        () => Column(
+          children: [
+            SpaceHelper.verticalSpace20,
+            _buildNidBirthCertificateCardInfoView(),
+            SpaceHelper.verticalSpace20,
+            _buildSubmitButton(),
+            SpaceHelper.verticalSpace40,
+          ],
+        ),
       ),
     );
   }
@@ -36,8 +38,11 @@ class NidCardBirthCertificateScreen extends StatelessWidget {
   Widget _buildNidBirthCertificateCardInfoView() {
     return CommonComponents().addPhotoInfo(
       title: 'National Identity Card OR Birth Certificate',
-      imgPath: 'assets/images/card_front.png',
+      imgPath: _driverInfoController.nationalIdCardPhoto.value != ''
+          ? _driverInfoController.nationalIdCardPhoto.value
+          : 'assets/images/card_front.png',
       buttonText: 'Add a photo',
+      isLoading: _driverInfoController.isNationalIdCardPhotoloading.value,
       onButtonPressed: () {
         _driverInfoController.uploadNationalIdCardPhoto();
       },

@@ -15,25 +15,27 @@ class DriverLicenceScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-        fToast.init(context);
+    fToast.init(context);
     return Scaffold(
       appBar: CustomAppbar(titleText: 'Driver licence', onTap: () {}),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(
             parent: BouncingScrollPhysics()),
-        child: Column(
-          children: [
-            SpaceHelper.verticalSpace15,
-            _buildDriverLicenseTextFiled(),
-            SpaceHelper.verticalSpace15,
-            _buildFrontAddPhotoView(),
-            SpaceHelper.verticalSpace20,
-            _buildBackAddPhotoView(),
-            SpaceHelper.verticalSpace20,
-            _buildSubmitButton(),
-            SpaceHelper.verticalSpace40,
-          ],
+        child: Obx(() => 
+         Column(
+            children: [
+              SpaceHelper.verticalSpace15,
+              _buildDriverLicenseTextFiled(),
+              SpaceHelper.verticalSpace15,
+              _buildFrontAddPhotoView(),
+              SpaceHelper.verticalSpace20,
+              _buildBackAddPhotoView(),
+              SpaceHelper.verticalSpace20,
+              _buildSubmitButton(),
+              SpaceHelper.verticalSpace40,
+            ],
+          ),
         ),
       ),
     );
@@ -42,8 +44,11 @@ class DriverLicenceScreen extends StatelessWidget {
   Widget _buildFrontAddPhotoView() {
     return CommonComponents().addPhotoInfo(
       title: "The front of driver's license",
-      imgPath: 'assets/images/card_front.png',
+      imgPath: _driverInfoController.licenseFrontPhoto.value != ''
+          ? _driverInfoController.licenseFrontPhoto.value
+          : 'assets/images/card_front.png',
       buttonText: 'Add a photo',
+      isLoading: _driverInfoController.isLicenseFrontPhotoloading.value,
       onButtonPressed: () {
         _driverInfoController.uploadLicenseFrontPhoto();
       },
@@ -57,10 +62,13 @@ class DriverLicenceScreen extends StatelessWidget {
   Widget _buildBackAddPhotoView() {
     return CommonComponents().addPhotoInfo(
       title: "The back of driver's license",
-      imgPath: 'assets/images/card_back.png',
+      imgPath: _driverInfoController.licenseBackPhoto.value != ''
+          ? _driverInfoController.licenseBackPhoto.value
+          : 'assets/images/card_back.png',
       buttonText: 'Add a photo',
+      isLoading: _driverInfoController.isLicenseBackPhotoloading.value,
       onButtonPressed: () {
-         _driverInfoController.uploadLicenseBackPhoto();
+        _driverInfoController.uploadLicenseBackPhoto();
       },
       instructions: [
         "Smart card",

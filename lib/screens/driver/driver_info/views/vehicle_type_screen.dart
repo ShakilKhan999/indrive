@@ -9,8 +9,8 @@ import 'package:indrive/screens/driver/driver_info/views/fill_info.dart';
 
 import '../../../../main.dart';
 
-class VehicleScreen extends StatelessWidget {
-  VehicleScreen({super.key});
+class VehicleTypeScreen extends StatelessWidget {
+  VehicleTypeScreen({super.key});
   final DriverInfoController _driverInfoController =
       Get.put(DriverInfoController());
 
@@ -109,6 +109,7 @@ class VehicleScreen extends StatelessWidget {
             child: InkWell(
               onTap: () {
                 _driverInfoController.vehicleType.value = 'car';
+                _driverInfoController.setVehicleType(vehicleType: 'car');
                 Get.to(DriverInfoPage(), transition: Transition.rightToLeft);
               },
               child: ListTile(
@@ -134,19 +135,24 @@ class VehicleScreen extends StatelessWidget {
           decoration: BoxDecoration(
               color: Colors.black, borderRadius: BorderRadius.circular(12)),
           child: Center(
-            child: ListTile(
-              leading: SizedBox(
-                  height: 30.h,
-                  width: 40.h,
-                  child: Image.asset("assets/images/rickshaw.png")),
-              title: CommonComponents().printText(
-                  fontSize: 18,
-                  textData: "Rickshaw",
-                  fontWeight: FontWeight.bold),
-              trailing: Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.white,
-                size: 18.sp,
+            child: InkWell(
+              onTap: () {
+                _driverInfoController.vehicleType.value = 'cng';
+                _driverInfoController.setVehicleType(vehicleType: 'cng');
+                Get.to(DriverInfoPage(), transition: Transition.rightToLeft);
+              },
+              child: ListTile(
+                leading: SizedBox(
+                    height: 30.h,
+                    width: 40.h,
+                    child: Image.asset("assets/images/rickshaw.png")),
+                title: CommonComponents().printText(
+                    fontSize: 18, textData: "CNG", fontWeight: FontWeight.bold),
+                trailing: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: 18.sp,
+                ),
               ),
             ),
           ),
@@ -158,17 +164,26 @@ class VehicleScreen extends StatelessWidget {
           decoration: BoxDecoration(
               color: Colors.black, borderRadius: BorderRadius.circular(12)),
           child: Center(
-            child: ListTile(
-              leading: SizedBox(
-                  height: 30.h,
-                  width: 40.h,
-                  child: Image.asset("assets/images/bike.png")),
-              title: CommonComponents().printText(
-                  fontSize: 18, textData: "Moto", fontWeight: FontWeight.bold),
-              trailing: Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.white,
-                size: 18.sp,
+            child: InkWell(
+              onTap: () {
+                _driverInfoController.vehicleType.value = 'bike';
+                _driverInfoController.setVehicleType(vehicleType: 'bike');
+                Get.to(DriverInfoPage(), transition: Transition.rightToLeft);
+              },
+              child: ListTile(
+                leading: SizedBox(
+                    height: 30.h,
+                    width: 40.h,
+                    child: Image.asset("assets/images/bike.png")),
+                title: CommonComponents().printText(
+                    fontSize: 18,
+                    textData: "Moto",
+                    fontWeight: FontWeight.bold),
+                trailing: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: 18.sp,
+                ),
               ),
             ),
           ),

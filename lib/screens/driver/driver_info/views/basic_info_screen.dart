@@ -1,8 +1,4 @@
-import 'dart:developer';
-
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:indrive/components/common_components.dart';
@@ -13,35 +9,34 @@ import 'package:indrive/screens/driver/driver_info/controller/driver_info_contro
 
 class BasicInfoScreen extends StatelessWidget {
   BasicInfoScreen({super.key});
-
-  // final AuthController _authController = Get.put(AuthController());
   final DriverInfoController _driverInfoController = Get.find();
   @override
   Widget build(BuildContext context) {
     fToast.init(context);
-    log(FirebaseAuth.instance.currentUser!.uid.toString());
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppbar(titleText: 'Basic info', onTap: () {}),
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(
             parent: BouncingScrollPhysics()),
-        child: Column(
-          children: [
-            SpaceHelper.verticalSpace15,
-            _buildAddPhotoView(),
-            SpaceHelper.verticalSpace15,
-            _buildFirstNameTextFiled(),
-            SpaceHelper.verticalSpace15,
-            _buildLastNameTextFiled(),
-            SpaceHelper.verticalSpace15,
-            _buildEmailTextFiled(),
-            SpaceHelper.verticalSpace15,
-            _buildDobView(context),
-            SpaceHelper.verticalSpace15,
-            _buildSubmitButton(),
-            SpaceHelper.verticalSpace30,
-          ],
+        child: Obx(() => 
+           Column(
+            children: [
+              SpaceHelper.verticalSpace15,
+              _buildAddPhotoView(),
+              SpaceHelper.verticalSpace15,
+              _buildFirstNameTextFiled(),
+              SpaceHelper.verticalSpace15,
+              _buildLastNameTextFiled(),
+              SpaceHelper.verticalSpace15,
+              _buildEmailTextFiled(),
+              SpaceHelper.verticalSpace15,
+              _buildDobView(context),
+              SpaceHelper.verticalSpace15,
+              _buildSubmitButton(),
+              SpaceHelper.verticalSpace30,
+            ],
+          ),
         ),
       ),
     );
@@ -77,11 +72,14 @@ class BasicInfoScreen extends StatelessWidget {
   Widget _buildAddPhotoView() {
     return CommonComponents().addPhotoInfo(
       title: 'Photo',
-      imgPath: 'assets/images/addPhotoLogo.png',
+      imgPath: _driverInfoController.profilePhoto.value != ''
+          ? _driverInfoController.profilePhoto.value
+          : 'assets/images/addPhotoLogo.png',
       buttonText: 'Add a photo',
       onButtonPressed: () async {
         _driverInfoController.uploadProfilePhoto();
       },
+      isLoading: _driverInfoController.isProfilePhotoUploading.value,
       instructions: [
         'Clearly face visible',
         'Without sunglasses',

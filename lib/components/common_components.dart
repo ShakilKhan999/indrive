@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:indrive/helpers/color_helper.dart';
@@ -20,13 +22,13 @@ class CommonComponents {
     );
   }
 
-  Widget addPhotoInfo({
-    required String title,
-    String? imgPath,
-    required String buttonText,
-    required VoidCallback onButtonPressed,
-    List<String>? instructions,
-  }) {
+  Widget addPhotoInfo(
+      {required String title,
+      String? imgPath,
+      required String buttonText,
+      required VoidCallback onButtonPressed,
+      List<String>? instructions,
+      required bool isLoading}) {
     // Use an empty list if instructions is null
     final List<String> instructionsList = instructions ?? [];
 
@@ -56,20 +58,26 @@ class CommonComponents {
             color: Colors.black,
           ),
           if (imgPath != null)
-            Image.asset(
-              imgPath,
-              height: 150.h,
-              width: 150.w,
-            ),
+            imgPath.contains('assets')
+                ? Image.asset(
+                    imgPath,
+                    height: 150.h,
+                    width: 150.w,
+                  )
+                : Image.file(
+                    File(imgPath),
+                    height: 150.h,
+                    width: 150.w,
+                  ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 80.w),
             child: commonAddPhotoButton(
-              text: buttonText,
-              onPressed: onButtonPressed,
-            ),
+                text: buttonText,
+                onPressed: onButtonPressed,
+                isLoading: isLoading,
+                disabled: isLoading ? true : false),
           ),
           SpaceHelper.verticalSpace10,
-          // Use the empty list if instructions is null
           for (var instruction in instructionsList)
             _buildTextView(txt: instruction),
           SpaceHelper.verticalSpace15,
@@ -150,13 +158,15 @@ class CommonComponents {
     );
   }
 
-  Widget commonAddPhotoButton(
-      {required text,
-      required VoidCallback onPressed,
-      bool disabled = false,
-      double borderRadius = 24,
-      double fontSize = 16,
-      Color color = const Color(0xFF004AAD)}) {
+  Widget commonAddPhotoButton({
+    required text,
+    required VoidCallback onPressed,
+    bool disabled = false,
+    double borderRadius = 24,
+    double fontSize = 16,
+    Color color = const Color(0xFF004AAD),
+    required bool isLoading,
+  }) {
     return GestureDetector(
       onTap: disabled ? null : onPressed,
       child: Container(
@@ -166,14 +176,22 @@ class CommonComponents {
           borderRadius: BorderRadius.circular(borderRadius),
         ),
         child: Center(
-          child: Text(
-            text,
-            style: TextStyle(
-              color: color,
-              fontSize: fontSize.sp,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          child: isLoading
+              ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                  ),
+                )
+              : Text(
+                  text,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: fontSize.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
         ),
       ),
     );

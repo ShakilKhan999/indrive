@@ -16,18 +16,20 @@ class IdConfirmationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-        fToast.init(context);
+    fToast.init(context);
     return Scaffold(
       appBar: CustomAppbar(titleText: 'ID confirmation', onTap: () {}),
       backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          SpaceHelper.verticalSpace20,
-          _buildIdentityCardView(),
-          SpaceHelper.verticalSpace20,
-          _buildSubmitButton(),
-          SpaceHelper.verticalSpace40,
-        ],
+      body: Obx(
+        () => Column(
+          children: [
+            SpaceHelper.verticalSpace20,
+            _buildIdentityCardView(),
+            SpaceHelper.verticalSpace20,
+            _buildSubmitButton(),
+            SpaceHelper.verticalSpace40,
+          ],
+        ),
       ),
     );
   }
@@ -47,8 +49,11 @@ class IdConfirmationScreen extends StatelessWidget {
   Widget _buildIdentityCardView() {
     return CommonComponents().addPhotoInfo(
       title: "Id Confirmation",
-      imgPath: 'assets/images/identity.png',
+      imgPath: _driverInfoController.idCardWithFacePhoto.value != ''
+          ? _driverInfoController.idCardWithFacePhoto.value
+          : 'assets/images/identity.png',
       buttonText: 'Add a photo',
+      isLoading: _driverInfoController.isIdCardWithFacePhotoloading.value,
       onButtonPressed: () {
         _driverInfoController.uploadIdCardWithFacePhoto();
       },

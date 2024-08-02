@@ -56,7 +56,7 @@ class VehicleInfoScreen extends StatelessWidget {
     return _buildDropdownSearch(
       textData: "Car Brand ",
       hintText: 'Select brand',
-      items: _driverInfoController.carBrands,
+      items: _driverInfoController.vehicleBrands,
       searchHintText: 'Select brand...',
       onChanged: (value) {
         _driverInfoController.selectedCarBrand.value = value ?? '';

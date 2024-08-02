@@ -89,27 +89,27 @@ class DriverInfoPage extends StatelessWidget {
   }
 
   Widget textIconRow({required String text, VoidCallback? onTap}) {
-    return Padding(
-      padding: const EdgeInsets.all(12.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: CommonComponents().printText(
-                color: Colors.black,
-                fontSize: 15,
-                textData: text,
-                fontWeight: FontWeight.bold),
-          ),
-          InkWell(
-            onTap: onTap,
-            child: Icon(
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: CommonComponents().printText(
+                  color: Colors.black,
+                  fontSize: 15,
+                  textData: text,
+                  fontWeight: FontWeight.bold),
+            ),
+            Icon(
               Icons.arrow_forward_ios,
               size: 20.sp,
               color: ColorHelper.blueColor,
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }

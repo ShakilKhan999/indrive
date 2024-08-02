@@ -23,19 +23,29 @@ class DriverInfoController extends GetxController {
   var firstNameController = TextEditingController().obs;
   var lastNameController = TextEditingController().obs;
   var emailController = TextEditingController().obs;
+  var profilePhoto = ''.obs;
+  var isProfilePhotoUploading = false.obs;
   var profilePhotoUrl = ''.obs;
   var selectedDate = ''.obs;
 
   // license------->>>>>>
   var driverLicenseController = TextEditingController().obs;
   var licenseFrontPhotoUrl = ''.obs;
+  var licenseFrontPhoto = ''.obs;
+  var isLicenseFrontPhotoloading = false.obs;
   var licensebackPhotoUrl = ''.obs;
+  var licenseBackPhoto = ''.obs;
+  var isLicenseBackPhotoloading = false.obs;
 
   // id card confirmation------>>>>
   var idCardWithFacefPhotoUrl = ''.obs;
+  var idCardWithFacePhoto = ''.obs;
+  var isIdCardWithFacePhotoloading = false.obs;
 
   // national id card----->>>>
   var nationalIdCardPhotoUrl = ''.obs;
+  var nationalIdCardPhoto = ''.obs;
+  var isNationalIdCardPhotoloading = false.obs;
 
   // vhicle info------>>>>>>
   var carModelNumberController = TextEditingController().obs;
@@ -105,10 +115,53 @@ class DriverInfoController extends GetxController {
     'Hyundai',
   ].obs;
 
+  List<String> bikeBrands = [
+    'Harley-Davidson',
+    'Honda',
+    'Yamaha',
+    'Kawasaki',
+    'Ducati',
+    'BMW Motorrad',
+    'Suzuki',
+    'KTM',
+    'Triumph',
+    'Aprilia',
+    'Indian Motorcycle',
+    'Royal Enfield',
+    'MV Agusta',
+    'Moto Guzzi',
+    'Husqvarna'
+  ];
+  List<String> cngBrands = [
+    'Maruti Suzuki',
+    'Hyundai',
+    'Tata Motors',
+    'Mahindra',
+    'Honda',
+    'Toyota',
+    'Ford',
+    'Chevrolet',
+    'Nissan',
+    'Renault'
+  ];
+
+  List<String> vehicleBrands = [];
+
   final List<String> seatNumbers = ["2", "4", "5", "7", "8"].obs;
   final List<String> carColors = ["Red", "Blue", "Black", "White", "Grey"].obs;
-
   final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
+
+  setVehicleType({required String vehicleType}) {
+    if (vehicleType == 'car') {
+      vehicleBrands = carBrands;
+    }
+    if (vehicleType == 'cng') {
+      vehicleBrands = cngBrands;
+    }
+    if (vehicleType == 'bike') {
+      vehicleBrands = bikeBrands;
+    }
+  }
 
   Future<void> selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -127,67 +180,102 @@ class DriverInfoController extends GetxController {
   }
 
   void uploadProfilePhoto() async {
-    File? file = await MethodHelper().pickImage();
-    if (file != null) {
-      profilePhotoUrl.value = (await MethodHelper()
-          .uploadImage(file: file, imageLocationName: profileImage))!;
-      showToast(
-          toastText: 'Image uploaded', toastColor: ColorHelper.primaryColor);
-      log('Profile image url: ${profilePhotoUrl.value}');
-    } else {
-      showToast(toastText: 'Empty Image', toastColor: ColorHelper.red);
+    try {
+      File? file = await MethodHelper().pickImage();
+      if (file != null) {
+        profilePhoto.value = file.path;
+        isProfilePhotoUploading.value = true;
+        profilePhotoUrl.value = (await MethodHelper()
+            .uploadImage(file: file, imageLocationName: profileImage))!;
+        isProfilePhotoUploading.value = false;
+        log('Profile image url: ${profilePhotoUrl.value}');
+      } else {
+        showToast(toastText: 'Empty Image', toastColor: ColorHelper.red);
+      }
+    } catch (e) {
+      profilePhoto.value = '';
+      isProfilePhotoUploading.value = false;
+      showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
     }
   }
 
   void uploadLicenseFrontPhoto() async {
-    File? file = await MethodHelper().pickImage();
-    if (file != null) {
-      licenseFrontPhotoUrl.value = (await MethodHelper()
-          .uploadImage(file: file, imageLocationName: drivingLicenseImage))!;
-      showToast(
-          toastText: 'Image uploaded', toastColor: ColorHelper.primaryColor);
-      log('driving front image url: ${profilePhotoUrl.value}');
-    } else {
-      showToast(toastText: 'Empty Image', toastColor: ColorHelper.red);
+    try {
+      File? file = await MethodHelper().pickImage();
+      if (file != null) {
+        licenseFrontPhoto.value = file.path;
+        isLicenseFrontPhotoloading.value = true;
+        licenseFrontPhotoUrl.value = (await MethodHelper()
+            .uploadImage(file: file, imageLocationName: drivingLicenseImage))!;
+        isLicenseFrontPhotoloading.value = false;
+        log('driving front image url: ${profilePhotoUrl.value}');
+      } else {
+        showToast(toastText: 'Empty Image', toastColor: ColorHelper.red);
+      }
+    } catch (e) {
+      licenseFrontPhoto.value = '';
+      isLicenseFrontPhotoloading.value = false;
+      showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
     }
   }
 
   void uploadLicenseBackPhoto() async {
-    File? file = await MethodHelper().pickImage();
-    if (file != null) {
-      licensebackPhotoUrl.value = (await MethodHelper()
-          .uploadImage(file: file, imageLocationName: drivingLicenseImage))!;
-      showToast(
-          toastText: 'Image uploaded', toastColor: ColorHelper.primaryColor);
-      log('driving back image url: ${profilePhotoUrl.value}');
-    } else {
-      showToast(toastText: 'Empty Image', toastColor: ColorHelper.red);
+    try {
+      File? file = await MethodHelper().pickImage();
+      if (file != null) {
+        licenseBackPhoto.value = file.path;
+        isLicenseBackPhotoloading.value = true;
+        licensebackPhotoUrl.value = (await MethodHelper()
+            .uploadImage(file: file, imageLocationName: drivingLicenseImage))!;
+        isLicenseBackPhotoloading.value = false;
+        log('driving back image url: ${profilePhotoUrl.value}');
+      } else {
+        showToast(toastText: 'Empty Image', toastColor: ColorHelper.red);
+      }
+    } catch (e) {
+      licenseBackPhoto.value = '';
+      isLicenseBackPhotoloading.value = false;
+      showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
     }
   }
 
   void uploadIdCardWithFacePhoto() async {
-    File? file = await MethodHelper().pickImage();
-    if (file != null) {
-      idCardWithFacefPhotoUrl.value = (await MethodHelper()
-          .uploadImage(file: file, imageLocationName: idCardImage))!;
-      showToast(
-          toastText: 'Image uploaded', toastColor: ColorHelper.primaryColor);
-      log('id card with face image url: ${profilePhotoUrl.value}');
-    } else {
-      showToast(toastText: 'Empty Image', toastColor: ColorHelper.red);
+    try {
+      File? file = await MethodHelper().pickImage();
+      if (file != null) {
+        idCardWithFacePhoto.value = file.path;
+        isIdCardWithFacePhotoloading.value = true;
+        idCardWithFacefPhotoUrl.value = (await MethodHelper()
+            .uploadImage(file: file, imageLocationName: idCardImage))!;
+        isIdCardWithFacePhotoloading.value = false;
+        log('id card with face image url: ${profilePhotoUrl.value}');
+      } else {
+        showToast(toastText: 'Empty Image', toastColor: ColorHelper.red);
+      }
+    } catch (e) {
+      idCardWithFacePhoto.value = '';
+      isIdCardWithFacePhotoloading.value = false;
+      showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
     }
   }
 
   void uploadNationalIdCardPhoto() async {
-    File? file = await MethodHelper().pickImage();
-    if (file != null) {
-      nationalIdCardPhotoUrl.value = (await MethodHelper()
-          .uploadImage(file: file, imageLocationName: nationalIdImage))!;
-      showToast(
-          toastText: 'Image uploaded', toastColor: ColorHelper.primaryColor);
-      log('national id card image url: ${profilePhotoUrl.value}');
-    } else {
-      showToast(toastText: 'Empty Image', toastColor: ColorHelper.red);
+    try {
+      File? file = await MethodHelper().pickImage();
+      if (file != null) {
+        nationalIdCardPhoto.value = file.path;
+        isNationalIdCardPhotoloading.value = true;
+        nationalIdCardPhotoUrl.value = (await MethodHelper()
+            .uploadImage(file: file, imageLocationName: nationalIdImage))!;
+        isNationalIdCardPhotoloading.value = false;
+        log('national id card image url: ${profilePhotoUrl.value}');
+      } else {
+        showToast(toastText: 'Empty Image', toastColor: ColorHelper.red);
+      }
+    } catch (e) {
+      nationalIdCardPhoto.value = '';
+      isNationalIdCardPhotoloading.value = false;
+      showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
     }
   }
 

@@ -115,6 +115,7 @@ class AuthController extends GetxController {
         final UserCredential userCredential =
             await auth.signInWithCredential(credential);
         user = userCredential.user?.providerData[0];
+        nameController.value.text = user!.displayName!;
         UserModel? userModel = await checkUserExistsOrNot();
         if (userModel != null) {
           if (userModel.isDriver!) {
@@ -240,7 +241,7 @@ class AuthController extends GetxController {
       } else {
         userModel = UserModel(
           uid: FirebaseAuth.instance.currentUser!.uid,
-          name: userInfo.displayName,
+          name: nameController.value.text,
           email: userInfo.email,
           photo: userInfo.photoURL,
           phone: userInfo.phoneNumber,
@@ -275,7 +276,7 @@ class AuthController extends GetxController {
   onPressDriver() async {
     isDriver.value = true;
     await setUserType(type: true);
-    Get.offAll(() => VehicleScreen(), transition: Transition.rightToLeft);
+    Get.offAll(() => VehicleTypeScreen(), transition: Transition.rightToLeft);
   }
 
   Future setUserType({required bool type}) async {
