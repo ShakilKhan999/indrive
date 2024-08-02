@@ -235,79 +235,105 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
   Widget _buildBottomView(BuildContext context) {
     return Column(
       children: [
-        _buildVehicleSelection(),
-        SpaceHelper.verticalSpace5,
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SpaceHelper.horizontalSpace10,
-            Icon(
-              Icons.circle_outlined,
-              color: ColorHelper.blueColor,
-              size: 25.sp,
-            ),
-            SpaceHelper.horizontalSpace5,
-            Obx(() => SizedBox(
-                  width: 220.w,
-                  child: CommonComponents().printText(
-                      maxLine: 2,
-                      fontSize: 18,
-                      textData: homeController.myPlaceName.value,
-                      fontWeight: homeController.myPlaceName.value ==
-                              "Searching for you on the map.."
-                          ? FontWeight.normal
-                          : FontWeight.bold,
-                      color: homeController.myPlaceName.value ==
-                              "Searching for you on the map.."
-                          ? Colors.grey
-                          : Colors.white),
-                )),
-            Container(
-              height: 25.h,
-              width: 80.w,
-              decoration: BoxDecoration(
-                  color: Colors.lightBlueAccent.withOpacity(0.4),
-                  borderRadius: BorderRadius.circular(25)),
-              child: Center(
-                child: CommonComponents().printText(
-                    fontSize: 15,
-                    textData: "Entrance",
-                    fontWeight: FontWeight.normal),
-              ),
-            )
-          ],
-        ),
-        SpaceHelper.verticalSpace15,
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10.sp),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: Colors.grey[850], // Dark grey background
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
+        homeController.tripCalled.value?
+            Column(
               children: [
-                const Icon(Icons.search, color: Colors.grey), // Search icon
-                SpaceHelper.horizontalSpace10,
-                Expanded(
-                  child: TextField(
-                    controller: homeController.destinationController,
-                    onTap: () {
-                      _buildDestinationBottomSheet(context);
-                    },
-                    style: TextStyle(color: Colors.white, fontSize: 15.sp),
-                    decoration: const InputDecoration(
-                      hintText: 'To', // Placeholder text
-                      hintStyle: TextStyle(color: Colors.grey),
-                      border: InputBorder.none, // No border
+                SpaceHelper.verticalSpace35,
+                SpaceHelper.verticalSpace35,
+                CommonComponents().printText(fontSize: 18, textData: "Finding your driver", fontWeight: FontWeight.bold),
+                SpaceHelper.verticalSpace15,
+                Container(
+                  height: 60.h,width: 60.h,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(90),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(90),
+                    child: Image.asset("assets/images/location-graphics.gif", height: 60.h,width: 60.h,fit: BoxFit.fill,),
+                  ),
+                )
+              ],
+            ):
+      Column(
+        children: [
+          _buildVehicleSelection(),
+          SpaceHelper.verticalSpace5,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SpaceHelper.horizontalSpace10,
+              Icon(
+                Icons.circle_outlined,
+                color: ColorHelper.blueColor,
+                size: 25.sp,
+              ),
+              SpaceHelper.horizontalSpace5,
+              Obx(() => SizedBox(
+                width: 220.w,
+                child: CommonComponents().printText(
+                    maxLine: 2,
+                    fontSize: 18,
+                    textData: homeController.myPlaceName.value,
+                    fontWeight: homeController.myPlaceName.value ==
+                        "Searching for you on the map.."
+                        ? FontWeight.normal
+                        : FontWeight.bold,
+                    color: homeController.myPlaceName.value ==
+                        "Searching for you on the map.."
+                        ? Colors.grey
+                        : Colors.white),
+              )),
+              Container(
+                height: 25.h,
+                width: 80.w,
+                decoration: BoxDecoration(
+                    color: Colors.lightBlueAccent.withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(25)),
+                child: Center(
+                  child: CommonComponents().printText(
+                      fontSize: 15,
+                      textData: "Entrance",
+                      fontWeight: FontWeight.normal),
+                ),
+              )
+            ],
+          ),
+          SpaceHelper.verticalSpace15,
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10.sp),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: Colors.grey[850], // Dark grey background
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.search, color: Colors.grey), // Search icon
+                  SpaceHelper.horizontalSpace10,
+                  Expanded(
+                    child: TextField(
+                      controller: homeController.destinationController,
+                      onTap: () {
+                        homeController.polylineCoordinates.clear();
+                        homeController.polyLines.clear();
+                        FocusScope.of(context).unfocus();
+                        _buildDestinationBottomSheet(context);
+                      },
+                      style: TextStyle(color: Colors.white, fontSize: 15.sp),
+                      decoration: const InputDecoration(
+                        hintText: 'To', // Placeholder text
+                        hintStyle: TextStyle(color: Colors.grey),
+                        border: InputBorder.none, // No border
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
+        ],
+      ),
         SpaceHelper.verticalSpace15,
         Padding(
           padding: const EdgeInsets.all(8.0),
@@ -324,10 +350,11 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                   child: Obx(() => CommonComponents().commonButton(
                         borderRadius: 13,
                         text: homeController.tripCalled.value
-                            ? "Cancel Ride"
+                            ? "Cancel Search"
                             : "Find a driver",
                         onPressed: () {
-                          homeController.callTrip();
+                          homeController.tripCalled.value?
+                          homeController.callTrip():homeController.tripCalled.value=false;
                         },
                       ))),
               Icon(
@@ -522,7 +549,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                     child: Row(
                       children: [
                         Icon(Icons.circle_outlined,
-                            color: ColorHelper.blueColor), // Search icon
+                            color: ColorHelper.blueColor),
                         SpaceHelper.horizontalSpace10,
                         Expanded(
                           child: CommonComponents().printText(
@@ -537,13 +564,13 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
-                      color: Colors.grey[850], // Dark grey background
+                      color: Colors.grey[850],
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
                       children: [
                         const Icon(Icons.search,
-                            color: Colors.grey), // Search icon
+                            color: Colors.grey),
                         SpaceHelper.horizontalSpace10,
                         Expanded(
                           child: TextField(
@@ -607,6 +634,8 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                   placeDetails.result!.geometry!.location!.lng;
                               homeController.destinationPickedCenter.value =
                                   LatLng(lat!, lng!);
+
+                              homeController.getPolyline();
 
                               Get.offAll(const PassengerHomeScreen());
                             },

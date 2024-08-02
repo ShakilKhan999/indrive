@@ -208,7 +208,6 @@ class HomeController extends GetxController {
           destinationPlaceName.value =
               '${placemark.subLocality}, ${placemark.locality}, ${placemark.administrativeArea}';
           destinationController.text = destinationPlaceName.value;
-          getPolyline();
         } else {
           myPlaceName.value =
               '${placemark.street}, ${placemark.subLocality}, ${placemark.locality}';
@@ -246,23 +245,21 @@ class HomeController extends GetxController {
 
   var calledTrip = [].obs;
   Future<void> listenCalledTrip(String docId) async {
-    final subscription =
         PassengerRepository().listenToCalledTrip(docId).listen((snapshot) {
+          calledTrip.clear();
       if (snapshot.exists) {
         calledTrip.add(Trip.fromJson(snapshot.data() as Map<String, dynamic>));
-        print("jksdfmsdn:${calledTrip[0].destination}");
+        log("jksdfmsdn:${calledTrip.length.toString()}");
       } else {
-        print('Document does not exist');
+        log('Document does not exist');
       }
     });
 
-    // Wait for the first snapshot
-    await subscription.asFuture<void>();
-    // Cancel the subscription to prevent further updates
-    await subscription.cancel();
   }
 
   var tripCalled = false.obs;
+  var riderFound=false.obs;
+  var thisDriver=[].obs;
   Future<void> callTrip() async {
     tripCalled.value = true;
     String tripId = generateUniqueId();
@@ -294,8 +291,28 @@ class HomeController extends GetxController {
         await PassengerRepository().callDriver(tripId, driverList[i].uid);
         mapController.animateCamera(CameraUpdate.newLatLng(LatLng(
             driverList[i].latLng.latitude, driverList[i].latLng.longitude)));
-        await Future.delayed(Duration(seconds: 5));
+        for(int i=0;i<15;i++)
+          {
+            log("calling for $i seconds");
+            if(calledTrip[0].accepted == false && tripCalled.value==true)
+              {
+                await Future.delayed(Duration(seconds: 1));
+              }
+            else
+              {
+                thisDriver.add(driverList[i]);
+                riderFound.value=true;
+                tripCalled.value = false;
+                break;
+              }
+
+          }
       }
     }
+    if(thisDriver.isEmpty)
+      {
+        await PassengerRepository().callDriver(tripId, "");
+      }
+    tripCalled.value = false;
   }
 }

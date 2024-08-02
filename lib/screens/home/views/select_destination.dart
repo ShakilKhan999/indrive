@@ -66,6 +66,7 @@ class SelectDestination extends StatelessWidget {
                   height: 40.h,width: 150.w,
                   child: Obx(()=>CommonComponents().commonButton(text: "Done",color: ColorHelper.blueColor,borderRadius: 15,
                       onPressed: (){
+                    homeController.getPolyline();
                     homeController.pickingDestination.value=false;
                     Get.back();
                       },
