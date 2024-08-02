@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_place/google_place.dart';
 import 'package:indrive/models/trip_model.dart';
-import 'package:indrive/screens/home/passenger_repositoy.dart';
+import 'package:indrive/screens/home/repository/passenger_repositoy.dart';
 import 'package:indrive/utils/app_config.dart';
 import 'package:uuid/uuid.dart';
 

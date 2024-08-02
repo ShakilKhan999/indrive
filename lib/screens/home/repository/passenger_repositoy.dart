@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../../models/trip_model.dart';
+import '../../../models/trip_model.dart';
 
 class PassengerRepository{
    final  FirebaseFirestore _firestore=FirebaseFirestore.instance;
