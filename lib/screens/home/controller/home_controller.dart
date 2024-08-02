@@ -1,11 +1,17 @@
 import 'dart:developer';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_place/google_place.dart';
+import 'package:indrive/models/trip_model.dart';
+import 'package:indrive/screens/home/passenger_repositoy.dart';
 import 'package:indrive/utils/app_config.dart';
+import 'package:uuid/uuid.dart';
+
+import '../../../models/user_model.dart';
 
 class HomeController extends GetxController{
   var selectedVehicle="car".obs;
@@ -15,6 +21,9 @@ class HomeController extends GetxController{
   var pickingDestination=false.obs;
   var suggestedPlaces=[].obs;
 
+  var driverList=[].obs;
+  var driverMarkerList=[].obs;
+
 
 
   var myPlaceName="Searching for you on the map..".obs;
@@ -23,6 +32,12 @@ class HomeController extends GetxController{
   var lastPickedCenter =  const LatLng(23.80, 90.41).obs;
   var destinationPickedCenter =  const LatLng(23.80, 90.41).obs;
   var startPickedCenter =  const LatLng(23.80, 90.41).obs;
+
+
+  @override
+  void onInit() {
+    super.onInit();
+  }
   
   final TextEditingController destinationController= TextEditingController();
   GooglePlace googlePlace =
@@ -45,11 +60,13 @@ class HomeController extends GetxController{
     }
    cameraMoving.value=true;
   }
+
   void onCameraIdle() {
     log("camera Idle");
     getPlaceNameFromCoordinates(lastPickedCenter.value.latitude, lastPickedCenter.value.longitude);
     cameraMoving.value=false;
   }
+
   Future<Position> getCurrentLocation() async {
     log("getCurrentLocation called");
     bool serviceEnabled;
@@ -74,6 +91,7 @@ class HomeController extends GetxController{
     // When permissions are granted, get the current position.
     return await Geolocator.getCurrentPosition();
   }
+
 var userLocationPicking=false.obs;
   void getUserLocation() async {
     userLocationPicking.value=true;
@@ -116,6 +134,72 @@ var userLocationPicking=false.obs;
       log("Error getting place name: $e");
 
     }
+  }
+
+  String generateUniqueId({int length = 10}) {
+    var uuid = Uuid();
+    String fullUuid = uuid.v4().replaceAll('-', '');
+    return fullUuid.substring(0, length);
+  }
+
+  Future<void> getDriverList() async{
+    PassengerRepository().listenToDriverDocs().listen((event) {
+      driverList.value = List.generate(event.docs.length,
+              (index) => UserModel.fromJson(event.docs[index].data() as Map<String, dynamic>));
+
+      driverMarkerList.value = driverList
+          .where((driver) => driver.latLng != null)
+          .map((driver) => LatLng(driver.latLng.latitude, driver.latLng.longitude))
+          .toList();
+
+    });
+  }
+
+  var calledTrip=[].obs;
+  Future<void> listenCalledTrip(String docId) async {
+    final subscription = PassengerRepository().listenToCalledTrip(docId).listen((snapshot) {
+      if (snapshot.exists) {
+        calledTrip.add(Trip.fromJson(snapshot.data() as Map<String, dynamic>));
+        print("jksdfmsdn:${calledTrip[0].destination}");
+      } else {
+        print('Document does not exist');
+      }
+    });
+
+    // Wait for the first snapshot
+    await subscription.asFuture<void>();
+    // Cancel the subscription to prevent further updates
+    await subscription.cancel();
+  }
+
+var tripCalled=false.obs;
+  Future<void> callTrip() async{
+    tripCalled.value=true;
+    String tripId= generateUniqueId();
+    Trip trip=Trip(
+      userId: "8mCWZ9uBrWME2Bfm9YOCvb0U2EJ3",
+      driverId: "",
+      destination: destinationController.text,
+      pickLatLng: GeoPoint(startPickedCenter.value.latitude, startPickedCenter.value.longitude),
+      dropLatLng: GeoPoint(destinationPickedCenter.value.latitude,destinationPickedCenter.value.longitude),
+      tripId: tripId,
+        driverCancel: false, userCancel: false, accepted: false, picked: false, dropped: false);
+    await PassengerRepository().addNewTrip(trip);
+
+    listenCalledTrip(tripId);
+
+    await Future.delayed(Duration(seconds: 3));
+
+    for(int i=0; i<driverList.length;i++)
+      {
+        print("nsdnnsdnmf,sd,mf,msd,mf,ms,dm");
+        if(driverList[i].latLng!=null && calledTrip[0].accepted==false && calledTrip[0].driverCancel==false)
+          {
+            await PassengerRepository().callDriver(tripId, driverList[i].uid);
+            mapController.animateCamera(CameraUpdate.newLatLng(LatLng(driverList[i].latLng.latitude, driverList[i].latLng.longitude)));
+           await Future.delayed(Duration(seconds: 5));
+          }
+      }
   }
 
 }

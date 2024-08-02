@@ -115,13 +115,6 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
      }
    }
 
-   final List<LatLng> _locations = [
-     LatLng(23.784635, 90.347465),
-     LatLng(23.783507, 90.345716),
-     LatLng(23.782662, 90.348999),
-     // Add more LatLng coordinates as needed
-   ];
-
    final List<double> _rotations = [
      0.0, 45.0, 90.0,
      // Add more rotation values as needed
@@ -129,12 +122,14 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
    Set<Marker> _markers = {};
 
    Future<void> _loadMarkers() async {
+     await homeController.getDriverList();
+     await Future.delayed(const Duration(seconds: 2));
      final BitmapDescriptor markerIcon = await BitmapDescriptor.fromAssetImage(
-       ImageConfiguration(size:Size(24,24)),
+       const ImageConfiguration(size:Size(24,24)),
        'assets/images/marker.png',
      );
 
-     Set<Marker> markers = _locations.asMap().entries.map((entry) {
+     Set<Marker> markers = homeController.driverMarkerList.value.asMap().entries.map((entry) {
        int idx = entry.key;
        LatLng location = entry.value;
        double rotation = _rotations[idx % _rotations.length]; // Cycle through rotations
@@ -322,9 +317,11 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                Icon(Icons.money_rounded,color: ColorHelper.blueColor, size: 30.sp,),
                SizedBox(
                    width: 250.w,
-                   child: CommonComponents().commonButton(borderRadius:13,text: "Find a driver", onPressed: (){
-                    _authController.googleSignOut();
-                   }, )),
+                   child: Obx(()=>CommonComponents().commonButton(borderRadius:13,
+                     text: homeController.tripCalled.value?"Cancel Ride": "Find a driver",
+                     onPressed: (){
+                        homeController.callTrip();
+                   }, ))),
                Icon(Icons.more_horiz,color: ColorHelper.blueColor, size: 30.sp,),
              ],
            ),
