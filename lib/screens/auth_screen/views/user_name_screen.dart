@@ -7,6 +7,7 @@ import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/helpers/style_helper.dart';
 import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
+import 'package:indrive/utils/app_config.dart';
 
 class UserNameScreen extends StatelessWidget {
   UserNameScreen({super.key});
@@ -32,7 +33,7 @@ class UserNameScreen extends StatelessWidget {
         children: [
           SpaceHelper.verticalSpace40,
           Text(
-            'Welcome to inDrive',
+            'Welcome to ${AppConfig.appName}',
             style: StyleHelper.heading,
           ),
           SpaceHelper.verticalSpace10,
