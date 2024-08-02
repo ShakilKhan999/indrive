@@ -28,7 +28,7 @@ class SelectDestination extends StatelessWidget {
                 myLocationEnabled: true,
                 myLocationButtonEnabled: true,
                 mapType: MapType.terrain,
-                onMapCreated: homeController.onMapCreated,
+                onMapCreated: homeController.onMapCreatedTo,
                 initialCameraPosition: CameraPosition(
                   target: homeController.center.value,
                   zoom: 15.0,

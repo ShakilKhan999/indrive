@@ -48,6 +48,7 @@ class HomeController extends GetxController {
   final TextEditingController destinationController = TextEditingController();
   GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
   late GoogleMapController mapController;
+  late GoogleMapController mapControllerTO;
   Map<PolylineId, Polyline> polyLines = {};
   var polylineCoordinates = [].obs;
 
@@ -88,7 +89,7 @@ class HomeController extends GetxController {
       width: 8,
     );
     polyLines[id] = polyline;
-    //moveCameraToPolyline();
+    moveCameraToPolyline();
   }
 
   void moveCameraToPolyline() {
@@ -117,6 +118,10 @@ class HomeController extends GetxController {
 
   void onMapCreated(GoogleMapController controller) {
     mapController = controller;
+  }
+
+  void onMapCreatedTo(GoogleMapController controller) {
+    mapControllerTO = controller;
   }
 
   void onCameraMove(CameraPosition position) {
@@ -234,24 +239,25 @@ class HomeController extends GetxController {
   }
 
 var sortedDriverList=[].obs;
-  List<UserModel> sortDriversByDistance(List<UserModel> originalList, LatLng center) {
+
+  List<UserModel> sortDriversByDistance(var originalList, LatLng center) {
     List<UserModel> sortedList = List.from(originalList);
 
     sortedList.sort((a, b) {
       double distanceA = Geolocator.distanceBetween(
-        startPickedCenter.value.latitude,
-        startPickedCenter.value.longitude,
+        center.latitude,
+        center.longitude,
         a.latLng?.latitude ?? 0.0,
         a.latLng?.longitude ?? 0.0,
       );
       double distanceB = Geolocator.distanceBetween(
-        startPickedCenter.value.latitude,
-        startPickedCenter.value.longitude,
+        center.latitude,
+        center.longitude,
         b.latLng?.latitude ?? 0.0,
         b.latLng?.longitude ?? 0.0,
       );
 
-      return distanceA.compareTo(distanceB);
+      return distanceA.compareTo(distanceB); // Ascending order
     });
 
     return sortedList;
@@ -277,7 +283,7 @@ var sortedDriverList=[].obs;
   var thisDriverDetails=[].obs;
   Future<void> callTrip() async {
     sortedDriverList.clear();
-    sortedDriverList.addAll(driverList());
+    sortedDriverList.addAll(sortDriversByDistance(driverList, startPickedCenter.value));
     tripCalled.value = true;
     String tripId = generateUniqueId();
     Trip trip = Trip(
@@ -314,7 +320,7 @@ var sortedDriverList=[].obs;
               sortedDriverList[i].latLng.longitude)));
         }
 
-        for(int j=0;j<15;j++)
+        for(int j=0;j<7;j++)
           {
             log("calling for $j seconds");
             if(calledTrip[0].accepted == false)
