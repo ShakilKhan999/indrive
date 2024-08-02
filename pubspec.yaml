@@ -59,6 +59,7 @@ dependencies:
   uuid: ^4.4.2
   google_place:
   flutter_polyline_points:
+  five_pointed_star: ^1.0.3
 
 dev_dependencies:
   flutter_test:

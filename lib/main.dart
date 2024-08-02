@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:indrive/screens/auth_screen/views/register_screen.dart';
+import 'package:indrive/screens/driver/driver_info/views/temporary_drawer_show.dart';
 import 'package:indrive/utils/app_config.dart';
 import 'package:indrive/utils/navigation_service.dart';
 import 'utils/firebase_option.dart';
@@ -45,7 +46,7 @@ class _MyAppState extends State<MyApp> {
         ),
         // home: PassengerHomeScreen(),
         home: RegisterScreen(),
-        // home: VehicleScreen(),
+        // home: TemporaryDrawerShow(), //shakil
       ),
     );
   }
