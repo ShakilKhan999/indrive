@@ -10,6 +10,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_place/google_place.dart';
 import 'package:indrive/models/trip_model.dart';
 import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
+import 'package:indrive/screens/auth_screen/repository/auth_repository.dart';
 import 'package:indrive/screens/home/repository/passenger_repositoy.dart';
 import 'package:indrive/utils/app_config.dart';
 import 'package:uuid/uuid.dart';
@@ -37,13 +38,16 @@ class HomeController extends GetxController {
 
   @override
   void onInit() {
-    AuthController authController = Get.find();
+    AuthController authController = Get.put(AuthController());
     authController.getUserData();
     super.onInit();
   }
 
 
 
+  final TextEditingController destinationController = TextEditingController();
+  GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
+  late GoogleMapController mapController;
   Map<PolylineId, Polyline> polyLines = {};
   var polylineCoordinates = [].obs;
 
@@ -84,7 +88,7 @@ class HomeController extends GetxController {
       width: 8,
     );
     polyLines[id] = polyline;
-    moveCameraToPolyline();
+    //moveCameraToPolyline();
   }
 
   void moveCameraToPolyline() {
@@ -110,9 +114,6 @@ class HomeController extends GetxController {
     mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 60));
   }
 
-  final TextEditingController destinationController = TextEditingController();
-  GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
-  late GoogleMapController mapController;
 
   void onMapCreated(GoogleMapController controller) {
     mapController = controller;
@@ -232,6 +233,30 @@ class HomeController extends GetxController {
     });
   }
 
+var sortedDriverList=[].obs;
+  List<UserModel> sortDriversByDistance(List<UserModel> originalList, LatLng center) {
+    List<UserModel> sortedList = List.from(originalList);
+
+    sortedList.sort((a, b) {
+      double distanceA = Geolocator.distanceBetween(
+        startPickedCenter.value.latitude,
+        startPickedCenter.value.longitude,
+        a.latLng?.latitude ?? 0.0,
+        a.latLng?.longitude ?? 0.0,
+      );
+      double distanceB = Geolocator.distanceBetween(
+        startPickedCenter.value.latitude,
+        startPickedCenter.value.longitude,
+        b.latLng?.latitude ?? 0.0,
+        b.latLng?.longitude ?? 0.0,
+      );
+
+      return distanceA.compareTo(distanceB);
+    });
+
+    return sortedList;
+  }
+
   var calledTrip = [].obs;
   Future<void> listenCalledTrip(String docId) async {
         PassengerRepository().listenToCalledTrip(docId).listen((snapshot) {
@@ -249,7 +274,10 @@ class HomeController extends GetxController {
   var tripCalled = false.obs;
   var riderFound=false.obs;
   var thisDriver=[].obs;
+  var thisDriverDetails=[].obs;
   Future<void> callTrip() async {
+    sortedDriverList.clear();
+    sortedDriverList.addAll(driverList());
     tripCalled.value = true;
     String tripId = generateUniqueId();
     Trip trip = Trip(
@@ -272,26 +300,36 @@ class HomeController extends GetxController {
 
     await Future.delayed(Duration(seconds: 3));
 
-    for (int i = 0; i < driverList.length; i++) {
+    for (int i = 0; i < sortedDriverList.length; i++) {
       print("nsdnnsdnmf,sd,mf,msd,mf,ms,dm");
-      if (driverList[i].latLng != null &&
+      if (sortedDriverList[i].latLng != null &&
           calledTrip[0].accepted == false &&
           calledTrip[0].driverCancel == false) {
-        await PassengerRepository().callDriver(tripId, driverList[i].uid);
-        mapController.animateCamera(CameraUpdate.newLatLng(LatLng(
-            driverList[i].latLng.latitude, driverList[i].latLng.longitude)));
-        for(int i=0;i<15;i++)
+        log("sdfsdfafd6486sdg");
+        await PassengerRepository().callDriver(tripId, sortedDriverList[i].uid);
+
+        if (mapController != null) {
+          await mapController.animateCamera(CameraUpdate.newLatLng(LatLng(
+              sortedDriverList[i].latLng.latitude,
+              sortedDriverList[i].latLng.longitude)));
+        }
+
+        for(int j=0;j<15;j++)
           {
-            log("calling for $i seconds");
-            if(calledTrip[0].accepted == false && tripCalled.value==true)
+            log("calling for $j seconds");
+            if(calledTrip[0].accepted == false)
               {
                 await Future.delayed(Duration(seconds: 1));
               }
             else
               {
-                thisDriver.add(driverList[i]);
+
+                log("Driver found : ${thisDriver.length.toString()}");
                 riderFound.value=true;
                 tripCalled.value = false;
+                thisDriver.add(sortedDriverList[i]);
+                thisDriverDetails.clear();
+                thisDriverDetails.add(AuthRepository().getCurrentUserDriverData(userId: sortedDriverList[i].uid));
                 break;
               }
 

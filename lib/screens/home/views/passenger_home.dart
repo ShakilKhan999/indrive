@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_place/google_place.dart';
@@ -10,7 +11,9 @@ import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
+import 'package:indrive/screens/driver/driver_home/repository/driver_repository.dart';
 import 'package:indrive/screens/home/controller/home_controller.dart';
+import 'package:indrive/screens/home/repository/passenger_repositoy.dart';
 import 'package:indrive/screens/home/views/select_destination.dart';
 import 'package:indrive/utils/app_config.dart';
 
@@ -29,7 +32,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
 
   final HomeController homeController = Get.put(HomeController());
 
-  final AuthController _authController = Get.put(AuthController());
+ final AuthController _authController = Get.put(AuthController());
 
   void onSearchTextChanged(String query) async {
     if (query.isNotEmpty) {
@@ -235,106 +238,204 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
   Widget _buildBottomView(BuildContext context) {
     return Column(
       children: [
-        homeController.tripCalled.value?
-            Column(
-              children: [
-                SpaceHelper.verticalSpace35,
-                SpaceHelper.verticalSpace35,
-                CommonComponents().printText(fontSize: 18, textData: "Finding your driver", fontWeight: FontWeight.bold),
-                SpaceHelper.verticalSpace15,
-                Container(
-                  height: 60.h,width: 60.h,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(90),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(90),
-                    child: Image.asset("assets/images/location-graphics.gif", height: 60.h,width: 60.h,fit: BoxFit.fill,),
-                  ),
-                )
-              ],
-            ):
-      Column(
-        children: [
-          _buildVehicleSelection(),
-          SpaceHelper.verticalSpace5,
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        if(homeController.tripCalled.value && homeController.riderFound.value==false)
+          Column(
             children: [
-              SpaceHelper.horizontalSpace10,
-              Icon(
-                Icons.circle_outlined,
-                color: ColorHelper.blueColor,
-                size: 25.sp,
-              ),
-              SpaceHelper.horizontalSpace5,
-              Obx(() => SizedBox(
-                width: 220.w,
-                child: CommonComponents().printText(
-                    maxLine: 2,
-                    fontSize: 18,
-                    textData: homeController.myPlaceName.value,
-                    fontWeight: homeController.myPlaceName.value ==
-                        "Searching for you on the map.."
-                        ? FontWeight.normal
-                        : FontWeight.bold,
-                    color: homeController.myPlaceName.value ==
-                        "Searching for you on the map.."
-                        ? Colors.grey
-                        : Colors.white),
-              )),
+              SpaceHelper.verticalSpace35,
+              SpaceHelper.verticalSpace35,
+              CommonComponents().printText(fontSize: 18, textData: "Finding your driver", fontWeight: FontWeight.bold),
+              SpaceHelper.verticalSpace15,
               Container(
-                height: 25.h,
-                width: 80.w,
+                height: 60.h,width: 60.h,
                 decoration: BoxDecoration(
-                    color: Colors.lightBlueAccent.withOpacity(0.4),
-                    borderRadius: BorderRadius.circular(25)),
-                child: Center(
-                  child: CommonComponents().printText(
-                      fontSize: 15,
-                      textData: "Entrance",
-                      fontWeight: FontWeight.normal),
+                  borderRadius: BorderRadius.circular(90),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(90),
+                  child: Image.asset("assets/images/location-graphics.gif", height: 60.h,width: 60.h,fit: BoxFit.fill,),
                 ),
               )
             ],
-          ),
-          SpaceHelper.verticalSpace15,
+          )
+        else if(homeController.tripCalled.value==false && homeController.riderFound.value==true)
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10.sp),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: Colors.grey[850], // Dark grey background
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.search, color: Colors.grey), // Search icon
-                  SpaceHelper.horizontalSpace10,
-                  Expanded(
-                    child: TextField(
-                      controller: homeController.destinationController,
-                      onTap: () {
-                        homeController.polylineCoordinates.clear();
-                        homeController.polyLines.clear();
-                        FocusScope.of(context).unfocus();
-                        _buildDestinationBottomSheet(context);
-                      },
-                      style: TextStyle(color: Colors.white, fontSize: 15.sp),
-                      decoration: const InputDecoration(
-                        hintText: 'To', // Placeholder text
-                        hintStyle: TextStyle(color: Colors.grey),
-                        border: InputBorder.none, // No border
-                      ),
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                   Row(
+                     children: [
+                       Container(
+                         height: 50.h,width: 50.h,
+                         decoration: BoxDecoration(
+                           borderRadius: BorderRadius.circular(90),
+                         ),
+                         child: ClipRRect(
+                           borderRadius: BorderRadius.circular(90),
+                           child: Image.network(homeController.thisDriver[0].photo??"https://cdn-icons-png.flaticon.com/512/8583/8583437.png", height: 50.h,width: 50.h,fit: BoxFit.fill,),
+                         ),
+                       ),
+                       SpaceHelper.horizontalSpace10,
+                       CommonComponents().printText(fontSize: 18, textData: homeController.thisDriver[0].name??"", fontWeight: FontWeight.bold),
+
+                     ],
+                   ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: CommonComponents().printText(fontSize: 15,
+                          textData:"Distance "+ Geolocator.distanceBetween(
+                            homeController.startPickedCenter.value.latitude,
+                            homeController.startPickedCenter.value.longitude,
+                            homeController.thisDriver[0].latLng?.latitude ?? 0.0,
+                            homeController.thisDriver[0].latLng?.longitude ?? 0.0,
+                          ).floor().toString()+" meter", fontWeight: FontWeight.bold),
                     ),
+
+                  ],
+                ),
+                SpaceHelper.verticalSpace10,
+                Row(
+                  children: [
+                    CommonComponents().printText(fontSize: 16, textData: "Arriving on :", fontWeight: FontWeight.bold),
+                    SpaceHelper.horizontalSpace10,
+                    CommonComponents().printText(fontSize: 18, textData: "10 mins", fontWeight: FontWeight.bold),
+
+                  ],
+                ),
+
+                SpaceHelper.verticalSpace10,
+                homeController.thisDriverDetails.isNotEmpty?
+                    Column(
+                      children: [
+                        Row(
+                          children: [
+                            // Container(
+                            //   height: 50.h,width: 50.h,
+                            //   decoration: BoxDecoration(
+                            //     borderRadius: BorderRadius.circular(90),
+                            //   ),
+                            //   child: ClipRRect(
+                            //     borderRadius: BorderRadius.circular(90),
+                            //     child: Image.network("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR35eo9qRtHU0hVv6FGkZ8cI08LijPCtvCfHA&s", height: 50.h,width: 50.h,fit: BoxFit.fill,),
+                            //   ),
+                            // ),
+                            SpaceHelper.horizontalSpace10,
+                            Column(
+                              children: [
+                                // CommonComponents().printText(fontSize: 18, textData: homeController.thisDriverDetails[0].vehicleBrand??"", fontWeight: FontWeight.bold),
+                                // CommonComponents().printText(fontSize: 18, textData: homeController.thisDriverDetails[0].vehicleModelNo??"", fontWeight: FontWeight.bold),
+                                //
+                              ],
+                            )
+                          ],
+                        ),
+                      ],
+                    ):SizedBox(),
+                SpaceHelper.verticalSpace10,
+                SizedBox(
+                    width: 250.w,
+                    child: CommonComponents().commonButton(
+                      borderRadius: 13,
+                      text: "Cancel Ride",
+                      onPressed: () {
+                        homeController.polyLines.clear();
+                        homeController.polylineCoordinates.clear();
+                        homeController.tripCalled.value=false;
+                        homeController.riderFound.value=false;
+                        DriverRepository().updateTripState(homeController.calledTrip[0].tripId, "userCancel", true);
+                      },
+                    )),
+
+              ],
+            ),
+          )
+        else
+          Column(
+            children: [
+              _buildVehicleSelection(),
+              SpaceHelper.verticalSpace5,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SpaceHelper.horizontalSpace10,
+                  Icon(
+                    Icons.circle_outlined,
+                    color: ColorHelper.blueColor,
+                    size: 25.sp,
                   ),
+                  SpaceHelper.horizontalSpace5,
+                  Obx(() => SizedBox(
+                    width: 220.w,
+                    child: CommonComponents().printText(
+                        maxLine: 2,
+                        fontSize: 18,
+                        textData: homeController.myPlaceName.value,
+                        fontWeight: homeController.myPlaceName.value ==
+                            "Searching for you on the map.."
+                            ? FontWeight.normal
+                            : FontWeight.bold,
+                        color: homeController.myPlaceName.value ==
+                            "Searching for you on the map.."
+                            ? Colors.grey
+                            : Colors.white),
+                  )),
+                  Container(
+                    height: 25.h,
+                    width: 80.w,
+                    decoration: BoxDecoration(
+                        color: Colors.lightBlueAccent.withOpacity(0.4),
+                        borderRadius: BorderRadius.circular(25)),
+                    child: Center(
+                      child: CommonComponents().printText(
+                          fontSize: 15,
+                          textData: "Entrance",
+                          fontWeight: FontWeight.normal),
+                    ),
+                  )
                 ],
               ),
-            ),
+              SpaceHelper.verticalSpace15,
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.sp),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[850], // Dark grey background
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.search, color: Colors.grey), // Search icon
+                      SpaceHelper.horizontalSpace10,
+                      Expanded(
+                        child: TextField(
+                          controller: homeController.destinationController,
+                          onTap: () {
+                            homeController.polylineCoordinates.clear();
+                            homeController.polyLines.clear();
+                            FocusScope.of(context).unfocus();
+                            _buildDestinationBottomSheet(context);
+                          },
+                          style: TextStyle(color: Colors.white, fontSize: 15.sp),
+                          decoration: const InputDecoration(
+                            hintText: 'To', // Placeholder text
+                            hintStyle: TextStyle(color: Colors.grey),
+                            border: InputBorder.none, // No border
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+
         SpaceHelper.verticalSpace15,
+        homeController.tripCalled.value==false && homeController.riderFound.value==true?SizedBox():
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(
@@ -353,7 +454,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                             ? "Cancel Search"
                             : "Find a driver",
                         onPressed: () {
-                          homeController.tripCalled.value?
+                          homeController.tripCalled.value==false?
                           homeController.callTrip():homeController.tripCalled.value=false;
                         },
                       ))),

@@ -41,6 +41,7 @@ class SelectDestination extends StatelessWidget {
                   onTap: (){
                     homeController.pickingDestination.value=false;
                     Get.back();
+
                   },
                   child: Container(
                     height: 35.h,width: 35.h,
