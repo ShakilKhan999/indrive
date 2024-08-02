@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -58,6 +57,8 @@ class AuthController extends GetxController {
   var isDriver = false.obs;
   var loginType = ''.obs;
   var currentUser = UserModel().obs;
+  var userSwitchLoading = false.obs;
+  var isCheckingCurrentUser = false.obs;
 
   getUserData() async {
     if (FirebaseAuth.instance.currentUser != null) {
@@ -73,37 +74,71 @@ class AuthController extends GetxController {
   }
 
   switchMode() async {
-    if (isDriver.value) {
-      DriverInfoModel? driverInfoModel = await getCurrentUserDriverData();
-      if (driverInfoModel != null) {
-        MethodHelper().updateDocFields(
+    try {
+      userSwitchLoading.value = true;
+      if (currentUser.value.isDriver!) {
+        await MethodHelper().updateDocFields(
             docId: FirebaseAuth.instance.currentUser!.uid,
-            fieldsToUpdate: {"isDriver": TrustedCertificate},
+            fieldsToUpdate: {"isDriver": false},
             collection: userCollection);
-        getUserData();
-        Get.offAll(() => DriverHomeScreen());
+        await getUserData();
+        Get.offAll(() => PassengerHomeScreen(), transition: Transition.rightToLeft);
+        userSwitchLoading.value = false;
       } else {
-        Get.offAll(() => VehicleTypeScreen());
+        DriverInfoModel? driverInfoModel = await getCurrentUserDriverData();
+        if (driverInfoModel != null) {
+          await MethodHelper().updateDocFields(
+              docId: FirebaseAuth.instance.currentUser!.uid,
+              fieldsToUpdate: {"isDriver": true},
+              collection: userCollection);
+          await getUserData();
+          userSwitchLoading.value = false;
+          Get.offAll(() => DriverHomeScreen(), transition: Transition.rightToLeft);
+        } else {
+          userSwitchLoading.value = false;
+          Get.offAll(() => VehicleTypeScreen(), transition: Transition.rightToLeft);
+        }
       }
-    } else {
-      Get.offAll(() => PassengerHomeScreen());
+    } catch (e) {
+      userSwitchLoading.value = false;
     }
   }
 
   checkCurrentUser() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      Timer(
-        const Duration(milliseconds: 500),
-        () async {
-          UserModel? userModel = await getCurrentUser();
-          if (userModel!.isDriver!) {
-            Get.offAll(() => DriverHomeScreen());
-          } else {
-            Get.offAll(() => const PassengerHomeScreen());
-          }
-        },
-      );
+    try {
+      isCheckingCurrentUser.value = true;
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        Timer(
+          const Duration(milliseconds: 500),
+          () async {
+            UserModel? userModel = await getCurrentUser();
+            if (userModel!.isDriver!) {
+              DriverInfoModel? driverInfoModel =
+                  await getCurrentUserDriverData();
+              if (driverInfoModel != null) {
+                Get.offAll(() => DriverHomeScreen(), transition: Transition.rightToLeft);
+                isCheckingCurrentUser.value = false;
+              } else {
+                Get.offAll(() => VehicleTypeScreen(), transition: Transition.rightToLeft);
+                isCheckingCurrentUser.value = false;
+              }
+            } else {
+              Get.offAll(() => const PassengerHomeScreen(), transition: Transition.rightToLeft);
+              isCheckingCurrentUser.value = false;
+            }
+          },
+        );
+      }
+      else {
+        isCheckingCurrentUser.value = false;
+      }
+    } catch (e) {
+      isCheckingCurrentUser.value = false;
+      showToast(
+          toastText: 'Something went wrong. Please login again',
+          toastColor: ColorHelper.red);
+      log('Error while checking current user: $e');
     }
   }
 
@@ -157,12 +192,12 @@ class AuthController extends GetxController {
         UserModel? userModel = await getCurrentUser();
         if (userModel != null) {
           if (userModel.isDriver!) {
-            Get.offAll(() => DriverHomeScreen());
+            Get.offAll(() => DriverHomeScreen(), transition: Transition.rightToLeft);
           } else {
-            Get.offAll(() => const PassengerHomeScreen());
+            Get.offAll(() => const PassengerHomeScreen(), transition: Transition.rightToLeft);
           }
         } else {
-          Get.to(() => const LocationPermissionScreen());
+          Get.to(() => const LocationPermissionScreen(), transition: Transition.rightToLeft);
         }
       } on FirebaseAuthException catch (e) {
         if (e.code == 'account-exists-with-different-credential') {
@@ -199,13 +234,13 @@ class AuthController extends GetxController {
       if (userModel != null) {
         if (userModel.isDriver!) {
           await setUserType(type: userModel.isDriver!);
-          Get.offAll(() => DriverHomeScreen());
+          Get.offAll(() => DriverHomeScreen(), transition: Transition.rightToLeft);
         } else {
           await setUserType(type: userModel.isDriver!);
-          Get.offAll(() => const PassengerHomeScreen());
+          Get.offAll(() => const PassengerHomeScreen(), transition: Transition.rightToLeft);
         }
       } else {
-        Get.to(() => const LocationPermissionScreen());
+        Get.to(() => const LocationPermissionScreen(), transition: Transition.rightToLeft);
       }
     } catch (e) {
       showToast(
@@ -293,7 +328,7 @@ class AuthController extends GetxController {
       if (response) {
         await setLoginType(type: loginType);
 
-        Get.offAll(() => UserTypeSelectScreen());
+        Get.offAll(() => UserTypeSelectScreen(), transition: Transition.rightToLeft);
       } else {
         showToast(
             toastText: 'Something went wrong. Please try again later',
@@ -343,12 +378,12 @@ class AuthController extends GetxController {
     GoogleSignIn googleSignIn = GoogleSignIn();
     await googleSignIn.signOut();
     await FirebaseAuth.instance.signOut();
-    Get.offAll(() => RegisterScreen());
+    Get.offAll(() => RegisterScreen(), transition: Transition.rightToLeft);
   }
 
   phoneSignOut() async {
     await FirebaseAuth.instance.signOut();
-    Get.offAll(() => RegisterScreen());
+    Get.offAll(() => RegisterScreen(), transition: Transition.rightToLeft);
   }
 
   Future<UserModel?> getCurrentUser() async {

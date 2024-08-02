@@ -568,7 +568,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                     onTap: () {
                       Get.back();
                       homeController.pickingDestination.value = true;
-                      Get.to(SelectDestination());
+                      Get.to(SelectDestination(), transition: Transition.rightToLeft);
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -608,7 +608,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                               homeController.destinationPickedCenter.value =
                                   LatLng(lat!, lng!);
 
-                              Get.offAll(const PassengerHomeScreen());
+                              Get.offAll(const PassengerHomeScreen(), transition: Transition.rightToLeft);
                             },
                             child: ListTile(
                                 leading: const Icon(Icons.location_on_outlined),

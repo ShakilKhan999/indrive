@@ -36,15 +36,18 @@ class CustomDrawer extends StatelessWidget {
           color: Color.fromARGB(255, 70, 70, 70),
         ),
         SpaceHelper.verticalSpace5,
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 6.w),
-          child: CommonComponents().commonButton(
-              text: _authController.isDriver.value
-                  ? 'Passenger mode'
-                  : 'Driver mode',
-              onPressed: () {
-                _authController.switchMode();
-              }),
+        Obx(
+          () => Padding(
+            padding: EdgeInsets.symmetric(horizontal: 6.w),
+            child: CommonComponents().commonButton(
+                text: _authController.isDriver.value
+                    ? 'Passenger mode'
+                    : 'Driver mode',
+                isLoading: _authController.userSwitchLoading.value,
+                onPressed: () {
+                  _authController.switchMode();
+                }),
+          ),
         ),
         SpaceHelper.verticalSpace10,
         Padding(
@@ -108,7 +111,7 @@ class CustomDrawer extends StatelessWidget {
       children: [
         InkWell(
           onTap: () {
-            Get.to(ProfileScreen());
+            Get.to(ProfileScreen(), transition: Transition.rightToLeft);
           },
           child: Container(
             height: 60.h,

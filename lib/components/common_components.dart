@@ -115,15 +115,17 @@ class CommonComponents {
     );
   }
 
-  Widget commonButton(
-      {required text,
-      required VoidCallback onPressed,
-      bool disabled = false,
-      Icon? icon,
-      String? imagePath,
-      double borderRadius = 24,
-      double fontSize = 16,
-      Color color = const Color(0xFF004AAD)}) {
+  Widget commonButton({
+    required text,
+    required VoidCallback onPressed,
+    bool disabled = false,
+    Icon? icon,
+    String? imagePath,
+    double borderRadius = 24,
+    double fontSize = 16,
+    Color color = const Color(0xFF004AAD),
+    bool isLoading = false,
+  }) {
     return GestureDetector(
       onTap: disabled ? null : onPressed,
       child: Container(
@@ -135,24 +137,33 @@ class CommonComponents {
           borderRadius: BorderRadius.circular(borderRadius), // Rounded corners
         ),
         child: Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              icon ??
-                  (imagePath != null
-                      ? Image.asset(imagePath)
-                      : const SizedBox()),
-              SpaceHelper.horizontalSpace5,
-              Text(
-                text,
-                style: TextStyle(
-                  color: Colors.white, // Text color
-                  fontSize: fontSize.sp, // Text size
-                  fontWeight: FontWeight.bold, // Text weight
+          child: isLoading
+              ? Container(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: ColorHelper.whiteColor,
+                  ),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    icon ??
+                        (imagePath != null
+                            ? Image.asset(imagePath)
+                            : const SizedBox()),
+                    SpaceHelper.horizontalSpace5,
+                    Text(
+                      text,
+                      style: TextStyle(
+                        color: Colors.white, // Text color
+                        fontSize: fontSize.sp, // Text size
+                        fontWeight: FontWeight.bold, // Text weight
+                      ),
+                    )
+                  ],
                 ),
-              )
-            ],
-          ),
         ),
       ),
     );

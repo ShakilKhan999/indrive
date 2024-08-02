@@ -88,7 +88,7 @@ class DriverInfoController extends GetxController {
             toastText: 'Data saved successfully',
             toastColor: ColorHelper.primaryColor);
 
-        Get.offAll(() => DriverHomeScreen());
+        Get.offAll(() => DriverHomeScreen(), transition: Transition.rightToLeft);
       } else {
         showToast(
             toastText: 'Something went wrong. Please try again later',

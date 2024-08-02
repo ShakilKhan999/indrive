@@ -19,14 +19,20 @@ class RegisterScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ColorHelper.bgColor,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _buildHeader(),
-          SpaceHelper.verticalSpace10,
-          _buildPhoneTextFiled(context),
-        ],
+      body: Obx(
+        () => _authController.isCheckingCurrentUser.value
+            ? Center(
+                child: CircularProgressIndicator(strokeWidth: 2,color: ColorHelper.whiteColor,),
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildHeader(),
+                  SpaceHelper.verticalSpace10,
+                  _buildPhoneTextFiled(context),
+                ],
+              ),
       ),
     );
   }
@@ -115,7 +121,7 @@ class RegisterScreen extends StatelessWidget {
                 _authController.loginType.value = 'phone';
                 _authController.startOtpCountdown();
                 _authController.verifyPhoneNumber();
-                Get.to(() => OTPVerificationPage());
+                Get.to(() => OTPVerificationPage(), transition: Transition.rightToLeft);
               },
             ),
           ),
