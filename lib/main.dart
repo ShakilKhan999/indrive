@@ -46,7 +46,7 @@ class _MyAppState extends State<MyApp> {
         ),
         // home: PassengerHomeScreen(),
         // home: DriverInfoPage(),
-        home: PassengerHomeScreen(),
+        home: RegisterScreen(),
       ),
     );
   }

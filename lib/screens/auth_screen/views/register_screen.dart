@@ -22,7 +22,10 @@ class RegisterScreen extends StatelessWidget {
       body: Obx(
         () => _authController.isCheckingCurrentUser.value
             ? Center(
-                child: CircularProgressIndicator(strokeWidth: 2,color: ColorHelper.whiteColor,),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: ColorHelper.whiteColor,
+                ),
               )
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -38,16 +41,18 @@ class RegisterScreen extends StatelessWidget {
   }
 
   Widget _buildGoogleSignIn() {
-    return Column(
-      children: [
-        Text(
-          'Or login with',
-          style: StyleHelper.regular14,
-        ),
-        SpaceHelper.verticalSpace20,
-        CommonButton(
+    return Obx(
+      () => Column(
+        children: [
+          Text(
+            'Or login with',
+            style: StyleHelper.regular14,
+          ),
+          SpaceHelper.verticalSpace20,
+          CommonButton(
             onTap: () async {
               _authController.loginType.value = 'google';
+              
               await _authController.signInWithGoogle();
             },
             text: 'Continue with Google',
@@ -56,8 +61,11 @@ class RegisterScreen extends StatelessWidget {
               'assets/images/Google_logo.png',
               height: 25.h,
               width: 25.w,
-            )),
-      ],
+            ),
+            isLoading: _authController.isGoogleSigninLoaidng.value,
+          ),
+        ],
+      ),
     );
   }
 
@@ -121,7 +129,8 @@ class RegisterScreen extends StatelessWidget {
                 _authController.loginType.value = 'phone';
                 _authController.startOtpCountdown();
                 _authController.verifyPhoneNumber();
-                Get.to(() => OTPVerificationPage(), transition: Transition.rightToLeft);
+                Get.to(() => OTPVerificationPage(),
+                    transition: Transition.rightToLeft);
               },
             ),
           ),

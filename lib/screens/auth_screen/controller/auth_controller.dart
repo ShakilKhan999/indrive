@@ -59,6 +59,9 @@ class AuthController extends GetxController {
   var currentUser = UserModel().obs;
   var userSwitchLoading = false.obs;
   var isCheckingCurrentUser = false.obs;
+  var otp = ''.obs;
+  var isGoogleSigninLoaidng = false.obs;
+  var isOtpSubmitLoading = false.obs;
 
   getUserData() async {
     if (FirebaseAuth.instance.currentUser != null) {
@@ -82,7 +85,8 @@ class AuthController extends GetxController {
             fieldsToUpdate: {"isDriver": false},
             collection: userCollection);
         await getUserData();
-        Get.offAll(() => PassengerHomeScreen(), transition: Transition.rightToLeft);
+        Get.offAll(() => PassengerHomeScreen(),
+            transition: Transition.rightToLeft);
         userSwitchLoading.value = false;
       } else {
         DriverInfoModel? driverInfoModel = await getCurrentUserDriverData();
@@ -93,10 +97,12 @@ class AuthController extends GetxController {
               collection: userCollection);
           await getUserData();
           userSwitchLoading.value = false;
-          Get.offAll(() => DriverHomeScreen(), transition: Transition.rightToLeft);
+          Get.offAll(() => DriverHomeScreen(),
+              transition: Transition.rightToLeft);
         } else {
           userSwitchLoading.value = false;
-          Get.offAll(() => VehicleTypeScreen(), transition: Transition.rightToLeft);
+          Get.offAll(() => VehicleTypeScreen(),
+              transition: Transition.rightToLeft);
         }
       }
     } catch (e) {
@@ -117,20 +123,22 @@ class AuthController extends GetxController {
               DriverInfoModel? driverInfoModel =
                   await getCurrentUserDriverData();
               if (driverInfoModel != null) {
-                Get.offAll(() => DriverHomeScreen(), transition: Transition.rightToLeft);
+                Get.offAll(() => DriverHomeScreen(),
+                    transition: Transition.rightToLeft);
                 isCheckingCurrentUser.value = false;
               } else {
-                Get.offAll(() => VehicleTypeScreen(), transition: Transition.rightToLeft);
+                Get.offAll(() => VehicleTypeScreen(),
+                    transition: Transition.rightToLeft);
                 isCheckingCurrentUser.value = false;
               }
             } else {
-              Get.offAll(() => const PassengerHomeScreen(), transition: Transition.rightToLeft);
+              Get.offAll(() => const PassengerHomeScreen(),
+                  transition: Transition.rightToLeft);
               isCheckingCurrentUser.value = false;
             }
           },
         );
-      }
-      else {
+      } else {
         isCheckingCurrentUser.value = false;
       }
     } catch (e) {
@@ -162,6 +170,7 @@ class AuthController extends GetxController {
   }
 
   Future<UserInfo?> signInWithGoogle() async {
+    isGoogleSigninLoaidng.value = true;
     GoogleSignIn googleSignIn = GoogleSignIn();
     UserInfo? user;
     final auth = FirebaseAuth.instance;
@@ -190,35 +199,47 @@ class AuthController extends GetxController {
         user = userCredential.user?.providerData[0];
         nameController.value.text = user!.displayName!;
         UserModel? userModel = await getCurrentUser();
+        isGoogleSigninLoaidng.value = false;
         if (userModel != null) {
+          isGoogleSigninLoaidng.value = false;
           if (userModel.isDriver!) {
-            Get.offAll(() => DriverHomeScreen(), transition: Transition.rightToLeft);
+            Get.offAll(() => DriverHomeScreen(),
+                transition: Transition.rightToLeft);
           } else {
-            Get.offAll(() => const PassengerHomeScreen(), transition: Transition.rightToLeft);
+            Get.offAll(() => const PassengerHomeScreen(),
+                transition: Transition.rightToLeft);
           }
         } else {
-          Get.to(() => const LocationPermissionScreen(), transition: Transition.rightToLeft);
+          isGoogleSigninLoaidng.value = false;
+          Get.to(() => const LocationPermissionScreen(),
+              transition: Transition.rightToLeft);
         }
       } on FirebaseAuthException catch (e) {
+        isGoogleSigninLoaidng.value = false;
         if (e.code == 'account-exists-with-different-credential') {
           showToast(
               toastText: 'Account exists with different credential',
               toastColor: ColorHelper.red);
         } else if (e.code == 'invalid-credential') {
+          isGoogleSigninLoaidng.value = false;
           showToast(
               toastText: 'Invalid credential', toastColor: ColorHelper.red);
         }
       } catch (e) {
+        isGoogleSigninLoaidng.value = false;
         showToast(
             toastText: 'Something went wrong. Please try again later',
             toastColor: ColorHelper.red);
         log('Error while sing in with google: $e');
       }
+    } else {
+      isGoogleSigninLoaidng.value = false;
     }
     return user;
   }
 
   Future<UserInfo?> signInWithPhoneNumber(String otp) async {
+    isOtpSubmitLoading.value = true;
     UserInfo? user;
     try {
       FirebaseAuth auth = FirebaseAuth.instance;
@@ -234,15 +255,22 @@ class AuthController extends GetxController {
       if (userModel != null) {
         if (userModel.isDriver!) {
           await setUserType(type: userModel.isDriver!);
-          Get.offAll(() => DriverHomeScreen(), transition: Transition.rightToLeft);
+          isOtpSubmitLoading.value = false;
+          Get.offAll(() => DriverHomeScreen(),
+              transition: Transition.rightToLeft);
         } else {
           await setUserType(type: userModel.isDriver!);
-          Get.offAll(() => const PassengerHomeScreen(), transition: Transition.rightToLeft);
+          isOtpSubmitLoading.value = false;
+          Get.offAll(() => const PassengerHomeScreen(),
+              transition: Transition.rightToLeft);
         }
       } else {
-        Get.to(() => const LocationPermissionScreen(), transition: Transition.rightToLeft);
+        isOtpSubmitLoading.value = false;
+        Get.to(() => const LocationPermissionScreen(),
+            transition: Transition.rightToLeft);
       }
     } catch (e) {
+      isOtpSubmitLoading.value = false;
       showToast(
           toastText: 'Something went wrong. Please try again later',
           toastColor: ColorHelper.red);
@@ -328,7 +356,8 @@ class AuthController extends GetxController {
       if (response) {
         await setLoginType(type: loginType);
 
-        Get.offAll(() => UserTypeSelectScreen(), transition: Transition.rightToLeft);
+        Get.offAll(() => UserTypeSelectScreen(),
+            transition: Transition.rightToLeft);
       } else {
         showToast(
             toastText: 'Something went wrong. Please try again later',
