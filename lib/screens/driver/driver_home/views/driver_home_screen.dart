@@ -264,9 +264,64 @@ class DriverHomeScreen extends StatelessWidget {
           ),
         ),
         SpaceHelper.verticalSpace10,
+        driverHomeController.activeCall[0].picked && driverHomeController.activeCall[0].dropped==false?
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            SizedBox(
+                height: 40.h,
+                child: CommonComponents().commonButton(
+                    text: "Cancel",
+                    onPressed: () async {
+                      DriverRepository().updateTripState(
+                          driverHomeController.activeCall[0].tripId,
+                          "driverCancel",
+                          true);
+                      DriverRepository().updateTripState(
+                          driverHomeController.activeCall[0].tripId,
+                          "accepted",
+                          false);
+                    },
+                    color: Colors.red,
+                    borderRadius: 14)),
+            SpaceHelper.horizontalSpace10,
+            SizedBox(
+                height: 40.h,
+                child: CommonComponents().commonButton(
+                    text: "Drop and Finish",
+                    onPressed: () async {
+                      DriverRepository().updateTripState(
+                          driverHomeController.activeCall[0].tripId,
+                          "dropped",
+                          true);
+                      driverHomeController.activeCall.clear();
+                      driverHomeController.polylineCoordinates.clear();
+                      driverHomeController.polyLines.clear();
+                    },
+                    color: Colors.green,
+                    borderRadius: 14))
+          ],
+        ):
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+                height: 40.h,
+                child: CommonComponents().commonButton(
+                    text: "Cancel",
+                    onPressed: () async {
+                      DriverRepository().updateTripState(
+                          driverHomeController.activeCall[0].tripId,
+                          "driverCancel",
+                          true);
+                      DriverRepository().updateTripState(
+                          driverHomeController.activeCall[0].tripId,
+                          "accepted",
+                          false);
+                    },
+                    color: Colors.red,
+                    borderRadius: 14)),
+            SpaceHelper.horizontalSpace10,
             SizedBox(
                 height: 40.h,
                 child: CommonComponents().commonButton(
@@ -284,6 +339,7 @@ class DriverHomeScreen extends StatelessWidget {
                           driverHomeController.activeCall[0].tripId,
                           "picked",
                           true);
+                      driverHomeController.getPolyline(picking: false);
                     },
                     color: Colors.green,
                     borderRadius: 14))

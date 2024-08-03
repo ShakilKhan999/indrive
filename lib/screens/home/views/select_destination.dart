@@ -19,22 +19,22 @@ class SelectDestination extends StatelessWidget {
       body: Center(
         child: Stack(
           children: [
-            SizedBox(
+            Obx(()=>SizedBox(
               height: MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width,
               child: GoogleMap(
-                onCameraMove: homeController.onCameraMove,
-                onCameraIdle: homeController.onCameraIdle,
+                onCameraMove:homeController.changingPickup.value?homeController.onCameraMove: homeController.onCameraMoveTo,
+                onCameraIdle:homeController.changingPickup.value?homeController.onCameraIdle: homeController.onCameraIdleTo,
                 myLocationEnabled: true,
                 myLocationButtonEnabled: true,
                 mapType: MapType.terrain,
-                onMapCreated: homeController.onMapCreatedTo,
+                onMapCreated:homeController.changingPickup.value?homeController.onMapCreated: homeController.onMapCreatedTo,
                 initialCameraPosition: CameraPosition(
                   target: homeController.center.value,
                   zoom: 15.0,
                 ),
               ),
-            ),
+            )),
             Positioned(
               top: 30.h,left: 15.w,
                 child: InkWell(

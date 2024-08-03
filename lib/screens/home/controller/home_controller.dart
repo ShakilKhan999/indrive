@@ -27,6 +27,7 @@ class HomeController extends GetxController {
 
   var driverList = [].obs;
   var driverMarkerList = [].obs;
+  var tempDriverMarkerList = [].obs;
 
   var myPlaceName = "Searching for you on the map..".obs;
   var destinationPlaceName = "".obs;
@@ -40,6 +41,7 @@ class HomeController extends GetxController {
   void onInit() {
     AuthController authController = Get.put(AuthController());
     authController.getUserData();
+    getDriverList();
     super.onInit();
   }
 
@@ -51,8 +53,9 @@ class HomeController extends GetxController {
   late GoogleMapController mapControllerTO;
   Map<PolylineId, Polyline> polyLines = {};
   var polylineCoordinates = [].obs;
-
+var findingRoutes=false.obs;
   getPolyline() async {
+    findingRoutes.value=true;
     polyLines.clear();
     polylineCoordinates.clear;
     PolylinePoints polylinePoints = PolylinePoints();
@@ -78,6 +81,7 @@ class HomeController extends GetxController {
           .map((geoPoint) => LatLng(geoPoint.latitude, geoPoint.longitude))
           .toList(),
     );
+    findingRoutes.value=false;
   }
 
   addPolyLine(List<LatLng> polylineCoordinates) {
@@ -90,6 +94,40 @@ class HomeController extends GetxController {
     );
     polyLines[id] = polyline;
     moveCameraToPolyline();
+  }
+
+
+  var allMarkers = <Marker>{}.obs;
+
+  final List<double> _rotations = [
+    0.0, 45.0, 90.0,
+  ];
+
+  Future<void> loadMarkers() async {
+    await Future.delayed(const Duration(seconds: 1));
+    final BitmapDescriptor markerIcon = await BitmapDescriptor.fromAssetImage(
+      const ImageConfiguration(size: Size(24, 24)),
+      'assets/images/marker.png',
+    );
+   var listToMarked= tripCalled.value || riderFound.value?tempDriverMarkerList:driverMarkerList;
+    Set<Marker> markers =
+    listToMarked.value.asMap().entries.map((entry) {
+      int idx = entry.key;
+      LatLng location = entry.value;
+      double rotation =
+      _rotations[idx % _rotations.length]; // Cycle through rotations
+
+      return Marker(
+        markerId: MarkerId(location.toString()),
+        position: location,
+        icon: markerIcon,
+        rotation: rotation,
+      );
+    }).toSet();
+
+    allMarkers.value = markers;
+      log("marker length: ${allMarkers.length}");
+
   }
 
   void moveCameraToPolyline() {
@@ -120,39 +158,52 @@ class HomeController extends GetxController {
     mapController = controller;
   }
 
+
+  var changingPickup=false.obs;
   void onMapCreatedTo(GoogleMapController controller) {
     mapControllerTO = controller;
   }
 
   void onCameraMove(CameraPosition position) {
     log("camera Moving");
-    lastPickedCenter.value =
-        LatLng(position.target.latitude, position.target.longitude);
-    if (pickingDestination.value) {
-      destinationPickedCenter.value =
-          LatLng(position.target.latitude, position.target.longitude);
-    } else {
       startPickedCenter.value =
           LatLng(position.target.latitude, position.target.longitude);
-    }
     cameraMoving.value = true;
   }
 
+  void onCameraMoveTo(CameraPosition position) {
+    log("camera Moving To destination");
+      destinationPickedCenter.value =
+          LatLng(position.target.latitude, position.target.longitude);
+  }
+
+  void onCameraIdleTo() {
+    log("camera Idle to destination");
+    getPlaceNameFromCoordinates(
+        destinationPickedCenter.value.latitude, destinationPickedCenter.value.longitude,true);
+  }
+
   void onCameraIdle() {
+    cameraMoving.value = false;
     log("camera Idle");
     getPlaceNameFromCoordinates(
-        lastPickedCenter.value.latitude, lastPickedCenter.value.longitude);
-    cameraMoving.value = false;
+        startPickedCenter.value.latitude, startPickedCenter.value.longitude,false);
+
   }
 
   Future<Position> getCurrentLocation() async {
     log("getCurrentLocation called");
+
     bool serviceEnabled;
     LocationPermission permission;
+
+    // Check if location services are enabled
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       return Future.error('Location services are disabled.');
     }
+
+    // Check location permissions
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -166,7 +217,7 @@ class HomeController extends GetxController {
           'Location permissions are permanently denied, we cannot request permissions.');
     }
 
-    // When permissions are granted, get the current position.
+    // If permission is granted, get the current position
     return await Geolocator.getCurrentPosition();
   }
 
@@ -183,7 +234,7 @@ class HomeController extends GetxController {
       mapController.animateCamera(
         CameraUpdate.newLatLng(center.value),
       );
-      getPlaceNameFromCoordinates(userLat.value, userLong.value);
+      getPlaceNameFromCoordinates(userLat.value, userLong.value, false);
       userLocationPicking.value = false;
     } catch (e) {
       userLocationPicking.value = false;
@@ -192,14 +243,17 @@ class HomeController extends GetxController {
   }
 
   Future<void> getPlaceNameFromCoordinates(
-      double latitude, double longitude) async {
-    myPlaceName.value = "Searching for you on the map..";
+      double latitude, double longitude, bool destination) async {
+    if(destination==false)
+      {
+        myPlaceName.value = "Searching for you on the map..";
+      }
     try {
       List<Placemark> placemarks =
           await placemarkFromCoordinates(latitude, longitude);
       if (placemarks.isNotEmpty) {
         Placemark placemark = placemarks.first;
-        if (pickingDestination.value) {
+        if (destination) {
           destinationPlaceName.value =
               '${placemark.subLocality}, ${placemark.locality}, ${placemark.administrativeArea}';
           destinationController.text = destinationPlaceName.value;
@@ -235,6 +289,8 @@ class HomeController extends GetxController {
           .map((driver) =>
               LatLng(driver.latLng.latitude, driver.latLng.longitude))
           .toList();
+
+      loadMarkers();
     });
   }
 
@@ -270,6 +326,11 @@ var sortedDriverList=[].obs;
       if (snapshot.exists) {
         calledTrip.add(Trip.fromJson(snapshot.data() as Map<String, dynamic>));
         log("jksdfmsdn:${calledTrip.length.toString()}");
+        if(calledTrip[0].dropped)
+          {
+            riderFound.value=false;
+            tripCalled.value=false;
+          }
       } else {
         log('Document does not exist');
       }
@@ -307,19 +368,21 @@ var sortedDriverList=[].obs;
     await Future.delayed(Duration(seconds: 3));
 
     for (int i = 0; i < sortedDriverList.length; i++) {
-      print("nsdnnsdnmf,sd,mf,msd,mf,ms,dm");
       if (sortedDriverList[i].latLng != null &&
           calledTrip[0].accepted == false &&
           calledTrip[0].driverCancel == false) {
         log("sdfsdfafd6486sdg");
-        await PassengerRepository().callDriver(tripId, sortedDriverList[i].uid);
+        tempDriverMarkerList.clear();
 
+        await PassengerRepository().callDriver(tripId, sortedDriverList[i].uid);
         if (mapController != null) {
+          tempDriverMarkerList.add(LatLng(sortedDriverList[i].latLng.latitude,
+              sortedDriverList[i].latLng.longitude));
+          loadMarkers();
           await mapController.animateCamera(CameraUpdate.newLatLng(LatLng(
               sortedDriverList[i].latLng.latitude,
               sortedDriverList[i].latLng.longitude)));
         }
-
         for(int j=0;j<7;j++)
           {
             log("calling for $j seconds");
@@ -329,13 +392,12 @@ var sortedDriverList=[].obs;
               }
             else
               {
-
                 log("Driver found : ${thisDriver.length.toString()}");
                 riderFound.value=true;
                 tripCalled.value = false;
                 thisDriver.add(sortedDriverList[i]);
                 thisDriverDetails.clear();
-                thisDriverDetails.add(AuthRepository().getCurrentUserDriverData(userId: sortedDriverList[i].uid));
+                thisDriverDetails.add(await AuthRepository().getCurrentUserDriverData(userId: sortedDriverList[i].uid));
                 break;
               }
 
@@ -347,6 +409,37 @@ var sortedDriverList=[].obs;
         await PassengerRepository().callDriver(tripId, "");
       }
     tripCalled.value = false;
+    loadMarkers();
+  }
+
+  String calculateDistance({required GeoPoint point1, required GeoPoint point2}) {
+    final distanceInMeters = Geolocator.distanceBetween(
+        point1.latitude, point1.longitude, point2.latitude, point2.longitude);
+
+    if (distanceInMeters < 1000) {
+      return '${distanceInMeters.floor().toStringAsFixed(2)} meters';
+    } else {
+      final distanceInKm = distanceInMeters / 1000;
+      return '${distanceInKm.toStringAsFixed(2)} km';
+    }
+  }
+
+  String calculateTravelTime(
+      {required GeoPoint point1,required GeoPoint point2,required double speedKmh}) {
+    final distanceInMeters = Geolocator.distanceBetween(
+        point1.latitude, point1.longitude, point2.latitude, point2.longitude);
+
+    final distanceInKm = distanceInMeters / 1000;
+    final timeInHours = distanceInKm / speedKmh;
+    final timeInMinutes = timeInHours * 60;
+
+    if (timeInMinutes < 60) {
+      return timeInMinutes<2?"Less than 2 minutes":'${timeInMinutes.toStringAsFixed(2)} minutes';
+    } else {
+      final hours = timeInMinutes ~/ 60;
+      final minutes = timeInMinutes % 60;
+      return '${hours} hours ${minutes.toStringAsFixed(2)} minutes';
+    }
   }
 
 }

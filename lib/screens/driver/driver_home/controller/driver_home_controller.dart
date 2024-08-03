@@ -25,7 +25,7 @@ class DriverHomeController extends GetxController {
 
   @override
   void onInit() {
-    AuthController authController = Get.find();
+    AuthController authController = Get.put(AuthController());
     authController.getUserData();
     getUserLocation();
     listenCall();
