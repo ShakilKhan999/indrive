@@ -7,8 +7,10 @@ class DriverRepository{
     return _firestore
         .collection('All Trips')
         .where('driverId', isEqualTo: "TTTRQy0nH7cAuIX9eeEr6akki8p2")
+        .where('dropped', isNotEqualTo: true)
         .snapshots();
   }
+
 
   Future<void> updateTripState(String docId, String fieldName, bool value) async {
     try {
