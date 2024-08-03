@@ -330,6 +330,8 @@ var sortedDriverList=[].obs;
           {
             riderFound.value=false;
             tripCalled.value=false;
+            polyLines.clear();
+            polylineCoordinates.clear();
           }
       } else {
         log('Document does not exist');
