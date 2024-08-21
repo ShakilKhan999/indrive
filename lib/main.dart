@@ -5,7 +5,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:indrive/screens/auth_screen/views/register_screen.dart';
 import 'package:indrive/screens/drawer_screen/my_ride_screen.dart';
+import 'package:indrive/screens/driver/courier/views/courier_typs_screen.dart';
 import 'package:indrive/screens/driver/driver_home/views/driver_home_screen.dart';
+import 'package:indrive/screens/driver/driver_info/views/driver_categories_screen.dart';
 import 'package:indrive/screens/home/views/passenger_home.dart';
 import 'package:indrive/utils/app_config.dart';
 import 'package:indrive/utils/navigation_service.dart';
@@ -47,7 +49,7 @@ class _MyAppState extends State<MyApp> {
           useMaterial3: true,
         ),
         // home: PassengerHomeScreen(),
-        home: MyRideScreen(),
+        home: DriverCategoriesScreen(),
         // home: RegisterScreen(),
       ),
     );
