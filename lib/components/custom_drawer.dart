@@ -6,6 +6,7 @@ import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
+import 'package:indrive/screens/drawer_screen/my_ride_screen.dart';
 
 import '../screens/home/views/profile_screen.dart';
 
@@ -81,8 +82,8 @@ class CustomDrawer extends StatelessWidget {
           text: 'Request history',
           color: Colors.white,
           onTap: () {
-            // Get.offAll(() =>
-            //     transition: Transition.noTransition);
+            Get.offAll(() => MyRideScreen(),
+                transition: Transition.noTransition);
           },
         ),
         buildDrawerItem(

@@ -44,7 +44,7 @@ class _MyAppState extends State<MyApp> {
           useMaterial3: true,
         ),
         // home: PassengerHomeScreen(),
-        // home: DriverInfoPage(),
+        // home: DriverCategoriesScreen(),
         home: RegisterScreen(),
       ),
     );

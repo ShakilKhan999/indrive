@@ -1,43 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/components/custom_appbar.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/screens/driver/driver_info/controller/driver_info_controller.dart';
-import 'package:indrive/screens/driver/driver_info/views/fill_info.dart';
 
-import '../../../../main.dart';
-
-class VehicleTypeScreen extends StatelessWidget {
-  VehicleTypeScreen({super.key});
-  final DriverInfoController _driverInfoController =
-      Get.put(DriverInfoController());
+class CourierTypsScreen extends StatelessWidget {
+  const CourierTypsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    fToast.init(context);
     return SafeArea(
-      child: Scaffold(
-        appBar: CustomAppbar(
-            titleText: 'Chosse Vehicle Type',
-            onTap: () {
-              Navigator.pop(context);
-            }),
-        backgroundColor: ColorHelper.lightGreyColor,
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SpaceHelper.verticalSpace35,
-              _buildSelectionView(context)
-            ],
-          ),
+        child: Scaffold(
+      backgroundColor: ColorHelper.bgColor,
+      appBar: CustomAppbar(titleText: 'Going to work as:', onTap: () {}),
+      body: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          children: [
+            _buildSelectionView(context),
+            SpaceHelper.verticalSpace10,
+          ],
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildSelectionView(BuildContext context) {
@@ -50,48 +36,15 @@ class VehicleTypeScreen extends StatelessWidget {
               color: Colors.black, borderRadius: BorderRadius.circular(12)),
           child: Center(
             child: InkWell(
-              onTap: () {
-                _driverInfoController.vehicleType.value = 'car';
-                _driverInfoController.setVehicleType(vehicleType: 'car');
-                Get.to(DriverInfoPage(), transition: Transition.rightToLeft);
-              },
+              onTap: () {},
               child: ListTile(
                 leading: SizedBox(
-                    height: 30.h,
+                    height: 40.h,
                     width: 40.h,
-                    child: Image.asset("assets/images/car.png")),
-                title: CommonComponents().printText(
-                    fontSize: 18, textData: "Car", fontWeight: FontWeight.bold),
-                trailing: Icon(
-                  Icons.arrow_forward_ios,
-                  color: Colors.white,
-                  size: 18.sp,
-                ),
-              ),
-            ),
-          ),
-        ),
-        SpaceHelper.verticalSpace5,
-        Container(
-          height: 60.h,
-          width: MediaQuery.of(context).size.width - 30.w,
-          decoration: BoxDecoration(
-              color: Colors.black, borderRadius: BorderRadius.circular(12)),
-          child: Center(
-            child: InkWell(
-              onTap: () {
-                _driverInfoController.vehicleType.value = 'cng';
-                _driverInfoController.setVehicleType(vehicleType: 'cng');
-                Get.to(DriverInfoPage(), transition: Transition.rightToLeft);
-              },
-              child: ListTile(
-                leading: SizedBox(
-                    height: 30.h,
-                    width: 40.h,
-                    child: Image.asset("assets/images/rickshaw.png")),
+                    child: Image.asset("assets/images/car_courier.png")),
                 title: CommonComponents().printText(
                     fontSize: 18,
-                    textData: "Texi",
+                    textData: "Car courier",
                     fontWeight: FontWeight.bold),
                 trailing: Icon(
                   Icons.arrow_forward_ios,
@@ -110,19 +63,15 @@ class VehicleTypeScreen extends StatelessWidget {
               color: Colors.black, borderRadius: BorderRadius.circular(12)),
           child: Center(
             child: InkWell(
-              onTap: () {
-                _driverInfoController.vehicleType.value = 'bike';
-                _driverInfoController.setVehicleType(vehicleType: 'bike');
-                Get.to(DriverInfoPage(), transition: Transition.rightToLeft);
-              },
+              onTap: () {},
               child: ListTile(
                 leading: SizedBox(
                     height: 30.h,
                     width: 40.h,
-                    child: Image.asset("assets/images/bike.png")),
+                    child: Image.asset("assets/images/moto_courier.png")),
                 title: CommonComponents().printText(
                     fontSize: 18,
-                    textData: "Moto",
+                    textData: "Moto courier",
                     fontWeight: FontWeight.bold),
                 trailing: Icon(
                   Icons.arrow_forward_ios,
@@ -133,6 +82,34 @@ class VehicleTypeScreen extends StatelessWidget {
             ),
           ),
         ),
+        SpaceHelper.verticalSpace5,
+        Container(
+          height: 60.h,
+          width: MediaQuery.of(context).size.width - 30.w,
+          decoration: BoxDecoration(
+              color: Colors.black, borderRadius: BorderRadius.circular(12)),
+          child: Center(
+            child: InkWell(
+              onTap: () {},
+              child: ListTile(
+                leading: SizedBox(
+                    height: 30.h,
+                    width: 40.h,
+                    child: Image.asset("assets/images/foot_courier.png")),
+                title: CommonComponents().printText(
+                    fontSize: 18,
+                    textData: "Foot courier",
+                    fontWeight: FontWeight.bold),
+                trailing: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: 18.sp,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SpaceHelper.verticalSpace5,
       ],
     );
   }
