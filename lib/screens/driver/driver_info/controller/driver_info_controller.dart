@@ -53,8 +53,11 @@ class DriverInfoController extends GetxController {
   var selectedCarColor = ''.obs;
   var selectedCarBrand = ''.obs;
 
+  var isDriverDataSaving = false.obs;
+
   Future saveDriverInfo() async {
     try {
+      isDriverDataSaving.value = true;
       var uuid = const Uuid();
       String id = uuid.v1();
       DriverInfoModel driverInfoModel = DriverInfoModel(
@@ -83,19 +86,21 @@ class DriverInfoController extends GetxController {
       if (response) {
         await updateVehicleType();
         await updateDriver();
-
+        isDriverDataSaving.value = false;
+        Get.offAll(() => DriverHomeScreen(),
+            transition: Transition.rightToLeft);
         showToast(
             toastText: 'Data saved successfully',
             toastColor: ColorHelper.primaryColor);
-
-        Get.offAll(() => DriverHomeScreen(), transition: Transition.rightToLeft);
       } else {
+        isDriverDataSaving.value = false;
         showToast(
             toastText: 'Something went wrong. Please try again later',
             toastColor: ColorHelper.red);
       }
     } catch (e) {
       log('Error when calling save data: $e');
+      isDriverDataSaving.value = false;
       showToast(
           toastText: 'Something went wrong. Please try again later',
           toastColor: ColorHelper.red);

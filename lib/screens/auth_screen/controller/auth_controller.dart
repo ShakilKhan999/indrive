@@ -62,6 +62,7 @@ class AuthController extends GetxController {
   var otp = ''.obs;
   var isGoogleSigninLoaidng = false.obs;
   var isOtpSubmitLoading = false.obs;
+  var isUserDataSaving = false.obs;
 
   getUserData() async {
     if (FirebaseAuth.instance.currentUser != null) {
@@ -332,6 +333,7 @@ class AuthController extends GetxController {
   Future saveUserData(
       {required UserInfo userInfo, required String loginType}) async {
     try {
+      isUserDataSaving.value = true;
       UserModel? userModel;
       if (loginType == 'phone') {
         userModel = UserModel(
@@ -355,15 +357,17 @@ class AuthController extends GetxController {
       var response = await AuthRepository().saveUserData(userModel: userModel);
       if (response) {
         await setLoginType(type: loginType);
-
+        isUserDataSaving.value = false;
         Get.offAll(() => UserTypeSelectScreen(),
             transition: Transition.rightToLeft);
       } else {
+        isUserDataSaving.value = false;
         showToast(
             toastText: 'Something went wrong. Please try again later',
             toastColor: ColorHelper.red);
       }
     } catch (e) {
+      isUserDataSaving.value = false;
       showToast(
           toastText: 'Something went wrong. Please try again later',
           toastColor: ColorHelper.red);

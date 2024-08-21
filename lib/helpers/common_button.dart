@@ -8,7 +8,7 @@ class CommonButton extends StatelessWidget {
   final String text;
   final Widget? icon;
   final Color? color;
-  bool isLoading;
+  final bool isLoading;
 
   CommonButton({
     super.key,

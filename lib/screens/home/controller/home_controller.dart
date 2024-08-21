@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geocoding/geocoding.dart';
@@ -36,7 +35,6 @@ class HomeController extends GetxController {
   var destinationPickedCenter = const LatLng(23.80, 90.41).obs;
   var startPickedCenter = const LatLng(23.80, 90.41).obs;
 
-
   @override
   void onInit() {
     AuthController authController = Get.put(AuthController());
@@ -45,17 +43,15 @@ class HomeController extends GetxController {
     super.onInit();
   }
 
-
-
   final TextEditingController destinationController = TextEditingController();
   GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
   late GoogleMapController mapController;
   late GoogleMapController mapControllerTO;
   Map<PolylineId, Polyline> polyLines = {};
   var polylineCoordinates = [].obs;
-var findingRoutes=false.obs;
+  var findingRoutes = false.obs;
   getPolyline() async {
-    findingRoutes.value=true;
+    findingRoutes.value = true;
     polyLines.clear();
     polylineCoordinates.clear;
     PolylinePoints polylinePoints = PolylinePoints();
@@ -77,11 +73,11 @@ var findingRoutes=false.obs;
     }
 
     addPolyLine(
-      polylineCoordinates.value
+      polylineCoordinates
           .map((geoPoint) => LatLng(geoPoint.latitude, geoPoint.longitude))
           .toList(),
     );
-    findingRoutes.value=false;
+    findingRoutes.value = false;
   }
 
   addPolyLine(List<LatLng> polylineCoordinates) {
@@ -96,11 +92,12 @@ var findingRoutes=false.obs;
     moveCameraToPolyline();
   }
 
-
   var allMarkers = <Marker>{}.obs;
 
   final List<double> _rotations = [
-    0.0, 45.0, 90.0,
+    0.0,
+    45.0,
+    90.0,
   ];
 
   Future<void> loadMarkers() async {
@@ -109,13 +106,14 @@ var findingRoutes=false.obs;
       const ImageConfiguration(size: Size(24, 24)),
       'assets/images/marker.png',
     );
-   var listToMarked= tripCalled.value || riderFound.value?tempDriverMarkerList:driverMarkerList;
-    Set<Marker> markers =
-    listToMarked.value.asMap().entries.map((entry) {
+    var listToMarked = tripCalled.value || riderFound.value
+        ? tempDriverMarkerList
+        : driverMarkerList;
+    Set<Marker> markers = listToMarked.asMap().entries.map((entry) {
       int idx = entry.key;
       LatLng location = entry.value;
       double rotation =
-      _rotations[idx % _rotations.length]; // Cycle through rotations
+          _rotations[idx % _rotations.length]; // Cycle through rotations
 
       return Marker(
         markerId: MarkerId(location.toString()),
@@ -126,8 +124,7 @@ var findingRoutes=false.obs;
     }).toSet();
 
     allMarkers.value = markers;
-      log("marker length: ${allMarkers.length}");
-
+    log("marker length: ${allMarkers.length}");
   }
 
   void moveCameraToPolyline() {
@@ -153,57 +150,52 @@ var findingRoutes=false.obs;
     mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 60));
   }
 
-
   void onMapCreated(GoogleMapController controller) {
     mapController = controller;
   }
 
-
-  var changingPickup=false.obs;
+  var changingPickup = false.obs;
   void onMapCreatedTo(GoogleMapController controller) {
     mapControllerTO = controller;
   }
 
   void onCameraMove(CameraPosition position) {
     log("camera Moving");
-      startPickedCenter.value =
-          LatLng(position.target.latitude, position.target.longitude);
+    startPickedCenter.value =
+        LatLng(position.target.latitude, position.target.longitude);
     cameraMoving.value = true;
   }
 
   void onCameraMoveTo(CameraPosition position) {
     log("camera Moving To destination");
-      destinationPickedCenter.value =
-          LatLng(position.target.latitude, position.target.longitude);
+    destinationPickedCenter.value =
+        LatLng(position.target.latitude, position.target.longitude);
   }
 
   void onCameraIdleTo() {
     log("camera Idle to destination");
-    getPlaceNameFromCoordinates(
-        destinationPickedCenter.value.latitude, destinationPickedCenter.value.longitude,true);
+    getPlaceNameFromCoordinates(destinationPickedCenter.value.latitude,
+        destinationPickedCenter.value.longitude, true);
   }
 
   void onCameraIdle() {
     cameraMoving.value = false;
     log("camera Idle");
-    getPlaceNameFromCoordinates(
-        startPickedCenter.value.latitude, startPickedCenter.value.longitude,false);
+    getPlaceNameFromCoordinates(startPickedCenter.value.latitude,
+        startPickedCenter.value.longitude, false);
+  }
 
+  Future<void> checkLocationServiceAndPermission() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return;
+    }
   }
 
   Future<Position> getCurrentLocation() async {
-    log("getCurrentLocation called");
 
-    bool serviceEnabled;
+    checkLocationServiceAndPermission();
     LocationPermission permission;
-
-    // Check if location services are enabled
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
-
-    // Check location permissions
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -211,13 +203,10 @@ var findingRoutes=false.obs;
         return Future.error('Location permissions are denied.');
       }
     }
-
     if (permission == LocationPermission.deniedForever) {
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
     }
-
-    // If permission is granted, get the current position
     return await Geolocator.getCurrentPosition();
   }
 
@@ -244,10 +233,9 @@ var findingRoutes=false.obs;
 
   Future<void> getPlaceNameFromCoordinates(
       double latitude, double longitude, bool destination) async {
-    if(destination==false)
-      {
-        myPlaceName.value = "Searching for you on the map..";
-      }
+    if (destination == false) {
+      myPlaceName.value = "Searching for you on the map..";
+    }
     try {
       List<Placemark> placemarks =
           await placemarkFromCoordinates(latitude, longitude);
@@ -294,7 +282,7 @@ var findingRoutes=false.obs;
     });
   }
 
-var sortedDriverList=[].obs;
+  var sortedDriverList = [].obs;
 
   List<UserModel> sortDriversByDistance(var originalList, LatLng center) {
     List<UserModel> sortedList = List.from(originalList);
@@ -321,32 +309,31 @@ var sortedDriverList=[].obs;
 
   var calledTrip = [].obs;
   Future<void> listenCalledTrip(String docId) async {
-        PassengerRepository().listenToCalledTrip(docId).listen((snapshot) {
-          calledTrip.clear();
+    PassengerRepository().listenToCalledTrip(docId).listen((snapshot) {
+      calledTrip.clear();
       if (snapshot.exists) {
         calledTrip.add(Trip.fromJson(snapshot.data() as Map<String, dynamic>));
         log("jksdfmsdn:${calledTrip.length.toString()}");
-        if(calledTrip[0].dropped)
-          {
-            riderFound.value=false;
-            tripCalled.value=false;
-            polyLines.clear();
-            polylineCoordinates.clear();
-          }
+        if (calledTrip[0].dropped) {
+          riderFound.value = false;
+          tripCalled.value = false;
+          polyLines.clear();
+          polylineCoordinates.clear();
+        }
       } else {
         log('Document does not exist');
       }
     });
-
   }
 
   var tripCalled = false.obs;
-  var riderFound=false.obs;
-  var thisDriver=[].obs;
-  var thisDriverDetails=[].obs;
+  var riderFound = false.obs;
+  var thisDriver = [].obs;
+  var thisDriverDetails = [].obs;
   Future<void> callTrip() async {
     sortedDriverList.clear();
-    sortedDriverList.addAll(sortDriversByDistance(driverList, startPickedCenter.value));
+    sortedDriverList
+        .addAll(sortDriversByDistance(driverList, startPickedCenter.value));
     tripCalled.value = true;
     String tripId = generateUniqueId();
     Trip trip = Trip(
@@ -385,36 +372,32 @@ var sortedDriverList=[].obs;
               sortedDriverList[i].latLng.latitude,
               sortedDriverList[i].latLng.longitude)));
         }
-        for(int j=0;j<7;j++)
-          {
-            log("calling for $j seconds");
-            if(calledTrip[0].accepted == false)
-              {
-                await Future.delayed(Duration(seconds: 1));
-              }
-            else
-              {
-                log("Driver found : ${thisDriver.length.toString()}");
-                riderFound.value=true;
-                tripCalled.value = false;
-                thisDriver.add(sortedDriverList[i]);
-                thisDriverDetails.clear();
-                thisDriverDetails.add(await AuthRepository().getCurrentUserDriverData(userId: sortedDriverList[i].uid));
-                break;
-              }
-
+        for (int j = 0; j < 7; j++) {
+          log("calling for $j seconds");
+          if (calledTrip[0].accepted == false) {
+            await Future.delayed(Duration(seconds: 1));
+          } else {
+            log("Driver found : ${thisDriver.length.toString()}");
+            riderFound.value = true;
+            tripCalled.value = false;
+            thisDriver.add(sortedDriverList[i]);
+            thisDriverDetails.clear();
+            thisDriverDetails.add(await AuthRepository()
+                .getCurrentUserDriverData(userId: sortedDriverList[i].uid));
+            break;
           }
+        }
       }
     }
-    if(thisDriver.isEmpty)
-      {
-        await PassengerRepository().callDriver(tripId, "");
-      }
+    if (thisDriver.isEmpty) {
+      await PassengerRepository().callDriver(tripId, "");
+    }
     tripCalled.value = false;
     loadMarkers();
   }
 
-  String calculateDistance({required GeoPoint point1, required GeoPoint point2}) {
+  String calculateDistance(
+      {required GeoPoint point1, required GeoPoint point2}) {
     final distanceInMeters = Geolocator.distanceBetween(
         point1.latitude, point1.longitude, point2.latitude, point2.longitude);
 
@@ -426,8 +409,18 @@ var sortedDriverList=[].obs;
     }
   }
 
+  int calculateRentPrice(
+      {required GeoPoint point1, required GeoPoint point2}) {
+    final distanceInMeters = Geolocator.distanceBetween(
+        point1.latitude, point1.longitude, point2.latitude, point2.longitude);
+return (distanceInMeters*0.01).ceil();
+    
+  }
+
   String calculateTravelTime(
-      {required GeoPoint point1,required GeoPoint point2,required double speedKmh}) {
+      {required GeoPoint point1,
+      required GeoPoint point2,
+      required double speedKmh}) {
     final distanceInMeters = Geolocator.distanceBetween(
         point1.latitude, point1.longitude, point2.latitude, point2.longitude);
 
@@ -436,12 +429,13 @@ var sortedDriverList=[].obs;
     final timeInMinutes = timeInHours * 60;
 
     if (timeInMinutes < 60) {
-      return timeInMinutes<2?"Less than 2 minutes":'${timeInMinutes.toStringAsFixed(2)} minutes';
+      return timeInMinutes < 2
+          ? "Less than 2 minutes"
+          : '${timeInMinutes.ceil()} minutes';
     } else {
       final hours = timeInMinutes ~/ 60;
       final minutes = timeInMinutes % 60;
       return '${hours} hours ${minutes.toStringAsFixed(2)} minutes';
     }
   }
-
 }

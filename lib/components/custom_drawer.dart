@@ -171,7 +171,7 @@ class CustomDrawer extends StatelessWidget {
       Color? color,
       required GestureTapCallback onTap}) {
     return ListTile(
-      leading: Icon(icon),
+      leading: Icon(icon, color: ColorHelper.whiteColor,),
       title: Text(
         text,
         style: TextStyle(color: color),
