@@ -5,7 +5,6 @@ class UserModel {
   String? name;
   String? email;
   String? photo;
-  bool? isDriver;
   String? lat;
   String? long;
   String? phone;
@@ -13,13 +12,20 @@ class UserModel {
   String? vehicleType;
   double? vehicleAngle;
   GeoPoint? latLng;
+  bool? isDriver;
+  bool? driverStatus;
+  bool? isCityToCity;
+  bool? cityToCityStatus;
+  bool? isCourier;
+  bool? courierStatus;
+  bool? isFreight;
+  bool? freightStatus;
 
   UserModel({
     this.uid,
     this.name,
     this.email,
     this.photo,
-    this.isDriver,
     this.lat,
     this.long,
     this.phone,
@@ -27,6 +33,14 @@ class UserModel {
     this.vehicleType,
     this.vehicleAngle,
     this.latLng,
+    this.isDriver,
+    this.driverStatus,
+    this.isCityToCity,
+    this.cityToCityStatus,
+    this.isCourier,
+    this.courierStatus,
+    this.isFreight,
+    this.freightStatus,
   });
 
   Map<String, dynamic> toJson() {
@@ -35,7 +49,6 @@ class UserModel {
       'name': name,
       'email': email,
       'photo': photo,
-      'isDriver': isDriver,
       'lat': lat,
       'long': long,
       'phone': phone,
@@ -43,6 +56,14 @@ class UserModel {
       'vehicleType': vehicleType,
       'vehicleAngle': vehicleAngle,
       'latlng': latLng,
+      'isDriver': isDriver,
+      'driverStatus': driverStatus,
+      'isCityToCity': isCityToCity,
+      'cityToCityStatus': cityToCityStatus,
+      'isCourier': isCourier,
+      'courierStatus': courierStatus,
+      'isFreight': isFreight,
+      'freightStatus': freightStatus,
     };
   }
 
@@ -52,7 +73,6 @@ class UserModel {
       name: json['name'],
       email: json['email'],
       photo: json['photo'],
-      isDriver: json['isDriver'],
       lat: json['lat'],
       long: json['long'],
       phone: json['phone'],
@@ -60,6 +80,14 @@ class UserModel {
       vehicleType: json['vehicleType'],
       vehicleAngle: json['vehicleAngle'],
       latLng: json['latlng'],
+      isDriver: json['isDriver'],
+      driverStatus: json['driverStatus'],
+      isCityToCity: json['isCityToCity'],
+      cityToCityStatus: json['cityToCityStatus'], 
+      isCourier: json['isCourier'],
+      courierStatus: json['courierStatus'],
+      isFreight: json['isFreight'],
+      freightStatus: json['freightStatus'],
     );
   }
 }

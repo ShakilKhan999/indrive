@@ -21,6 +21,7 @@ import 'package:indrive/utils/database_collection_names.dart';
 import 'package:indrive/utils/firebase_option.dart';
 import 'package:indrive/utils/global_toast_service.dart';
 import 'package:indrive/utils/shared_preference_keys.dart';
+import '../../driver/driver_info/views/driver_categories_screen.dart';
 import '../../home/views/passenger_home.dart';
 import '../views/location_permission_screeen.dart';
 
@@ -102,7 +103,7 @@ class AuthController extends GetxController {
               transition: Transition.rightToLeft);
         } else {
           userSwitchLoading.value = false;
-          Get.offAll(() => VehicleTypeScreen(),
+          Get.offAll(() => DriverCategoriesScreen(),
               transition: Transition.rightToLeft);
         }
       }
