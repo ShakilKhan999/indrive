@@ -16,6 +16,7 @@ class UserModel {
   bool? driverStatus;
   bool? isCityToCity;
   bool? cityToCityStatus;
+  bool? cityToCityStatusDescription;
   bool? isCourier;
   bool? courierStatus;
   bool? isFreight;
@@ -37,6 +38,7 @@ class UserModel {
     this.driverStatus,
     this.isCityToCity,
     this.cityToCityStatus,
+    this.cityToCityStatusDescription,
     this.isCourier,
     this.courierStatus,
     this.isFreight,
@@ -60,6 +62,7 @@ class UserModel {
       'driverStatus': driverStatus,
       'isCityToCity': isCityToCity,
       'cityToCityStatus': cityToCityStatus,
+      'cityToCityStatusDescription': cityToCityStatusDescription,
       'isCourier': isCourier,
       'courierStatus': courierStatus,
       'isFreight': isFreight,
@@ -83,7 +86,8 @@ class UserModel {
       isDriver: json['isDriver'],
       driverStatus: json['driverStatus'],
       isCityToCity: json['isCityToCity'],
-      cityToCityStatus: json['cityToCityStatus'], 
+      cityToCityStatus: json['cityToCityStatus'],
+      cityToCityStatusDescription: json['cityToCityStatusDescription'],
       isCourier: json['isCourier'],
       courierStatus: json['courierStatus'],
       isFreight: json['isFreight'],

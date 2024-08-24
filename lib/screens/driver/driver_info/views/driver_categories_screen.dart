@@ -5,7 +5,7 @@ import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/driver/city_to_city/views/cityToCity_info_screen.dart';
-import 'package:indrive/screens/driver/city_to_city/views/cityToCity_typs_screen.dart';
+import 'package:indrive/screens/driver/city_to_city/views/cityToCity_types_screen.dart';
 import 'package:indrive/screens/driver/courier/views/courier_typs_screen.dart';
 import 'package:indrive/screens/driver/driver_info/views/vehicle_type_screen.dart';
 
@@ -187,7 +187,7 @@ class DriverCategoriesScreen extends StatelessWidget {
           child: Center(
             child: InkWell(
               onTap: () {
-                Get.to(CitytocityTypsScreen(),
+                Get.to(CitytocityTypesScreen(),
                     transition: Transition.rightToLeft);
               },
               child: ListTile(

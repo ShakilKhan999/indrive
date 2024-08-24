@@ -7,8 +7,12 @@ import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/driver/city_to_city/views/cityToCity_info_screen.dart';
 
-class CitytocityTypsScreen extends StatelessWidget {
-  const CitytocityTypsScreen({super.key});
+import '../controller/cityToCity_controller.dart';
+
+class CitytocityTypesScreen extends StatelessWidget {
+  CitytocityTypesScreen({super.key});
+  final CityToCityInfoController _cityToCityInfoController =
+      Get.put(CityToCityInfoController());
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +49,8 @@ class CitytocityTypsScreen extends StatelessWidget {
           child: Center(
             child: InkWell(
               onTap: () {
+                _cityToCityInfoController.vehicleType.value = 'car';
+                _cityToCityInfoController.setVehicleType(vehicleType: 'car');
                 Get.to(CitytocityInfoScreen(),
                     transition: Transition.rightToLeft);
               },
@@ -73,6 +79,8 @@ class CitytocityTypsScreen extends StatelessWidget {
           child: Center(
             child: InkWell(
               onTap: () {
+                _cityToCityInfoController.vehicleType.value = 'taxi';
+                _cityToCityInfoController.setVehicleType(vehicleType: 'taxi');
                 Get.to(CitytocityInfoScreen(),
                     transition: Transition.rightToLeft);
               },
@@ -83,7 +91,7 @@ class CitytocityTypsScreen extends StatelessWidget {
                     child: Image.asset("assets/images/rickshaw.png")),
                 title: CommonComponents().printText(
                     fontSize: 18,
-                    textData: "Texi",
+                    textData: "Taxi",
                     fontWeight: FontWeight.bold),
                 trailing: Icon(
                   Icons.arrow_forward_ios,
@@ -103,6 +111,8 @@ class CitytocityTypsScreen extends StatelessWidget {
           child: Center(
             child: InkWell(
               onTap: () {
+                _cityToCityInfoController.vehicleType.value = 'moto';
+                _cityToCityInfoController.setVehicleType(vehicleType: 'moto');
                 Get.to(CitytocityInfoScreen(),
                     transition: Transition.rightToLeft);
               },

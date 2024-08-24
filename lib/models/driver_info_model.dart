@@ -1,5 +1,6 @@
 class DriverInfoModel {
-  String? id;
+  String id;
+  String uid;
   String? profilePhoto;
   String? firstName;
   String? lastName;
@@ -16,7 +17,8 @@ class DriverInfoModel {
   String? vehicleColor;
   String vehicleType;
   DriverInfoModel({
-    this.id,
+    required this.id,
+    required this.uid,
     this.profilePhoto,
     this.firstName,
     this.lastName,
@@ -37,6 +39,7 @@ class DriverInfoModel {
   factory DriverInfoModel.fromJson(Map<String, dynamic> json) {
     return DriverInfoModel(
       id: json['id'],
+      uid: json['uid'],
       profilePhoto: json['profilePhoto'],
       firstName: json['firstName'],
       lastName: json['lastName'],
@@ -51,13 +54,14 @@ class DriverInfoModel {
       vehicleModelNo: json['vehicleModelNo'],
       vehicleNumberOfSeat: json['vehicleNumberOfSeat'],
       vehicleColor: json['vehicleColor'],
-      vehicleType: json['vehicleType']
+      vehicleType: json['vehicleType'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'uid': uid,
       'profilePhoto': profilePhoto,
       'firstName': firstName,
       'lastName': lastName,

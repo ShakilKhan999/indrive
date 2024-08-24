@@ -10,7 +10,7 @@ import 'package:indrive/screens/driver/city_to_city/views/cityToCity_driver_lice
 import 'package:indrive/screens/driver/city_to_city/views/cityToCity_national_id_verfication_screen.dart';
 import 'package:indrive/screens/driver/city_to_city/views/cityToCity_vehicle_info_screen.dart';
 import 'package:indrive/screens/driver/city_to_city/views/cityToCityid_confirmation_screen.dart';
-import 'package:indrive/screens/driver/city_to_city/views/controller/cityToCity_controller.dart';
+import 'package:indrive/screens/driver/city_to_city/controller/cityToCity_controller.dart';
 
 class CitytocityInfoScreen extends StatelessWidget {
   CitytocityInfoScreen({super.key});
@@ -32,7 +32,9 @@ class CitytocityInfoScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 14.0),
               child: CommonComponents().commonButton(
                   text: "Save All Data",
-                  onPressed: () async {},
+                  onPressed: () async {
+                    // jj
+                  },
                   disabled: false),
             )
           ],

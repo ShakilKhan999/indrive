@@ -62,6 +62,7 @@ class DriverInfoController extends GetxController {
       String id = uuid.v1();
       DriverInfoModel driverInfoModel = DriverInfoModel(
         id: id,
+        uid: FirebaseAuth.instance.currentUser!.uid,
         firstName: firstNameController.value.text,
         lastName: lastNameController.value.text,
         email: emailController.value.text,
@@ -137,7 +138,7 @@ class DriverInfoController extends GetxController {
     'Moto Guzzi',
     'Husqvarna'
   ];
-  List<String> cngBrands = [
+  List<String> taxiBrands = [
     'Maruti Suzuki',
     'Hyundai',
     'Tata Motors',
@@ -160,8 +161,8 @@ class DriverInfoController extends GetxController {
     if (vehicleType == 'car') {
       vehicleBrands = carBrands;
     }
-    if (vehicleType == 'cng') {
-      vehicleBrands = cngBrands;
+    if (vehicleType == 'taxi') {
+      vehicleBrands = taxiBrands;
     }
     if (vehicleType == 'bike') {
       vehicleBrands = bikeBrands;

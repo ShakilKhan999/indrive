@@ -192,7 +192,7 @@ class CityToCityInfoController extends GetxController {
     'Moto Guzzi',
     'Husqvarna'
   ];
-  List<String> cngBrands = [
+  List<String> taxiBrands = [
     'Maruti Suzuki',
     'Hyundai',
     'Tata Motors',
@@ -214,11 +214,12 @@ class CityToCityInfoController extends GetxController {
     if (vehicleType == 'car') {
       vehicleBrands = carBrands;
     }
-    if (vehicleType == 'cng') {
-      vehicleBrands = cngBrands;
+    if (vehicleType == 'taxi') {
+      vehicleBrands = taxiBrands;
     }
     if (vehicleType == 'bike') {
       vehicleBrands = bikeBrands;
     }
   }
+  
 }

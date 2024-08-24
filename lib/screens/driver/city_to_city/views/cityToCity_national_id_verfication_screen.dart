@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/components/custom_appbar.dart';
 import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/screens/driver/city_to_city/views/controller/cityToCity_controller.dart';
+import 'package:indrive/screens/driver/city_to_city/controller/cityToCity_controller.dart';
 
 import '../../../../main.dart';
 

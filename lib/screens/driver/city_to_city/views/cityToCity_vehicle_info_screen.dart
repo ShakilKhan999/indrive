@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/components/custom_appbar.dart';
 import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/screens/driver/city_to_city/views/controller/cityToCity_controller.dart';
+import 'package:indrive/screens/driver/city_to_city/controller/cityToCity_controller.dart';
 
 import '../../../../main.dart';
 
@@ -30,7 +30,10 @@ class CityToCityVehicleInfoScreen extends StatelessWidget {
             SpaceHelper.verticalSpace15,
             _buildModelNumberTextFiled(),
             SpaceHelper.verticalSpace15,
-            _buildSeatAndColorRow(),
+            _cityToCityInfoController.vehicleType.value == 'car' ||
+                    _cityToCityInfoController.vehicleType.value == 'taxi'
+                ? _buildSeatAndColorRow()
+                : SizedBox(),
             SpaceHelper.verticalSpace15,
             _buildSubmitButton(),
             SpaceHelper.verticalSpace40,
@@ -54,7 +57,8 @@ class CityToCityVehicleInfoScreen extends StatelessWidget {
 
   Widget _buildCarBrandNameView() {
     return _buildDropdownSearch(
-      textData: "Car Brand ",
+      textData:
+          "${_cityToCityInfoController.vehicleType.value.toUpperCase()} Brand ",
       hintText: 'Select brand',
       items: _cityToCityInfoController.vehicleBrands,
       searchHintText: 'Select brand...',

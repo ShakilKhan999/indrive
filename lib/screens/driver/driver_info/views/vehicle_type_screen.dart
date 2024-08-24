@@ -25,7 +25,7 @@ class VehicleTypeScreen extends StatelessWidget {
             onTap: () {
               Navigator.pop(context);
             }),
-        backgroundColor: ColorHelper.lightGreyColor,
+        backgroundColor: ColorHelper.bgColor,
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -80,8 +80,8 @@ class VehicleTypeScreen extends StatelessWidget {
           child: Center(
             child: InkWell(
               onTap: () {
-                _driverInfoController.vehicleType.value = 'cng';
-                _driverInfoController.setVehicleType(vehicleType: 'cng');
+                _driverInfoController.vehicleType.value = 'taxi';
+                _driverInfoController.setVehicleType(vehicleType: 'taxi');
                 Get.to(DriverInfoPage(), transition: Transition.rightToLeft);
               },
               child: ListTile(
