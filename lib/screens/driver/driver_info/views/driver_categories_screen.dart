@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
+import 'package:indrive/screens/driver/city_to_city/views/cityToCity_info_screen.dart';
+import 'package:indrive/screens/driver/city_to_city/views/cityToCity_typs_screen.dart';
 import 'package:indrive/screens/driver/courier/views/courier_typs_screen.dart';
 import 'package:indrive/screens/driver/driver_info/views/vehicle_type_screen.dart';
 
@@ -166,6 +168,36 @@ class DriverCategoriesScreen extends StatelessWidget {
                 title: CommonComponents().printText(
                     fontSize: 18,
                     textData: "Freight",
+                    fontWeight: FontWeight.bold),
+                trailing: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: 18.sp,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SpaceHelper.verticalSpace5,
+        Container(
+          height: 60.h,
+          width: MediaQuery.of(context).size.width - 30.w,
+          decoration: BoxDecoration(
+              color: Colors.black, borderRadius: BorderRadius.circular(12)),
+          child: Center(
+            child: InkWell(
+              onTap: () {
+                Get.to(CitytocityTypsScreen(),
+                    transition: Transition.rightToLeft);
+              },
+              child: ListTile(
+                leading: SizedBox(
+                    height: 30.h,
+                    width: 40.h,
+                    child: Image.asset("assets/images/location.png")),
+                title: CommonComponents().printText(
+                    fontSize: 18,
+                    textData: "City to City",
                     fontWeight: FontWeight.bold),
                 trailing: Icon(
                   Icons.arrow_forward_ios,

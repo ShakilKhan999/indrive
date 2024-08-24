@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/components/custom_appbar.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
+import 'package:indrive/screens/driver/courier/views/courier_info_screen.dart';
 
 class CourierTypsScreen extends StatelessWidget {
   const CourierTypsScreen({super.key});
@@ -36,7 +38,9 @@ class CourierTypsScreen extends StatelessWidget {
               color: Colors.black, borderRadius: BorderRadius.circular(12)),
           child: Center(
             child: InkWell(
-              onTap: () {},
+              onTap: () {
+                Get.to(CourierInfoScreen(), transition: Transition.rightToLeft);
+              },
               child: ListTile(
                 leading: SizedBox(
                     height: 40.h,
@@ -63,7 +67,9 @@ class CourierTypsScreen extends StatelessWidget {
               color: Colors.black, borderRadius: BorderRadius.circular(12)),
           child: Center(
             child: InkWell(
-              onTap: () {},
+              onTap: () {
+                Get.to(CourierInfoScreen(), transition: Transition.rightToLeft);
+              },
               child: ListTile(
                 leading: SizedBox(
                     height: 30.h,
@@ -90,7 +96,9 @@ class CourierTypsScreen extends StatelessWidget {
               color: Colors.black, borderRadius: BorderRadius.circular(12)),
           child: Center(
             child: InkWell(
-              onTap: () {},
+              onTap: () {
+                Get.to(CourierInfoScreen(), transition: Transition.rightToLeft);
+              },
               child: ListTile(
                 leading: SizedBox(
                     height: 30.h,
