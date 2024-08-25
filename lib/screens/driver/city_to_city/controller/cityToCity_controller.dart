@@ -1,16 +1,26 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/method_helper.dart';
+import 'package:indrive/main.dart';
+import 'package:indrive/models/driver_info_model.dart';
 import 'package:indrive/utils/firebase_image_locations.dart';
 import 'package:indrive/utils/global_toast_service.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
+
+import '../../../../utils/database_collection_names.dart';
+import '../../driver_info/repository/driver_info_repository.dart';
+import '../repository/city_to_city_repository.dart';
 
 class CityToCityInfoController extends GetxController {
   var vehicleType = ''.obs;
+  var isCityToCityDataSaving = false.obs;
 
   // basic info----->>>>>
   var firstNameController = TextEditingController().obs;
@@ -221,5 +231,73 @@ class CityToCityInfoController extends GetxController {
       vehicleBrands = bikeBrands;
     }
   }
-  
+
+  Future saveDriverInfo() async {
+    try {
+      fToast.init(Get.context!);
+      isCityToCityDataSaving.value = true;
+      var uuid = const Uuid();
+      String id = uuid.v1();
+      DriverInfoModel driverInfoModel = DriverInfoModel(
+        id: id,
+        uid: FirebaseAuth.instance.currentUser!.uid,
+        firstName: firstNameController.value.text,
+        lastName: lastNameController.value.text,
+        email: emailController.value.text,
+        profilePhoto: profilePhotoUrl.value,
+        dateOfBirth: selectedDate.value,
+        driverLicense: driverLicenseController.value.text,
+        driverLicenseFrontPhoto: licenseFrontPhotoUrl.value,
+        driverLicenseBackPhoto: licensebackPhotoUrl.value,
+        idWithPhoto: idCardWithFacefPhotoUrl.value,
+        nid: nationalIdCardPhotoUrl.value,
+        vehicleBrand: selectedCarBrand.value,
+        vehicleNumberOfSeat:
+            vehicleType.value == 'moto' ? null : selectedSeatNumber.value,
+        vehicleColor:
+            vehicleType.value == 'moto' ? null : selectedCarColor.value,
+        vehicleModelNo: carModelNumberController.value.text,
+        vehicleType: vehicleType.value,
+      );
+      log('driver info model : ${jsonEncode(driverInfoModel)}');
+      var response = await CityToCityRepository().saveCityToCityInfo(
+          driverInfoModel: driverInfoModel,
+          uid: FirebaseAuth.instance.currentUser!.uid,
+          driverInfoDoc: id);
+      if (response) {
+        await updateCityToCityStatus();
+        isCityToCityDataSaving.value = false;
+        Get.back();
+        showToast(
+            toastText: 'Data saved successfully',
+            toastColor: ColorHelper.primaryColor);
+      } else {
+        isCityToCityDataSaving.value = false;
+        showToast(
+            toastText: 'Something went wrong. Please try again later',
+            toastColor: ColorHelper.red);
+      }
+    } catch (e) {
+      log('Error when calling save data: $e');
+      isCityToCityDataSaving.value = false;
+      showToast(
+          toastText: 'Something went wrong. Please try again later',
+          toastColor: ColorHelper.red);
+    }
+  }
+
+  updateCityToCityStatus() async {
+    try {
+      await MethodHelper().updateDocFields(
+          docId: FirebaseAuth.instance.currentUser!.uid,
+          fieldsToUpdate: {
+            "isCityToCity": true,
+            "cityToCityStatus": "pending",
+            "cityToCityVehicleType": vehicleType.value
+          },
+          collection: userCollection);
+    } catch (e) {
+      log('Error while updating city to city data: $e');
+    }
+  }
 }

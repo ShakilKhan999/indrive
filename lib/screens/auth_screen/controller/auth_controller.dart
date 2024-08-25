@@ -353,6 +353,7 @@ class AuthController extends GetxController {
           phone: userInfo.phoneNumber,
           signInWith: 'google',
           isDriver: isDriver.value,
+          
         );
       }
       var response = await AuthRepository().saveUserData(userModel: userModel);

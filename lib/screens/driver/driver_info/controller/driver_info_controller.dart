@@ -74,8 +74,10 @@ class DriverInfoController extends GetxController {
         idWithPhoto: idCardWithFacefPhotoUrl.value,
         nid: nationalIdCardPhotoUrl.value,
         vehicleBrand: selectedCarBrand.value,
-        vehicleNumberOfSeat: selectedSeatNumber.value,
-        vehicleColor: selectedCarColor.value,
+        vehicleNumberOfSeat:
+            vehicleType.value == 'moto' ? null : selectedSeatNumber.value,
+        vehicleColor:
+            vehicleType.value == 'moto' ? null : selectedCarColor.value,
         vehicleModelNo: carModelNumberController.value.text,
         vehicleType: vehicleType.value,
       );

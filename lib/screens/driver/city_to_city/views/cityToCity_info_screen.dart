@@ -33,9 +33,12 @@ class CitytocityInfoScreen extends StatelessWidget {
               child: CommonComponents().commonButton(
                   text: "Save All Data",
                   onPressed: () async {
-                    // jj
+                    await _cityToCityInfoController.saveDriverInfo();
                   },
-                  disabled: false),
+                  disabled:
+                      _cityToCityInfoController.isCityToCityDataSaving.value,
+                  isLoading:
+                      _cityToCityInfoController.isCityToCityDataSaving.value),
             )
           ],
         ),
