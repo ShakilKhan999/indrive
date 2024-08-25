@@ -6,7 +6,6 @@ import 'package:indrive/components/common_components.dart';
 
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
 
 import 'package:indrive/screens/driver/city_to_city/views/cityToCity_types_screen.dart';
 import 'package:indrive/screens/driver/courier/views/courier_typs_screen.dart';
