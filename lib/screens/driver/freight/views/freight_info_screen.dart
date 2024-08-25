@@ -5,16 +5,16 @@ import 'package:indrive/components/common_components.dart';
 import 'package:indrive/components/custom_appbar.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/screens/driver/courier/controller/controller.dart';
-import 'package:indrive/screens/driver/courier/views/courier_basicInfo_screen.dart';
-import 'package:indrive/screens/driver/courier/views/courier_driverLicence_screen.dart';
-import 'package:indrive/screens/driver/courier/views/courier_idConfirmation_screen.dart';
-import 'package:indrive/screens/driver/courier/views/courier_national_idCardBirth_screen.dart';
-import 'package:indrive/screens/driver/courier/views/courier_vehicleInfo_screen.dart';
+import 'package:indrive/screens/driver/freight/controller/freight_controller.dart';
+import 'package:indrive/screens/driver/freight/views/freight_basicInfo_screen.dart';
+import 'package:indrive/screens/driver/freight/views/freight_driverLicence_screen.dart';
+import 'package:indrive/screens/driver/freight/views/freight_idConfirmation_screen.dart';
+import 'package:indrive/screens/driver/freight/views/freight_national_idCardBirth_screen.dart';
+import 'package:indrive/screens/driver/freight/views/freight_vehicleInfo_screen.dart';
 
-class CourierInfoScreen extends StatelessWidget {
-  CourierInfoScreen({super.key});
-  final CourierController _courierController = Get.put(CourierController());
+class FreightInfoScreen extends StatelessWidget {
+  FreightInfoScreen({super.key});
+  final FreightController _freightController = Get.put(FreightController());
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -51,28 +51,28 @@ class CourierInfoScreen extends StatelessWidget {
             textIconRow(
                 text: "Basic Info",
                 onTap: () {
-                  Get.to(CourierBasicinfoScreen(),
+                  Get.to(FreightBasicinfoScreen(),
                       transition: Transition.rightToLeft);
                 }),
             const Divider(),
             textIconRow(
                 text: "Driver Licence",
                 onTap: () {
-                  Get.to(CourierDriverlicenceScreen(),
+                  Get.to(FreightDriverlicenceScreen(),
                       transition: Transition.rightToLeft);
                 }),
             const Divider(),
             textIconRow(
                 text: "ID Confirmation",
                 onTap: () {
-                  Get.to(CourierIdconfirmationScreen(),
+                  Get.to(FreightIdconfirmationScreen(),
                       transition: Transition.rightToLeft);
                 }),
             const Divider(),
             textIconRow(
               text: "National Identity Card or Birth Certificate",
               onTap: () {
-                Get.to(CourierNationalIdcardbirthScreen(),
+                Get.to(FreightNationalIdcardbirthScreen(),
                     transition: Transition.rightToLeft);
               },
             ),
@@ -80,7 +80,7 @@ class CourierInfoScreen extends StatelessWidget {
             textIconRow(
               text: "Vehicle Info",
               onTap: () {
-                Get.to(CourierVehicleinfoScreen(),
+                Get.to(FreightVehicleinfoScreen(),
                     transition: Transition.rightToLeft);
               },
             )
