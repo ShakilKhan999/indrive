@@ -87,8 +87,8 @@ class DriverInfoController extends GetxController {
           uid: FirebaseAuth.instance.currentUser!.uid,
           driverInfoDoc: id);
       if (response) {
-        await updateVehicleType();
-        await updateDriver();
+        await updateDriverStatus();
+
         isDriverDataSaving.value = false;
         Get.offAll(() => DriverHomeScreen(),
             transition: Transition.rightToLeft);
@@ -287,22 +287,16 @@ class DriverInfoController extends GetxController {
     }
   }
 
-  updateDriver() async {
+  updateDriverStatus() async {
     try {
       await MethodHelper().updateDocFields(
           docId: FirebaseAuth.instance.currentUser!.uid,
-          fieldsToUpdate: {"isDriver": true},
-          collection: userCollection);
-    } catch (e) {
-      log('Error while updating is driver data: $e');
-    }
-  }
-
-  updateVehicleType() async {
-    try {
-      await MethodHelper().updateDocFields(
-          docId: FirebaseAuth.instance.currentUser!.uid,
-          fieldsToUpdate: {"vehicleType": vehicleType.value},
+          fieldsToUpdate: {
+            "isDriver": true,
+            "driverStatus": 'pending',
+            "vehicleType": vehicleType.value,
+            "driverVehicleType": vehicleType.value
+          },
           collection: userCollection);
     } catch (e) {
       log('Error while updating is vehicle type data: $e');
