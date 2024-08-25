@@ -4,10 +4,10 @@ import 'package:get/get.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/screens/driver/city_to_city/views/cityToCity_info_screen.dart';
 import 'package:indrive/screens/driver/city_to_city/views/cityToCity_types_screen.dart';
 import 'package:indrive/screens/driver/courier/views/courier_typs_screen.dart';
 import 'package:indrive/screens/driver/driver_info/views/vehicle_type_screen.dart';
+import 'package:indrive/screens/driver/freight/views/freight_info_screen.dart';
 
 class DriverCategoriesScreen extends StatelessWidget {
   const DriverCategoriesScreen({super.key});
@@ -159,7 +159,9 @@ class DriverCategoriesScreen extends StatelessWidget {
               color: Colors.black, borderRadius: BorderRadius.circular(12)),
           child: Center(
             child: InkWell(
-              onTap: () {},
+              onTap: () {
+                Get.to(FreightInfoScreen(), transition: Transition.rightToLeft);
+              },
               child: ListTile(
                 leading: SizedBox(
                     height: 30.h,
