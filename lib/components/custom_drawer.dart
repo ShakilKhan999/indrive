@@ -7,8 +7,7 @@ import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
 import 'package:indrive/screens/drawer_screen/my_ride_screen.dart';
-
-import '../screens/home/views/profile_screen.dart';
+import 'package:indrive/screens/home/views/choose_profile_screen.dart';
 
 class CustomDrawer extends StatelessWidget {
   CustomDrawer({super.key});
@@ -112,7 +111,7 @@ class CustomDrawer extends StatelessWidget {
       children: [
         InkWell(
           onTap: () {
-            Get.to(ProfileScreen(), transition: Transition.rightToLeft);
+            Get.to(ChooseProfileScreen(), transition: Transition.rightToLeft);
           },
           child: Container(
             height: 60.h,
@@ -172,7 +171,10 @@ class CustomDrawer extends StatelessWidget {
       Color? color,
       required GestureTapCallback onTap}) {
     return ListTile(
-      leading: Icon(icon, color: ColorHelper.whiteColor,),
+      leading: Icon(
+        icon,
+        color: ColorHelper.whiteColor,
+      ),
       title: Text(
         text,
         style: TextStyle(color: color),
