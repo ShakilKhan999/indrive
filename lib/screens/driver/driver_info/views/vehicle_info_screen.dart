@@ -16,7 +16,7 @@ class VehicleInfoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-        fToast.init(context);
+    fToast.init(context);
     return Scaffold(
       appBar: CustomAppbar(titleText: 'Vehicle info', onTap: () {}),
       backgroundColor: Colors.white,
@@ -30,7 +30,10 @@ class VehicleInfoScreen extends StatelessWidget {
             SpaceHelper.verticalSpace15,
             _buildModelNumberTextFiled(),
             SpaceHelper.verticalSpace15,
-            _buildSeatAndColorRow(),
+            _driverInfoController.vehicleType.value == 'car' ||
+                    _driverInfoController.vehicleType.value == 'taxi'
+                ? _buildSeatAndColorRow()
+                : SizedBox(),
             SpaceHelper.verticalSpace15,
             _buildSubmitButton(),
             SpaceHelper.verticalSpace40,
@@ -54,7 +57,7 @@ class VehicleInfoScreen extends StatelessWidget {
 
   Widget _buildCarBrandNameView() {
     return _buildDropdownSearch(
-      textData: "Car Brand ",
+      textData: "${_driverInfoController.vehicleType.toUpperCase()} Brand ",
       hintText: 'Select brand',
       items: _driverInfoController.vehicleBrands,
       searchHintText: 'Select brand...',
@@ -127,8 +130,7 @@ class VehicleInfoScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CommonComponents().commonTextPicker(
           labelText: 'Model Number',
-          textController:
-              _driverInfoController.carModelNumberController.value),
+          textController: _driverInfoController.carModelNumberController.value),
     );
   }
 

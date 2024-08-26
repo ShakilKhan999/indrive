@@ -53,12 +53,16 @@ class DriverInfoController extends GetxController {
   var selectedCarColor = ''.obs;
   var selectedCarBrand = ''.obs;
 
+  var isDriverDataSaving = false.obs;
+
   Future saveDriverInfo() async {
     try {
+      isDriverDataSaving.value = true;
       var uuid = const Uuid();
       String id = uuid.v1();
       DriverInfoModel driverInfoModel = DriverInfoModel(
         id: id,
+        uid: FirebaseAuth.instance.currentUser!.uid,
         firstName: firstNameController.value.text,
         lastName: lastNameController.value.text,
         email: emailController.value.text,
@@ -70,8 +74,10 @@ class DriverInfoController extends GetxController {
         idWithPhoto: idCardWithFacefPhotoUrl.value,
         nid: nationalIdCardPhotoUrl.value,
         vehicleBrand: selectedCarBrand.value,
-        vehicleNumberOfSeat: selectedSeatNumber.value,
-        vehicleColor: selectedCarColor.value,
+        vehicleNumberOfSeat:
+            vehicleType.value == 'moto' ? null : selectedSeatNumber.value,
+        vehicleColor:
+            vehicleType.value == 'moto' ? null : selectedCarColor.value,
         vehicleModelNo: carModelNumberController.value.text,
         vehicleType: vehicleType.value,
       );
@@ -81,21 +87,21 @@ class DriverInfoController extends GetxController {
           uid: FirebaseAuth.instance.currentUser!.uid,
           driverInfoDoc: id);
       if (response) {
-        await updateVehicleType();
-        await updateDriver();
+        await updateDriverStatus();
 
-        showToast(
-            toastText: 'Data saved successfully',
-            toastColor: ColorHelper.primaryColor);
-
-        Get.offAll(() => DriverHomeScreen());
+        isDriverDataSaving.value = false;
+        Get.offAll(() => DriverHomeScreen(),
+            transition: Transition.rightToLeft);
+        
       } else {
+        isDriverDataSaving.value = false;
         showToast(
             toastText: 'Something went wrong. Please try again later',
             toastColor: ColorHelper.red);
       }
     } catch (e) {
       log('Error when calling save data: $e');
+      isDriverDataSaving.value = false;
       showToast(
           toastText: 'Something went wrong. Please try again later',
           toastColor: ColorHelper.red);
@@ -132,7 +138,7 @@ class DriverInfoController extends GetxController {
     'Moto Guzzi',
     'Husqvarna'
   ];
-  List<String> cngBrands = [
+  List<String> taxiBrands = [
     'Maruti Suzuki',
     'Hyundai',
     'Tata Motors',
@@ -155,10 +161,10 @@ class DriverInfoController extends GetxController {
     if (vehicleType == 'car') {
       vehicleBrands = carBrands;
     }
-    if (vehicleType == 'cng') {
-      vehicleBrands = cngBrands;
+    if (vehicleType == 'taxi') {
+      vehicleBrands = taxiBrands;
     }
-    if (vehicleType == 'bike') {
+    if (vehicleType == 'moto') {
       vehicleBrands = bikeBrands;
     }
   }
@@ -279,22 +285,16 @@ class DriverInfoController extends GetxController {
     }
   }
 
-  updateDriver() async {
+  updateDriverStatus() async {
     try {
       await MethodHelper().updateDocFields(
           docId: FirebaseAuth.instance.currentUser!.uid,
-          fieldsToUpdate: {"isDriver": true},
-          collection: userCollection);
-    } catch (e) {
-      log('Error while updating is driver data: $e');
-    }
-  }
-
-  updateVehicleType() async {
-    try {
-      await MethodHelper().updateDocFields(
-          docId: FirebaseAuth.instance.currentUser!.uid,
-          fieldsToUpdate: {"vehicleType": vehicleType.value},
+          fieldsToUpdate: {
+            "isDriver": true,
+            "driverStatus": 'pending',
+            "vehicleType": vehicleType.value,
+            "driverVehicleType": vehicleType.value
+          },
           collection: userCollection);
     } catch (e) {
       log('Error while updating is vehicle type data: $e');

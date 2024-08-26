@@ -6,8 +6,8 @@ import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
-
-import '../screens/home/views/profile_screen.dart';
+import 'package:indrive/screens/drawer_screen/my_ride_screen.dart';
+import 'package:indrive/screens/profile/views/choose_profile_screen.dart';
 
 class CustomDrawer extends StatelessWidget {
   CustomDrawer({super.key});
@@ -36,15 +36,18 @@ class CustomDrawer extends StatelessWidget {
           color: Color.fromARGB(255, 70, 70, 70),
         ),
         SpaceHelper.verticalSpace5,
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 6.w),
-          child: CommonComponents().commonButton(
-              text: _authController.isDriver.value
-                  ? 'Passenger mode'
-                  : 'Driver mode',
-              onPressed: () {
-                _authController.switchMode();
-              }),
+        Obx(
+          () => Padding(
+            padding: EdgeInsets.symmetric(horizontal: 6.w),
+            child: CommonComponents().commonButton(
+                text: _authController.isDriver.value
+                    ? 'Passenger mode'
+                    : 'Driver mode',
+                isLoading: _authController.userSwitchLoading.value,
+                onPressed: () {
+                  _authController.switchMode();
+                }),
+          ),
         ),
         SpaceHelper.verticalSpace10,
         Padding(
@@ -74,12 +77,21 @@ class CustomDrawer extends StatelessWidget {
           },
         ),
         buildDrawerItem(
-          icon: Icons.timer_outlined,
-          text: 'Request history',
+          icon: Icons.maps_home_work_sharp,
+          text: 'City to City',
           color: Colors.white,
           onTap: () {
             // Get.offAll(() =>
             //     transition: Transition.noTransition);
+          },
+        ),
+        buildDrawerItem(
+          icon: Icons.timer_outlined,
+          text: 'Request history',
+          color: Colors.white,
+          onTap: () {
+            Get.offAll(() => MyRideScreen(),
+                transition: Transition.noTransition);
           },
         ),
         buildDrawerItem(
@@ -108,7 +120,8 @@ class CustomDrawer extends StatelessWidget {
       children: [
         InkWell(
           onTap: () {
-            Get.to(ProfileScreen());
+            Get.to(() => ChooseProfileScreen(),
+                transition: Transition.rightToLeft);
           },
           child: Container(
             height: 60.h,
@@ -144,6 +157,7 @@ class CustomDrawer extends StatelessWidget {
                           FivePointedStar(
                             count: 5,
                             onChange: (count) {},
+                            disabled: true,
                           )
                         ],
                       ),
@@ -168,7 +182,10 @@ class CustomDrawer extends StatelessWidget {
       Color? color,
       required GestureTapCallback onTap}) {
     return ListTile(
-      leading: Icon(icon),
+      leading: Icon(
+        icon,
+        color: ColorHelper.whiteColor,
+      ),
       title: Text(
         text,
         style: TextStyle(color: color),

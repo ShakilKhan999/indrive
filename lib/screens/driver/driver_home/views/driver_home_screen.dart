@@ -5,9 +5,11 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
+import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
 import 'package:indrive/screens/driver/driver_home/controller/driver_home_controller.dart';
 import 'package:indrive/screens/driver/driver_home/repository/driver_repository.dart';
 import 'package:indrive/screens/home/repository/passenger_repositoy.dart';
+import 'package:indrive/screens/profile/views/profile_screen.dart';
 
 import '../../../../components/custom_drawer.dart';
 
@@ -17,6 +19,7 @@ class DriverHomeScreen extends StatelessWidget {
 
   final DriverHomeController driverHomeController =
       Get.put(DriverHomeController());
+  final AuthController _authController = Get.find();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,37 +115,55 @@ class DriverHomeScreen extends StatelessWidget {
             right: 10.w,
             child: Container(
               height: 40.h,
-              width: 100.h,
               decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(90)),
               child: Center(
+                  child: Obx(
+                () => InkWell(
+                  onTap: () {
+                    Get.to(() => ProfileScreen(),
+                        transition: Transition.rightToLeft);
+                  },
                   child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SpaceHelper.horizontalSpace5,
-                  CommonComponents().printText(
-                      fontSize: 18,
-                      textData: "Rock",
-                      fontWeight: FontWeight.bold),
-                  Container(
-                    height: 35.h,
-                    width: 35.h,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(90),
-                        color: Colors.white,
-                        border: Border.all(color: Colors.white)),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(90),
-                      child: Image.network(
-                        "https://www.dmarge.com/wp-content/uploads/2021/01/dwayne-the-rock-.jpg",
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SpaceHelper.horizontalSpace10,
+                      CommonComponents().printText(
+                          fontSize: 16,
+                          textData:
+                              _authController.currentUser.value.name != null
+                                  ? "${_authController.currentUser.value.name!}"
+                                  : "User Name",
+                          fontWeight: FontWeight.bold),
+                      SpaceHelper.horizontalSpace5,
+                      Container(
                         height: 35.h,
                         width: 35.h,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  )
-                ],
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(90),
+                            color: Colors.white,
+                            border: Border.all(color: Colors.white)),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(90),
+                          child: _authController.currentUser.value.photo != null
+                              ? Image.network(
+                                  _authController.currentUser.value.photo!,
+                                  height: 35.h,
+                                  width: 35.h,
+                                  fit: BoxFit.cover,
+                                )
+                              : Image.asset(
+                                  "assets/images/person.jpg",
+                                  height: 35.h,
+                                  width: 35.h,
+                                  fit: BoxFit.cover,
+                                ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
               )),
             ),
           ),
@@ -289,10 +310,9 @@ class DriverHomeScreen extends StatelessWidget {
                       child: CommonComponents().commonButton(
                           text: "Drop and Finish",
                           onPressed: () async {
-                            DriverRepository().updateTripState(
+                            await DriverRepository().completeRide(
                                 driverHomeController.activeCall[0].tripId,
-                                "dropped",
-                                true);
+                                driverHomeController.activeCall[0].driverId);
                             driverHomeController.activeCall.clear();
                             driverHomeController.polylineCoordinates.clear();
                             driverHomeController.polyLines.clear();

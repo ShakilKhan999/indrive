@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:indrive/components/common_components.dart';
+import 'package:indrive/components/custom_appbar.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/driver/driver_info/controller/driver_info_controller.dart';
@@ -19,80 +20,22 @@ class VehicleTypeScreen extends StatelessWidget {
     fToast.init(context);
     return SafeArea(
       child: Scaffold(
-        backgroundColor: ColorHelper.lightGreyColor,
+        appBar: CustomAppbar(
+            titleText: 'Chosse Vehicle Type',
+            onTap: () {
+              Navigator.pop(context);
+            }),
+        backgroundColor: ColorHelper.bgColor,
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SpaceHelper.verticalSpace35,
-              _buildTopCardView(),
-              SpaceHelper.verticalSpace35,
               _buildSelectionView(context)
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildTopCardView() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: ColorHelper.primaryColor,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CommonComponents().printText(
-                    fontSize: 18,
-                    textData: 'Get income with us',
-                    fontWeight: FontWeight.bold),
-                SpaceHelper.horizontalSpace5,
-                Row(
-                  children: [
-                    const Icon(Icons.check_circle, color: Colors.white),
-                    SpaceHelper.horizontalSpace5,
-                    CommonComponents().printText(
-                        fontSize: 15,
-                        textData: 'Flexible hours',
-                        fontWeight: FontWeight.normal),
-                  ],
-                ),
-                Row(
-                  children: [
-                    const Icon(Icons.check_circle, color: Colors.white),
-                    SpaceHelper.horizontalSpace5,
-                    CommonComponents().printText(
-                        fontSize: 15,
-                        textData: 'Your prices',
-                        fontWeight: FontWeight.normal),
-                  ],
-                ),
-                Row(
-                  children: [
-                    const Icon(Icons.check_circle, color: Colors.white),
-                    SpaceHelper.horizontalSpace5,
-                    CommonComponents().printText(
-                        fontSize: 15,
-                        textData: 'Low service payments',
-                        fontWeight: FontWeight.normal),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Image.asset(
-            'assets/images/your_image.png', // Replace with your asset
-            width: 80,
-            height: 80,
-          ),
-        ],
       ),
     );
   }
@@ -137,8 +80,8 @@ class VehicleTypeScreen extends StatelessWidget {
           child: Center(
             child: InkWell(
               onTap: () {
-                _driverInfoController.vehicleType.value = 'cng';
-                _driverInfoController.setVehicleType(vehicleType: 'cng');
+                _driverInfoController.vehicleType.value = 'taxi';
+                _driverInfoController.setVehicleType(vehicleType: 'taxi');
                 Get.to(DriverInfoPage(), transition: Transition.rightToLeft);
               },
               child: ListTile(
@@ -147,7 +90,9 @@ class VehicleTypeScreen extends StatelessWidget {
                     width: 40.h,
                     child: Image.asset("assets/images/rickshaw.png")),
                 title: CommonComponents().printText(
-                    fontSize: 18, textData: "CNG", fontWeight: FontWeight.bold),
+                    fontSize: 18,
+                    textData: "Texi",
+                    fontWeight: FontWeight.bold),
                 trailing: Icon(
                   Icons.arrow_forward_ios,
                   color: Colors.white,
@@ -166,8 +111,8 @@ class VehicleTypeScreen extends StatelessWidget {
           child: Center(
             child: InkWell(
               onTap: () {
-                _driverInfoController.vehicleType.value = 'bike';
-                _driverInfoController.setVehicleType(vehicleType: 'bike');
+                _driverInfoController.vehicleType.value = 'moto';
+                _driverInfoController.setVehicleType(vehicleType: 'moto');
                 Get.to(DriverInfoPage(), transition: Transition.rightToLeft);
               },
               child: ListTile(
@@ -178,6 +123,33 @@ class VehicleTypeScreen extends StatelessWidget {
                 title: CommonComponents().printText(
                     fontSize: 18,
                     textData: "Moto",
+                    fontWeight: FontWeight.bold),
+                trailing: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: 18.sp,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SpaceHelper.verticalSpace5,
+        Container(
+          height: 60.h,
+          width: MediaQuery.of(context).size.width - 30.w,
+          decoration: BoxDecoration(
+              color: Colors.black, borderRadius: BorderRadius.circular(12)),
+          child: Center(
+            child: InkWell(
+              onTap: () {},
+              child: ListTile(
+                leading: SizedBox(
+                    height: 30.h,
+                    width: 40.h,
+                    child: Image.asset("assets/images/wheelchair.png")),
+                title: CommonComponents().printText(
+                    fontSize: 18,
+                    textData: "Reduced Mobility",
                     fontWeight: FontWeight.bold),
                 trailing: Icon(
                   Icons.arrow_forward_ios,

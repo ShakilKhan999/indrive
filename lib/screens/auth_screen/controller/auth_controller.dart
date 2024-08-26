@@ -21,6 +21,7 @@ import 'package:indrive/utils/database_collection_names.dart';
 import 'package:indrive/utils/firebase_option.dart';
 import 'package:indrive/utils/global_toast_service.dart';
 import 'package:indrive/utils/shared_preference_keys.dart';
+import '../../driver/driver_info/views/driver_categories_screen.dart';
 import '../../home/views/passenger_home.dart';
 import '../views/location_permission_screeen.dart';
 
@@ -57,6 +58,12 @@ class AuthController extends GetxController {
   var isDriver = false.obs;
   var loginType = ''.obs;
   var currentUser = UserModel().obs;
+  var userSwitchLoading = false.obs;
+  var isCheckingCurrentUser = false.obs;
+  var otp = ''.obs;
+  var isGoogleSigninLoaidng = false.obs;
+  var isOtpSubmitLoading = false.obs;
+  var isUserDataSaving = false.obs;
 
   getUserData() async {
     if (FirebaseAuth.instance.currentUser != null) {
@@ -72,37 +79,76 @@ class AuthController extends GetxController {
   }
 
   switchMode() async {
-    if (isDriver.value) {
-      DriverInfoModel? driverInfoModel = await getCurrentUserDriverData();
-      if (driverInfoModel != null) {
-        MethodHelper().updateDocFields(
+    try {
+      userSwitchLoading.value = true;
+      if (currentUser.value.isDriver!) {
+        await MethodHelper().updateDocFields(
             docId: FirebaseAuth.instance.currentUser!.uid,
-            fieldsToUpdate: {"isDriver": TrustedCertificate},
+            fieldsToUpdate: {"isDriver": false},
             collection: userCollection);
-        getUserData();
-        Get.offAll(() => DriverHomeScreen());
+        await getUserData();
+        Get.offAll(() => PassengerHomeScreen(),
+            transition: Transition.rightToLeft);
+        userSwitchLoading.value = false;
       } else {
-        Get.offAll(() => VehicleTypeScreen());
+        DriverInfoModel? driverInfoModel = await getCurrentUserDriverData();
+        if (driverInfoModel != null) {
+          await MethodHelper().updateDocFields(
+              docId: FirebaseAuth.instance.currentUser!.uid,
+              fieldsToUpdate: {"isDriver": true},
+              collection: userCollection);
+          await getUserData();
+          userSwitchLoading.value = false;
+          Get.offAll(() => DriverHomeScreen(),
+              transition: Transition.rightToLeft);
+        } else {
+          userSwitchLoading.value = false;
+          Get.offAll(() => DriverCategoriesScreen(),
+              transition: Transition.rightToLeft);
+        }
       }
-    } else {
-      Get.offAll(() => PassengerHomeScreen());
+    } catch (e) {
+      userSwitchLoading.value = false;
     }
   }
 
   checkCurrentUser() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      Timer(
-        const Duration(milliseconds: 500),
-        () async {
-          UserModel? userModel = await getCurrentUser();
-          if (userModel!.isDriver!) {
-            Get.offAll(() => DriverHomeScreen());
-          } else {
-            Get.offAll(() => const PassengerHomeScreen());
-          }
-        },
-      );
+    try {
+      isCheckingCurrentUser.value = true;
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        Timer(
+          const Duration(milliseconds: 500),
+          () async {
+            UserModel? userModel = await getCurrentUser();
+            if (userModel!.isDriver!) {
+              DriverInfoModel? driverInfoModel =
+                  await getCurrentUserDriverData();
+              if (driverInfoModel != null) {
+                Get.offAll(() => DriverHomeScreen(),
+                    transition: Transition.rightToLeft);
+                isCheckingCurrentUser.value = false;
+              } else {
+                Get.offAll(() => VehicleTypeScreen(),
+                    transition: Transition.rightToLeft);
+                isCheckingCurrentUser.value = false;
+              }
+            } else {
+              Get.offAll(() => const PassengerHomeScreen(),
+                  transition: Transition.rightToLeft);
+              isCheckingCurrentUser.value = false;
+            }
+          },
+        );
+      } else {
+        isCheckingCurrentUser.value = false;
+      }
+    } catch (e) {
+      isCheckingCurrentUser.value = false;
+      showToast(
+          toastText: 'Something went wrong. Please login again',
+          toastColor: ColorHelper.red);
+      log('Error while checking current user: $e');
     }
   }
 
@@ -126,6 +172,7 @@ class AuthController extends GetxController {
   }
 
   Future<UserInfo?> signInWithGoogle() async {
+    isGoogleSigninLoaidng.value = true;
     GoogleSignIn googleSignIn = GoogleSignIn();
     UserInfo? user;
     final auth = FirebaseAuth.instance;
@@ -154,35 +201,47 @@ class AuthController extends GetxController {
         user = userCredential.user?.providerData[0];
         nameController.value.text = user!.displayName!;
         UserModel? userModel = await getCurrentUser();
+        isGoogleSigninLoaidng.value = false;
         if (userModel != null) {
+          isGoogleSigninLoaidng.value = false;
           if (userModel.isDriver!) {
-            Get.offAll(() => DriverHomeScreen());
+            Get.offAll(() => DriverHomeScreen(),
+                transition: Transition.rightToLeft);
           } else {
-            Get.offAll(() => const PassengerHomeScreen());
+            Get.offAll(() => const PassengerHomeScreen(),
+                transition: Transition.rightToLeft);
           }
         } else {
-          Get.to(() => const LocationPermissionScreen());
+          isGoogleSigninLoaidng.value = false;
+          Get.to(() => const LocationPermissionScreen(),
+              transition: Transition.rightToLeft);
         }
       } on FirebaseAuthException catch (e) {
+        isGoogleSigninLoaidng.value = false;
         if (e.code == 'account-exists-with-different-credential') {
           showToast(
               toastText: 'Account exists with different credential',
               toastColor: ColorHelper.red);
         } else if (e.code == 'invalid-credential') {
+          isGoogleSigninLoaidng.value = false;
           showToast(
               toastText: 'Invalid credential', toastColor: ColorHelper.red);
         }
       } catch (e) {
+        isGoogleSigninLoaidng.value = false;
         showToast(
             toastText: 'Something went wrong. Please try again later',
             toastColor: ColorHelper.red);
         log('Error while sing in with google: $e');
       }
+    } else {
+      isGoogleSigninLoaidng.value = false;
     }
     return user;
   }
 
   Future<UserInfo?> signInWithPhoneNumber(String otp) async {
+    isOtpSubmitLoading.value = true;
     UserInfo? user;
     try {
       FirebaseAuth auth = FirebaseAuth.instance;
@@ -198,15 +257,22 @@ class AuthController extends GetxController {
       if (userModel != null) {
         if (userModel.isDriver!) {
           await setUserType(type: userModel.isDriver!);
-          Get.offAll(() => DriverHomeScreen());
+          isOtpSubmitLoading.value = false;
+          Get.offAll(() => DriverHomeScreen(),
+              transition: Transition.rightToLeft);
         } else {
           await setUserType(type: userModel.isDriver!);
-          Get.offAll(() => const PassengerHomeScreen());
+          isOtpSubmitLoading.value = false;
+          Get.offAll(() => const PassengerHomeScreen(),
+              transition: Transition.rightToLeft);
         }
       } else {
-        Get.to(() => const LocationPermissionScreen());
+        isOtpSubmitLoading.value = false;
+        Get.to(() => const LocationPermissionScreen(),
+            transition: Transition.rightToLeft);
       }
     } catch (e) {
+      isOtpSubmitLoading.value = false;
       showToast(
           toastText: 'Something went wrong. Please try again later',
           toastColor: ColorHelper.red);
@@ -268,6 +334,7 @@ class AuthController extends GetxController {
   Future saveUserData(
       {required UserInfo userInfo, required String loginType}) async {
     try {
+      isUserDataSaving.value = true;
       UserModel? userModel;
       if (loginType == 'phone') {
         userModel = UserModel(
@@ -286,19 +353,23 @@ class AuthController extends GetxController {
           phone: userInfo.phoneNumber,
           signInWith: 'google',
           isDriver: isDriver.value,
+          
         );
       }
       var response = await AuthRepository().saveUserData(userModel: userModel);
       if (response) {
         await setLoginType(type: loginType);
-
-        Get.offAll(() => UserTypeSelectScreen());
+        isUserDataSaving.value = false;
+        Get.offAll(() => UserTypeSelectScreen(),
+            transition: Transition.rightToLeft);
       } else {
+        isUserDataSaving.value = false;
         showToast(
             toastText: 'Something went wrong. Please try again later',
             toastColor: ColorHelper.red);
       }
     } catch (e) {
+      isUserDataSaving.value = false;
       showToast(
           toastText: 'Something went wrong. Please try again later',
           toastColor: ColorHelper.red);
@@ -342,12 +413,12 @@ class AuthController extends GetxController {
     GoogleSignIn googleSignIn = GoogleSignIn();
     await googleSignIn.signOut();
     await FirebaseAuth.instance.signOut();
-    Get.offAll(() => RegisterScreen());
+    Get.offAll(() => RegisterScreen(), transition: Transition.rightToLeft);
   }
 
   phoneSignOut() async {
     await FirebaseAuth.instance.signOut();
-    Get.offAll(() => RegisterScreen());
+    Get.offAll(() => RegisterScreen(), transition: Transition.rightToLeft);
   }
 
   Future<UserModel?> getCurrentUser() async {

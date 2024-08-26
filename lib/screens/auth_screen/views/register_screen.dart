@@ -19,29 +19,40 @@ class RegisterScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ColorHelper.bgColor,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _buildHeader(),
-          SpaceHelper.verticalSpace10,
-          _buildPhoneTextFiled(context),
-        ],
+      body: Obx(
+        () => _authController.isCheckingCurrentUser.value
+            ? Center(
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: ColorHelper.whiteColor,
+                ),
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildHeader(),
+                  SpaceHelper.verticalSpace10,
+                  _buildPhoneTextFiled(context),
+                ],
+              ),
       ),
     );
   }
 
   Widget _buildGoogleSignIn() {
-    return Column(
-      children: [
-        Text(
-          'Or login with',
-          style: StyleHelper.regular14,
-        ),
-        SpaceHelper.verticalSpace20,
-        CommonButton(
+    return Obx(
+      () => Column(
+        children: [
+          Text(
+            'Or login with',
+            style: StyleHelper.regular14,
+          ),
+          SpaceHelper.verticalSpace20,
+          CommonButton(
             onTap: () async {
               _authController.loginType.value = 'google';
+              
               await _authController.signInWithGoogle();
             },
             text: 'Continue with Google',
@@ -50,8 +61,11 @@ class RegisterScreen extends StatelessWidget {
               'assets/images/Google_logo.png',
               height: 25.h,
               width: 25.w,
-            )),
-      ],
+            ),
+            isLoading: _authController.isGoogleSigninLoaidng.value,
+          ),
+        ],
+      ),
     );
   }
 
@@ -115,7 +129,8 @@ class RegisterScreen extends StatelessWidget {
                 _authController.loginType.value = 'phone';
                 _authController.startOtpCountdown();
                 _authController.verifyPhoneNumber();
-                Get.to(() => OTPVerificationPage());
+                Get.to(() => OTPVerificationPage(),
+                    transition: Transition.rightToLeft);
               },
             ),
           ),

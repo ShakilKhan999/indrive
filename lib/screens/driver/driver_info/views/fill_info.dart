@@ -33,14 +33,17 @@ class DriverInfoPage extends StatelessWidget {
           children: [
             _buildSelectionView(context),
             SpaceHelper.verticalSpace10,
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14.0),
-              child: CommonComponents().commonButton(
-                  text: "Save All Data",
-                  onPressed: () async {
-                    await _driverInfoController.saveDriverInfo();
-                  },
-                  disabled: false),
+            Obx(
+              () => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14.0),
+                child: CommonComponents().commonButton(
+                    text: "Save All Data",
+                    onPressed: () async {
+                      await _driverInfoController.saveDriverInfo();
+                    },
+                    disabled: _driverInfoController.isDriverDataSaving.value,
+                    isLoading: _driverInfoController.isDriverDataSaving.value),
+              ),
             )
           ],
         ),

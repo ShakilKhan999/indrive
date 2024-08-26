@@ -9,7 +9,6 @@ import 'package:google_place/google_place.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
 import 'package:indrive/screens/driver/driver_home/repository/driver_repository.dart';
 import 'package:indrive/screens/home/controller/home_controller.dart';
 import 'package:indrive/screens/home/views/select_destination.dart';
@@ -26,10 +25,7 @@ class PassengerHomeScreen extends StatefulWidget {
 class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   List suggestions = [];
-
   final HomeController homeController = Get.put(HomeController());
-
-  final AuthController _authController = Get.put(AuthController());
 
   void onSearchTextChanged(String query) async {
     if (query.isNotEmpty) {
@@ -55,6 +51,11 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
       }
     }
   }
+
+  final List<double> _rotations = [
+    0.0, 45.0, 90.0,
+    // Add more rotation values as needed
+  ];
 
   @override
   void initState() {
@@ -350,7 +351,9 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                           "",
                                       fontWeight: FontWeight.bold),
                                 ],
-                              )
+                              ),
+                              SpaceHelper.horizontalSpace10,
+                              _buildRentPriceView(initial: false)
                             ],
                           ),
                         ],
@@ -411,6 +414,8 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                             fontSize: 18,
                             textData: homeController.thisDriver[0].name ?? "",
                             fontWeight: FontWeight.bold),
+                        SpaceHelper.horizontalSpace10,
+                        _buildRentPriceView(initial: false)
                       ],
                     ),
                     SpaceHelper.verticalSpace10,
@@ -469,8 +474,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                       ),
                     ),
                     Positioned(
-                      left: progress * MediaQuery.of(context).size.width -
-                          10.0, // Adjust position
+                      left: 0.0, // Adjust position
                       child: Image.asset(
                         'assets/images/car.png',
                         width: 50.w, // Adjust the width if needed
@@ -481,11 +485,13 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                 ),
                 CommonComponents().printText(
                     fontSize: 18,
-                    textData: "1 Km to go",
+                    textData:
+                        "${homeController.calculateDistance(point1: homeController.calledTrip[0].pickLatLng, point2: homeController.calledTrip[0].dropLatLng)} to go",
                     fontWeight: FontWeight.bold),
                 CommonComponents().printText(
                     fontSize: 18,
-                    textData: "Time: 55 mins",
+                    textData:
+                        "Time: ${homeController.calculateTravelTime(point1: homeController.calledTrip[0].pickLatLng, point2: homeController.calledTrip[0].dropLatLng, speedKmh: 10)}",
                     fontWeight: FontWeight.bold),
                 SpaceHelper.verticalSpace10,
                 SizedBox(
@@ -647,7 +653,6 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
               InkWell(
                 onTap: () {
                   homeController.selectedVehicle.value = "car";
-                  homeController.loadMarkers();
                 },
                 child: Container(
                     height: 55.h,
@@ -693,7 +698,6 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
               InkWell(
                 onTap: () {
                   homeController.selectedVehicle.value = "moto";
-                  homeController.loadMarkers();
                 },
                 child: Container(
                     height: 55.h,
@@ -739,7 +743,6 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
               InkWell(
                 onTap: () {
                   homeController.selectedVehicle.value = "cng";
-                  homeController.loadMarkers();
                 },
                 child: Container(
                     height: 55.h,
@@ -781,7 +784,13 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                         ],
                       ),
                     )),
-              )
+              ),
+              homeController.destinationPickedCenter.value ==
+                          LatLng(23.80, 90.41) ||
+                      homeController.startPickedCenter.value ==
+                          LatLng(23.80, 90.41)
+                  ? SizedBox()
+                  : _buildRentPriceView(initial: true)
             ],
           ),
         ));
@@ -866,7 +875,8 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                     onTap: () {
                       Get.back();
                       homeController.pickingDestination.value = true;
-                      Get.to(SelectDestination());
+                      Get.to(SelectDestination(),
+                          transition: Transition.rightToLeft);
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -908,7 +918,8 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
 
                               homeController.getPolyline();
 
-                              Get.offAll(const PassengerHomeScreen());
+                              Get.offAll(const PassengerHomeScreen(),
+                                  transition: Transition.rightToLeft);
                             },
                             child: ListTile(
                                 leading: const Icon(Icons.location_on_outlined),
@@ -930,5 +941,25 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
         );
       },
     );
+  }
+
+  Widget _buildRentPriceView({required bool initial}) {
+    return Obx(() => Container(
+          height: 30.h,
+          width: 50.h,
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14.sp),
+              border: Border.all(color: Colors.white)),
+          child: Center(
+            child: CommonComponents().printText(
+                fontSize: 14,
+                textData:
+                    "${initial ? homeController.calculateRentPrice(point1: GeoPoint(homeController.startPickedCenter.value.latitude, homeController.startPickedCenter.value.longitude), point2: GeoPoint(homeController.destinationPickedCenter.value.latitude, homeController.destinationPickedCenter.value.longitude)) : homeController.calculateRentPrice(
+                        point1: homeController.calledTrip[0].pickLatLng,
+                        point2: homeController.calledTrip[0].dropLatLng,
+                      )} ৳",
+                fontWeight: FontWeight.bold),
+          ),
+        ));
   }
 }

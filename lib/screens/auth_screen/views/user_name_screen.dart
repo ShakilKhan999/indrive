@@ -49,15 +49,19 @@ class UserNameScreen extends StatelessWidget {
 
     return Column(
       children: [
-        Padding(
-          padding: EdgeInsets.fromLTRB(20.sp, 0.sp, 20.sp, 30.sp),
-          child: commonComponents.commonButton(
-            text: "Next",
-            onPressed: () async {
-              await _authController.saveUserData(
-                  userInfo: FirebaseAuth.instance.currentUser!.providerData[0],
-                  loginType: _authController.loginType.value);
-            },
+        Obx(
+          () => Padding(
+            padding: EdgeInsets.fromLTRB(20.sp, 0.sp, 20.sp, 30.sp),
+            child: commonComponents.commonButton(
+                text: "Next",
+                onPressed: () async {
+                  await _authController.saveUserData(
+                      userInfo:
+                          FirebaseAuth.instance.currentUser!.providerData[0],
+                      loginType: _authController.loginType.value);
+                },
+                disabled: _authController.isUserDataSaving.value,
+                isLoading: _authController.isUserDataSaving.value),
           ),
         ),
       ],

@@ -5,7 +5,6 @@ class UserModel {
   String? name;
   String? email;
   String? photo;
-  bool? isDriver;
   String? lat;
   String? long;
   String? phone;
@@ -13,13 +12,28 @@ class UserModel {
   String? vehicleType;
   double? vehicleAngle;
   GeoPoint? latLng;
+  bool? isDriver;
+  String? driverStatus;
+  String? driverStatusDescription;
+  String? driverVehicleType;
+  bool? isCityToCity;
+  String? cityToCityStatus;
+  String? cityToCityStatusDescription;
+  String? cityToCityVehicleType;
+  bool? isCourier;
+  String? courierStatus;
+  String? courierStatusDescription;
+  String? courierVehicleType;
+  bool? isFreight;
+  String? freightStatus;
+  String? freightStatusDescription;
+  String? freightVehicleType;
 
   UserModel({
     this.uid,
     this.name,
     this.email,
     this.photo,
-    this.isDriver,
     this.lat,
     this.long,
     this.phone,
@@ -27,6 +41,22 @@ class UserModel {
     this.vehicleType,
     this.vehicleAngle,
     this.latLng,
+    this.isDriver,
+    this.driverStatus,
+    this.driverStatusDescription,
+    this.driverVehicleType,
+    this.isCityToCity,
+    this.cityToCityStatus,
+    this.cityToCityStatusDescription,
+    this.cityToCityVehicleType,
+    this.isCourier,
+    this.courierStatus,
+    this.courierStatusDescription,
+    this.courierVehicleType,
+    this.isFreight,
+    this.freightStatus,
+    this.freightStatusDescription,
+    this.freightVehicleType,
   });
 
   Map<String, dynamic> toJson() {
@@ -35,7 +65,6 @@ class UserModel {
       'name': name,
       'email': email,
       'photo': photo,
-      'isDriver': isDriver,
       'lat': lat,
       'long': long,
       'phone': phone,
@@ -43,6 +72,20 @@ class UserModel {
       'vehicleType': vehicleType,
       'vehicleAngle': vehicleAngle,
       'latlng': latLng,
+      'isDriver': isDriver,
+      'driverStatus': driverStatus,
+      'driverStatusDescription': driverStatusDescription,
+      'driverVehicleType': driverVehicleType,
+      'isCityToCity': isCityToCity,
+      'cityToCityStatus': cityToCityStatus,
+      'cityToCityStatusDescription': cityToCityStatusDescription,
+      'cityToCityVehicleType': cityToCityVehicleType,
+      'isCourier': isCourier,
+      'courierStatus': courierStatus,
+      'courierStatusDescription': courierStatusDescription,
+      'courierVehicleType': courierVehicleType,
+      'isFreight': isFreight,
+      'freightStatus': freightStatus,
     };
   }
 
@@ -52,7 +95,6 @@ class UserModel {
       name: json['name'],
       email: json['email'],
       photo: json['photo'],
-      isDriver: json['isDriver'],
       lat: json['lat'],
       long: json['long'],
       phone: json['phone'],
@@ -60,6 +102,22 @@ class UserModel {
       vehicleType: json['vehicleType'],
       vehicleAngle: json['vehicleAngle'],
       latLng: json['latlng'],
+      isDriver: json['isDriver'] ?? false,
+      driverStatus: json['driverStatus'],
+      driverStatusDescription: json['driverStatusDescription'],
+      driverVehicleType: json['driverVehicleType'],
+      isCityToCity: json['isCityToCity'] ?? false,
+      cityToCityStatus: json['cityToCityStatus'],
+      cityToCityStatusDescription: json['cityToCityStatusDescription'],
+      cityToCityVehicleType: json['cityToCityVehicleType'],
+      isCourier: json['isCourier'] ?? false,
+      courierStatus: json['courierStatus'],
+      courierStatusDescription: json['courierStatusDescription'],
+      courierVehicleType: json['courierVehicleType'],
+      isFreight: json['isFreight'] ?? false,
+      freightStatus: json['freightStatus'],
+      freightStatusDescription: json['freightStatusDescription'],
+      freightVehicleType: json['freightVehicleType'],
     );
   }
 }

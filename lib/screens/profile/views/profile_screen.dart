@@ -15,7 +15,9 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ColorHelper.bgColor,
-      appBar: CustomAppbar(titleText: 'Profile settings', onTap: () {}),
+      appBar: CustomAppbar(titleText: 'Profile settings', onTap: () {
+        Get.back();
+      }),
       body: Column(
         children: [
           Expanded(
@@ -42,12 +44,28 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildProfilePictureView() {
-    return SizedBox(
-      height: 120.h,
-      width: 120.w,
-      child: const CircleAvatar(
-        backgroundColor: Colors.white,
-        child: Icon(Icons.person),
+    return Container(
+      height: 100.h,
+      width: 100.h,
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(90),
+          color: Colors.white,
+          border: Border.all(color: Colors.white)),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(90),
+        child: _authController.currentUser.value.photo != null
+            ? Image.network(
+                _authController.currentUser.value.photo!,
+                height: 100.h,
+                width: 100.h,
+                fit: BoxFit.cover,
+              )
+            : Image.asset(
+                "assets/images/person.jpg",
+                height: 100.h,
+                width: 100.h,
+                fit: BoxFit.cover,
+              ),
       ),
     );
   }

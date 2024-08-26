@@ -36,14 +36,18 @@ class DriverHomeController extends GetxController {
     mapController = controller;
   }
 
+    Future<void> checkLocationServiceAndPermission() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return;
+    }
+  }
+
   Future<Position> getCurrentLocation() async {
     log("getCurrentLocation called");
-    bool serviceEnabled;
+    
+    checkLocationServiceAndPermission();
     LocationPermission permission;
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
