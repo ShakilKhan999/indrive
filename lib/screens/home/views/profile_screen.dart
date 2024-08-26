@@ -6,7 +6,6 @@ import 'package:indrive/components/custom_appbar.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
-import 'package:indrive/screens/home/controller/home_controller.dart';
 
 class ProfileScreen extends StatelessWidget {
   ProfileScreen({super.key});

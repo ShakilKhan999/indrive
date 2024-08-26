@@ -18,7 +18,7 @@ import 'package:uuid/uuid.dart';
 import '../../../models/user_model.dart';
 
 class HomeController extends GetxController {
-  var selectedVehicle = "car".obs;
+  var selectedVehicle = "cng".obs;
   var userLat = 0.0.obs;
   var userLong = 0.0.obs;
   var cameraMoving = false.obs;
@@ -26,7 +26,9 @@ class HomeController extends GetxController {
   var suggestedPlaces = [].obs;
 
   var driverList = [].obs;
-  var driverMarkerList = [].obs;
+  var cardriverMarkerList = [].obs;
+  var motodriverMarkerList = [].obs;
+  var cngdriverMarkerList = [].obs;
   var tempDriverMarkerList = [].obs;
 
   var myPlaceName = "Searching for you on the map..".obs;
@@ -36,7 +38,6 @@ class HomeController extends GetxController {
   var destinationPickedCenter = const LatLng(23.80, 90.41).obs;
   var startPickedCenter = const LatLng(23.80, 90.41).obs;
 
-
   @override
   void onInit() {
     AuthController authController = Get.put(AuthController());
@@ -45,17 +46,15 @@ class HomeController extends GetxController {
     super.onInit();
   }
 
-
-
   final TextEditingController destinationController = TextEditingController();
   GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
   late GoogleMapController mapController;
   late GoogleMapController mapControllerTO;
   Map<PolylineId, Polyline> polyLines = {};
   var polylineCoordinates = [].obs;
-var findingRoutes=false.obs;
+  var findingRoutes = false.obs;
   getPolyline() async {
-    findingRoutes.value=true;
+    findingRoutes.value = true;
     polyLines.clear();
     polylineCoordinates.clear;
     PolylinePoints polylinePoints = PolylinePoints();
@@ -81,7 +80,7 @@ var findingRoutes=false.obs;
           .map((geoPoint) => LatLng(geoPoint.latitude, geoPoint.longitude))
           .toList(),
     );
-    findingRoutes.value=false;
+    findingRoutes.value = false;
   }
 
   addPolyLine(List<LatLng> polylineCoordinates) {
@@ -96,38 +95,88 @@ var findingRoutes=false.obs;
     moveCameraToPolyline();
   }
 
-
   var allMarkers = <Marker>{}.obs;
+  var targetVehicleMarkers = <Marker>{}.obs;
 
   final List<double> _rotations = [
-    0.0, 45.0, 90.0,
+    0.0,
+    45.0,
+    90.0,
   ];
 
   Future<void> loadMarkers() async {
     await Future.delayed(const Duration(seconds: 1));
-    final BitmapDescriptor markerIcon = await BitmapDescriptor.fromAssetImage(
+    final BitmapDescriptor markerIconCar =
+        await BitmapDescriptor.fromAssetImage(
       const ImageConfiguration(size: Size(24, 24)),
       'assets/images/marker.png',
     );
-   var listToMarked= tripCalled.value || riderFound.value?tempDriverMarkerList:driverMarkerList;
-    Set<Marker> markers =
-    listToMarked.value.asMap().entries.map((entry) {
-      int idx = entry.key;
-      LatLng location = entry.value;
-      double rotation =
-      _rotations[idx % _rotations.length]; // Cycle through rotations
+    final BitmapDescriptor markerIconMoto =
+        await BitmapDescriptor.fromAssetImage(
+      const ImageConfiguration(size: Size(24, 24)),
+      'assets/images/cngMarker.png',
+    );
+    final BitmapDescriptor markerIconCng =
+        await BitmapDescriptor.fromAssetImage(
+      const ImageConfiguration(size: Size(24, 24)),
+      'assets/images/cngMarker.png',
+    );
+    var carListToMarked = cardriverMarkerList;
+    var motoListToMarked = motodriverMarkerList;
+    var cngListToMarked = cngdriverMarkerList;
 
-      return Marker(
-        markerId: MarkerId(location.toString()),
-        position: location,
-        icon: markerIcon,
-        rotation: rotation,
-      );
-    }).toSet();
+    if (selectedVehicle.value == "car") {
+      Set<Marker> markers = carListToMarked.value.asMap().entries.map((entry) {
+        int idx = entry.key;
+        LatLng location = entry.value;
+        double rotation =
+            _rotations[idx % _rotations.length]; // Cycle through rotations
 
-    allMarkers.value = markers;
-      log("marker length: ${allMarkers.length}");
+        return Marker(
+          markerId: MarkerId(location.toString()),
+          position: location,
+          icon: markerIconCar,
+          rotation: rotation,
+        );
+      }).toSet();
 
+      allMarkers.value = markers;
+      log("car marker length: ${allMarkers.length}");
+    } else if (selectedVehicle.value == "moto") {
+      Set<Marker> markers = motoListToMarked.value.asMap().entries.map((entry) {
+        int idx = entry.key;
+        LatLng location = entry.value;
+        double rotation =
+            _rotations[idx % _rotations.length]; // Cycle through rotations
+
+        return Marker(
+          markerId: MarkerId(location.toString()),
+          position: location,
+          icon: markerIconMoto,
+          rotation: rotation,
+        );
+      }).toSet();
+
+      allMarkers.value = markers;
+      log("moto marker length: ${allMarkers.length}");
+    } else if (selectedVehicle.value == "cng") {
+      Set<Marker> markers = cngListToMarked.value.asMap().entries.map((entry) {
+        int idx = entry.key;
+        LatLng location = entry.value;
+        double rotation =
+            _rotations[idx % _rotations.length]; // Cycle through rotations
+
+        return Marker(
+          markerId: MarkerId(location.toString()),
+          position: location,
+          icon: markerIconCng,
+          rotation: rotation,
+        );
+      }).toSet();
+
+      allMarkers.value = markers;
+      log("cng marker length: ${allMarkers.length}");
+    }
   }
 
   void moveCameraToPolyline() {
@@ -153,42 +202,39 @@ var findingRoutes=false.obs;
     mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 60));
   }
 
-
   void onMapCreated(GoogleMapController controller) {
     mapController = controller;
   }
 
-
-  var changingPickup=false.obs;
+  var changingPickup = false.obs;
   void onMapCreatedTo(GoogleMapController controller) {
     mapControllerTO = controller;
   }
 
   void onCameraMove(CameraPosition position) {
     log("camera Moving");
-      startPickedCenter.value =
-          LatLng(position.target.latitude, position.target.longitude);
+    startPickedCenter.value =
+        LatLng(position.target.latitude, position.target.longitude);
     cameraMoving.value = true;
   }
 
   void onCameraMoveTo(CameraPosition position) {
     log("camera Moving To destination");
-      destinationPickedCenter.value =
-          LatLng(position.target.latitude, position.target.longitude);
+    destinationPickedCenter.value =
+        LatLng(position.target.latitude, position.target.longitude);
   }
 
   void onCameraIdleTo() {
     log("camera Idle to destination");
-    getPlaceNameFromCoordinates(
-        destinationPickedCenter.value.latitude, destinationPickedCenter.value.longitude,true);
+    getPlaceNameFromCoordinates(destinationPickedCenter.value.latitude,
+        destinationPickedCenter.value.longitude, true);
   }
 
   void onCameraIdle() {
     cameraMoving.value = false;
     log("camera Idle");
-    getPlaceNameFromCoordinates(
-        startPickedCenter.value.latitude, startPickedCenter.value.longitude,false);
-
+    getPlaceNameFromCoordinates(startPickedCenter.value.latitude,
+        startPickedCenter.value.longitude, false);
   }
 
   Future<Position> getCurrentLocation() async {
@@ -244,10 +290,9 @@ var findingRoutes=false.obs;
 
   Future<void> getPlaceNameFromCoordinates(
       double latitude, double longitude, bool destination) async {
-    if(destination==false)
-      {
-        myPlaceName.value = "Searching for you on the map..";
-      }
+    if (destination == false) {
+      myPlaceName.value = "Searching for you on the map..";
+    }
     try {
       List<Placemark> placemarks =
           await placemarkFromCoordinates(latitude, longitude);
@@ -284,8 +329,23 @@ var findingRoutes=false.obs;
           (index) => UserModel.fromJson(
               event.docs[index].data() as Map<String, dynamic>));
 
-      driverMarkerList.value = driverList
-          .where((driver) => driver.latLng != null)
+      cardriverMarkerList.value = driverList
+          .where(
+              (driver) => driver.latLng != null && driver.vehicleType == "car")
+          .map((driver) =>
+              LatLng(driver.latLng.latitude, driver.latLng.longitude))
+          .toList();
+
+      motodriverMarkerList.value = driverList
+          .where(
+              (driver) => driver.latLng != null && driver.vehicleType == "moto")
+          .map((driver) =>
+              LatLng(driver.latLng.latitude, driver.latLng.longitude))
+          .toList();
+
+      cngdriverMarkerList.value = driverList
+          .where(
+              (driver) => driver.latLng != null && driver.vehicleType == "cng")
           .map((driver) =>
               LatLng(driver.latLng.latitude, driver.latLng.longitude))
           .toList();
@@ -294,7 +354,7 @@ var findingRoutes=false.obs;
     });
   }
 
-var sortedDriverList=[].obs;
+  var sortedDriverList = [].obs;
 
   List<UserModel> sortDriversByDistance(var originalList, LatLng center) {
     List<UserModel> sortedList = List.from(originalList);
@@ -321,32 +381,31 @@ var sortedDriverList=[].obs;
 
   var calledTrip = [].obs;
   Future<void> listenCalledTrip(String docId) async {
-        PassengerRepository().listenToCalledTrip(docId).listen((snapshot) {
-          calledTrip.clear();
+    PassengerRepository().listenToCalledTrip(docId).listen((snapshot) {
+      calledTrip.clear();
       if (snapshot.exists) {
         calledTrip.add(Trip.fromJson(snapshot.data() as Map<String, dynamic>));
         log("jksdfmsdn:${calledTrip.length.toString()}");
-        if(calledTrip[0].dropped)
-          {
-            riderFound.value=false;
-            tripCalled.value=false;
-            polyLines.clear();
-            polylineCoordinates.clear();
-          }
+        if (calledTrip[0].dropped) {
+          riderFound.value = false;
+          tripCalled.value = false;
+          polyLines.clear();
+          polylineCoordinates.clear();
+        }
       } else {
         log('Document does not exist');
       }
     });
-
   }
 
   var tripCalled = false.obs;
-  var riderFound=false.obs;
-  var thisDriver=[].obs;
-  var thisDriverDetails=[].obs;
+  var riderFound = false.obs;
+  var thisDriver = [].obs;
+  var thisDriverDetails = [].obs;
   Future<void> callTrip() async {
     sortedDriverList.clear();
-    sortedDriverList.addAll(sortDriversByDistance(driverList, startPickedCenter.value));
+    sortedDriverList
+        .addAll(sortDriversByDistance(driverList, startPickedCenter.value));
     tripCalled.value = true;
     String tripId = generateUniqueId();
     Trip trip = Trip(
@@ -385,36 +444,32 @@ var sortedDriverList=[].obs;
               sortedDriverList[i].latLng.latitude,
               sortedDriverList[i].latLng.longitude)));
         }
-        for(int j=0;j<7;j++)
-          {
-            log("calling for $j seconds");
-            if(calledTrip[0].accepted == false)
-              {
-                await Future.delayed(Duration(seconds: 1));
-              }
-            else
-              {
-                log("Driver found : ${thisDriver.length.toString()}");
-                riderFound.value=true;
-                tripCalled.value = false;
-                thisDriver.add(sortedDriverList[i]);
-                thisDriverDetails.clear();
-                thisDriverDetails.add(await AuthRepository().getCurrentUserDriverData(userId: sortedDriverList[i].uid));
-                break;
-              }
-
+        for (int j = 0; j < 7; j++) {
+          log("calling for $j seconds");
+          if (calledTrip[0].accepted == false) {
+            await Future.delayed(Duration(seconds: 1));
+          } else {
+            log("Driver found : ${thisDriver.length.toString()}");
+            riderFound.value = true;
+            tripCalled.value = false;
+            thisDriver.add(sortedDriverList[i]);
+            thisDriverDetails.clear();
+            thisDriverDetails.add(await AuthRepository()
+                .getCurrentUserDriverData(userId: sortedDriverList[i].uid));
+            break;
           }
+        }
       }
     }
-    if(thisDriver.isEmpty)
-      {
-        await PassengerRepository().callDriver(tripId, "");
-      }
+    if (thisDriver.isEmpty) {
+      await PassengerRepository().callDriver(tripId, "");
+    }
     tripCalled.value = false;
     loadMarkers();
   }
 
-  String calculateDistance({required GeoPoint point1, required GeoPoint point2}) {
+  String calculateDistance(
+      {required GeoPoint point1, required GeoPoint point2}) {
     final distanceInMeters = Geolocator.distanceBetween(
         point1.latitude, point1.longitude, point2.latitude, point2.longitude);
 
@@ -427,7 +482,9 @@ var sortedDriverList=[].obs;
   }
 
   String calculateTravelTime(
-      {required GeoPoint point1,required GeoPoint point2,required double speedKmh}) {
+      {required GeoPoint point1,
+      required GeoPoint point2,
+      required double speedKmh}) {
     final distanceInMeters = Geolocator.distanceBetween(
         point1.latitude, point1.longitude, point2.latitude, point2.longitude);
 
@@ -436,12 +493,13 @@ var sortedDriverList=[].obs;
     final timeInMinutes = timeInHours * 60;
 
     if (timeInMinutes < 60) {
-      return timeInMinutes<2?"Less than 2 minutes":'${timeInMinutes.toStringAsFixed(2)} minutes';
+      return timeInMinutes < 2
+          ? "Less than 2 minutes"
+          : '${timeInMinutes.toStringAsFixed(2)} minutes';
     } else {
       final hours = timeInMinutes ~/ 60;
       final minutes = timeInMinutes % 60;
       return '${hours} hours ${minutes.toStringAsFixed(2)} minutes';
     }
   }
-
 }

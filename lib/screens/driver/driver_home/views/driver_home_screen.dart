@@ -5,8 +5,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
-import 'package:indrive/screens/auth_screen/views/register_screen.dart';
 import 'package:indrive/screens/driver/driver_home/controller/driver_home_controller.dart';
 import 'package:indrive/screens/driver/driver_home/repository/driver_repository.dart';
 import 'package:indrive/screens/home/repository/passenger_repositoy.dart';
@@ -25,7 +23,7 @@ class DriverHomeScreen extends StatelessWidget {
       key: scaffoldKey,
       drawer: CustomDrawer(),
       appBar: AppBar(
-         backgroundColor: ColorHelper.bgColor,
+        backgroundColor: ColorHelper.bgColor,
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(
@@ -264,87 +262,88 @@ class DriverHomeScreen extends StatelessWidget {
           ),
         ),
         SpaceHelper.verticalSpace10,
-        driverHomeController.activeCall[0].picked && driverHomeController.activeCall[0].dropped==false?
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-                height: 40.h,
-                child: CommonComponents().commonButton(
-                    text: "Cancel",
-                    onPressed: () async {
-                      DriverRepository().updateTripState(
-                          driverHomeController.activeCall[0].tripId,
-                          "driverCancel",
-                          true);
-                      DriverRepository().updateTripState(
-                          driverHomeController.activeCall[0].tripId,
-                          "accepted",
-                          false);
-                    },
-                    color: Colors.red,
-                    borderRadius: 14)),
-            SpaceHelper.horizontalSpace10,
-            SizedBox(
-                height: 40.h,
-                child: CommonComponents().commonButton(
-                    text: "Drop and Finish",
-                    onPressed: () async {
-                      DriverRepository().updateTripState(
-                          driverHomeController.activeCall[0].tripId,
-                          "dropped",
-                          true);
-                      driverHomeController.activeCall.clear();
-                      driverHomeController.polylineCoordinates.clear();
-                      driverHomeController.polyLines.clear();
-                    },
-                    color: Colors.green,
-                    borderRadius: 14))
-          ],
-        ):
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-                height: 40.h,
-                child: CommonComponents().commonButton(
-                    text: "Cancel",
-                    onPressed: () async {
-                      DriverRepository().updateTripState(
-                          driverHomeController.activeCall[0].tripId,
-                          "driverCancel",
-                          true);
-                      DriverRepository().updateTripState(
-                          driverHomeController.activeCall[0].tripId,
-                          "accepted",
-                          false);
-                    },
-                    color: Colors.red,
-                    borderRadius: 14)),
-            SpaceHelper.horizontalSpace10,
-            SizedBox(
-                height: 40.h,
-                child: CommonComponents().commonButton(
-                    text: "Call",
-                    onPressed: () async {},
-                    color: Colors.blue,
-                    borderRadius: 14)),
-            SpaceHelper.horizontalSpace10,
-            SizedBox(
-                height: 40.h,
-                child: CommonComponents().commonButton(
-                    text: "Pick",
-                    onPressed: () async {
-                      DriverRepository().updateTripState(
-                          driverHomeController.activeCall[0].tripId,
-                          "picked",
-                          true);
-                      driverHomeController.getPolyline(picking: false);
-                    },
-                    color: Colors.green,
-                    borderRadius: 14))
-          ],
-        ),
+        driverHomeController.activeCall[0].picked &&
+                driverHomeController.activeCall[0].dropped == false
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                      height: 40.h,
+                      child: CommonComponents().commonButton(
+                          text: "Cancel",
+                          onPressed: () async {
+                            DriverRepository().updateTripState(
+                                driverHomeController.activeCall[0].tripId,
+                                "driverCancel",
+                                true);
+                            DriverRepository().updateTripState(
+                                driverHomeController.activeCall[0].tripId,
+                                "accepted",
+                                false);
+                          },
+                          color: Colors.red,
+                          borderRadius: 14)),
+                  SpaceHelper.horizontalSpace10,
+                  SizedBox(
+                      height: 40.h,
+                      child: CommonComponents().commonButton(
+                          text: "Drop and Finish",
+                          onPressed: () async {
+                            DriverRepository().updateTripState(
+                                driverHomeController.activeCall[0].tripId,
+                                "dropped",
+                                true);
+                            driverHomeController.activeCall.clear();
+                            driverHomeController.polylineCoordinates.clear();
+                            driverHomeController.polyLines.clear();
+                          },
+                          color: Colors.green,
+                          borderRadius: 14))
+                ],
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                      height: 40.h,
+                      child: CommonComponents().commonButton(
+                          text: "Cancel",
+                          onPressed: () async {
+                            DriverRepository().updateTripState(
+                                driverHomeController.activeCall[0].tripId,
+                                "driverCancel",
+                                true);
+                            DriverRepository().updateTripState(
+                                driverHomeController.activeCall[0].tripId,
+                                "accepted",
+                                false);
+                          },
+                          color: Colors.red,
+                          borderRadius: 14)),
+                  SpaceHelper.horizontalSpace10,
+                  SizedBox(
+                      height: 40.h,
+                      child: CommonComponents().commonButton(
+                          text: "Call",
+                          onPressed: () async {},
+                          color: Colors.blue,
+                          borderRadius: 14)),
+                  SpaceHelper.horizontalSpace10,
+                  SizedBox(
+                      height: 40.h,
+                      child: CommonComponents().commonButton(
+                          text: "Pick",
+                          onPressed: () async {
+                            DriverRepository().updateTripState(
+                                driverHomeController.activeCall[0].tripId,
+                                "picked",
+                                true);
+                            driverHomeController.getPolyline(picking: false);
+                          },
+                          color: Colors.green,
+                          borderRadius: 14))
+                ],
+              ),
       ],
     );
   }

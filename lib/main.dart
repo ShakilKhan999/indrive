@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:indrive/screens/auth_screen/views/register_screen.dart';
-import 'package:indrive/screens/driver/driver_home/views/driver_home_screen.dart';
 import 'package:indrive/screens/home/views/passenger_home.dart';
 import 'package:indrive/utils/app_config.dart';
 import 'package:indrive/utils/navigation_service.dart';
