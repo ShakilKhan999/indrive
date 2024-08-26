@@ -653,6 +653,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
               InkWell(
                 onTap: () {
                   homeController.selectedVehicle.value = "car";
+                  homeController.loadMarkers();
                 },
                 child: Container(
                     height: 55.h,
@@ -698,6 +699,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
               InkWell(
                 onTap: () {
                   homeController.selectedVehicle.value = "moto";
+                  homeController.loadMarkers();
                 },
                 child: Container(
                     height: 55.h,
@@ -743,6 +745,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
               InkWell(
                 onTap: () {
                   homeController.selectedVehicle.value = "cng";
+                  homeController.loadMarkers();
                 },
                 child: Container(
                     height: 55.h,
