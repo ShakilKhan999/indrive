@@ -9,13 +9,13 @@ import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/method_helper.dart';
 import 'package:indrive/main.dart';
 import 'package:indrive/models/driver_info_model.dart';
+import 'package:indrive/screens/profile/controller/profile_controller.dart';
 import 'package:indrive/utils/firebase_image_locations.dart';
 import 'package:indrive/utils/global_toast_service.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../utils/database_collection_names.dart';
-import '../../driver_info/repository/driver_info_repository.dart';
 import '../repository/city_to_city_repository.dart';
 
 class CityToCityInfoController extends GetxController {
@@ -227,7 +227,7 @@ class CityToCityInfoController extends GetxController {
     if (vehicleType == 'taxi') {
       vehicleBrands = taxiBrands;
     }
-    if (vehicleType == 'bike') {
+    if (vehicleType == 'moto') {
       vehicleBrands = bikeBrands;
     }
   }
@@ -266,11 +266,11 @@ class CityToCityInfoController extends GetxController {
           driverInfoDoc: id);
       if (response) {
         await updateCityToCityStatus();
+        ProfileController profileController = Get.find();
+        profileController.getUserProfile();
         isCityToCityDataSaving.value = false;
         Get.back();
-        showToast(
-            toastText: 'Data saved successfully',
-            toastColor: ColorHelper.primaryColor);
+        Get.back();
       } else {
         isCityToCityDataSaving.value = false;
         showToast(

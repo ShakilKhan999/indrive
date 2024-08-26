@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'dart:developer';
 import 'dart:io';
@@ -7,9 +10,16 @@ import 'package:indrive/helpers/method_helper.dart';
 import 'package:indrive/utils/firebase_image_locations.dart';
 import 'package:indrive/utils/global_toast_service.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
+
+import '../../../../main.dart';
+import '../../../../models/driver_info_model.dart';
+import '../../../../utils/database_collection_names.dart';
+import '../repository/courier_repository.dart';
 
 class CourierController extends GetxController {
   var vehicleType = ''.obs;
+  var isCourierDataSaving = false.obs;
 
   // basic info----->>>>>
   var firstNameController = TextEditingController().obs;
@@ -216,8 +226,76 @@ class CourierController extends GetxController {
     if (vehicleType == 'taxi') {
       vehicleBrands = taxiBrands;
     }
-    if (vehicleType == 'bike') {
+    if (vehicleType == 'moto') {
       vehicleBrands = bikeBrands;
+    }
+  }
+
+  Future saveDriverInfo() async {
+    try {
+      fToast.init(Get.context!);
+      isCourierDataSaving.value = true;
+      var uuid = const Uuid();
+      String id = uuid.v1();
+      DriverInfoModel driverInfoModel = DriverInfoModel(
+        id: id,
+        uid: FirebaseAuth.instance.currentUser!.uid,
+        firstName: firstNameController.value.text,
+        lastName: lastNameController.value.text,
+        email: emailController.value.text,
+        profilePhoto: profilePhotoUrl.value,
+        dateOfBirth: selectedDate.value,
+        driverLicense: driverLicenseController.value.text,
+        driverLicenseFrontPhoto: licenseFrontPhotoUrl.value,
+        driverLicenseBackPhoto: licensebackPhotoUrl.value,
+        idWithPhoto: idCardWithFacefPhotoUrl.value,
+        nid: nationalIdCardPhotoUrl.value,
+        vehicleBrand: selectedCarBrand.value,
+        vehicleNumberOfSeat:
+            vehicleType.value == 'moto' ? null : selectedSeatNumber.value,
+        vehicleColor:
+            vehicleType.value == 'moto' ? null : selectedCarColor.value,
+        vehicleModelNo: carModelNumberController.value.text,
+        vehicleType: vehicleType.value,
+      );
+      log('driver info model : ${jsonEncode(driverInfoModel)}');
+      var response = await CourierRepository().saveCourierInfo(
+          driverInfoModel: driverInfoModel,
+          uid: FirebaseAuth.instance.currentUser!.uid,
+          driverInfoDoc: id);
+      if (response) {
+        await updateCourierStatus();
+        isCourierDataSaving.value = false;
+        Get.back();
+        Get.back();
+       
+      } else {
+        isCourierDataSaving.value = false;
+        showToast(
+            toastText: 'Something went wrong. Please try again later',
+            toastColor: ColorHelper.red);
+      }
+    } catch (e) {
+      log('Error when calling save data: $e');
+      isCourierDataSaving.value = false;
+      showToast(
+          toastText: 'Something went wrong. Please try again later',
+          toastColor: ColorHelper.red);
+    }
+  }
+
+  updateCourierStatus() async {
+    try {
+      await MethodHelper().updateDocFields(
+          docId: FirebaseAuth.instance.currentUser!.uid,
+          fieldsToUpdate: {
+            "isCourier": true,
+            "courierStatus": "pending",
+            "courierVehicleType": vehicleType.value
+          },
+          collection: userCollection);
+    } catch (e) {
+      log('Error while updating city to city data: $e');
     }
   }
 }

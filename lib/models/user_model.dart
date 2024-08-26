@@ -13,19 +13,19 @@ class UserModel {
   double? vehicleAngle;
   GeoPoint? latLng;
   bool? isDriver;
-  bool? driverStatus;
+  String? driverStatus;
   String? driverStatusDescription;
   String? driverVehicleType;
   bool? isCityToCity;
-  bool? cityToCityStatus;
-  bool? cityToCityStatusDescription;
+  String? cityToCityStatus;
+  String? cityToCityStatusDescription;
   String? cityToCityVehicleType;
   bool? isCourier;
-  bool? courierStatus;
+  String? courierStatus;
   String? courierStatusDescription;
   String? courierVehicleType;
   bool? isFreight;
-  bool? freightStatus;
+  String? freightStatus;
   String? freightStatusDescription;
   String? freightVehicleType;
 
@@ -102,19 +102,19 @@ class UserModel {
       vehicleType: json['vehicleType'],
       vehicleAngle: json['vehicleAngle'],
       latLng: json['latlng'],
-      isDriver: json['isDriver'],
+      isDriver: json['isDriver'] ?? false,
       driverStatus: json['driverStatus'],
       driverStatusDescription: json['driverStatusDescription'],
       driverVehicleType: json['driverVehicleType'],
-      isCityToCity: json['isCityToCity'],
+      isCityToCity: json['isCityToCity'] ?? false,
       cityToCityStatus: json['cityToCityStatus'],
       cityToCityStatusDescription: json['cityToCityStatusDescription'],
       cityToCityVehicleType: json['cityToCityVehicleType'],
-      isCourier: json['isCourier'],
+      isCourier: json['isCourier'] ?? false,
       courierStatus: json['courierStatus'],
       courierStatusDescription: json['courierStatusDescription'],
       courierVehicleType: json['courierVehicleType'],
-      isFreight: json['isFreight'],
+      isFreight: json['isFreight'] ?? false,
       freightStatus: json['freightStatus'],
       freightStatusDescription: json['freightStatusDescription'],
       freightVehicleType: json['freightVehicleType'],

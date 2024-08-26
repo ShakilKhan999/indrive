@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'dart:developer';
 import 'dart:io';
@@ -7,9 +10,16 @@ import 'package:indrive/helpers/method_helper.dart';
 import 'package:indrive/utils/firebase_image_locations.dart';
 import 'package:indrive/utils/global_toast_service.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
+
+import '../../../../main.dart';
+import '../../../../models/driver_info_model.dart';
+import '../../../../utils/database_collection_names.dart';
+import '../repository/freight_repository.dart';
 
 class FreightController extends GetxController {
   var vehicleType = ''.obs;
+  var isFreightDataSaving = false.obs;
 
   // basic info----->>>>>
   var firstNameController = TextEditingController().obs;
@@ -209,15 +219,67 @@ class FreightController extends GetxController {
   final List<String> seatNumbers = ["Small", "Medium", "Large"].obs;
   final List<String> carColors = ["Red", "Blue", "Black", "White", "Grey"].obs;
 
-  setVehicleType({required String vehicleType}) {
-    if (vehicleType == 'car') {
-      vehicleBrands = carBrands;
+  Future saveDriverInfo() async {
+    try {
+      fToast.init(Get.context!);
+      isFreightDataSaving.value = true;
+      var uuid = const Uuid();
+      String id = uuid.v1();
+      DriverInfoModel driverInfoModel = DriverInfoModel(
+        id: id,
+        uid: FirebaseAuth.instance.currentUser!.uid,
+        firstName: firstNameController.value.text,
+        lastName: lastNameController.value.text,
+        email: emailController.value.text,
+        profilePhoto: profilePhotoUrl.value,
+        dateOfBirth: selectedDate.value,
+        driverLicense: driverLicenseController.value.text,
+        driverLicenseFrontPhoto: licenseFrontPhotoUrl.value,
+        driverLicenseBackPhoto: licensebackPhotoUrl.value,
+        idWithPhoto: idCardWithFacefPhotoUrl.value,
+        nid: nationalIdCardPhotoUrl.value,
+        vehicleBrand: selectedCarBrand.value,
+        vehicleNumberOfSeat: selectedSeatNumber.value,
+        vehicleColor: selectedCarColor.value,
+        vehicleModelNo: carModelNumberController.value.text,
+        vehicleType: 'freight',
+      );
+      log('driver info model : ${jsonEncode(driverInfoModel)}');
+      var response = await FreightRepository().saveFreightInfo(
+          driverInfoModel: driverInfoModel,
+          uid: FirebaseAuth.instance.currentUser!.uid,
+          driverInfoDoc: id);
+      if (response) {
+        await updateFreightStatus();
+        isFreightDataSaving.value = false;
+        Get.back();
+      } else {
+        isFreightDataSaving.value = false;
+        showToast(
+            toastText: 'Something went wrong. Please try again later',
+            toastColor: ColorHelper.red);
+      }
+    } catch (e) {
+      log('Error when calling save data: $e');
+      isFreightDataSaving.value = false;
+      showToast(
+          toastText: 'Something went wrong. Please try again later',
+          toastColor: ColorHelper.red);
     }
-    if (vehicleType == 'taxi') {
-      vehicleBrands = taxiBrands;
-    }
-    if (vehicleType == 'bike') {
-      vehicleBrands = bikeBrands;
+  }
+
+  updateFreightStatus() async {
+    try {
+      await MethodHelper().updateDocFields(
+          docId: FirebaseAuth.instance.currentUser!.uid,
+          fieldsToUpdate: {
+            "isFreight": true,
+            "freightStatus": "pending",
+            "freightVehicleType": 'freight',
+          },
+          collection: userCollection);
+    } catch (e) {
+      log('Error while updating freight data: $e');
     }
   }
 }

@@ -59,7 +59,7 @@ class AuthRepository {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection(userCollection)
           .doc(userId)
-          .collection(driverDetials)
+          .collection(driverDetialsCollection)
           .limit(1)
           .get();
 

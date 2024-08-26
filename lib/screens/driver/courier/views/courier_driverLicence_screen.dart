@@ -5,7 +5,7 @@ import 'package:indrive/components/common_components.dart';
 import 'package:indrive/components/custom_appbar.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/main.dart';
-import 'package:indrive/screens/driver/courier/controller/controller.dart';
+import 'package:indrive/screens/driver/courier/controller/courier_controller.dart';
 
 class CourierDriverlicenceScreen extends StatelessWidget {
   CourierDriverlicenceScreen({super.key});

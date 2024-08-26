@@ -111,8 +111,8 @@ class VehicleTypeScreen extends StatelessWidget {
           child: Center(
             child: InkWell(
               onTap: () {
-                _driverInfoController.vehicleType.value = 'bike';
-                _driverInfoController.setVehicleType(vehicleType: 'bike');
+                _driverInfoController.vehicleType.value = 'moto';
+                _driverInfoController.setVehicleType(vehicleType: 'moto');
                 Get.to(DriverInfoPage(), transition: Transition.rightToLeft);
               },
               child: ListTile(

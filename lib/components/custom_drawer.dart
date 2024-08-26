@@ -7,7 +7,7 @@ import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
 import 'package:indrive/screens/drawer_screen/my_ride_screen.dart';
-import 'package:indrive/screens/home/views/choose_profile_screen.dart';
+import 'package:indrive/screens/profile/views/choose_profile_screen.dart';
 
 class CustomDrawer extends StatelessWidget {
   CustomDrawer({super.key});
@@ -77,6 +77,15 @@ class CustomDrawer extends StatelessWidget {
           },
         ),
         buildDrawerItem(
+          icon: Icons.maps_home_work_sharp,
+          text: 'City to City',
+          color: Colors.white,
+          onTap: () {
+            // Get.offAll(() =>
+            //     transition: Transition.noTransition);
+          },
+        ),
+        buildDrawerItem(
           icon: Icons.timer_outlined,
           text: 'Request history',
           color: Colors.white,
@@ -111,7 +120,8 @@ class CustomDrawer extends StatelessWidget {
       children: [
         InkWell(
           onTap: () {
-            Get.to(ChooseProfileScreen(), transition: Transition.rightToLeft);
+            Get.to(() => ChooseProfileScreen(),
+                transition: Transition.rightToLeft);
           },
           child: Container(
             height: 60.h,
@@ -147,6 +157,7 @@ class CustomDrawer extends StatelessWidget {
                           FivePointedStar(
                             count: 5,
                             onChange: (count) {},
+                            disabled: true,
                           )
                         ],
                       ),

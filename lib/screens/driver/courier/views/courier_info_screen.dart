@@ -5,7 +5,7 @@ import 'package:indrive/components/common_components.dart';
 import 'package:indrive/components/custom_appbar.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/screens/driver/courier/controller/controller.dart';
+import 'package:indrive/screens/driver/courier/controller/courier_controller.dart';
 import 'package:indrive/screens/driver/courier/views/courier_basicInfo_screen.dart';
 import 'package:indrive/screens/driver/courier/views/courier_driverLicence_screen.dart';
 import 'package:indrive/screens/driver/courier/views/courier_idConfirmation_screen.dart';
@@ -27,13 +27,18 @@ class CourierInfoScreen extends StatelessWidget {
           children: [
             _buildSelectionView(context),
             SpaceHelper.verticalSpace10,
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14.0),
-              child: CommonComponents().commonButton(
-                  text: "Save All Data",
-                  onPressed: () async {},
-                  disabled: false),
-            )
+            Obx(
+              () => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14.0),
+                child: CommonComponents().commonButton(
+                    text: "Save All Data",
+                    onPressed: () async {
+                      _courierController.saveDriverInfo();
+                    },
+                    disabled: _courierController.isCourierDataSaving.value,
+                    isLoading: _courierController.isCourierDataSaving.value),
+              ),
+            ),
           ],
         ),
       ),

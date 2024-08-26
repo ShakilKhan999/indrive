@@ -2,5 +2,7 @@
 const userCollection = 'users';
 
 // sub colllectioins
-const driverDetials = 'driver details';
+const driverDetialsCollection = 'driver details';
 const cityToCityCollection = 'city to city';
+const courierCollection = 'courier';
+const freightCollection = 'freight';

@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/components/custom_appbar.dart';
 import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/screens/driver/driver_info/controller/driver_info_controller.dart';
 import 'package:indrive/screens/driver/freight/controller/freight_controller.dart';
 
 import '../../../../main.dart';

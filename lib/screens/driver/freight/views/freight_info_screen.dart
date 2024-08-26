@@ -27,12 +27,17 @@ class FreightInfoScreen extends StatelessWidget {
           children: [
             _buildSelectionView(context),
             SpaceHelper.verticalSpace10,
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14.0),
-              child: CommonComponents().commonButton(
-                  text: "Save All Data",
-                  onPressed: () async {},
-                  disabled: false),
+            Obx(
+              () => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14.0),
+                child: CommonComponents().commonButton(
+                    text: "Save All Data",
+                    onPressed: () async {
+                      _freightController.saveDriverInfo();
+                    },
+                    disabled: _freightController.isFreightDataSaving.value,
+                    isLoading: _freightController.isFreightDataSaving.value),
+              ),
             )
           ],
         ),

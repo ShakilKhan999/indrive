@@ -92,9 +92,7 @@ class DriverInfoController extends GetxController {
         isDriverDataSaving.value = false;
         Get.offAll(() => DriverHomeScreen(),
             transition: Transition.rightToLeft);
-        showToast(
-            toastText: 'Data saved successfully',
-            toastColor: ColorHelper.primaryColor);
+        
       } else {
         isDriverDataSaving.value = false;
         showToast(
@@ -166,7 +164,7 @@ class DriverInfoController extends GetxController {
     if (vehicleType == 'taxi') {
       vehicleBrands = taxiBrands;
     }
-    if (vehicleType == 'bike') {
+    if (vehicleType == 'moto') {
       vehicleBrands = bikeBrands;
     }
   }

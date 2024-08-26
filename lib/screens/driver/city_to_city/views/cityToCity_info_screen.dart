@@ -28,17 +28,19 @@ class CitytocityInfoScreen extends StatelessWidget {
           children: [
             _buildSelectionView(context),
             SpaceHelper.verticalSpace10,
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14.0),
-              child: CommonComponents().commonButton(
-                  text: "Save All Data",
-                  onPressed: () async {
-                    await _cityToCityInfoController.saveDriverInfo();
-                  },
-                  disabled:
-                      _cityToCityInfoController.isCityToCityDataSaving.value,
-                  isLoading:
-                      _cityToCityInfoController.isCityToCityDataSaving.value),
+            Obx(
+              () => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14.0),
+                child: CommonComponents().commonButton(
+                    text: "Save All Data",
+                    onPressed: () async {
+                      await _cityToCityInfoController.saveDriverInfo();
+                    },
+                    disabled:
+                        _cityToCityInfoController.isCityToCityDataSaving.value,
+                    isLoading:
+                        _cityToCityInfoController.isCityToCityDataSaving.value),
+              ),
             )
           ],
         ),

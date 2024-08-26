@@ -9,7 +9,7 @@ import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
 import 'package:indrive/screens/driver/driver_home/controller/driver_home_controller.dart';
 import 'package:indrive/screens/driver/driver_home/repository/driver_repository.dart';
 import 'package:indrive/screens/home/repository/passenger_repositoy.dart';
-import 'package:indrive/screens/home/views/profile_screen.dart';
+import 'package:indrive/screens/profile/views/profile_screen.dart';
 
 import '../../../../components/custom_drawer.dart';
 
@@ -122,7 +122,8 @@ class DriverHomeScreen extends StatelessWidget {
                   child: Obx(
                 () => InkWell(
                   onTap: () {
-                    Get.to(() => ProfileScreen(), transition: Transition.rightToLeft);
+                    Get.to(() => ProfileScreen(),
+                        transition: Transition.rightToLeft);
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -147,9 +148,11 @@ class DriverHomeScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(90),
                           child: _authController.currentUser.value.photo != null
                               ? Image.network(
-                                  _authController.currentUser.value.photo!, height: 35.h,
+                                  _authController.currentUser.value.photo!,
+                                  height: 35.h,
                                   width: 35.h,
-                                  fit: BoxFit.cover,)
+                                  fit: BoxFit.cover,
+                                )
                               : Image.asset(
                                   "assets/images/person.jpg",
                                   height: 35.h,
@@ -307,13 +310,12 @@ class DriverHomeScreen extends StatelessWidget {
                       child: CommonComponents().commonButton(
                           text: "Drop and Finish",
                           onPressed: () async {
-                           await DriverRepository().completeRide(
-                            driverHomeController.activeCall[0].tripId,
-                            driverHomeController.activeCall[0].driverId);
+                            await DriverRepository().completeRide(
+                                driverHomeController.activeCall[0].tripId,
+                                driverHomeController.activeCall[0].driverId);
                             driverHomeController.activeCall.clear();
                             driverHomeController.polylineCoordinates.clear();
                             driverHomeController.polyLines.clear();
-                            
                           },
                           color: Colors.green,
                           borderRadius: 14))
