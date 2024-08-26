@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geocoding/geocoding.dart';
@@ -18,7 +17,7 @@ import 'package:uuid/uuid.dart';
 import '../../../models/user_model.dart';
 
 class HomeController extends GetxController {
-  var selectedVehicle = "cng".obs;
+  var selectedVehicle = "car".obs;
   var userLat = 0.0.obs;
   var userLong = 0.0.obs;
   var cameraMoving = false.obs;
@@ -26,9 +25,7 @@ class HomeController extends GetxController {
   var suggestedPlaces = [].obs;
 
   var driverList = [].obs;
-  var cardriverMarkerList = [].obs;
-  var motodriverMarkerList = [].obs;
-  var cngdriverMarkerList = [].obs;
+  var driverMarkerList = [].obs;
   var tempDriverMarkerList = [].obs;
 
   var myPlaceName = "Searching for you on the map..".obs;
@@ -76,7 +73,7 @@ class HomeController extends GetxController {
     }
 
     addPolyLine(
-      polylineCoordinates.value
+      polylineCoordinates
           .map((geoPoint) => LatLng(geoPoint.latitude, geoPoint.longitude))
           .toList(),
     );
@@ -96,7 +93,6 @@ class HomeController extends GetxController {
   }
 
   var allMarkers = <Marker>{}.obs;
-  var targetVehicleMarkers = <Marker>{}.obs;
 
   final List<double> _rotations = [
     0.0,
@@ -106,77 +102,29 @@ class HomeController extends GetxController {
 
   Future<void> loadMarkers() async {
     await Future.delayed(const Duration(seconds: 1));
-    final BitmapDescriptor markerIconCar =
-        await BitmapDescriptor.fromAssetImage(
+    final BitmapDescriptor markerIcon = await BitmapDescriptor.fromAssetImage(
       const ImageConfiguration(size: Size(24, 24)),
       'assets/images/marker.png',
     );
-    final BitmapDescriptor markerIconMoto =
-        await BitmapDescriptor.fromAssetImage(
-      const ImageConfiguration(size: Size(24, 24)),
-      'assets/images/cngMarker.png',
-    );
-    final BitmapDescriptor markerIconCng =
-        await BitmapDescriptor.fromAssetImage(
-      const ImageConfiguration(size: Size(24, 24)),
-      'assets/images/cngMarker.png',
-    );
-    var carListToMarked = cardriverMarkerList;
-    var motoListToMarked = motodriverMarkerList;
-    var cngListToMarked = cngdriverMarkerList;
+    var listToMarked = tripCalled.value || riderFound.value
+        ? tempDriverMarkerList
+        : driverMarkerList;
+    Set<Marker> markers = listToMarked.asMap().entries.map((entry) {
+      int idx = entry.key;
+      LatLng location = entry.value;
+      double rotation =
+      _rotations[idx % _rotations.length]; // Cycle through rotations
 
-    if (selectedVehicle.value == "car") {
-      Set<Marker> markers = carListToMarked.value.asMap().entries.map((entry) {
-        int idx = entry.key;
-        LatLng location = entry.value;
-        double rotation =
-            _rotations[idx % _rotations.length]; // Cycle through rotations
+      return Marker(
+        markerId: MarkerId(location.toString()),
+        position: location,
+        icon: markerIcon,
+        rotation: rotation,
+      );
+    }).toSet();
 
-        return Marker(
-          markerId: MarkerId(location.toString()),
-          position: location,
-          icon: markerIconCar,
-          rotation: rotation,
-        );
-      }).toSet();
-
-      allMarkers.value = markers;
-      log("car marker length: ${allMarkers.length}");
-    } else if (selectedVehicle.value == "moto") {
-      Set<Marker> markers = motoListToMarked.value.asMap().entries.map((entry) {
-        int idx = entry.key;
-        LatLng location = entry.value;
-        double rotation =
-            _rotations[idx % _rotations.length]; // Cycle through rotations
-
-        return Marker(
-          markerId: MarkerId(location.toString()),
-          position: location,
-          icon: markerIconMoto,
-          rotation: rotation,
-        );
-      }).toSet();
-
-      allMarkers.value = markers;
-      log("moto marker length: ${allMarkers.length}");
-    } else if (selectedVehicle.value == "cng") {
-      Set<Marker> markers = cngListToMarked.value.asMap().entries.map((entry) {
-        int idx = entry.key;
-        LatLng location = entry.value;
-        double rotation =
-            _rotations[idx % _rotations.length]; // Cycle through rotations
-
-        return Marker(
-          markerId: MarkerId(location.toString()),
-          position: location,
-          icon: markerIconCng,
-          rotation: rotation,
-        );
-      }).toSet();
-
-      allMarkers.value = markers;
-      log("cng marker length: ${allMarkers.length}");
-    }
+    allMarkers.value = markers;
+    log("marker length: ${allMarkers.length}");
   }
 
   void moveCameraToPolyline() {
@@ -237,19 +185,17 @@ class HomeController extends GetxController {
         startPickedCenter.value.longitude, false);
   }
 
-  Future<Position> getCurrentLocation() async {
-    log("getCurrentLocation called");
-
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    // Check if location services are enabled
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  Future<void> checkLocationServiceAndPermission() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
+      return;
     }
+  }
 
-    // Check location permissions
+  Future<Position> getCurrentLocation() async {
+
+    checkLocationServiceAndPermission();
+    LocationPermission permission;
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -257,13 +203,10 @@ class HomeController extends GetxController {
         return Future.error('Location permissions are denied.');
       }
     }
-
     if (permission == LocationPermission.deniedForever) {
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
     }
-
-    // If permission is granted, get the current position
     return await Geolocator.getCurrentPosition();
   }
 
@@ -295,16 +238,16 @@ class HomeController extends GetxController {
     }
     try {
       List<Placemark> placemarks =
-          await placemarkFromCoordinates(latitude, longitude);
+      await placemarkFromCoordinates(latitude, longitude);
       if (placemarks.isNotEmpty) {
         Placemark placemark = placemarks.first;
         if (destination) {
           destinationPlaceName.value =
-              '${placemark.subLocality}, ${placemark.locality}, ${placemark.administrativeArea}';
+          '${placemark.subLocality}, ${placemark.locality}, ${placemark.administrativeArea}';
           destinationController.text = destinationPlaceName.value;
         } else {
           myPlaceName.value =
-              '${placemark.street}, ${placemark.subLocality}, ${placemark.locality}';
+          '${placemark.street}, ${placemark.subLocality}, ${placemark.locality}';
         }
 
         log("myPlaceName: ${myPlaceName.value}");
@@ -326,28 +269,13 @@ class HomeController extends GetxController {
     PassengerRepository().listenToDriverDocs().listen((event) {
       driverList.value = List.generate(
           event.docs.length,
-          (index) => UserModel.fromJson(
+              (index) => UserModel.fromJson(
               event.docs[index].data() as Map<String, dynamic>));
 
-      cardriverMarkerList.value = driverList
-          .where(
-              (driver) => driver.latLng != null && driver.vehicleType == "car")
+      driverMarkerList.value = driverList
+          .where((driver) => driver.latLng != null)
           .map((driver) =>
-              LatLng(driver.latLng.latitude, driver.latLng.longitude))
-          .toList();
-
-      motodriverMarkerList.value = driverList
-          .where(
-              (driver) => driver.latLng != null && driver.vehicleType == "moto")
-          .map((driver) =>
-              LatLng(driver.latLng.latitude, driver.latLng.longitude))
-          .toList();
-
-      cngdriverMarkerList.value = driverList
-          .where(
-              (driver) => driver.latLng != null && driver.vehicleType == "cng")
-          .map((driver) =>
-              LatLng(driver.latLng.latitude, driver.latLng.longitude))
+          LatLng(driver.latLng.latitude, driver.latLng.longitude))
           .toList();
 
       loadMarkers();
@@ -481,10 +409,18 @@ class HomeController extends GetxController {
     }
   }
 
+  int calculateRentPrice(
+      {required GeoPoint point1, required GeoPoint point2}) {
+    final distanceInMeters = Geolocator.distanceBetween(
+        point1.latitude, point1.longitude, point2.latitude, point2.longitude);
+    return (distanceInMeters*0.01).ceil();
+
+  }
+
   String calculateTravelTime(
       {required GeoPoint point1,
-      required GeoPoint point2,
-      required double speedKmh}) {
+        required GeoPoint point2,
+        required double speedKmh}) {
     final distanceInMeters = Geolocator.distanceBetween(
         point1.latitude, point1.longitude, point2.latitude, point2.longitude);
 
@@ -495,7 +431,7 @@ class HomeController extends GetxController {
     if (timeInMinutes < 60) {
       return timeInMinutes < 2
           ? "Less than 2 minutes"
-          : '${timeInMinutes.toStringAsFixed(2)} minutes';
+          : '${timeInMinutes.ceil()} minutes';
     } else {
       final hours = timeInMinutes ~/ 60;
       final minutes = timeInMinutes % 60;
