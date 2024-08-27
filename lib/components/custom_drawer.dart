@@ -12,6 +12,7 @@ import 'package:indrive/screens/profile/views/choose_profile_screen.dart';
 class CustomDrawer extends StatelessWidget {
   CustomDrawer({super.key});
   final AuthController _authController = Get.find();
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -79,6 +80,15 @@ class CustomDrawer extends StatelessWidget {
         buildDrawerItem(
           icon: Icons.maps_home_work_sharp,
           text: 'City to City',
+          color: Colors.white,
+          onTap: () {
+            // Get.offAll(() =>
+            //     transition: Transition.noTransition);
+          },
+        ),
+        buildDrawerItem(
+          icon: Icons.fire_truck,
+          text: 'Freight',
           color: Colors.white,
           onTap: () {
             // Get.offAll(() =>

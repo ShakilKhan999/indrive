@@ -210,11 +210,12 @@ class CommonComponents {
 
   Widget commonTextPicker(
       {required String labelText,
-      required TextEditingController textController}) {
+      required TextEditingController textController,
+      Color color = Colors.white}) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: color,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
