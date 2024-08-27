@@ -1,0 +1,153 @@
+class CityToCityTripModel {
+  final String? id;
+  final String? cityFrom;
+  final String? cityTo;
+  final String? date;
+  final String? userPrice;
+  final String? driverPrice;
+  final String? finalPrice;
+  final String? numberOfPassengers;
+  final String? userPhone;
+  final String? userName;
+  final String? userImage;
+  final String? driverPhone;
+  final String? driverName;
+  final String? driverImage;
+  final String? driverVehicle;
+  final String? userUid;
+  final String? driverUid;
+  final List<Bids>? bids;
+  final bool? isTripCompleted;
+  final bool? isTripCancelled;
+  final bool? isTripAccepted;
+  final String? tripType;
+  final String? comments;
+  final String? parcelDescription;
+
+  CityToCityTripModel({
+    this.id,
+    this.cityFrom,
+    this.cityTo,
+    this.date,
+    this.userPrice,
+    this.driverPrice,
+    this.finalPrice,
+    this.numberOfPassengers,
+    this.userPhone,
+    this.userName,
+    this.userImage,
+    this.driverPhone,
+    this.driverName,
+    this.driverImage,
+    this.driverVehicle,
+    this.userUid,
+    this.driverUid,
+    this.bids,
+    this.isTripCompleted,
+    this.isTripCancelled,
+    this.isTripAccepted,
+    this.tripType,
+    this.comments,
+    this.parcelDescription,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'cityFrom': cityFrom,
+      'cityTo': cityTo,
+      'date': date,
+      'userPrice': userPrice,
+      'driverPrice': driverPrice,
+      'finalPrice': finalPrice,
+      'numberOfPassengers': numberOfPassengers,
+      'userPhone': userPhone,
+      'userName': userName,
+      'userImage': userImage,
+      'driverPhone': driverPhone,
+      'driverName': driverName,
+      'driverImage': driverImage,
+      'driverVehicle': driverVehicle,
+      'userUid': userUid,
+      'driverUid': driverUid,
+      'bids': bids?.map((bid) => bid.toJson()).toList(),
+      'isTripCompleted': isTripCompleted,
+      'isTripCancelled': isTripCancelled,
+      'isTripAccepted': isTripAccepted,
+      'tripType': tripType,
+      'comments': comments,
+      'parcelDescription': parcelDescription,
+    };
+  }
+
+  factory CityToCityTripModel.fromJson(Map<String, dynamic> json) {
+    return CityToCityTripModel(
+      id: json['id'],
+      cityFrom: json['cityFrom'],
+      cityTo: json['cityTo'],
+      date: json['date'],
+      userPrice: json['userPrice'],
+      driverPrice: json['driverPrice'],
+      finalPrice: json['finalPrice'],
+      numberOfPassengers: json['numberOfPassengers'],
+      userPhone: json['userPhone'],
+      userName: json['userName'],
+      userImage: json['userImage'],
+      driverPhone: json['driverPhone'],
+      driverName: json['driverName'],
+      driverImage: json['driverImage'],
+      driverVehicle: json['driverVehicle'],
+      userUid: json['userUid'],
+      driverUid: json['driverUid'],
+      bids: (json['bids'] as List<dynamic>?)
+          ?.map((bidJson) => Bids.fromJson(bidJson))
+          .toList(),
+      isTripCompleted: json['isTripCompleted'] ?? false,
+      isTripCancelled: json['isTripCancelled'] ?? false,
+      isTripAccepted: json['isTripAccepted'] ?? false,
+      tripType: json['tripType'],
+      comments: json['comments'],
+      parcelDescription: json['parcelDescription'],
+    );
+  }
+}
+
+class Bids {
+  final String? driverPrice;
+  final String? driverPhone;
+  final String? driverName;
+  final String? driverImage;
+  final String? driverVehicle;
+  final String? driverUid;
+
+  Bids({
+    this.driverPrice,
+    this.driverPhone,
+    this.driverName,
+    this.driverImage,
+    this.driverVehicle,
+    this.driverUid,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'driverPrice': driverPrice,
+      'driverPhone': driverPhone,
+      'driverName': driverName,
+      'driverImage': driverImage,
+      'driverVehicle': driverVehicle,
+      'driverUid': driverUid,
+    };
+  }
+
+  factory Bids.fromJson(Map<String, dynamic> json) {
+    return Bids(
+      driverPrice: json['driverPrice'],
+      driverPhone: json['driverPhone'],
+      driverName: json['driverName'],
+      driverImage: json['driverImage'],
+      driverVehicle: json['driverVehicle'],
+      driverUid: json['driverUid'],
+    );
+  }
+}

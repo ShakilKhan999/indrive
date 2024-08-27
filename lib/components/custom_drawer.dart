@@ -9,6 +9,8 @@ import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
 import 'package:indrive/screens/drawer_screen/my_ride_screen.dart';
 import 'package:indrive/screens/profile/views/choose_profile_screen.dart';
 
+import '../screens/city_to_city_user/views/city_to_city_request.dart';
+
 class CustomDrawer extends StatelessWidget {
   CustomDrawer({super.key});
   final AuthController _authController = Get.find();
@@ -82,8 +84,9 @@ class CustomDrawer extends StatelessWidget {
           text: 'City to City',
           color: Colors.white,
           onTap: () {
-            // Get.offAll(() =>
-            //     transition: Transition.noTransition);
+            Get.back();
+            Get.to(() => CityToCityRequest(),
+                transition: Transition.rightToLeft);
           },
         ),
         buildDrawerItem(

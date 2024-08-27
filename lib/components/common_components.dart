@@ -123,7 +123,7 @@ class CommonComponents {
     String? imagePath,
     double borderRadius = 24,
     double fontSize = 16,
-    Color color = const Color(0xFF004AAD),
+    Color color =  ColorHelper.primaryColor,
     bool isLoading = false,
   }) {
     return GestureDetector(

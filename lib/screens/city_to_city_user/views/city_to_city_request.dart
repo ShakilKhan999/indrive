@@ -2,54 +2,60 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:indrive/components/common_components.dart';
-import 'package:indrive/components/custom_drawer.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/city_to_city_user/controller/city_to_city_request_controller.dart';
+import 'package:indrive/screens/city_to_city_user/views/select_location.dart';
 
 class CityToCityRequest extends StatelessWidget {
   CityToCityRequest({super.key});
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final CityToCityRequestController _cityToCityRequestController =
       Get.put(CityToCityRequestController());
+  // HomeController homeController = Get.put(HomeController());
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: scaffoldKey,
-      drawer: CustomDrawer(),
-      appBar: _buildAppBarView(),
-      backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  SpaceHelper.verticalSpace10,
-                  _buildTextFiledView(
-                    'From',
-                    _cityToCityRequestController.fromController.value,
-                  ),
-                  _buildTextFiledView(
-                    'To',
-                    _cityToCityRequestController.toController.value,
-                  ),
-                  SpaceHelper.verticalSpace10,
-                  _buildSelectableOptionsRow(),
-                  SpaceHelper.verticalSpace10,
-                  Obx(() => _buildSelectedOptionContainer(
-                      _cityToCityRequestController.selectedOptionIndex.value,
-                      context)),
-                ],
+    return GestureDetector(
+      onTap: () {
+        FocusManager.instance.primaryFocus!.unfocus();
+      },
+      child: Scaffold(
+        key: scaffoldKey,
+        // drawer: CustomDrawer(),
+        appBar: _buildAppBarView(),
+        backgroundColor: Colors.white,
+        body: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                physics: BouncingScrollPhysics(
+                    parent: AlwaysScrollableScrollPhysics()),
+                child: Column(
+                  children: [
+                    SpaceHelper.verticalSpace10,
+                    _buildTextFiledView(
+                        'From',
+                        _cityToCityRequestController.fromController.value,
+                        true),
+                    _buildTextFiledView('To',
+                        _cityToCityRequestController.toController.value, false),
+                    SpaceHelper.verticalSpace10,
+                    _buildSelectableOptionsRow(),
+                    SpaceHelper.verticalSpace10,
+                    Obx(() => _buildSelectedOptionContainer(
+                        _cityToCityRequestController.selectedOptionIndex.value,
+                        context)),
+                  ],
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(16.sp),
-            child: _buildBottomButtonView(),
-          ),
-        ],
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 5.h),
+              child: _buildBottomButtonView(),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -58,24 +64,7 @@ class CityToCityRequest extends StatelessWidget {
     return AppBar(
       backgroundColor: ColorHelper.bgColor,
       centerTitle: true,
-      leading: IconButton(
-        icon: const Icon(
-          Icons.menu,
-          color: Colors.white,
-        ),
-        onPressed: () {
-          if (scaffoldKey.currentState!.isDrawerOpen) {
-            scaffoldKey.currentState!.closeDrawer();
-          } else {
-            scaffoldKey.currentState!.openDrawer();
-          }
-        },
-      ),
-      actions: [
-        Container(
-          width: 40,
-        )
-      ],
+      iconTheme: IconThemeData(color: Colors.white),
       title: Title(
         color: Colors.white,
         child: Column(
@@ -95,14 +84,14 @@ class CityToCityRequest extends StatelessWidget {
 
   Widget _buildBottomButtonView() {
     return Padding(
-      padding: EdgeInsets.all(16.sp),
+      padding: EdgeInsets.all(5.sp),
       child: CommonComponents()
           .commonButton(text: 'Find a Rider', onPressed: () {}),
     );
   }
 
   Widget _buildTextFiledView(
-      String hintText, TextEditingController controller) {
+      String hintText, TextEditingController controller, bool? isFrom) {
     return Padding(
       padding: EdgeInsets.fromLTRB(16.sp, 10.h, 16.sp, 0.sp),
       child: Container(
@@ -117,6 +106,15 @@ class CityToCityRequest extends StatelessWidget {
             fontWeight: FontWeight.w400,
             decoration: TextDecoration.none,
           ),
+          onTap: () {
+            if (isFrom!) {
+              _cityToCityRequestController.changingPickup.value = isFrom;
+              Get.to(SelectLocation());
+            } else if (!isFrom) {
+              _cityToCityRequestController.changingPickup.value = isFrom;
+              Get.to(SelectLocation());
+            }
+          },
           controller: controller,
           decoration: InputDecoration(
             border: InputBorder.none,
@@ -148,7 +146,7 @@ class CityToCityRequest extends StatelessWidget {
               _buildSelectableOption('Ride', 'assets/images/car.png', 0),
               SpaceHelper.horizontalSpace15,
               _buildSelectableOption(
-                  'Courier', 'assets/images/delivery-courier.png', 1),
+                  'Parcel', 'assets/images/delivery-courier.png', 1),
             ],
           ),
         ));
@@ -290,7 +288,7 @@ class CityToCityRequest extends StatelessWidget {
           ),
         ),
         _buildTextFiledView('Offer your fear',
-            _cityToCityRequestController.riderFareController.value)
+            _cityToCityRequestController.riderFareController.value, null)
       ],
     );
   }
@@ -346,9 +344,11 @@ class CityToCityRequest extends StatelessWidget {
           ),
         ),
         _buildTextFiledView('Offer your fear',
-            _cityToCityRequestController.parcelFareController.value),
-        _buildTextFiledView('Describe your parcel',
-            _cityToCityRequestController.parcelDescriptionController.value)
+            _cityToCityRequestController.parcelFareController.value, null),
+        _buildTextFiledView(
+            'Describe your parcel',
+            _cityToCityRequestController.parcelDescriptionController.value,
+            null)
       ],
     );
   }
