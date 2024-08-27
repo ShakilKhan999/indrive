@@ -11,6 +11,8 @@ import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/driver/driver_home/repository/driver_repository.dart';
 import 'package:indrive/screens/home/controller/home_controller.dart';
+import 'package:indrive/screens/home/repository/passenger_repositoy.dart';
+import 'package:indrive/screens/home/views/bid.dart';
 import 'package:indrive/screens/home/views/select_destination.dart';
 
 import '../../../components/custom_drawer.dart';
@@ -189,7 +191,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
               child: Obx(() => AnimatedContainer(
                     duration: const Duration(microseconds: 200),
                     width: MediaQuery.of(context).size.width,
-                    height: homeController.cameraMoving.value ? 0 : 260.h,
+                    height: homeController.cameraMoving.value ? 0 : 300.h,
                     decoration: BoxDecoration(
                         color: ColorHelper.bgColor,
                         borderRadius: const BorderRadius.only(
@@ -198,6 +200,47 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                     child: _buildBottomView(context),
                   )),
             ),
+            Align(
+                alignment: Alignment.center,
+                child: Obx(() => homeController.bidderList.isEmpty
+                    ? SizedBox()
+                    : Container(
+                        width: 300.w,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            color: ColorHelper.blackColor.withOpacity(0.9)),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: homeController.bidderList.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            var bid = homeController.bidderList[index];
+
+                            // Ensure offerPrice is not null before rendering the BidItem
+                            if (bid.offerPrice == null) {
+                              return SizedBox();
+                            }
+
+                            // Initialize start time for each bid item
+                            DateTime startTime = bid
+                                .bidStart; // Adjust this to use the correct start time for each item if needed
+
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: BidItem(
+                                bid: bid,
+                                startTime: startTime,
+                                onLoadingComplete: () {
+                                  PassengerRepository().removeBidByDriverId(
+                                      driverId: bid.driverId,
+                                      tripId:
+                                          homeController.calledTrip[0].tripId);
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                      ))),
           ],
         ),
       ),
@@ -334,24 +377,26 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                     height: 50.h, width: 50.h),
                               ),
                               SpaceHelper.horizontalSpace10,
-                              Column(
-                                children: [
-                                  CommonComponents().printText(
-                                      fontSize: 18,
-                                      textData: homeController
-                                              .thisDriverDetails[0]
-                                              .vehicleBrand ??
-                                          "",
-                                      fontWeight: FontWeight.bold),
-                                  CommonComponents().printText(
-                                      fontSize: 18,
-                                      textData: homeController
-                                              .thisDriverDetails[0]
-                                              .vehicleModelNo ??
-                                          "",
-                                      fontWeight: FontWeight.bold),
-                                ],
-                              ),
+                              homeController.thisDriverDetails.isEmpty
+                                  ? SizedBox()
+                                  : Column(
+                                      children: [
+                                        CommonComponents().printText(
+                                            fontSize: 18,
+                                            textData: homeController
+                                                    .thisDriverDetails[0]
+                                                    .vehicleBrand ??
+                                                "",
+                                            fontWeight: FontWeight.bold),
+                                        CommonComponents().printText(
+                                            fontSize: 18,
+                                            textData: homeController
+                                                    .thisDriverDetails[0]
+                                                    .vehicleModelNo ??
+                                                "",
+                                            fontWeight: FontWeight.bold),
+                                      ],
+                                    ),
                               SpaceHelper.horizontalSpace10,
                               _buildRentPriceView(initial: false)
                             ],
@@ -431,24 +476,26 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                         height: 50.h, width: 50.h),
                                   ),
                                   SpaceHelper.horizontalSpace10,
-                                  Column(
-                                    children: [
-                                      CommonComponents().printText(
-                                          fontSize: 18,
-                                          textData: homeController
-                                                  .thisDriverDetails[0]
-                                                  .vehicleBrand ??
-                                              "",
-                                          fontWeight: FontWeight.bold),
-                                      CommonComponents().printText(
-                                          fontSize: 18,
-                                          textData: homeController
-                                                  .thisDriverDetails[0]
-                                                  .vehicleModelNo ??
-                                              "",
-                                          fontWeight: FontWeight.bold),
-                                    ],
-                                  )
+                                  homeController.thisDriverDetails.isEmpty
+                                      ? SizedBox()
+                                      : Column(
+                                          children: [
+                                            CommonComponents().printText(
+                                                fontSize: 18,
+                                                textData: homeController
+                                                        .thisDriverDetails[0]
+                                                        .vehicleBrand ??
+                                                    "",
+                                                fontWeight: FontWeight.bold),
+                                            CommonComponents().printText(
+                                                fontSize: 18,
+                                                textData: homeController
+                                                        .thisDriverDetails[0]
+                                                        .vehicleModelNo ??
+                                                    "",
+                                                fontWeight: FontWeight.bold),
+                                          ],
+                                        )
                                 ],
                               ),
                             ],
@@ -587,13 +634,44 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                             homeController.changingPickup.value = false;
                             homeController.polylineCoordinates.clear();
                             homeController.polyLines.clear();
-                            FocusScope.of(context).unfocus();
                             _buildDestinationBottomSheet(context);
                           },
                           style:
                               TextStyle(color: Colors.white, fontSize: 15.sp),
                           decoration: const InputDecoration(
                             hintText: 'To', // Placeholder text
+                            hintStyle: TextStyle(color: Colors.grey),
+                            border: InputBorder.none, // No border
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SpaceHelper.verticalSpace5,
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.sp),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[850], // Dark grey background
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.money_off_csred_sharp,
+                          color: Colors.grey), // Search icon
+                      SpaceHelper.horizontalSpace10,
+                      Expanded(
+                        child: TextField(
+                          controller: homeController.offerPriceController,
+                          onTap: () {},
+                          keyboardType: TextInputType.number,
+                          style:
+                              TextStyle(color: Colors.white, fontSize: 15.sp),
+                          decoration: const InputDecoration(
+                            hintText: 'MAD', // Placeholder text
                             hintStyle: TextStyle(color: Colors.grey),
                             border: InputBorder.none, // No border
                           ),
@@ -956,11 +1034,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
           child: Center(
             child: CommonComponents().printText(
                 fontSize: 14,
-                textData:
-                    "${initial ? homeController.calculateRentPrice(point1: GeoPoint(homeController.startPickedCenter.value.latitude, homeController.startPickedCenter.value.longitude), point2: GeoPoint(homeController.destinationPickedCenter.value.latitude, homeController.destinationPickedCenter.value.longitude)) : homeController.calculateRentPrice(
-                        point1: homeController.calledTrip[0].pickLatLng,
-                        point2: homeController.calledTrip[0].dropLatLng,
-                      )} ৳",
+                textData: "${homeController.minOfferPrice.value} ৳",
                 fontWeight: FontWeight.bold),
           ),
         ));

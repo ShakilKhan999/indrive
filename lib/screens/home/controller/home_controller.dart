@@ -30,6 +30,7 @@ class HomeController extends GetxController {
 
   var myPlaceName = "Searching for you on the map..".obs;
   var destinationPlaceName = "".obs;
+  var minOfferPrice = 0.obs;
   var center = const LatLng(23.80, 90.41).obs;
   var lastPickedCenter = const LatLng(23.80, 90.41).obs;
   var destinationPickedCenter = const LatLng(23.80, 90.41).obs;
@@ -44,6 +45,7 @@ class HomeController extends GetxController {
   }
 
   final TextEditingController destinationController = TextEditingController();
+  final TextEditingController offerPriceController = TextEditingController();
   GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
   late GoogleMapController mapController;
   late GoogleMapController mapControllerTO;
@@ -78,6 +80,13 @@ class HomeController extends GetxController {
           .toList(),
     );
     findingRoutes.value = false;
+    minOfferPrice.value = calculateRentPrice(
+        point1: GeoPoint(startPickedCenter.value.latitude,
+            startPickedCenter.value.longitude),
+        point2: GeoPoint(destinationPickedCenter.value.latitude,
+            destinationPickedCenter.value.longitude));
+
+    offerPriceController.text = minOfferPrice.value.toString();
   }
 
   addPolyLine(List<LatLng> polylineCoordinates) {
@@ -321,7 +330,7 @@ class HomeController extends GetxController {
       driverList.value = List.generate(
           event.docs.length,
           (index) => UserModel.fromJson(
-              event.docs[index].data() as Map<String, dynamic>));
+              event.docs[index].data()));
 
       cardriverMarkerList.value = driverList
           .where(
@@ -374,12 +383,15 @@ class HomeController extends GetxController {
   }
 
   var calledTrip = [].obs;
+  var bidderList = [].obs;
   Future<void> listenCalledTrip(String docId) async {
     PassengerRepository().listenToCalledTrip(docId).listen((snapshot) {
       calledTrip.clear();
+      bidderList.clear();
       if (snapshot.exists) {
         calledTrip.add(Trip.fromJson(snapshot.data() as Map<String, dynamic>));
-        log("jksdfmsdn:${calledTrip.length.toString()}");
+        bidderList.addAll(calledTrip[0].bids);
+        log("check length logID:ahdsasffa:${bidderList.length.toString()}");
         if (calledTrip[0].dropped) {
           riderFound.value = false;
           tripCalled.value = false;
@@ -396,14 +408,30 @@ class HomeController extends GetxController {
   var riderFound = false.obs;
   var thisDriver = [].obs;
   var thisDriverDetails = [].obs;
+
   Future<void> callTrip() async {
     sortedDriverList.clear();
     sortedDriverList
         .addAll(sortDriversByDistance(driverList, startPickedCenter.value));
+    var bidList = [];
+    for (var driver in sortedDriverList) {
+      await Future.delayed(Duration(seconds: 3));
+      bidList.add(Bid(
+          bidStart: DateTime.now(),
+          driverAccept: false,
+          driverDecline: false,
+          driverId: driver.uid,
+          driverName: driver.name,
+          offerPrice: "100",
+          driverOffer: "0",
+          driverPhoto: driver.photo));
+    }
+
     tripCalled.value = true;
     String tripId = generateUniqueId();
     Trip trip = Trip(
         userId: "8mCWZ9uBrWME2Bfm9YOCvb0U2EJ3",
+        bids: bidList.map((e) => e as Bid).toList(),
         driverId: "",
         destination: destinationController.text,
         pickLatLng: GeoPoint(startPickedCenter.value.latitude,
@@ -422,44 +450,56 @@ class HomeController extends GetxController {
 
     await Future.delayed(Duration(seconds: 3));
 
-    for (int i = 0; i < sortedDriverList.length; i++) {
-      if (sortedDriverList[i].latLng != null &&
-          calledTrip[0].accepted == false &&
-          calledTrip[0].driverCancel == false) {
-        log("sdfsdfafd6486sdg");
-        tempDriverMarkerList.clear();
+    // for (int i = 0; i < sortedDriverList.length; i++) {
+    //   if (sortedDriverList[i].latLng != null &&
+    //       calledTrip[0].accepted == false &&
+    //       calledTrip[0].driverCancel == false) {
+    //     log("sdfsdfafd6486sdg");
+    //     tempDriverMarkerList.clear();
 
-        await PassengerRepository().callDriver(tripId, sortedDriverList[i].uid);
-        if (mapController != null) {
-          tempDriverMarkerList.add(LatLng(sortedDriverList[i].latLng.latitude,
-              sortedDriverList[i].latLng.longitude));
-          loadMarkers();
-          await mapController.animateCamera(CameraUpdate.newLatLng(LatLng(
-              sortedDriverList[i].latLng.latitude,
-              sortedDriverList[i].latLng.longitude)));
-        }
-        for (int j = 0; j < 7; j++) {
-          log("calling for $j seconds");
-          if (calledTrip[0].accepted == false) {
-            await Future.delayed(Duration(seconds: 1));
-          } else {
-            log("Driver found : ${thisDriver.length.toString()}");
-            riderFound.value = true;
-            tripCalled.value = false;
-            thisDriver.add(sortedDriverList[i]);
-            thisDriverDetails.clear();
-            thisDriverDetails.add(await AuthRepository()
-                .getCurrentUserDriverData(userId: sortedDriverList[i].uid));
-            break;
-          }
-        }
-      }
-    }
-    if (thisDriver.isEmpty) {
-      await PassengerRepository().callDriver(tripId, "");
-    }
+    //    // await PassengerRepository().callDriver(tripId, sortedDriverList[i].uid);
+    //     // if (mapController != null) {
+    //     //   tempDriverMarkerList.add(LatLng(sortedDriverList[i].latLng.latitude,
+    //     //       sortedDriverList[i].latLng.longitude));
+    //     //   loadMarkers();
+    //     //   await mapController.animateCamera(CameraUpdate.newLatLng(LatLng(
+    //     //       sortedDriverList[i].latLng.latitude,
+    //     //       sortedDriverList[i].latLng.longitude)));
+    //     // }
+    //     for (int j = 0; j < 7; j++) {
+    //       log("calling for $j seconds");
+    //       if (calledTrip[0].accepted == false) {
+    //         await Future.delayed(Duration(seconds: 1));
+    //       } else {
+    //         log("Driver found : ${thisDriver.length.toString()}");
+    //         riderFound.value = true;
+    //         tripCalled.value = false;
+    //         thisDriver.add(sortedDriverList[i]);
+    //         thisDriverDetails.clear();
+    //         thisDriverDetails.add(await AuthRepository()
+    //             .getCurrentUserDriverData(userId: sortedDriverList[i].uid));
+    //         break;
+    //       }
+    //     }
+    //   }
+    // }
+    // if (thisDriver.isEmpty) {
+    //   await PassengerRepository().callDriver(tripId, "");
+    // }
     tripCalled.value = false;
-    loadMarkers();
+    //loadMarkers();
+  }
+
+  Future<void> acceptBid({required String driverId}) async {
+    await PassengerRepository().callDriver(calledTrip[0].tripId, driverId);
+    var myRider = sortedDriverList
+        .firstWhere((driver) => driver.uid == driverId, orElse: () => null);
+    riderFound.value = true;
+    tripCalled.value = false;
+    thisDriver.add(myRider);
+    thisDriverDetails.clear();
+    // thisDriverDetails
+    //     .add(await AuthRepository().getCurrentUserDriverData(userId: driverId));
   }
 
   String calculateDistance(
