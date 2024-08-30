@@ -9,7 +9,10 @@ import 'package:google_place/google_place.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
+import 'package:indrive/screens/city_to_city_user/views/city_to_city_request.dart';
+import 'package:indrive/screens/driver/courier/views/courier_screen.dart';
 import 'package:indrive/screens/driver/driver_home/repository/driver_repository.dart';
+import 'package:indrive/screens/driver/freight/views/freight_screen.dart';
 import 'package:indrive/screens/home/controller/home_controller.dart';
 import 'package:indrive/screens/home/repository/passenger_repositoy.dart';
 import 'package:indrive/screens/home/views/bid.dart';
@@ -511,22 +514,21 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                     ),
                     Container(
                       width: double.infinity,
-                      height: 10.0, // Adjust the height if needed
+                      height: 10.0,
                       child: LinearProgressIndicator(
                         value: progress,
-                        backgroundColor: Colors
-                            .lightBlueAccent, // Background color of the progress bar
+                        backgroundColor: Colors.lightBlueAccent,
                         valueColor: AlwaysStoppedAnimation<Color>(
                           ColorHelper.primaryColor,
-                        ), // Progress color
+                        ),
                       ),
                     ),
                     Positioned(
-                      left: 0.0, // Adjust position
+                      left: 0.0,
                       child: Image.asset(
                         'assets/images/car.png',
-                        width: 50.w, // Adjust the width if needed
-                        height: 50.h, // Adjust the height if needed
+                        width: 50.w,
+                        height: 50.h,
                       ),
                     ),
                   ],
@@ -729,143 +731,325 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              InkWell(
-                onTap: () {
-                  homeController.selectedVehicle.value = "car";
-                  homeController.loadMarkers();
-                },
-                child: Container(
-                    height: 55.h,
-                    width: 90.w,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(14),
-                        color: homeController.selectedVehicle.value == "car"
-                            ? Colors.lightBlueAccent.withOpacity(0.5)
-                            : ColorHelper.bgColor),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Image.asset(
-                                'assets/images/car.png',
-                                fit: BoxFit.fill, // Replace with your asset
-                                width: 40.h,
-                                height: 22.h,
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  physics: BouncingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics()),
+                  child: Row(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          homeController.selectedVehicle.value = "car";
+                          homeController.loadMarkers();
+                        },
+                        child: Container(
+                            height: 55.h,
+                            padding: EdgeInsets.symmetric(horizontal: 5.w),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                color: homeController.selectedVehicle.value ==
+                                        "car"
+                                    ? ColorHelper.primaryColorShade
+                                    : ColorHelper.bgColor),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Image.asset(
+                                        'assets/images/car.png',
+                                        fit: BoxFit
+                                            .fill, // Replace with your asset
+                                        width: 40.h,
+                                        height: 22.h,
+                                      ),
+                                      CommonComponents().printText(
+                                          fontSize: 15,
+                                          textData: "Car",
+                                          fontWeight: FontWeight.bold)
+                                    ],
+                                  ),
+                                  homeController.selectedVehicle.value == "car"
+                                      ? Icon(
+                                          Icons.check_box_outlined,
+                                          color: ColorHelper.primaryColor,
+                                          size: 20.sp,
+                                        )
+                                      : const SizedBox()
+                                ],
                               ),
-                              CommonComponents().printText(
-                                  fontSize: 15,
-                                  textData: "Car",
-                                  fontWeight: FontWeight.bold)
-                            ],
-                          ),
-                          homeController.selectedVehicle.value == "car"
-                              ? Icon(
-                                  Icons.check_box_outlined,
-                                  color: Colors.lightBlueAccent,
-                                  size: 20.sp,
-                                )
-                              : const SizedBox()
-                        ],
+                            )),
                       ),
-                    )),
-              ),
-              InkWell(
-                onTap: () {
-                  homeController.selectedVehicle.value = "moto";
-                  homeController.loadMarkers();
-                },
-                child: Container(
-                    height: 55.h,
-                    width: 90.w,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(14),
-                        color: homeController.selectedVehicle.value == "moto"
-                            ? Colors.lightBlueAccent.withOpacity(0.5)
-                            : ColorHelper.bgColor),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Image.asset(
-                                'assets/images/bike.png',
-                                fit: BoxFit.fill, // Replace with your asset
-                                width: 40.h,
-                                height: 22.h,
+                      InkWell(
+                        onTap: () {
+                          homeController.selectedVehicle.value = "moto";
+                          homeController.loadMarkers();
+                        },
+                        child: Container(
+                            height: 55.h,
+                            padding: EdgeInsets.symmetric(horizontal: 5.w),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                color: homeController.selectedVehicle.value ==
+                                        "moto"
+                                    ? ColorHelper.primaryColorShade
+                                    : ColorHelper.bgColor),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Image.asset(
+                                        'assets/images/bike.png',
+                                        fit: BoxFit
+                                            .fill, // Replace with your asset
+                                        width: 40.h,
+                                        height: 22.h,
+                                      ),
+                                      CommonComponents().printText(
+                                          fontSize: 15,
+                                          textData: "Moto",
+                                          fontWeight: FontWeight.bold)
+                                    ],
+                                  ),
+                                  homeController.selectedVehicle.value == "moto"
+                                      ? Icon(
+                                          Icons.check_box_outlined,
+                                          color: ColorHelper.primaryColor,
+                                          size: 20.sp,
+                                        )
+                                      : const SizedBox()
+                                ],
                               ),
-                              CommonComponents().printText(
-                                  fontSize: 15,
-                                  textData: "Moto",
-                                  fontWeight: FontWeight.bold)
-                            ],
-                          ),
-                          homeController.selectedVehicle.value == "moto"
-                              ? Icon(
-                                  Icons.check_box_outlined,
-                                  color: Colors.lightBlueAccent,
-                                  size: 20.sp,
-                                )
-                              : const SizedBox()
-                        ],
+                            )),
                       ),
-                    )),
-              ),
-              InkWell(
-                onTap: () {
-                  homeController.selectedVehicle.value = "cng";
-                  homeController.loadMarkers();
-                },
-                child: Container(
-                    height: 55.h,
-                    width: 90.w,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(14),
-                        color: homeController.selectedVehicle.value == "cng"
-                            ? Colors.lightBlueAccent.withOpacity(0.5)
-                            : ColorHelper.bgColor),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Image.asset(
-                                'assets/images/rickshaw.png',
-                                fit: BoxFit.fill, // Replace with your asset
-                                width: 40.h,
-                                height: 22.h,
+                      InkWell(
+                        onTap: () {
+                          homeController.selectedVehicle.value = "cng";
+                          homeController.loadMarkers();
+                        },
+                        child: Container(
+                            height: 55.h,
+                            padding: EdgeInsets.symmetric(horizontal: 5.w),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                color: homeController.selectedVehicle.value ==
+                                        "cng"
+                                    ? ColorHelper.primaryColorShade
+                                    : ColorHelper.bgColor),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Image.asset(
+                                        'assets/images/rickshaw.png',
+                                        fit: BoxFit
+                                            .fill, // Replace with your asset
+                                        width: 40.h,
+                                        height: 22.h,
+                                      ),
+                                      CommonComponents().printText(
+                                          fontSize: 15,
+                                          textData: "CNG",
+                                          fontWeight: FontWeight.bold)
+                                    ],
+                                  ),
+                                  homeController.selectedVehicle.value == "cng"
+                                      ? Icon(
+                                          Icons.check_box_outlined,
+                                          color: ColorHelper.primaryColor,
+                                          size: 20.sp,
+                                        )
+                                      : const SizedBox()
+                                ],
                               ),
-                              CommonComponents().printText(
-                                  fontSize: 15,
-                                  textData: "CNG",
-                                  fontWeight: FontWeight.bold)
-                            ],
-                          ),
-                          homeController.selectedVehicle.value == "cng"
-                              ? Icon(
-                                  Icons.check_box_outlined,
-                                  color: Colors.lightBlueAccent,
-                                  size: 20.sp,
-                                )
-                              : const SizedBox()
-                        ],
+                            )),
                       ),
-                    )),
+                      InkWell(
+                        onTap: () {
+                          homeController.selectedVehicle.value = "city to city";
+                          // homeController.loadMarkers();
+                          Get.to(() => CityToCityRequest(),
+                              transition: Transition.rightToLeft);
+                        },
+                        child: Container(
+                            height: 55.h,
+                            padding: EdgeInsets.symmetric(horizontal: 5.w),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                color: homeController.selectedVehicle.value ==
+                                        "city to city"
+                                    ? ColorHelper.primaryColorShade
+                                    : ColorHelper.bgColor),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Image.asset(
+                                        'assets/images/car.png',
+                                        fit: BoxFit
+                                            .fill, // Replace with your asset
+                                        width: 40.h,
+                                        height: 22.h,
+                                      ),
+                                      CommonComponents().printText(
+                                          fontSize: 15,
+                                          textData: "City to city",
+                                          fontWeight: FontWeight.bold)
+                                    ],
+                                  ),
+                                  homeController.selectedVehicle.value ==
+                                          "city to city"
+                                      ? Icon(
+                                          Icons.check_box_outlined,
+                                          color: ColorHelper.primaryColor,
+                                          size: 20.sp,
+                                        )
+                                      : const SizedBox()
+                                ],
+                              ),
+                            )),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          homeController.selectedVehicle.value = "freight";
+                          // homeController.loadMarkers();
+                          Get.to(() => FreightScreen(),
+                              transition: Transition.rightToLeft);
+                        },
+                        child: Container(
+                            height: 55.h,
+                            padding: EdgeInsets.symmetric(horizontal: 5.w),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                color: homeController.selectedVehicle.value ==
+                                        "freight"
+                                    ? ColorHelper.primaryColorShade
+                                    : ColorHelper.bgColor),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Image.asset(
+                                        'assets/images/bike.png',
+                                        fit: BoxFit
+                                            .fill, // Replace with your asset
+                                        width: 40.h,
+                                        height: 22.h,
+                                      ),
+                                      CommonComponents().printText(
+                                          fontSize: 15,
+                                          textData: "Freight",
+                                          fontWeight: FontWeight.bold)
+                                    ],
+                                  ),
+                                  homeController.selectedVehicle.value ==
+                                          "freight"
+                                      ? Icon(
+                                          Icons.check_box_outlined,
+                                          color: ColorHelper.primaryColor,
+                                          size: 20.sp,
+                                        )
+                                      : const SizedBox()
+                                ],
+                              ),
+                            )),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          homeController.selectedVehicle.value = "courier";
+                          // homeController.loadMarkers();
+                          Get.to(() => CourierScreen(),
+                              transition: Transition.rightToLeft);
+                        },
+                        child: Container(
+                            height: 55.h,
+                            padding: EdgeInsets.symmetric(horizontal: 5.w),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                color: homeController.selectedVehicle.value ==
+                                        "courier"
+                                    ? ColorHelper.primaryColorShade
+                                    : ColorHelper.bgColor),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Image.asset(
+                                        'assets/images/rickshaw.png',
+                                        fit: BoxFit
+                                            .fill, // Replace with your asset
+                                        width: 40.h,
+                                        height: 22.h,
+                                      ),
+                                      CommonComponents().printText(
+                                          fontSize: 15,
+                                          textData: "Courier",
+                                          fontWeight: FontWeight.bold)
+                                    ],
+                                  ),
+                                  homeController.selectedVehicle.value ==
+                                          "courier"
+                                      ? Icon(
+                                          Icons.check_box_outlined,
+                                          color: ColorHelper.primaryColor,
+                                          size: 20.sp,
+                                        )
+                                      : const SizedBox()
+                                ],
+                              ),
+                            )),
+                      ),
+                    ],
+                  ),
+                ),
               ),
               homeController.destinationPickedCenter.value ==
                           LatLng(23.80, 90.41) ||
