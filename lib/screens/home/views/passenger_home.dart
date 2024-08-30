@@ -129,7 +129,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                               .map((geoPoint) =>
                                   LatLng(geoPoint.latitude, geoPoint.longitude))
                               .toList(),
-                          color: Colors.blue,
+                          color: ColorHelper.primaryColor,
                           width: 7)
                     },
                     onCameraMove:
@@ -470,7 +470,8 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                         backgroundColor: Colors
                             .lightBlueAccent, // Background color of the progress bar
                         valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.blue), // Progress color
+                          ColorHelper.primaryColor,
+                        ), // Progress color
                       ),
                     ),
                     Positioned(
@@ -884,11 +885,11 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                         Icon(
                           Icons.location_on_outlined,
                           size: 28.sp,
-                          color: Colors.blueAccent,
+                          color: ColorHelper.primaryColor,
                         ),
                         SpaceHelper.horizontalSpace5,
                         CommonComponents().printText(
-                            color: Colors.blueAccent,
+                            color: ColorHelper.primaryColor,
                             fontSize: 16,
                             textData: "Choose on map",
                             fontWeight: FontWeight.bold),

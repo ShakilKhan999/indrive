@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 class ColorHelper {
   static Color bgColor = const Color.fromARGB(255, 40, 39, 39);
-  static const Color primaryColor = const Color(0xFF004AAD);
-  static Color primaryColorShade = Colors.blue.shade100;
+  static const Color primaryColor = const Color(0xFFfc0079);
+  static Color primaryColorShade = Color(0xff970448);
   static Color primaryColorwithOpacity = const Color.fromARGB(61, 0, 75, 173);
   static Color greyColor = const Color(0xFF75788D);
   static Color lightGreyColor = const Color.fromARGB(71, 158, 158, 158);

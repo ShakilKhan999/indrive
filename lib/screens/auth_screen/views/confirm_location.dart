@@ -66,6 +66,7 @@ class ConfirmLocationScreen extends StatelessWidget {
         SpaceHelper.verticalSpace40,
         Image.asset(
           'assets/images/ConfirmLocation_logo.png',
+          color: ColorHelper.primaryColor,
           height: 200.h,
           width: 300.w,
         ),

@@ -25,6 +25,7 @@ class CommonComponents {
   Widget addPhotoInfo(
       {required String title,
       String? imgPath,
+      Color? color,
       required String buttonText,
       required VoidCallback onButtonPressed,
       List<String>? instructions,
@@ -68,6 +69,7 @@ class CommonComponents {
                     File(imgPath),
                     height: 150.h,
                     width: 150.w,
+                    color: color,
                   ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 80.w),
@@ -123,7 +125,7 @@ class CommonComponents {
     String? imagePath,
     double borderRadius = 24,
     double fontSize = 16,
-    Color color =  ColorHelper.primaryColor,
+    Color color = ColorHelper.primaryColor,
     bool isLoading = false,
   }) {
     return GestureDetector(

@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/components/custom_appbar.dart';
+import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/driver/city_to_city/controller/cityToCity_controller.dart';
 
@@ -47,6 +48,7 @@ class CityToCityDriverLicenceScreen extends StatelessWidget {
       imgPath: _cityToCityInfoController.licenseFrontPhoto.value != ''
           ? _cityToCityInfoController.licenseFrontPhoto.value
           : 'assets/images/card_front.png',
+      color: ColorHelper.primaryColor,
       buttonText: 'Add a photo',
       isLoading: _cityToCityInfoController.isLicenseFrontPhotoloading.value,
       onButtonPressed: () {
@@ -65,6 +67,7 @@ class CityToCityDriverLicenceScreen extends StatelessWidget {
       imgPath: _cityToCityInfoController.licenseBackPhoto.value != ''
           ? _cityToCityInfoController.licenseBackPhoto.value
           : 'assets/images/card_back.png',
+      color: ColorHelper.primaryColor,
       buttonText: 'Add a photo',
       isLoading: _cityToCityInfoController.isLicenseBackPhotoloading.value,
       onButtonPressed: () {

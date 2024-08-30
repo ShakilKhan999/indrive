@@ -46,6 +46,12 @@ class CityToCityRequest extends StatelessWidget {
                     Obx(() => _buildSelectedOptionContainer(
                         _cityToCityRequestController.selectedOptionIndex.value,
                         context)),
+                    SpaceHelper.verticalSpace10,
+                    _buildTextFiledView(
+                        'Add description',
+                        _cityToCityRequestController
+                            .addDescriptionController.value,
+                        true),
                   ],
                 ),
               ),
@@ -178,7 +184,7 @@ class CityToCityRequest extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 12.sp,
-                color: isSelected ? Colors.blue : Colors.grey,
+                color: isSelected ? ColorHelper.primaryColor : Colors.grey,
               ),
             ),
           ],

@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/components/custom_appbar.dart';
+import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/driver/driver_info/controller/driver_info_controller.dart';
 
@@ -41,6 +42,7 @@ class NidCardBirthCertificateScreen extends StatelessWidget {
       imgPath: _driverInfoController.nationalIdCardPhoto.value != ''
           ? _driverInfoController.nationalIdCardPhoto.value
           : 'assets/images/card_front.png',
+      color: ColorHelper.primaryColor,
       buttonText: 'Add a photo',
       isLoading: _driverInfoController.isNationalIdCardPhotoloading.value,
       onButtonPressed: () {

@@ -65,7 +65,7 @@ class DriverHomeScreen extends StatelessWidget {
                                   .map((geoPoint) => LatLng(
                                       geoPoint.latitude, geoPoint.longitude))
                                   .toList(),
-                              color: Colors.blue,
+                              color: ColorHelper.primaryColor,
                               width: 7)
                         },
                   myLocationEnabled: true,
@@ -346,7 +346,7 @@ class DriverHomeScreen extends StatelessWidget {
                       child: CommonComponents().commonButton(
                           text: "Call",
                           onPressed: () async {},
-                          color: Colors.blue,
+                          color: ColorHelper.primaryColor,
                           borderRadius: 14)),
                   SpaceHelper.horizontalSpace10,
                   SizedBox(

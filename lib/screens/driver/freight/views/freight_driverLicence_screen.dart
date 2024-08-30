@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/components/custom_appbar.dart';
+import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/main.dart';
 import 'package:indrive/screens/driver/freight/controller/freight_controller.dart';
@@ -45,6 +46,7 @@ class FreightDriverlicenceScreen extends StatelessWidget {
       imgPath: _freightController.licenseFrontPhoto.value != ''
           ? _freightController.licenseFrontPhoto.value
           : 'assets/images/card_front.png',
+      color: ColorHelper.primaryColor,
       buttonText: 'Add a photo',
       isLoading: _freightController.isLicenseFrontPhotoloading.value,
       onButtonPressed: () {
@@ -63,6 +65,7 @@ class FreightDriverlicenceScreen extends StatelessWidget {
       imgPath: _freightController.licenseBackPhoto.value != ''
           ? _freightController.licenseBackPhoto.value
           : 'assets/images/card_back.png',
+      color: ColorHelper.primaryColor,
       buttonText: 'Add a photo',
       isLoading: _freightController.isLicenseBackPhotoloading.value,
       onButtonPressed: () {

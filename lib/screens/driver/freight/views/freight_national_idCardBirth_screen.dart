@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/components/custom_appbar.dart';
+import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/main.dart';
 import 'package:indrive/screens/driver/freight/controller/freight_controller.dart';
@@ -38,6 +39,7 @@ class FreightNationalIdcardbirthScreen extends StatelessWidget {
       imgPath: _freightController.nationalIdCardPhoto.value != ''
           ? _freightController.nationalIdCardPhoto.value
           : 'assets/images/card_front.png',
+      color: ColorHelper.primaryColor,
       buttonText: 'Add a photo',
       isLoading: _freightController.isNationalIdCardPhotoloading.value,
       onButtonPressed: () {
