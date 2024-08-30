@@ -3,16 +3,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
+import 'package:indrive/helpers/method_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/screens/city_to_city_user/controller/city_to_city_request_controller.dart';
+import 'package:indrive/screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
 import 'package:indrive/screens/city_to_city_user/views/select_location.dart';
 
 class CityToCityRequest extends StatelessWidget {
   CityToCityRequest({super.key});
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  final CityToCityRequestController _cityToCityRequestController =
-      Get.put(CityToCityRequestController());
-  // HomeController homeController = Get.put(HomeController());
+  final CityToCityTripController _cityToCityTripController =
+      Get.put(CityToCityTripController());
 
   @override
   Widget build(BuildContext context) {
@@ -22,9 +22,8 @@ class CityToCityRequest extends StatelessWidget {
       },
       child: Scaffold(
         key: scaffoldKey,
-        // drawer: CustomDrawer(),
         appBar: _buildAppBarView(),
-        backgroundColor: Colors.white,
+        backgroundColor: ColorHelper.bgColor,
         body: Column(
           children: [
             Expanded(
@@ -34,24 +33,22 @@ class CityToCityRequest extends StatelessWidget {
                 child: Column(
                   children: [
                     SpaceHelper.verticalSpace10,
-                    _buildTextFiledView(
-                        'From',
-                        _cityToCityRequestController.fromController.value,
-                        true),
+                    _buildTextFiledView('From',
+                        _cityToCityTripController.fromController.value, true),
                     _buildTextFiledView('To',
-                        _cityToCityRequestController.toController.value, false),
+                        _cityToCityTripController.toController.value, false),
                     SpaceHelper.verticalSpace10,
                     _buildSelectableOptionsRow(),
                     SpaceHelper.verticalSpace10,
                     Obx(() => _buildSelectedOptionContainer(
-                        _cityToCityRequestController.selectedOptionIndex.value,
+                        _cityToCityTripController.selectedOptionIndex.value,
                         context)),
                     SpaceHelper.verticalSpace10,
                     _buildTextFiledView(
                         'Add description',
-                        _cityToCityRequestController
+                        _cityToCityTripController
                             .addDescriptionController.value,
-                        true),
+                        null),
                   ],
                 ),
               ),
@@ -89,10 +86,20 @@ class CityToCityRequest extends StatelessWidget {
   }
 
   Widget _buildBottomButtonView() {
-    return Padding(
-      padding: EdgeInsets.all(5.sp),
-      child: CommonComponents()
-          .commonButton(text: 'Find a Rider', onPressed: () {}),
+    return Obx(
+      () => Padding(
+        padding: EdgeInsets.all(5.sp),
+        child: CommonComponents().commonButton(
+          text: 'Find a Rider',
+          onPressed: () {
+            _cityToCityTripController.onPressFindRider();
+          },
+          disabled:
+              _cityToCityTripController.isCityToCityTripCreationLoading.value,
+          isLoading:
+              _cityToCityTripController.isCityToCityTripCreationLoading.value,
+        ),
+      ),
     );
   }
 
@@ -102,23 +109,24 @@ class CityToCityRequest extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(16.sp, 10.h, 16.sp, 0.sp),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8),
           color: ColorHelper.lightGreyColor,
         ),
         child: TextField(
           style: TextStyle(
             fontSize: 16.sp,
-            color: Colors.black,
+            color: ColorHelper.whiteColor,
             fontWeight: FontWeight.w400,
-            decoration: TextDecoration.none,
           ),
           onTap: () {
             if (isFrom!) {
-              _cityToCityRequestController.changingPickup.value = isFrom;
-              Get.to(SelectLocation());
+              _cityToCityTripController.changingPickup.value = isFrom;
+              Get.to(() => SelectLocation(),
+                  transition: Transition.rightToLeft);
             } else if (!isFrom) {
-              _cityToCityRequestController.changingPickup.value = isFrom;
-              Get.to(SelectLocation());
+              _cityToCityTripController.changingPickup.value = isFrom;
+              Get.to(() => SelectLocation(),
+                  transition: Transition.rightToLeft);
             }
           },
           controller: controller,
@@ -160,10 +168,15 @@ class CityToCityRequest extends StatelessWidget {
 
   Widget _buildSelectableOption(String label, String icon, int index) {
     bool isSelected =
-        _cityToCityRequestController.selectedOptionIndex.value == index;
+        _cityToCityTripController.selectedOptionIndex.value == index;
     return GestureDetector(
       onTap: () {
-        _cityToCityRequestController.selectedOptionIndex.value = index;
+        if (index == 0) {
+          _cityToCityTripController.tripType.value = 'ride';
+        } else {
+          _cityToCityTripController.tripType.value = 'parcel';
+        }
+        _cityToCityTripController.selectedOptionIndex.value = index;
       },
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 20.w),
@@ -210,18 +223,18 @@ class CityToCityRequest extends StatelessWidget {
       children: [
         GestureDetector(
           onTap: () async {
+            MethodHelper().hideKeyboard();
             DateTime? selectedDate = await showDatePicker(
               context: Get.context!,
-              initialDate: _cityToCityRequestController.selectedDate.value ??
+              initialDate: _cityToCityTripController.selectedDate.value ??
                   DateTime.now(),
               firstDate: DateTime(2000),
               lastDate: DateTime(2101),
             );
 
             if (selectedDate != null &&
-                selectedDate !=
-                    _cityToCityRequestController.selectedDate.value) {
-              _cityToCityRequestController.updateDate(selectedDate);
+                selectedDate != _cityToCityTripController.selectedDate.value) {
+              _cityToCityTripController.updateDate(selectedDate);
               print("Selected date: ${selectedDate.toLocal()}");
             }
           },
@@ -229,7 +242,7 @@ class CityToCityRequest extends StatelessWidget {
             height: 40.h,
             width: MediaQuery.of(context).size.width - 30.w,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
               color: ColorHelper.lightGreyColor,
             ),
             child: Obx(() => Center(
@@ -240,9 +253,8 @@ class CityToCityRequest extends StatelessWidget {
                         Icon(Icons.date_range),
                         SpaceHelper.horizontalSpace10,
                         Text(
-                          _cityToCityRequestController.selectedDate.value !=
-                                  null
-                              ? 'Selected Date: ${_cityToCityRequestController.selectedDate.value!.toLocal().toString().split(' ')[0]}'
+                          _cityToCityTripController.selectedDate.value != null
+                              ? 'Selected Date: ${_cityToCityTripController.selectedDate.value!.toLocal().toString().split(' ')[0]}'
                               : 'Select a date',
                           style: TextStyle(
                             color: ColorHelper.greyColor,
@@ -284,7 +296,7 @@ class CityToCityRequest extends StatelessWidget {
                     ),
                     onChanged: (value) {
                       int? numberOfPassengers = int.tryParse(value);
-                      _cityToCityRequestController.numberOfPassengers.value =
+                      _cityToCityTripController.numberOfPassengers.value =
                           numberOfPassengers ?? 0;
                     },
                   ),
@@ -294,7 +306,7 @@ class CityToCityRequest extends StatelessWidget {
           ),
         ),
         _buildTextFiledView('Offer your fear',
-            _cityToCityRequestController.riderFareController.value, null)
+            _cityToCityTripController.riderFareController.value, null)
       ],
     );
   }
@@ -306,16 +318,15 @@ class CityToCityRequest extends StatelessWidget {
           onTap: () async {
             DateTime? selectedDate = await showDatePicker(
               context: Get.context!,
-              initialDate: _cityToCityRequestController.selectedDate.value ??
+              initialDate: _cityToCityTripController.selectedDate.value ??
                   DateTime.now(),
               firstDate: DateTime(2000),
               lastDate: DateTime(2101),
             );
 
             if (selectedDate != null &&
-                selectedDate !=
-                    _cityToCityRequestController.selectedDate.value) {
-              _cityToCityRequestController.updateDate(selectedDate);
+                selectedDate != _cityToCityTripController.selectedDate.value) {
+              _cityToCityTripController.updateDate(selectedDate);
               print("Selected date: ${selectedDate.toLocal()}");
             }
           },
@@ -334,9 +345,8 @@ class CityToCityRequest extends StatelessWidget {
                         Icon(Icons.date_range),
                         SpaceHelper.horizontalSpace10,
                         Text(
-                          _cityToCityRequestController.selectedDate.value !=
-                                  null
-                              ? 'Selected Date: ${_cityToCityRequestController.selectedDate.value!.toLocal().toString().split(' ')[0]}'
+                          _cityToCityTripController.selectedDate.value != null
+                              ? 'Selected Date: ${_cityToCityTripController.selectedDate.value!.toLocal().toString().split(' ')[0]}'
                               : 'Select a date',
                           style: TextStyle(
                             color: Colors.black,
@@ -350,11 +360,11 @@ class CityToCityRequest extends StatelessWidget {
           ),
         ),
         _buildTextFiledView('Offer your fear',
-            _cityToCityRequestController.parcelFareController.value, null),
-        _buildTextFiledView(
-            'Describe your parcel',
-            _cityToCityRequestController.parcelDescriptionController.value,
-            null)
+            _cityToCityTripController.parcelFareController.value, null),
+        // _buildTextFiledView(
+        //     'Describe your parcel',
+        //     _cityToCityTripController.parcelDescriptionController.value,
+        //     null)
       ],
     );
   }

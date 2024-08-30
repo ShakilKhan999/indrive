@@ -91,21 +91,13 @@ class AuthController extends GetxController {
             transition: Transition.rightToLeft);
         userSwitchLoading.value = false;
       } else {
-        DriverInfoModel? driverInfoModel = await getCurrentUserDriverData();
-        if (driverInfoModel != null) {
-          await MethodHelper().updateDocFields(
-              docId: FirebaseAuth.instance.currentUser!.uid,
-              fieldsToUpdate: {"isDriver": true},
-              collection: userCollection);
-          await getUserData();
-          userSwitchLoading.value = false;
-          Get.offAll(() => DriverHomeScreen(),
-              transition: Transition.rightToLeft);
-        } else {
-          userSwitchLoading.value = false;
-          Get.offAll(() => DriverCategoriesScreen(),
-              transition: Transition.rightToLeft);
-        }
+        await MethodHelper().updateDocFields(
+            docId: FirebaseAuth.instance.currentUser!.uid,
+            fieldsToUpdate: {"isDriver": true},
+            collection: userCollection);
+        userSwitchLoading.value = false;
+        Get.offAll(() => DriverHomeScreen(),
+            transition: Transition.rightToLeft);
       }
     } catch (e) {
       userSwitchLoading.value = false;
@@ -121,18 +113,11 @@ class AuthController extends GetxController {
           const Duration(milliseconds: 500),
           () async {
             UserModel? userModel = await getCurrentUser();
-            if (userModel!.isDriver!) {
-              DriverInfoModel? driverInfoModel =
-                  await getCurrentUserDriverData();
-              if (driverInfoModel != null) {
-                Get.offAll(() => DriverHomeScreen(),
-                    transition: Transition.rightToLeft);
-                isCheckingCurrentUser.value = false;
-              } else {
-                Get.offAll(() => VehicleTypeScreen(),
-                    transition: Transition.rightToLeft);
-                isCheckingCurrentUser.value = false;
-              }
+            currentUser.value = userModel!;
+            if (userModel.isDriver!) {
+              Get.offAll(() => DriverHomeScreen(),
+                  transition: Transition.rightToLeft);
+              isCheckingCurrentUser.value = false;
             } else {
               Get.offAll(() => const PassengerHomeScreen(),
                   transition: Transition.rightToLeft);
@@ -353,7 +338,6 @@ class AuthController extends GetxController {
           phone: userInfo.phoneNumber,
           signInWith: 'google',
           isDriver: isDriver.value,
-          
         );
       }
       var response = await AuthRepository().saveUserData(userModel: userModel);

@@ -55,7 +55,7 @@ class ProfileController extends GetxController {
         }
         if (userData.value.driverStatus == 'rejected') {
           cityRiderStatus.value = DriverVehicleStatus(
-              status: 'Registration completed', color: ColorHelper.red);
+              status: 'Verification failed', color: ColorHelper.red);
         }
       } else {
         cityRiderStatus.value = DriverVehicleStatus(
@@ -73,7 +73,7 @@ class ProfileController extends GetxController {
         }
         if (userData.value.courierStatus == 'rejected') {
           courierStatus.value = DriverVehicleStatus(
-              status: 'Registration completed', color: ColorHelper.red);
+              status: 'Verification failed', color: ColorHelper.red);
         }
       } else {
         courierStatus.value = DriverVehicleStatus(
@@ -91,7 +91,7 @@ class ProfileController extends GetxController {
         }
         if (userData.value.freightStatus == 'rejected') {
           freightStatus.value = DriverVehicleStatus(
-              status: 'Registration completed', color: ColorHelper.red);
+              status: 'Verification failed', color: ColorHelper.red);
         }
       } else {
         freightStatus.value = DriverVehicleStatus(
@@ -109,7 +109,7 @@ class ProfileController extends GetxController {
         }
         if (userData.value.cityToCityStatus == 'rejected') {
           cityToCityStatus.value = DriverVehicleStatus(
-              status: 'Registration completed', color: ColorHelper.red);
+              status: 'Verification failed', color: ColorHelper.red);
         }
       } else {
         cityToCityStatus.value = DriverVehicleStatus(

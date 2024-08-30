@@ -865,7 +865,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Image.asset(
-                                        'assets/images/rickshaw.png',
+                                        'assets/images/taxi.png',
                                         fit: BoxFit
                                             .fill, // Replace with your asset
                                         width: 40.h,
@@ -873,7 +873,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                       ),
                                       CommonComponents().printText(
                                           fontSize: 15,
-                                          textData: "CNG",
+                                          textData: "Taxi",
                                           fontWeight: FontWeight.bold)
                                     ],
                                   ),
@@ -890,7 +890,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                       ),
                       InkWell(
                         onTap: () {
-                          homeController.selectedVehicle.value = "city to city";
+                          // homeController.selectedVehicle.value = "city to city";
                           // homeController.loadMarkers();
                           Get.to(() => CityToCityRequest(),
                               transition: Transition.rightToLeft);
@@ -917,7 +917,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Image.asset(
-                                        'assets/images/car.png',
+                                        'assets/images/city_to_city.png',
                                         fit: BoxFit
                                             .fill, // Replace with your asset
                                         width: 40.h,
@@ -943,7 +943,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                       ),
                       InkWell(
                         onTap: () {
-                          homeController.selectedVehicle.value = "freight";
+                          // homeController.selectedVehicle.value = "freight";
                           // homeController.loadMarkers();
                           Get.to(() => FreightScreen(),
                               transition: Transition.rightToLeft);
@@ -970,7 +970,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Image.asset(
-                                        'assets/images/bike.png',
+                                        'assets/images/freight.png',
                                         fit: BoxFit
                                             .fill, // Replace with your asset
                                         width: 40.h,
@@ -996,7 +996,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                       ),
                       InkWell(
                         onTap: () {
-                          homeController.selectedVehicle.value = "courier";
+                          // homeController.selectedVehicle.value = "courier";
                           // homeController.loadMarkers();
                           Get.to(() => CourierScreen(),
                               transition: Transition.rightToLeft);
@@ -1023,7 +1023,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Image.asset(
-                                        'assets/images/rickshaw.png',
+                                        'assets/images/courier.png',
                                         fit: BoxFit
                                             .fill, // Replace with your asset
                                         width: 40.h,

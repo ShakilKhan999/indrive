@@ -1,12 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class CityToCityTripModel {
   final String? id;
   final String? cityFrom;
   final String? cityTo;
   final String? date;
   final String? userPrice;
-  final String? driverPrice;
   final String? finalPrice;
-  final String? numberOfPassengers;
+  final int? numberOfPassengers;
   final String? userPhone;
   final String? userName;
   final String? userImage;
@@ -20,9 +21,11 @@ class CityToCityTripModel {
   final bool? isTripCompleted;
   final bool? isTripCancelled;
   final bool? isTripAccepted;
+  final String? tripCurrentStatus;
   final String? tripType;
-  final String? comments;
-  final String? parcelDescription;
+  final String? description;
+  final GeoPoint? pickLatLng;
+  final GeoPoint? dropLatLng;
 
   CityToCityTripModel({
     this.id,
@@ -30,7 +33,6 @@ class CityToCityTripModel {
     this.cityTo,
     this.date,
     this.userPrice,
-    this.driverPrice,
     this.finalPrice,
     this.numberOfPassengers,
     this.userPhone,
@@ -46,9 +48,11 @@ class CityToCityTripModel {
     this.isTripCompleted,
     this.isTripCancelled,
     this.isTripAccepted,
+    this.tripCurrentStatus,
     this.tripType,
-    this.comments,
-    this.parcelDescription,
+    this.description,
+    this.pickLatLng,
+    this.dropLatLng,
   });
 
   Map<String, dynamic> toJson() {
@@ -58,7 +62,6 @@ class CityToCityTripModel {
       'cityTo': cityTo,
       'date': date,
       'userPrice': userPrice,
-      'driverPrice': driverPrice,
       'finalPrice': finalPrice,
       'numberOfPassengers': numberOfPassengers,
       'userPhone': userPhone,
@@ -74,9 +77,11 @@ class CityToCityTripModel {
       'isTripCompleted': isTripCompleted,
       'isTripCancelled': isTripCancelled,
       'isTripAccepted': isTripAccepted,
+      'tripCurrentStatus': tripCurrentStatus,
       'tripType': tripType,
-      'comments': comments,
-      'parcelDescription': parcelDescription,
+      'description': description,
+      'pickLatLng': pickLatLng,
+      'dropLatLng': dropLatLng,
     };
   }
 
@@ -87,7 +92,6 @@ class CityToCityTripModel {
       cityTo: json['cityTo'],
       date: json['date'],
       userPrice: json['userPrice'],
-      driverPrice: json['driverPrice'],
       finalPrice: json['finalPrice'],
       numberOfPassengers: json['numberOfPassengers'],
       userPhone: json['userPhone'],
@@ -105,9 +109,11 @@ class CityToCityTripModel {
       isTripCompleted: json['isTripCompleted'] ?? false,
       isTripCancelled: json['isTripCancelled'] ?? false,
       isTripAccepted: json['isTripAccepted'] ?? false,
+      tripCurrentStatus: json['tripCurrentStatus'],
       tripType: json['tripType'],
-      comments: json['comments'],
-      parcelDescription: json['parcelDescription'],
+      description: json['description'],
+      pickLatLng: json['pickLatLng'],
+      dropLatLng: json['dropLatLng'],
     );
   }
 }

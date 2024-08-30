@@ -12,6 +12,7 @@ import 'package:indrive/screens/home/views/passenger_home.dart';
 import 'package:indrive/screens/profile/views/choose_profile_screen.dart';
 
 import '../screens/city_to_city_user/views/city_to_city_request.dart';
+import '../screens/driver/courier/views/courier_screen.dart';
 
 class CustomDrawer extends StatelessWidget {
   CustomDrawer({super.key});
@@ -86,7 +87,7 @@ class CustomDrawer extends StatelessWidget {
           text: 'City to City',
           color: Colors.white,
           onTap: () {
-            Get.back();
+            // Get.back();
             Get.to(() => CityToCityRequest(),
                 transition: Transition.rightToLeft);
           },
@@ -96,8 +97,17 @@ class CustomDrawer extends StatelessWidget {
           text: 'Freight',
           color: Colors.white,
           onTap: () {
-            Get.back();
+            // Get.back();
             Get.to(() => FreightScreen(), transition: Transition.rightToLeft);
+          },
+        ),
+        buildDrawerItem(
+          icon: Icons.fire_truck,
+          text: 'Courier',
+          color: Colors.white,
+          onTap: () {
+            // Get.back();
+            Get.to(() => CourierScreen(), transition: Transition.rightToLeft);
           },
         ),
         buildDrawerItem(
@@ -105,9 +115,8 @@ class CustomDrawer extends StatelessWidget {
           text: 'Request history',
           color: Colors.white,
           onTap: () {
-             Get.back();
-            Get.to(() => MyRideScreen(),
-                transition: Transition.rightToLeft);
+            Get.back();
+            Get.to(() => MyRideScreen(), transition: Transition.rightToLeft);
           },
         ),
         buildDrawerItem(

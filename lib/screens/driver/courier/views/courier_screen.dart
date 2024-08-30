@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
@@ -15,7 +16,7 @@ class CourierScreen extends StatelessWidget {
       body: Stack(
         children: [
           _buildMapView(),
-          _buildAppBarVierw(),
+          // _buildAppBarVierw(),
           _buildCourierDeliveryDeatilsView(),
         ],
       ),
@@ -108,7 +109,13 @@ class CourierScreen extends StatelessWidget {
 
   Widget _buildMapView() {
     return Container(
-      color: Colors.grey[800],
+      color: Color.fromARGB(255, 180, 81, 81),
+      child: GoogleMap(
+        initialCameraPosition: CameraPosition(
+          target: LatLng(23.80, 90.41),
+          zoom: 15.0,
+        ),
+      ),
     );
   }
 
@@ -117,7 +124,9 @@ class CourierScreen extends StatelessWidget {
       backgroundColor: Colors.black,
       leading: IconButton(
         icon: Icon(Icons.arrow_back, color: Colors.white),
-        onPressed: () {},
+        onPressed: () {
+          Get.back();
+        },
       ),
       elevation: 0,
     );

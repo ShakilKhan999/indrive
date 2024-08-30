@@ -4,14 +4,14 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/screens/city_to_city_user/controller/city_to_city_request_controller.dart';
+import 'package:indrive/screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
 
 
 class SelectLocation extends StatelessWidget {
   SelectLocation({super.key});
 
-  final CityToCityRequestController cityToCityRequestController =
-      Get.put(CityToCityRequestController());
+  final CityToCityTripController cityToCityRequestController =
+      Get.put(CityToCityTripController());
 
   @override
   Widget build(BuildContext context) {

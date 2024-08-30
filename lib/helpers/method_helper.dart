@@ -2,6 +2,8 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:image_picker/image_picker.dart';
 
 class MethodHelper {
@@ -46,5 +48,41 @@ class MethodHelper {
       log('Error updating user fields: $e');
       return false;
     }
+  }
+
+  void hideKeyboard() {
+    FocusManager.instance.primaryFocus?.unfocus();
+  }
+
+  String getLocationFromLatLng({required List<Placemark> placemarks}) {
+    String location = '';
+    String name = '';
+    String subLocality = '';
+    String locality = '';
+    try {
+      for (int i = 0; i < placemarks.length; i++) {
+        if (placemarks[i].name != null || placemarks[i].name != '') {
+          if (placemarks[i].name!.length > name.length) {
+            name = placemarks[i].name!;
+          }
+        }
+
+        if (subLocality == '') {
+          if (placemarks[i].subLocality != null ||
+              placemarks[i].subLocality != '') {
+            subLocality = placemarks[i].subLocality!;
+          }
+        }
+        if (locality == '') {
+          if (placemarks[i].locality != null || placemarks[i].locality != '') {
+            locality = placemarks[i].locality!;
+          }
+        }
+      }
+    } catch (e) {
+      log('Error getting location from latitude and longitude: $e');
+    }
+    location = '$name, $subLocality, $locality';
+    return location;
   }
 }
