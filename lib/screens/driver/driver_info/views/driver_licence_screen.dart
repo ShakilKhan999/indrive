@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/components/custom_appbar.dart';
+import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/driver/driver_info/controller/driver_info_controller.dart';
 
@@ -22,8 +23,8 @@ class DriverLicenceScreen extends StatelessWidget {
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(
             parent: BouncingScrollPhysics()),
-        child: Obx(() => 
-         Column(
+        child: Obx(
+          () => Column(
             children: [
               SpaceHelper.verticalSpace15,
               _buildDriverLicenseTextFiled(),
@@ -47,6 +48,7 @@ class DriverLicenceScreen extends StatelessWidget {
       imgPath: _driverInfoController.licenseFrontPhoto.value != ''
           ? _driverInfoController.licenseFrontPhoto.value
           : 'assets/images/card_front.png',
+      color: ColorHelper.primaryColor,
       buttonText: 'Add a photo',
       isLoading: _driverInfoController.isLicenseFrontPhotoloading.value,
       onButtonPressed: () {
@@ -65,6 +67,7 @@ class DriverLicenceScreen extends StatelessWidget {
       imgPath: _driverInfoController.licenseBackPhoto.value != ''
           ? _driverInfoController.licenseBackPhoto.value
           : 'assets/images/card_back.png',
+      color: ColorHelper.primaryColor,
       buttonText: 'Add a photo',
       isLoading: _driverInfoController.isLicenseBackPhotoloading.value,
       onButtonPressed: () {

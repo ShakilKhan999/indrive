@@ -7,6 +7,8 @@ import 'package:indrive/components/common_components.dart';
 
 import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
+import 'package:indrive/main.dart';
+import 'package:indrive/screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
 
 import 'package:indrive/screens/driver/city_to_city/views/cityToCity_types_screen.dart';
 import 'package:indrive/screens/driver/courier/views/courier_types_screen.dart';
@@ -15,8 +17,10 @@ import 'package:indrive/screens/driver/freight/views/freight_info_screen.dart';
 import 'package:indrive/screens/profile/controller/profile_controller.dart';
 
 import 'package:indrive/screens/profile/views/profile_screen.dart';
+import 'package:indrive/utils/global_toast_service.dart';
 
 import '../../auth_screen/controller/auth_controller.dart';
+import '../../city_to_city_user/views/driver_city_to_city_request_list.dart';
 
 class ChooseProfileScreen extends StatelessWidget {
   ChooseProfileScreen({super.key});
@@ -188,14 +192,37 @@ class ChooseProfileScreen extends StatelessWidget {
                     child: Center(
                       child: InkWell(
                         onTap: () {
-                          Get.to(() => CitytocityTypesScreen(),
-                              transition: Transition.rightToLeft);
+                          fToast.init(context);
+                          if (_profileController
+                                  .cityToCityStatus.value.status ==
+                              'Registration completed') {
+                            CityToCityTripController _cityToCityTripController =
+                                Get.put(CityToCityTripController());
+                            _cityToCityTripController.fetchCityToCityTrips();
+                            Get.to(() => DriverCityToCityRequestList(),
+                                transition: Transition.rightToLeft);
+                          } else if (_profileController
+                                  .cityToCityStatus.value.status ==
+                              'Not Registered') {
+                            Get.to(() => CitytocityTypesScreen(),
+                                transition: Transition.rightToLeft);
+                          } else if (_profileController
+                                  .cityToCityStatus.value.status ==
+                              'Verification pending') {
+                            showToast(
+                                toastText:
+                                    'Documents submitted but verification pending',
+                                toastColor: ColorHelper.red);
+                          } else if (_profileController
+                                  .cityToCityStatus.value.status ==
+                              'Verification failed') {}
                         },
                         child: ListTile(
                           leading: SizedBox(
                               height: 30.h,
                               width: 40.h,
-                              child: Image.asset("assets/images/location.png")),
+                              child: Image.asset("assets/images/location.png",
+                                  color: ColorHelper.primaryColor)),
                           title: CommonComponents().printText(
                               fontSize: 18,
                               textData: "City to City",

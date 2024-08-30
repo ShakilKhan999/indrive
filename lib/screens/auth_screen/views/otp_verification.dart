@@ -69,7 +69,9 @@ class OTPVerificationPage extends StatelessWidget {
                             color: Colors.white,
                             fontWeight: FontWeight.w600),
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.blueAccent),
+                          border: Border.all(
+                            color: ColorHelper.primaryColor,
+                          ),
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),

@@ -54,6 +54,24 @@ class FreightController extends GetxController {
   var selectedSeatNumber = ''.obs;
   var selectedCarColor = ''.obs;
   var selectedCarBrand = ''.obs;
+
+  //freightScreen---------->>>>>>
+  var pickUpController = TextEditingController().obs;
+  var destinationController = TextEditingController().obs;
+  var descriptionCargoController = TextEditingController().obs;
+  var offerFareController = TextEditingController().obs;
+  var selectedSize = 'Small'.obs;
+
+  // List of dropdown items
+  final List<String> sizes = ['Small', 'Medium', 'Big'];
+
+  // Method to change the selected size
+  void setSelectedSize(String? value) {
+    if (value != null) {
+      selectedSize.value = value;
+    }
+  }
+
   void uploadProfilePhoto() async {
     try {
       File? file = await MethodHelper().pickImage();
@@ -281,5 +299,36 @@ class FreightController extends GetxController {
     } catch (e) {
       log('Error while updating freight data: $e');
     }
+  }
+
+  var photoPath = ''.obs;
+  var isPhotoLoading = false.obs;
+  var photoUrl = ''.obs;
+
+  void addPhoto(String imageLocationName) async {
+    try {
+      File? file = await MethodHelper().pickImage();
+      if (file != null) {
+        photoPath.value = file.path;
+        isPhotoLoading.value = true;
+        photoUrl.value = (await MethodHelper()
+            .uploadImage(file: file, imageLocationName: imageLocationName))!;
+        isPhotoLoading.value = false;
+        log('Photo URL: ${photoUrl.value}');
+      } else {
+        showToast(toastText: 'No image selected', toastColor: ColorHelper.red);
+      }
+    } catch (e) {
+      photoPath.value = '';
+      isPhotoLoading.value = false;
+      showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
+    }
+  }
+
+  var selectedButtonIndex =
+      (-1).obs; // -1 means no button is selected initially.
+
+  void selectButton(int index) {
+    selectedButtonIndex.value = index;
   }
 }

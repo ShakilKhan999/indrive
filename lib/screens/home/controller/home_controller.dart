@@ -17,7 +17,7 @@ import 'package:uuid/uuid.dart';
 import '../../../models/user_model.dart';
 
 class HomeController extends GetxController {
-  var selectedVehicle = "cng".obs;
+  var selectedVehicle = "car".obs;
   var userLat = 0.0.obs;
   var userLong = 0.0.obs;
   var cameraMoving = false.obs;

@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/components/custom_appbar.dart';
+import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/main.dart';
 import 'package:indrive/screens/driver/city_to_city/controller/cityToCity_controller.dart';
@@ -75,6 +76,7 @@ class CityToCityBasicInfoScreen extends StatelessWidget {
       imgPath: _cityToCityInfoController.profilePhoto.value != ''
           ? _cityToCityInfoController.profilePhoto.value
           : 'assets/images/addPhotoLogo.png',
+      color: ColorHelper.primaryColor,
       buttonText: 'Add a photo',
       onButtonPressed: () async {
         _cityToCityInfoController.uploadProfilePhoto();

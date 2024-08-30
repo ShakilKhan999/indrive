@@ -196,7 +196,10 @@ class DriverCategoriesScreen extends StatelessWidget {
                 leading: SizedBox(
                     height: 30.h,
                     width: 40.h,
-                    child: Image.asset("assets/images/location.png")),
+                    child: Image.asset(
+                      "assets/images/location.png",
+                      color: ColorHelper.primaryColor,
+                    )),
                 title: CommonComponents().printText(
                     fontSize: 18,
                     textData: "City to City",

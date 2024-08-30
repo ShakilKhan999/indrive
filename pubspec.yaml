@@ -76,7 +76,7 @@ dev_dependencies:
   flutter_launcher_icons: ^0.13.1
 
 flutter_icons:
-  image_path: "assets/images/app_icon.png"
+  image_path: "assets/images/app_icon.jpg"
   android: true
 
   flutter_lints: ^3.0.0

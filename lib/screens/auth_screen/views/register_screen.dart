@@ -52,7 +52,7 @@ class RegisterScreen extends StatelessWidget {
           CommonButton(
             onTap: () async {
               _authController.loginType.value = 'google';
-              
+
               await _authController.signInWithGoogle();
             },
             text: 'Continue with Google',
@@ -103,7 +103,7 @@ class RegisterScreen extends StatelessWidget {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(
-                      color: Colors.blue,
+                      color: ColorHelper.primaryColor,
                       width: 2.0,
                     ),
                   ),

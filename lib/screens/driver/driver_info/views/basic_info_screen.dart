@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/components/custom_appbar.dart';
+import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/main.dart';
 import 'package:indrive/screens/driver/driver_info/controller/driver_info_controller.dart';
@@ -19,8 +20,8 @@ class BasicInfoScreen extends StatelessWidget {
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(
             parent: BouncingScrollPhysics()),
-        child: Obx(() => 
-           Column(
+        child: Obx(
+          () => Column(
             children: [
               SpaceHelper.verticalSpace15,
               _buildAddPhotoView(),
@@ -75,6 +76,7 @@ class BasicInfoScreen extends StatelessWidget {
       imgPath: _driverInfoController.profilePhoto.value != ''
           ? _driverInfoController.profilePhoto.value
           : 'assets/images/addPhotoLogo.png',
+      color: ColorHelper.primaryColor,
       buttonText: 'Add a photo',
       onButtonPressed: () async {
         _driverInfoController.uploadProfilePhoto();

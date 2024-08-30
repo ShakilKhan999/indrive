@@ -268,7 +268,6 @@ class CourierController extends GetxController {
         isCourierDataSaving.value = false;
         Get.back();
         Get.back();
-       
       } else {
         isCourierDataSaving.value = false;
         showToast(
@@ -298,4 +297,8 @@ class CourierController extends GetxController {
       log('Error while updating city to city data: $e');
     }
   }
+
+  var toCourierController = TextEditingController().obs;
+  var fareCourierController = TextEditingController().obs;
+  var isMotorcycleSelected = true.obs;
 }
