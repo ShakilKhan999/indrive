@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:indrive/components/common_components.dart';
@@ -6,40 +7,135 @@ import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/driver/freight/controller/freight_controller.dart';
 
-class FreightScreen extends StatelessWidget {
-  FreightScreen({super.key});
+class FreightScreen extends StatefulWidget {
+  FreightScreen({Key? key}) : super(key: key);
+
+  @override
+  _FreightScreenState createState() => _FreightScreenState();
+}
+
+class _FreightScreenState extends State<FreightScreen>
+    with SingleTickerProviderStateMixin {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final FreightController _freightController = Get.put(FreightController());
+
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBarView(),
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SpaceHelper.verticalSpace10,
-            _buildTopImgView(),
-            _buildTextFiledView('Pickup location',
-                _freightController.pickUpController.value, true),
-            _buildTextFiledView('Destination',
-                _freightController.destinationController.value, false),
-            _buildSelectionButtons(),
-            _buildDropdownFieldView('Select Size'),
-            SpaceHelper.verticalSpace10,
-            _buildCargoPhoto(),
-            SpaceHelper.verticalSpace10,
-            _buildTextFiledView('Offer your fare',
-                _freightController.offerFareController.value, false),
-            Image.asset(
-              'assets/images/moto_courier.png',
-              color: ColorHelper.primaryColor,
-              height: 100.h,
-              width: 100.w,
+      backgroundColor: ColorHelper.bgColor,
+      body: Column(
+        children: [
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildCreateRequestView(),
+                _buildRequestListView(),
+              ],
             ),
-          ],
+          ),
+          _buildTabBar(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabBar() {
+    return Container(
+      color: ColorHelper.secondaryBgColor,
+      child: TabBar(
+        padding: EdgeInsets.zero,
+        controller: _tabController,
+        indicatorPadding: EdgeInsets.all(2.sp),
+        indicatorColor: ColorHelper.primaryColor,
+        unselectedLabelColor: Colors.grey,
+        labelColor: ColorHelper.primaryColor,
+        tabs: [
+          _buildCustomTab('Create Request', Icons.add),
+          _buildCustomTab('Request List', Icons.list),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCustomTab(String text, IconData icon) {
+    return Tab(
+      height: 40.h,
+      iconMargin: EdgeInsets.all(5.sp),
+      child: Column(
+        // mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon),
+          SpaceHelper.verticalSpace3,
+          Text(
+            text,
+            style: TextStyle(fontSize: 12.sp),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCreateRequestView() {
+    return SingleChildScrollView(
+      physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SpaceHelper.verticalSpace10,
+          _buildTopImgView(),
+          _buildTextFiledView('Pickup location',
+              _freightController.pickUpController.value, true),
+          _buildTextFiledView('Destination',
+              _freightController.destinationController.value, false),
+          _buildSelectionButtons(),
+          _buildDropdownFieldView('Select Size'),
+          SpaceHelper.verticalSpace10,
+          _buildCargoPhoto(),
+          SpaceHelper.verticalSpace10,
+          _buildTextFiledView('Offer your fare',
+              _freightController.offerFareController.value, false),
+          SpaceHelper.verticalSpace10,
+          _buildBottomButtom()
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomButtom() {
+    return Padding(
+      padding: EdgeInsets.all(22.sp),
+      child: CommonComponents()
+          .commonButton(text: 'Create Request', onPressed: () {}),
+    );
+  }
+
+  Widget _buildRequestListView() {
+    return Container(
+      color: Colors.grey[300],
+      child: Center(
+        child: Text(
+          'Request List View',
+          style: TextStyle(
+            color: Colors.grey[700],
+            fontSize: 18.sp,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
@@ -63,18 +159,20 @@ class FreightScreen extends StatelessWidget {
 
   Widget _buildButton(String text, int index) {
     return Obx(
-      () => ElevatedButton(
-          onPressed: () {
-            _freightController.selectButton(index);
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor:
-                _freightController.selectedButtonIndex.value == index
-                    ? ColorHelper.primaryColor // Color when selected
-                    : Colors.grey, // Default color
-          ),
-          child: CommonComponents().printText(
-              fontSize: 10, textData: text, fontWeight: FontWeight.w400)),
+      () => Expanded(
+        child: ElevatedButton(
+            onPressed: () {
+              _freightController.selectButton(index);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor:
+                  _freightController.selectedButtonIndex.value == index
+                      ? ColorHelper.primaryColor // Color when selected
+                      : Colors.grey, // Default color
+            ),
+            child: CommonComponents().printText(
+                fontSize: 10, textData: text, fontWeight: FontWeight.w400)),
+      ),
     );
   }
 

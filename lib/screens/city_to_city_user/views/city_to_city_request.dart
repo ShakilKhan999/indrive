@@ -24,7 +24,7 @@ class CityToCityRequest extends StatelessWidget {
         key: scaffoldKey,
         // drawer: CustomDrawer(),
         appBar: _buildAppBarView(),
-        backgroundColor: Colors.white,
+        backgroundColor: ColorHelper.bgColor,
         body: Column(
           children: [
             Expanded(
