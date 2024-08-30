@@ -7,6 +7,8 @@ import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
 import 'package:indrive/screens/drawer_screen/my_ride_screen.dart';
+import 'package:indrive/screens/driver/freight/views/freight_screen.dart';
+import 'package:indrive/screens/home/views/passenger_home.dart';
 import 'package:indrive/screens/profile/views/choose_profile_screen.dart';
 
 import '../screens/city_to_city_user/views/city_to_city_request.dart';
@@ -75,8 +77,8 @@ class CustomDrawer extends StatelessWidget {
           text: 'City',
           color: Colors.white,
           onTap: () {
-            // Get.offAll(() =>
-            //     transition: Transition.noTransition);
+            Get.offAll(() => PassengerHomeScreen(),
+                transition: Transition.noTransition);
           },
         ),
         buildDrawerItem(
@@ -94,8 +96,8 @@ class CustomDrawer extends StatelessWidget {
           text: 'Freight',
           color: Colors.white,
           onTap: () {
-            // Get.offAll(() =>
-            //     transition: Transition.noTransition);
+            Get.back();
+            Get.to(() => FreightScreen(), transition: Transition.rightToLeft);
           },
         ),
         buildDrawerItem(
@@ -103,8 +105,9 @@ class CustomDrawer extends StatelessWidget {
           text: 'Request history',
           color: Colors.white,
           onTap: () {
-            Get.offAll(() => MyRideScreen(),
-                transition: Transition.noTransition);
+             Get.back();
+            Get.to(() => MyRideScreen(),
+                transition: Transition.rightToLeft);
           },
         ),
         buildDrawerItem(
@@ -113,7 +116,7 @@ class CustomDrawer extends StatelessWidget {
           color: Colors.white,
           onTap: () {
             // Get.offAll(() =>
-            //     transition: Transition.noTransition);
+            //     transition: Transition.rightToLeft);
           },
         ),
         buildDrawerItem(

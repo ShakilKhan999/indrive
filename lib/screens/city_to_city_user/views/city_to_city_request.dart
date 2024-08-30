@@ -184,7 +184,7 @@ class CityToCityRequest extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 12.sp,
-                color: isSelected ? ColorHelper.primaryColor : Colors.grey,
+                color: isSelected ? ColorHelper.whiteColor : Colors.grey,
               ),
             ),
           ],
