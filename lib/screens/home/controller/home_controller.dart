@@ -327,10 +327,8 @@ class HomeController extends GetxController {
 
   Future<void> getDriverList() async {
     PassengerRepository().listenToDriverDocs().listen((event) {
-      driverList.value = List.generate(
-          event.docs.length,
-          (index) => UserModel.fromJson(
-              event.docs[index].data()));
+      driverList.value = List.generate(event.docs.length,
+          (index) => UserModel.fromJson(event.docs[index].data()));
 
       cardriverMarkerList.value = driverList
           .where(
