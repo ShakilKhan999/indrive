@@ -428,6 +428,9 @@ class DriverHomeScreen extends StatelessWidget {
                             driverHomeController.activeCall.clear();
                             driverHomeController.polylineCoordinates.clear();
                             driverHomeController.polyLines.clear();
+                            driverHomeController.mapController.animateCamera(
+                                CameraUpdate.newLatLng(
+                                    driverHomeController.center.value));
                           },
                           color: Colors.green,
                           borderRadius: 14))
