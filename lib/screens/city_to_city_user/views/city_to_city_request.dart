@@ -118,7 +118,6 @@ class _CityToCityRequestState extends State<CityToCityRequest>
                 Obx(() => _buildSelectedOptionContainer(
                     _cityToCityTripController.selectedOptionIndex.value,
                     context)),
-                SpaceHelper.verticalSpace10,
                 _buildTextFiledView(
                     'Add description',
                     _cityToCityTripController.addDescriptionController.value,
@@ -179,44 +178,31 @@ class _CityToCityRequestState extends State<CityToCityRequest>
       String hintText, TextEditingController controller, bool? isFrom) {
     return Padding(
       padding: EdgeInsets.fromLTRB(16.sp, 10.h, 16.sp, 0.sp),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          color: ColorHelper.lightGreyColor,
-        ),
-        child: TextField(
-          style: TextStyle(
-            fontSize: 16.sp,
-            color: ColorHelper.whiteColor,
-            fontWeight: FontWeight.w400,
-          ),
-          onTap: () {
-            if (isFrom!) {
-              _cityToCityTripController.changingPickup.value = isFrom;
-              Get.to(() => SelectLocation(),
-                  transition: Transition.rightToLeft);
-            } else if (!isFrom) {
-              _cityToCityTripController.changingPickup.value = isFrom;
-              Get.to(() => SelectLocation(),
-                  transition: Transition.rightToLeft);
-            }
-          },
-          controller: controller,
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            hintText: hintText,
-            hintStyle: TextStyle(
-              fontSize: 16.sp,
-              color: ColorHelper.greyColor,
-              fontWeight: FontWeight.w400,
-              decoration: TextDecoration.none,
-            ),
-            suffixIcon: Icon(
-              Icons.arrow_forward_ios,
-              color: ColorHelper.greyColor,
-            ),
-            contentPadding:
-                EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
+      child: TextField(
+        // style: TextStyle(
+        //   fontSize: 16.sp,
+        //   color: ColorHelper.whiteColor,
+        //   fontWeight: FontWeight.w400,
+        // ),
+        onTap: () {
+          if (isFrom!) {
+            _cityToCityTripController.changingPickup.value = isFrom;
+            Get.to(() => SelectLocation(), transition: Transition.rightToLeft);
+          } else if (!isFrom) {
+            _cityToCityTripController.changingPickup.value = isFrom;
+            Get.to(() => SelectLocation(), transition: Transition.rightToLeft);
+          }
+        },
+        controller: controller,
+        style: TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: TextStyle(color: Colors.grey),
+          filled: true,
+          fillColor: ColorHelper.grey850,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide.none,
           ),
         ),
       ),
@@ -314,22 +300,27 @@ class _CityToCityRequestState extends State<CityToCityRequest>
             height: 40.h,
             width: MediaQuery.of(context).size.width - 30.w,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: ColorHelper.lightGreyColor,
-            ),
+                borderRadius: BorderRadius.circular(8),
+                color: ColorHelper.grey850),
             child: Obx(() => Center(
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 5.w),
                     child: Row(
                       children: [
-                        Icon(Icons.date_range),
+                        Padding(
+                          padding: EdgeInsets.only(left: 10.w),
+                          child: Icon(
+                            Icons.date_range,
+                            color: Colors.grey,
+                          ),
+                        ),
                         SpaceHelper.horizontalSpace10,
                         Text(
                           _cityToCityTripController.selectedDate.value != null
                               ? 'Selected Date: ${_cityToCityTripController.selectedDate.value!.toLocal().toString().split(' ')[0]}'
                               : 'Select a date',
                           style: TextStyle(
-                            color: ColorHelper.greyColor,
+                            color: Colors.grey,
                             fontSize: 16.sp,
                           ),
                         ),
@@ -344,24 +335,28 @@ class _CityToCityRequestState extends State<CityToCityRequest>
           height: 40.h,
           width: MediaQuery.of(context).size.width - 30.w,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            color: ColorHelper.lightGreyColor,
+            borderRadius: BorderRadius.circular(8),
+            color: ColorHelper.grey850,
           ),
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: Row(
               children: [
-                Icon(Icons.people),
+                Icon(
+                  Icons.people,
+                  color: Colors.grey,
+                ),
                 SpaceHelper.horizontalSpace10,
                 Expanded(
                   child: TextField(
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       border: InputBorder.none,
+                      fillColor: ColorHelper.grey850,
                       hintText: 'Number of Passengers',
                       hintStyle: TextStyle(
                         fontSize: 16.sp,
-                        color: ColorHelper.greyColor,
+                        color: Colors.grey,
                         fontWeight: FontWeight.w400,
                       ),
                       contentPadding: EdgeInsets.symmetric(vertical: 12.h),

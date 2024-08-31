@@ -4,6 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:indrive/screens/auth_screen/views/register_screen.dart';
+import 'package:indrive/screens/city_to_city_user/views/city_to_city_request.dart';
+import 'package:indrive/screens/city_to_city_user/views/driver_city_to_city_request_list.dart';
+import 'package:indrive/screens/driver/courier/views/courier_screen.dart';
 import 'package:indrive/screens/driver/freight/views/freight_screen.dart';
 import 'package:indrive/screens/home/views/passenger_home.dart';
 
