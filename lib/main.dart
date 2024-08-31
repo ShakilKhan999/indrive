@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:indrive/screens/auth_screen/views/register_screen.dart';
+import 'package:indrive/screens/driver/driver_home/views/driver_home_screen.dart';
 import 'package:indrive/screens/driver/freight/views/freight_screen.dart';
 import 'package:indrive/screens/home/views/passenger_home.dart';
 
@@ -46,9 +47,9 @@ class _MyAppState extends State<MyApp> {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        // home: PassengerHomeScreen(),
+        home: PassengerHomeScreen(),
         // home: DriverCategoriesScreen(),
-        home: RegisterScreen(),
+        //home: RegisterScreen(),
         builder: (context, child) {
           return Overlay(
             initialEntries: [

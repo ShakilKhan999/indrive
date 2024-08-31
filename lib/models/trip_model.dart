@@ -70,11 +70,13 @@ class Trip {
   bool accepted;
   bool picked;
   bool dropped;
+  double? rent;
   List<Bid>? bids; // New field added for list of bids
 
   Trip({
     required this.tripId,
     this.userId,
+    this.rent,
     this.driverId,
     this.destination,
     this.pickLatLng,
@@ -91,6 +93,7 @@ class Trip {
   factory Trip.fromJson(Map<String, dynamic> json) {
     return Trip(
       tripId: json['tripId'] as String,
+      rent: json['rent'] as double,
       userId: json['userId'] as String?,
       driverId: json['driverId'] as String?,
       destination: json['destination'] as String?,
@@ -113,6 +116,7 @@ class Trip {
   Map<String, dynamic> toJson() {
     return {
       'tripId': tripId,
+      'rent': rent,
       'userId': userId,
       'driverId': driverId,
       'destination': destination,
