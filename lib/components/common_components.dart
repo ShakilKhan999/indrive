@@ -254,4 +254,22 @@ class CommonComponents {
       ),
     );
   }
+
+  Widget customTab(String text, IconData icon) {
+    return Tab(
+      height: 40.h,
+      iconMargin: EdgeInsets.all(5.sp),
+      child: Column(
+        // mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon),
+          SpaceHelper.verticalSpace3,
+          Text(
+            text,
+            style: TextStyle(fontSize: 12.sp),
+          ),
+        ],
+      ),
+    );
+  }
 }

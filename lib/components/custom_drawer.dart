@@ -158,9 +158,29 @@ class CustomDrawer extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const CircleAvatar(
-                        backgroundColor: Colors.white,
-                        child: Icon(Icons.person),
+                      Container(
+                        height: 35.h,
+                        width: 35.h,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(90),
+                            color: Colors.white,
+                            border: Border.all(color: Colors.white)),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(90),
+                          child: _authController.currentUser.value.photo != null
+                              ? Image.network(
+                                  _authController.currentUser.value.photo!,
+                                  height: 35.h,
+                                  width: 35.h,
+                                  fit: BoxFit.cover,
+                                )
+                              : Image.asset(
+                                  "assets/images/person.jpg",
+                                  height: 35.h,
+                                  width: 35.h,
+                                  fit: BoxFit.cover,
+                                ),
+                        ),
                       ),
                       SpaceHelper.horizontalSpace5,
                       Column(

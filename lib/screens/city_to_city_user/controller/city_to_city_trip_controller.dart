@@ -10,7 +10,6 @@ import 'package:indrive/main.dart';
 import 'package:indrive/models/city_to_city_trip_model.dart';
 import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
 import 'package:indrive/screens/city_to_city_user/repository/city_to_city_trip_repository.dart';
-import 'package:indrive/screens/driver/city_to_city/repository/city_to_city_repository.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../helpers/color_helper.dart';
@@ -28,7 +27,7 @@ class CityToCityTripController extends GetxController {
   var selectedDate = Rx<DateTime?>(null);
   var tripType = "ride".obs;
   var isCityToCityTripCreationLoading = false.obs;
-
+  var driverOfferYourFareController = <TextEditingController>[].obs;
   var changingPickup = false.obs;
   var startPickedCenter = const LatLng(23.80, 90.41).obs;
   var cameraMoving = false.obs;
@@ -39,6 +38,8 @@ class CityToCityTripController extends GetxController {
   late GoogleMapController mapControllerTO;
   var center = const LatLng(23.80, 90.41).obs;
   final RxList<CityToCityTripModel> tripList = <CityToCityTripModel>[].obs;
+  var selectedTripIndex = 0.obs;
+  
 
   void updateDate(DateTime date) {
     selectedDate.value = date;
@@ -156,13 +157,18 @@ class CityToCityTripController extends GetxController {
     }
   }
 
-  void fetchCityToCityTrips() {
-    AuthController _authController = Get.find();
-    CityToCityTripRepository()
-        .getCityToCityTripList(uid: _authController.currentUser.value.uid!)
-        .listen((List<CityToCityTripModel> trips) {
-      filterTrips(trips: trips);
-    });
+  void getCityToCityTrips() {
+    try {
+      AuthController _authController = Get.find();
+      tripList.clear();
+      CityToCityTripRepository()
+          .getCityToCityTripList(uid: _authController.currentUser.value.uid!)
+          .listen((List<CityToCityTripModel> trips) {
+        filterTrips(trips: trips);
+      });
+    } catch (e) {
+      log("Error while getting city to city trips: $e");
+    }
   }
 
   void filterTrips({required List<CityToCityTripModel> trips}) {
@@ -175,6 +181,117 @@ class CityToCityTripController extends GetxController {
       }
     }
     tripList.assignAll(filteredTrips);
+    driverOfferYourFareController.value = List.generate(
+      filteredTrips.length,
+      (index) => TextEditingController(),
+    );
+    assignTheDriverPriceInDriverOfferYourFareControllerIfExists();
     log('tripList: $tripList');
+  }
+
+  assignTheDriverPriceInDriverOfferYourFareControllerIfExists() {
+    try {
+      AuthController _authController = Get.find();
+      for (var trip in tripList) {
+        if (trip.bids!.isNotEmpty) {
+          for (var bid in trip.bids!) {
+            if (bid.driverUid == _authController.currentUser.value.uid) {
+              driverOfferYourFareController[tripList.indexOf(trip)].text =
+                  bid.driverPrice!;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      log("Error while assigning driver price in driverOfferYourFareController: $e");
+    }
+  }
+
+  sendDriverFareOffer() async {
+    try {
+      AuthController _authController = Get.find();
+
+      if (checkUserAlreadyOfferedFare()) {
+        Bids bids = Bids(
+          driverUid: _authController.currentUser.value.uid,
+          driverName: _authController.currentUser.value.name,
+          driverImage: _authController.currentUser.value.photo,
+          driverPhone: _authController.currentUser.value.phone,
+          driverPrice:
+              driverOfferYourFareController[selectedTripIndex.value].text,
+          driverVehicle: null,
+        );
+
+        List<Bids> previousBids = removeBidsFromBidListByDriverUid(
+            driverUid: _authController.currentUser.value.uid!);
+
+        previousBids.add(bids);
+        List<Map<String, dynamic>> newBids =
+            previousBids.map((bid) => bid.toJson()).toList();
+        var response = await CityToCityTripRepository()
+            .updateBidsList(tripList[selectedTripIndex.value].id!, newBids);
+        if (response) {
+          showToast(
+              toastText: 'Fare offer updated successfully',
+              toastColor: ColorHelper.primaryColor);
+        } else {
+          showToast(
+              toastText: 'Fare offer updating failed',
+              toastColor: ColorHelper.red);
+        }
+      } else {
+        Bids bids = Bids(
+          driverUid: _authController.currentUser.value.uid,
+          driverName: _authController.currentUser.value.name,
+          driverImage: _authController.currentUser.value.photo,
+          driverPhone: _authController.currentUser.value.phone,
+          driverPrice:
+              driverOfferYourFareController[selectedTripIndex.value].text,
+          driverVehicle: null,
+        );
+
+        List<Bids> previousBids = tripList[selectedTripIndex.value].bids!;
+        previousBids.add(bids);
+        List<Map<String, dynamic>> newBids =
+            previousBids.map((bid) => bid.toJson()).toList();
+
+        var response = await CityToCityTripRepository()
+            .updateBidsList(tripList[selectedTripIndex.value].id!, newBids);
+        if (response) {
+          showToast(
+              toastText: 'Fare offer sent successfully',
+              toastColor: ColorHelper.primaryColor);
+        } else {
+          showToast(
+              toastText: 'Fare offer sending failed',
+              toastColor: ColorHelper.red);
+        }
+      }
+    } catch (e) {
+      log("Error while sending driver fare offer: $e");
+      showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
+    }
+  }
+
+  checkUserAlreadyOfferedFare() {
+    bool isAlreadyOffered = false;
+    AuthController _authController = Get.find();
+    for (var bid in tripList[selectedTripIndex.value].bids!) {
+      if (bid.driverUid == _authController.currentUser.value.uid) {
+        isAlreadyOffered = true;
+        break;
+      }
+    }
+    return isAlreadyOffered;
+  }
+
+  List<Bids> removeBidsFromBidListByDriverUid({required String driverUid}) {
+    List<Bids> bids = [];
+    for (var bid in tripList[selectedTripIndex.value].bids!) {
+      if (bid.driverUid != driverUid) {
+        bids.add(bid);
+      }
+    }
+    return bids;
   }
 }

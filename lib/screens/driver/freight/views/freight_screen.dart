@@ -66,26 +66,8 @@ class _FreightScreenState extends State<FreightScreen>
         unselectedLabelColor: Colors.grey,
         labelColor: ColorHelper.primaryColor,
         tabs: [
-          _buildCustomTab('Create Request', Icons.add),
-          _buildCustomTab('Request List', Icons.list),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCustomTab(String text, IconData icon) {
-    return Tab(
-      height: 40.h,
-      iconMargin: EdgeInsets.all(5.sp),
-      child: Column(
-        // mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon),
-          SpaceHelper.verticalSpace3,
-          Text(
-            text,
-            style: TextStyle(fontSize: 12.sp),
-          ),
+          CommonComponents().customTab('Create Request', Icons.add),
+          CommonComponents().customTab('Request List', Icons.list),
         ],
       ),
     );

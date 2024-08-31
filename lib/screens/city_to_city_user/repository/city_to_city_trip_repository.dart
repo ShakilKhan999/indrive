@@ -31,4 +31,34 @@ class CityToCityTripRepository {
           .toList();
     });
   }
+
+  Future<bool> updateBidsList(
+      String tripId, List<Map<String, dynamic>> newBids) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection(cityToCityTrip)
+          .doc(tripId)
+          .update({'bids': newBids});
+      log('Bids list updated successfully');
+      return true;
+    } catch (e) {
+      log('Error updating bids list: $e');
+      return false;
+    }
+  }
+
+  UpdateFareDriverFareOffer(String tripId, String driverUid,) async{
+    try {
+      await FirebaseFirestore.instance
+          .collection(cityToCityTrip)
+          .doc(tripId)
+          .update({'driverUid': driverUid});
+      log('Bids list updated successfully');
+      return true;
+    } catch (e) {
+      log('Error updating bids list: $e');
+      return false;
+    }
+  }
+
 }

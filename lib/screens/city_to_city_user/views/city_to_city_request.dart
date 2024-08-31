@@ -8,11 +8,33 @@ import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
 import 'package:indrive/screens/city_to_city_user/views/select_location.dart';
 
-class CityToCityRequest extends StatelessWidget {
+class CityToCityRequest extends StatefulWidget {
   CityToCityRequest({super.key});
+
+  @override
+  State<CityToCityRequest> createState() => _CityToCityRequestState();
+}
+
+class _CityToCityRequestState extends State<CityToCityRequest>
+    with SingleTickerProviderStateMixin {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
   final CityToCityTripController _cityToCityTripController =
       Get.put(CityToCityTripController());
+
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,39 +49,89 @@ class CityToCityRequest extends StatelessWidget {
         body: Column(
           children: [
             Expanded(
-              child: SingleChildScrollView(
-                physics: BouncingScrollPhysics(
-                    parent: AlwaysScrollableScrollPhysics()),
-                child: Column(
-                  children: [
-                    SpaceHelper.verticalSpace10,
-                    _buildTextFiledView('From',
-                        _cityToCityTripController.fromController.value, true),
-                    _buildTextFiledView('To',
-                        _cityToCityTripController.toController.value, false),
-                    SpaceHelper.verticalSpace10,
-                    _buildSelectableOptionsRow(),
-                    SpaceHelper.verticalSpace10,
-                    Obx(() => _buildSelectedOptionContainer(
-                        _cityToCityTripController.selectedOptionIndex.value,
-                        context)),
-                    SpaceHelper.verticalSpace10,
-                    _buildTextFiledView(
-                        'Add description',
-                        _cityToCityTripController
-                            .addDescriptionController.value,
-                        null),
-                  ],
-                ),
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildFindRiderView(),
+                  _buildRequestListView(),
+                ],
               ),
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 5.h),
-              child: _buildBottomButtonView(),
-            ),
+            _buildTabBar(),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildRequestListView() {
+    return Container(
+      color: Colors.grey[300],
+      child: Center(
+        child: Text(
+          'Request List View',
+          style: TextStyle(
+            color: Colors.grey[700],
+            fontSize: 18.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTabBar() {
+    return Container(
+      color: ColorHelper.secondaryBgColor,
+      child: TabBar(
+        padding: EdgeInsets.zero,
+        controller: _tabController,
+        indicatorPadding: EdgeInsets.all(2.sp),
+        indicatorColor: ColorHelper.primaryColor,
+        unselectedLabelColor: Colors.grey,
+        labelColor: ColorHelper.primaryColor,
+        tabs: [
+          CommonComponents().customTab('Find Rider', Icons.add),
+          CommonComponents().customTab('Request List', Icons.list),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFindRiderView() {
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            physics:
+                BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            child: Column(
+              children: [
+                SpaceHelper.verticalSpace10,
+                _buildTextFiledView('From',
+                    _cityToCityTripController.fromController.value, true),
+                _buildTextFiledView(
+                    'To', _cityToCityTripController.toController.value, false),
+                SpaceHelper.verticalSpace10,
+                _buildSelectableOptionsRow(),
+                SpaceHelper.verticalSpace10,
+                Obx(() => _buildSelectedOptionContainer(
+                    _cityToCityTripController.selectedOptionIndex.value,
+                    context)),
+                SpaceHelper.verticalSpace10,
+                _buildTextFiledView(
+                    'Add description',
+                    _cityToCityTripController.addDescriptionController.value,
+                    null),
+              ],
+            ),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 5.h),
+          child: _buildBottomButtonView(),
+        ),
+      ],
     );
   }
 
