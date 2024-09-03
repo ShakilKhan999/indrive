@@ -261,6 +261,9 @@ class FreightController extends GetxController {
         vehicleColor: selectedCarColor.value,
         vehicleModelNo: carModelNumberController.value.text,
         vehicleType: 'freight',
+        isApproved: false,
+        adminComment: null,
+        status: 'pending',
       );
       log('driver info model : ${jsonEncode(driverInfoModel)}');
       var response = await FreightRepository().saveFreightInfo(

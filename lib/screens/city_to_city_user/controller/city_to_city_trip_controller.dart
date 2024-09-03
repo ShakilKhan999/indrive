@@ -10,6 +10,7 @@ import 'package:indrive/main.dart';
 import 'package:indrive/models/city_to_city_trip_model.dart';
 import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
 import 'package:indrive/screens/city_to_city_user/repository/city_to_city_trip_repository.dart';
+import 'package:indrive/utils/database_collection_names.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../helpers/color_helper.dart';
@@ -38,8 +39,13 @@ class CityToCityTripController extends GetxController {
   late GoogleMapController mapControllerTO;
   var center = const LatLng(23.80, 90.41).obs;
   final RxList<CityToCityTripModel> tripList = <CityToCityTripModel>[].obs;
+  final RxList<CityToCityTripModel> tripListForUser =
+      <CityToCityTripModel>[].obs;
   var selectedTripIndex = 0.obs;
-  
+  var selectedTripIndexForUser = 0.obs;
+  var selectedBidIndex = 0.obs;
+  final RxList<CityToCityTripModel> myTripListForUser =
+      <CityToCityTripModel>[].obs;
 
   void updateDate(DateTime date) {
     selectedDate.value = date;
@@ -135,6 +141,7 @@ class CityToCityTripController extends GetxController {
             destinationPickedCenter.value.longitude),
         bids: [],
         description: addDescriptionController.value.text,
+        declineDriverIds: '',
       );
 
       bool response = await CityToCityTripRepository()
@@ -159,10 +166,9 @@ class CityToCityTripController extends GetxController {
 
   void getCityToCityTrips() {
     try {
-      AuthController _authController = Get.find();
       tripList.clear();
       CityToCityTripRepository()
-          .getCityToCityTripList(uid: _authController.currentUser.value.uid!)
+          .getCityToCityTripList()
           .listen((List<CityToCityTripModel> trips) {
         filterTrips(trips: trips);
       });
@@ -171,12 +177,31 @@ class CityToCityTripController extends GetxController {
     }
   }
 
+  void getCityToCityTripsForUser() {
+    try {
+      AuthController _authController = Get.find();
+      tripList.clear();
+      CityToCityTripRepository()
+          .getCityToCityTripListForUser(
+              userId: _authController.currentUser.value.uid!)
+          .listen((List<CityToCityTripModel> trips) {
+        tripListForUser.assignAll(trips);
+        log('tripList: $tripListForUser');
+      });
+    } catch (e) {
+      log("Error while getting city to city trips for user: $e");
+    }
+  }
+
   void filterTrips({required List<CityToCityTripModel> trips}) {
     List<CityToCityTripModel> filteredTrips = [];
     AuthController _authController = Get.find();
     for (var trip in trips) {
       if (trip.tripCurrentStatus == 'new' &&
-          trip.userUid != _authController.currentUser.value.uid) {
+          trip.userUid != _authController.currentUser.value.uid &&
+          trip.declineDriverIds!
+                  .contains(_authController.currentUser.value.uid!) ==
+              false) {
         filteredTrips.add(trip);
       }
     }
@@ -185,7 +210,20 @@ class CityToCityTripController extends GetxController {
       filteredTrips.length,
       (index) => TextEditingController(),
     );
+
     assignTheDriverPriceInDriverOfferYourFareControllerIfExists();
+
+    log('tripList: $tripList');
+  }
+
+  void filterTripsForUser({required List<CityToCityTripModel> trips}) {
+    List<CityToCityTripModel> filteredTrips = [];
+    for (var trip in trips) {
+      if (trip.tripCurrentStatus == 'new') {
+        filteredTrips.add(trip);
+      }
+    }
+    tripListForUser.assignAll(filteredTrips);
     log('tripList: $tripList');
   }
 
@@ -219,7 +257,8 @@ class CityToCityTripController extends GetxController {
           driverPhone: _authController.currentUser.value.phone,
           driverPrice:
               driverOfferYourFareController[selectedTripIndex.value].text,
-          driverVehicle: null,
+          driverVehicle:
+              _authController.currentUser.value.cityToCityVehicleType,
         );
 
         List<Bids> previousBids = removeBidsFromBidListByDriverUid(
@@ -289,6 +328,120 @@ class CityToCityTripController extends GetxController {
     List<Bids> bids = [];
     for (var bid in tripList[selectedTripIndex.value].bids!) {
       if (bid.driverUid != driverUid) {
+        bids.add(bid);
+      }
+    }
+    return bids;
+  }
+
+  void acceptRideForUser() async {
+    try {
+      fToast.init(Get.context!);
+      AuthController _authController = Get.find();
+      Map<String, dynamic> updateData = {
+        'tripCurrentStatus': 'accepted',
+        'driverUid': tripListForUser[selectedTripIndexForUser.value]
+            .bids![selectedBidIndex.value]
+            .driverUid,
+        'driverName': tripListForUser[selectedTripIndexForUser.value]
+            .bids![selectedBidIndex.value]
+            .driverName,
+        'driverImage': tripListForUser[selectedTripIndexForUser.value]
+            .bids![selectedBidIndex.value]
+            .driverImage,
+        'driverPhone': tripListForUser[selectedTripIndexForUser.value]
+            .bids![selectedBidIndex.value]
+            .driverPhone,
+        'driverVehicle':
+            _authController.currentUser.value.cityToCityVehicleType,
+        'finalPrice': tripListForUser[selectedTripIndexForUser.value]
+            .bids![selectedBidIndex.value]
+            .driverPrice,
+        'bids': [],
+        'acceptBy': 'user',
+      };
+      bool result = await MethodHelper().updateDocFields(
+          docId: tripListForUser[selectedTripIndexForUser.value].id!,
+          fieldsToUpdate: updateData,
+          collection: cityToCityTripCollection);
+      if (result) {
+        showToast(
+            toastText: 'Ride accepted successfully',
+            toastColor: ColorHelper.primaryColor);
+        Get.back();
+      } else {
+        showToast(
+            toastText: 'Ride accepting failed', toastColor: ColorHelper.red);
+      }
+    } catch (e) {
+      log("Error while accepting ride for user: $e");
+      showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
+    }
+  }
+
+  void getCityToCityMyTripsForUser() {
+    try {
+      AuthController _authController = Get.find();
+      tripList.clear();
+      CityToCityTripRepository()
+          .getCityToCityMyTripListForUser(
+              userId: _authController.currentUser.value.uid!)
+          .listen((List<CityToCityTripModel> trips) {
+        myTripListForUser.assignAll(trips);
+        log('my tripList: $tripListForUser');
+      });
+    } catch (e) {
+      log("Error while getting city to city my trips for user: $e");
+    }
+  }
+
+  void declineBidForUser() async {
+    try {
+      fToast.init(Get.context!);
+      List<Bids> bids = removeBidFromBidList();
+      List<Map<String, dynamic>> newBids =
+          bids.map((bid) => bid.toJson()).toList();
+
+      String declineUserUids = MethodHelper.joinStringsWithComma(
+          tripListForUser[selectedTripIndexForUser.value].declineDriverIds!,
+          tripListForUser[selectedTripIndexForUser.value]
+              .bids![selectedBidIndex.value]
+              .driverUid!);
+
+      var result = await CityToCityTripRepository()
+          .updateBidsList(
+              tripListForUser[selectedTripIndexForUser.value].id!, newBids)
+          .then(
+        (value) {
+          Map<String, dynamic> updateData = {
+            'declineDriverIds': declineUserUids,
+          };
+          MethodHelper().updateDocFields(
+              docId: tripListForUser[selectedTripIndexForUser.value].id!,
+              fieldsToUpdate: updateData,
+              collection: cityToCityTripCollection);
+        },
+      );
+
+      if (result) {
+        showToast(
+            toastText: 'Ride declined successfully',
+            toastColor: ColorHelper.primaryColor);
+        Get.back();
+      } else {
+        showToast(
+            toastText: 'Ride declining failed', toastColor: ColorHelper.red);
+      }
+    } catch (e) {}
+  }
+
+  List<Bids> removeBidFromBidList() {
+    List<Bids> bids = [];
+    for (var bid in tripListForUser[selectedTripIndexForUser.value].bids!) {
+      if (bid.driverUid !=
+          tripListForUser[selectedTripIndexForUser.value]
+              .bids![selectedBidIndex.value]
+              .driverUid) {
         bids.add(bid);
       }
     }

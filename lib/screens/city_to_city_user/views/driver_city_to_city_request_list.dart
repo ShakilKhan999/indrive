@@ -85,6 +85,7 @@ class DriverCityToCityRequestList extends StatelessWidget {
                             fontWeight: FontWeight.bold),
                       ],
                     ),
+                    
                     ListTile(
                         contentPadding: EdgeInsets.zero,
                         leading: Icon(Icons.radio_button_checked,
@@ -146,7 +147,7 @@ class DriverCityToCityRequestList extends StatelessWidget {
           child: Center(
             child: CommonComponents().printText(
                 fontSize: 14,
-                textData: 'Acecpt',
+                textData: 'Accept',
                 fontWeight: FontWeight.normal),
           ),
         ),

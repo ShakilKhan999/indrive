@@ -10,10 +10,9 @@ class CourierRepository {
       required String driverInfoDoc}) async {
     try {
       await FirebaseFirestore.instance
-          .collection(userCollection)
-          .doc(uid)
+
           .collection(courierCollection)
-          .doc(driverInfoDoc)
+          .doc(uid)
           .set(driverInfoModel.toJson());
       return true;
     } catch (e) {

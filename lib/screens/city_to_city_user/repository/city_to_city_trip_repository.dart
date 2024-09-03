@@ -10,7 +10,7 @@ class CityToCityTripRepository {
       CityToCityTripModel cityToCityTripModel) async {
     try {
       await FirebaseFirestore.instance
-          .collection(cityToCityTrip)
+          .collection(cityToCityTripCollection)
           .doc(cityToCityTripModel.id)
           .set(cityToCityTripModel.toJson());
       return true;
@@ -20,10 +20,10 @@ class CityToCityTripRepository {
     }
   }
 
-  Stream<List<CityToCityTripModel>> getCityToCityTripList(
-      {required String uid}) {
+  Stream<List<CityToCityTripModel>> getCityToCityTripList() {
     return FirebaseFirestore.instance
-        .collection(cityToCityTrip)
+        .collection(cityToCityTripCollection)
+        .where('tripCurrentStatus', isEqualTo: 'new')
         .snapshots()
         .map((snapshot) {
       return snapshot.docs
@@ -32,11 +32,27 @@ class CityToCityTripRepository {
     });
   }
 
+  Stream<List<CityToCityTripModel>> getCityToCityTripListForUser(
+      {required String userId}) {
+    {
+      return FirebaseFirestore.instance
+          .collection(cityToCityTripCollection)
+          .where('userUid', isEqualTo: userId)
+          .where('tripCurrentStatus', isEqualTo: 'new')
+          .snapshots()
+          .map((snapshot) {
+        return snapshot.docs
+            .map((doc) => CityToCityTripModel.fromJson(doc.data()))
+            .toList();
+      });
+    }
+  }
+
   Future<bool> updateBidsList(
       String tripId, List<Map<String, dynamic>> newBids) async {
     try {
       await FirebaseFirestore.instance
-          .collection(cityToCityTrip)
+          .collection(cityToCityTripCollection)
           .doc(tripId)
           .update({'bids': newBids});
       log('Bids list updated successfully');
@@ -47,10 +63,13 @@ class CityToCityTripRepository {
     }
   }
 
-  UpdateFareDriverFareOffer(String tripId, String driverUid,) async{
+  UpdateFareDriverFareOffer(
+    String tripId,
+    String driverUid,
+  ) async {
     try {
       await FirebaseFirestore.instance
-          .collection(cityToCityTrip)
+          .collection(cityToCityTripCollection)
           .doc(tripId)
           .update({'driverUid': driverUid});
       log('Bids list updated successfully');
@@ -61,4 +80,19 @@ class CityToCityTripRepository {
     }
   }
 
+  Stream<List<CityToCityTripModel>> getCityToCityMyTripListForUser(
+      {required String userId}) {
+    {
+      return FirebaseFirestore.instance
+          .collection(cityToCityTripCollection)
+          .where('userUid', isEqualTo: userId)
+          .where('tripCurrentStatus', isEqualTo: 'accepted')
+          .snapshots()
+          .map((snapshot) {
+        return snapshot.docs
+            .map((doc) => CityToCityTripModel.fromJson(doc.data()))
+            .toList();
+      });
+    }
+  }
 }

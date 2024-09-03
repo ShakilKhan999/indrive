@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get/get_connect/http/src/request/request.dart';
 
 class UserModel {
   String? uid;

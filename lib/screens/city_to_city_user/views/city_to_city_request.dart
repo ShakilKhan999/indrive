@@ -6,6 +6,7 @@ import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/method_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
+import 'package:indrive/screens/city_to_city_user/views/bid_list.dart';
 import 'package:indrive/screens/city_to_city_user/views/select_location.dart';
 
 class CityToCityRequest extends StatefulWidget {
@@ -27,7 +28,7 @@ class _CityToCityRequestState extends State<CityToCityRequest>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -54,6 +55,7 @@ class _CityToCityRequestState extends State<CityToCityRequest>
                 children: [
                   _buildFindRiderView(),
                   _buildRequestListView(),
+                  _buildMyRideView(),
                 ],
               ),
             ),
@@ -64,19 +66,221 @@ class _CityToCityRequestState extends State<CityToCityRequest>
     );
   }
 
+  Widget _buildMyRideView() {
+    return Obx(
+      () => ListView.separated(
+          itemBuilder: (context, index) {
+            return InkWell(
+              onTap: () {},
+              child: Card(
+                color: ColorHelper.blackColor,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                height: 35.h,
+                                width: 35.h,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(90),
+                                    color: Colors.white,
+                                    border: Border.all(color: Colors.white)),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(90),
+                                  child: _cityToCityTripController
+                                              .myTripListForUser[index]
+                                              .driverImage !=
+                                          null
+                                      ? Image.network(
+                                          _cityToCityTripController
+                                              .myTripListForUser[index]
+                                              .driverImage!,
+                                          height: 35.h,
+                                          width: 35.h,
+                                          fit: BoxFit.cover,
+                                        )
+                                      : Image.asset(
+                                          "assets/images/person.jpg",
+                                          height: 35.h,
+                                          width: 35.h,
+                                          fit: BoxFit.cover,
+                                        ),
+                                ),
+                              ),
+                              SpaceHelper.horizontalSpace10,
+                              CommonComponents().printText(
+                                  fontSize: 15,
+                                  textData: _cityToCityTripController
+                                      .myTripListForUser[index].driverName!,
+                                  fontWeight: FontWeight.bold),
+                            ],
+                          ),
+                          
+                        ],
+                      ),
+                      SpaceHelper.verticalSpace10,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.timer_sharp,
+                                  color: ColorHelper.whiteColor),
+                              SpaceHelper.horizontalSpace5,
+                              CommonComponents().printText(
+                                  fontSize: 18,
+                                  textData:
+                                      '${_cityToCityTripController.myTripListForUser[index].tripType!}',
+                                  fontWeight: FontWeight.bold),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Icon(Icons.date_range_sharp,
+                                  color: ColorHelper.whiteColor),
+                              SpaceHelper.horizontalSpace5,
+                              CommonComponents().printText(
+                                  fontSize: 18,
+                                  textData:
+                                      '${MethodHelper().formatedDate(_cityToCityTripController.myTripListForUser[index].date!)}',
+                                  fontWeight: FontWeight.bold),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Icon(Icons.money, color: ColorHelper.whiteColor),
+                              SpaceHelper.horizontalSpace5,
+                              CommonComponents().printText(
+                                  fontSize: 18,
+                                  textData:
+                                      '${_cityToCityTripController.myTripListForUser[index].finalPrice!}',
+                                  fontWeight: FontWeight.bold),
+                            ],
+                          ),
+                        ],
+                      ),
+                      ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: Icon(Icons.radio_button_checked,
+                              color: ColorHelper.primaryColor),
+                          title: CommonComponents().printText(
+                              fontSize: 12,
+                              textData:
+                                  '${_cityToCityTripController.myTripListForUser[index].cityFrom!}',
+                              fontWeight: FontWeight.normal)),
+                      ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: Icon(Icons.radio_button_checked,
+                              color: ColorHelper.blueColor),
+                          title: CommonComponents().printText(
+                              fontSize: 12,
+                              textData:
+                                  '${_cityToCityTripController.myTripListForUser[index].cityTo!}',
+                              fontWeight: FontWeight.normal)),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+          separatorBuilder: (context, index) {
+            return SpaceHelper.verticalSpace10;
+          },
+          itemCount: _cityToCityTripController.myTripListForUser.length),
+    );
+  }
+
   Widget _buildRequestListView() {
-    return Container(
-      color: Colors.grey[300],
-      child: Center(
-        child: Text(
-          'Request List View',
-          style: TextStyle(
-            color: Colors.grey[700],
-            fontSize: 18.sp,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
+    return Obx(
+      () => ListView.separated(
+          itemBuilder: (context, index) {
+            return InkWell(
+              onTap: () {
+                _cityToCityTripController.selectedTripIndexForUser.value =
+                    index;
+                Get.to(() => BidList(), transition: Transition.rightToLeft);
+              },
+              child: Card(
+                color: ColorHelper.blackColor,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.timer_sharp,
+                                  color: ColorHelper.whiteColor),
+                              SpaceHelper.horizontalSpace5,
+                              CommonComponents().printText(
+                                  fontSize: 18,
+                                  textData:
+                                      '${_cityToCityTripController.tripListForUser[index].tripType!}',
+                                  fontWeight: FontWeight.bold),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Icon(Icons.date_range_sharp,
+                                  color: ColorHelper.whiteColor),
+                              SpaceHelper.horizontalSpace5,
+                              CommonComponents().printText(
+                                  fontSize: 18,
+                                  textData:
+                                      '${MethodHelper().formatedDate(_cityToCityTripController.tripListForUser[index].date!)}',
+                                  fontWeight: FontWeight.bold),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Icon(Icons.money, color: ColorHelper.whiteColor),
+                              SpaceHelper.horizontalSpace5,
+                              CommonComponents().printText(
+                                  fontSize: 18,
+                                  textData:
+                                      '${_cityToCityTripController.tripListForUser[index].userPrice!}',
+                                  fontWeight: FontWeight.bold),
+                            ],
+                          ),
+                        ],
+                      ),
+                      ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: Icon(Icons.radio_button_checked,
+                              color: ColorHelper.primaryColor),
+                          title: CommonComponents().printText(
+                              fontSize: 12,
+                              textData:
+                                  '${_cityToCityTripController.tripListForUser[index].cityFrom!}',
+                              fontWeight: FontWeight.normal)),
+                      ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: Icon(Icons.radio_button_checked,
+                              color: ColorHelper.blueColor),
+                          title: CommonComponents().printText(
+                              fontSize: 12,
+                              textData:
+                                  '${_cityToCityTripController.tripListForUser[index].cityTo!}',
+                              fontWeight: FontWeight.normal)),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+          separatorBuilder: (context, index) {
+            return SpaceHelper.verticalSpace10;
+          },
+          itemCount: _cityToCityTripController.tripListForUser.length),
     );
   }
 
@@ -93,6 +297,7 @@ class _CityToCityRequestState extends State<CityToCityRequest>
         tabs: [
           CommonComponents().customTab('Find Rider', Icons.add),
           CommonComponents().customTab('Request List', Icons.list),
+          CommonComponents().customTab('My Ride', Icons.check),
         ],
       ),
     );

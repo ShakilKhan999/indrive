@@ -12,10 +12,8 @@ class DriverInfoRepository {
       required String driverInfoDoc}) async {
     try {
       await _db
-          .collection(userCollection)
+          .collection(riderCollection)
           .doc(uid)
-          .collection(driverDetialsCollection)
-          .doc(driverInfoDoc)
           .set(driverInfoModel.toJson());
 
       return true;

@@ -258,6 +258,9 @@ class CityToCityInfoController extends GetxController {
             vehicleType.value == 'moto' ? null : selectedCarColor.value,
         vehicleModelNo: carModelNumberController.value.text,
         vehicleType: vehicleType.value,
+        isApproved: false,
+        adminComment: null,
+        status: 'pending',
       );
       log('driver info model : ${jsonEncode(driverInfoModel)}');
       var response = await CityToCityRepository().saveCityToCityInfo(

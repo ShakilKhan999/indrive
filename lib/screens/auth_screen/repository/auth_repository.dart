@@ -56,21 +56,17 @@ class AuthRepository {
   Future<DriverInfoModel?> getCurrentUserDriverData(
       {required String userId}) async {
     try {
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection(userCollection)
+      DocumentSnapshot<Map<String, dynamic>> documentSnapshot = await FirebaseFirestore.instance
+          .collection(riderCollection)
           .doc(userId)
-          .collection(driverDetialsCollection)
-          .limit(1)
           .get();
 
-      if (querySnapshot.docs.isNotEmpty) {
-        DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
-        Map<String, dynamic> data =
-            documentSnapshot.data() as Map<String, dynamic>;
+      if (documentSnapshot.exists) {
+        Map<String, dynamic> data = documentSnapshot.data()!;
         DriverInfoModel driverInfo = DriverInfoModel.fromJson(data);
         return driverInfo;
       } else {
-        print('No documents found in the collection');
+        print('No document found for the user');
         return null;
       }
     } catch (e) {
