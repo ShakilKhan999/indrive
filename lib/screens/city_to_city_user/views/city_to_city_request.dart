@@ -401,22 +401,25 @@ class _CityToCityRequestState extends State<CityToCityRequest>
             height: 40.h,
             width: MediaQuery.of(context).size.width - 30.w,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: ColorHelper.lightGreyColor,
+              borderRadius: BorderRadius.circular(8),
+              color: ColorHelper.grey850,
             ),
             child: Obx(() => Center(
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 5.w),
                     child: Row(
                       children: [
-                        Icon(Icons.date_range),
+                        Icon(
+                          Icons.date_range,
+                          color: Colors.grey,
+                        ),
                         SpaceHelper.horizontalSpace10,
                         Text(
                           _cityToCityTripController.selectedDate.value != null
                               ? 'Selected Date: ${_cityToCityTripController.selectedDate.value!.toLocal().toString().split(' ')[0]}'
                               : 'Select a date',
                           style: TextStyle(
-                            color: Colors.black,
+                            color: Colors.grey,
                             fontSize: 16.sp,
                           ),
                         ),
