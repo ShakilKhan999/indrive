@@ -52,13 +52,8 @@ class CourierScreen extends StatelessWidget {
                 )),
             SpaceHelper.verticalSpace15,
             _buildOptionButton(Icons.door_front_door, 'Door to door'),
-            _buildTexfiledView(
-                _courierController.toCourierController.value,
-                'Order Deatils',
-                Icon(
-                  Icons.details,
-                  color: Colors.grey,
-                )),
+            SpaceHelper.verticalSpace15,
+            _buildOderdeatilsView(),
             SpaceHelper.verticalSpace10,
             _buildTexfiledView(
                 _courierController.fareCourierController.value,
@@ -144,7 +139,8 @@ class CourierScreen extends StatelessWidget {
       style: TextStyle(color: Colors.white),
       decoration: InputDecoration(
         hintText: text,
-        hintStyle: TextStyle(color: Colors.grey),
+        hintStyle: TextStyle(
+            color: Colors.grey, fontSize: 14.sp, fontWeight: FontWeight.w600),
         prefixIcon: prefixIcon,
         filled: true,
         fillColor: Colors.grey[850],
@@ -177,15 +173,100 @@ class CourierScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildOderdeatilsView() {
+    return GestureDetector(
+      onTap: () {
+        if (_courierController.isOptionButtonEnabled.value) {
+          _showEnabledBottomSheet();
+        } else {
+          _showDisabledBottomSheet();
+        }
+      },
+      child: Container(
+        width: double.infinity,
+        height: 40.h,
+        decoration: BoxDecoration(
+          color: ColorHelper.grey850,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 8.w),
+              child: Icon(
+                Icons.details,
+                color: Colors.grey,
+              ),
+            ),
+            SpaceHelper.horizontalSpace10,
+            CommonComponents().printText(
+                fontSize: 14,
+                textData: 'Order Deatils',
+                color: Colors.grey,
+                fontWeight: FontWeight.w600)
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildOptionButton(IconData icon, String label) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.grey),
-          SizedBox(width: 16),
-          Text(label, style: TextStyle(color: Colors.white)),
-        ],
+    return Obx(() => GestureDetector(
+          onTap: () {
+            _courierController.isOptionButtonEnabled.value =
+                !_courierController.isOptionButtonEnabled.value;
+          },
+          child: Container(
+            width: 110.w,
+            padding: EdgeInsets.symmetric(vertical: 8),
+            decoration: BoxDecoration(
+              color: _courierController.isOptionButtonEnabled.value
+                  ? ColorHelper.primaryColor
+                  : ColorHelper.grey850,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(left: 3.w),
+                  child: Icon(icon, color: Colors.grey),
+                ),
+                SpaceHelper.horizontalSpace5,
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ));
+  }
+
+  void _showEnabledBottomSheet() {
+    Get.bottomSheet(
+      Container(
+        color: Colors.white,
+        height: 200,
+        child: Center(
+          child: Text('This is the enabled bottom sheet',
+              style: TextStyle(fontSize: 18)),
+        ),
+      ),
+    );
+  }
+
+  void _showDisabledBottomSheet() {
+    Get.bottomSheet(
+      Container(
+        color: Colors.white,
+        height: 200,
+        child: Center(
+          child: Text('This is the disabled bottom sheet',
+              style: TextStyle(fontSize: 18)),
+        ),
       ),
     );
   }
