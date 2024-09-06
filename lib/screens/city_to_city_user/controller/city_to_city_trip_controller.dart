@@ -47,6 +47,8 @@ class CityToCityTripController extends GetxController {
   final RxList<CityToCityTripModel> myTripListForUser =
       <CityToCityTripModel>[].obs;
 
+  final RxList<CityToCityTripModel> myTripList = <CityToCityTripModel>[].obs;
+
   void updateDate(DateTime date) {
     selectedDate.value = date;
   }
@@ -352,8 +354,9 @@ class CityToCityTripController extends GetxController {
         'driverPhone': tripListForUser[selectedTripIndexForUser.value]
             .bids![selectedBidIndex.value]
             .driverPhone,
-        'driverVehicle':
-            _authController.currentUser.value.cityToCityVehicleType,
+        'driverVehicle': tripListForUser[selectedTripIndexForUser.value]
+            .bids![selectedBidIndex.value]
+            .driverVehicle,
         'finalPrice': tripListForUser[selectedTripIndexForUser.value]
             .bids![selectedBidIndex.value]
             .driverPrice,
@@ -398,7 +401,7 @@ class CityToCityTripController extends GetxController {
   void declineBidForUser() async {
     try {
       fToast.init(Get.context!);
-      List<Bids> bids = removeBidFromBidList();
+      List<Bids> bids = removeBidFromBidListForUser();
       List<Map<String, dynamic>> newBids =
           bids.map((bid) => bid.toJson()).toList();
 
@@ -435,7 +438,7 @@ class CityToCityTripController extends GetxController {
     } catch (e) {}
   }
 
-  List<Bids> removeBidFromBidList() {
+  List<Bids> removeBidFromBidListForUser() {
     List<Bids> bids = [];
     for (var bid in tripListForUser[selectedTripIndexForUser.value].bids!) {
       if (bid.driverUid !=
@@ -446,5 +449,117 @@ class CityToCityTripController extends GetxController {
       }
     }
     return bids;
+  }
+
+  List<Bids> removeBidFromBidList() {
+    List<Bids> bids = [];
+    for (var bid in tripList[selectedTripIndex.value].bids!) {
+      if (bid.driverUid !=
+          tripList[selectedTripIndex.value]
+              .bids![selectedBidIndex.value]
+              .driverUid) {
+        bids.add(bid);
+      }
+    }
+    return bids;
+  }
+
+  void getCityToCityMyTrips() {
+    try {
+      AuthController _authController = Get.find();
+      tripList.clear();
+      CityToCityTripRepository()
+          .getCityToCityMyTripList(
+              userId: _authController.currentUser.value.uid!)
+          .listen((List<CityToCityTripModel> trips) {
+        myTripList.assignAll(trips);
+        log('my tripList: $tripListForUser');
+      });
+    } catch (e) {
+      log("Error while getting city to city my trips for user: $e");
+    }
+  }
+
+  void acceptRide() async {
+    try {
+      fToast.init(Get.context!);
+      AuthController _authController = Get.find();
+      Map<String, dynamic> updateData = {
+        'tripCurrentStatus': 'accepted',
+        'driverUid': _authController.currentUser.value.uid!,
+        'driverName': _authController.currentUser.value.name!,
+        'driverImage': _authController.currentUser.value.photo ??
+            'https://www.pngitem.com/pimgs/m/506-5067022_sweet-shap-profile-placeholder-hd-png-download.png',
+        'driverPhone': _authController.currentUser.value.phone ?? '',
+        'driverVehicle':
+            _authController.currentUser.value.cityToCityVehicleType,
+        'finalPrice': tripList[selectedTripIndex.value].userPrice!,
+        'bids': [],
+        'acceptBy': 'rider',
+      };
+      bool result = await MethodHelper().updateDocFields(
+          docId: tripList[selectedTripIndex.value].id!,
+          fieldsToUpdate: updateData,
+          collection: cityToCityTripCollection);
+      if (result) {
+        showToast(
+            toastText: 'Ride accepted successfully',
+            toastColor: ColorHelper.primaryColor);
+      } else {
+        showToast(
+            toastText: 'Ride accepting failed', toastColor: ColorHelper.red);
+      }
+    } catch (e) {
+      log("Error while accepting ride: $e");
+      showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
+    }
+  }
+
+  void declineRide() async {
+    try {
+      fToast.init(Get.context!);
+      AuthController _authController = Get.find();
+      List<Bids> bids = [];
+      if (checkUserAlreadyOfferedFare()) {
+        bids = removeBidFromBidList();
+      } else {
+        bids = tripList[selectedTripIndex.value].bids!;
+      }
+
+      List<Map<String, dynamic>> newBids =
+          bids.map((bid) => bid.toJson()).toList();
+
+      String declineUserUids = MethodHelper.joinStringsWithComma(
+          tripList[selectedTripIndex.value].declineDriverIds!,
+          _authController.currentUser.value.uid!);
+
+      var result = await CityToCityTripRepository()
+          .updateBidsList(
+              tripListForUser[selectedTripIndexForUser.value].id!, newBids)
+          .then(
+        (value) {
+          Map<String, dynamic> updateData = {
+            'declineDriverIds': declineUserUids,
+          };
+          MethodHelper().updateDocFields(
+              docId: tripListForUser[selectedTripIndexForUser.value].id!,
+              fieldsToUpdate: updateData,
+              collection: cityToCityTripCollection);
+        },
+      );
+
+      if (result) {
+        showToast(
+            toastText: 'Ride declined successfully',
+            toastColor: ColorHelper.primaryColor);
+        Get.back();
+      } else {
+        showToast(
+            toastText: 'Ride declining failed', toastColor: ColorHelper.red);
+      }
+    } catch (e) {
+      log("Error while accepting ride: $e");
+      showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
+    }
   }
 }

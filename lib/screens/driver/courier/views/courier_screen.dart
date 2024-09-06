@@ -15,8 +15,8 @@ class CourierScreen extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          _buildMapView(),
-          // _buildAppBarVierw(),
+          _buildMapView(context),
+          _buildTopBackButtonView(),
           _buildCourierDeliveryDeatilsView(),
         ],
       ),
@@ -107,9 +107,11 @@ class CourierScreen extends StatelessWidget {
         ));
   }
 
-  Widget _buildMapView() {
+  Widget _buildMapView(BuildContext context) {
     return Container(
-      color: Color.fromARGB(255, 180, 81, 81),
+      height: MediaQuery.of(context).size.height,
+      width: MediaQuery.of(context).size.width,
+      color: ColorHelper.whiteColor,
       child: GoogleMap(
         initialCameraPosition: CameraPosition(
           target: LatLng(23.80, 90.41),
@@ -119,16 +121,19 @@ class CourierScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAppBarVierw() {
-    return AppBar(
-      backgroundColor: Colors.black,
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: Colors.white),
+  Widget _buildTopBackButtonView() {
+    return Positioned(
+      top: 30.h,
+      left: 15.w,
+      child: IconButton(
         onPressed: () {
           Get.back();
         },
+        icon: Icon(
+          Icons.arrow_back,
+          color: Colors.black,
+        ),
       ),
-      elevation: 0,
     );
   }
 

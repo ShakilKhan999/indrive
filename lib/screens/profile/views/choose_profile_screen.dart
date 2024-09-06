@@ -199,6 +199,7 @@ class ChooseProfileScreen extends StatelessWidget {
                             CityToCityTripController _cityToCityTripController =
                                 Get.put(CityToCityTripController());
                             _cityToCityTripController.getCityToCityTrips();
+                            _cityToCityTripController.getCityToCityMyTrips();
                             Get.to(() => DriverCityToCityRequestList(),
                                 transition: Transition.rightToLeft);
                           } else if (_profileController

@@ -95,4 +95,20 @@ class CityToCityTripRepository {
       });
     }
   }
+
+  Stream<List<CityToCityTripModel>> getCityToCityMyTripList(
+      {required String userId}) {
+    {
+      return FirebaseFirestore.instance
+          .collection(cityToCityTripCollection)
+          .where('driverUid', isEqualTo: userId)
+          .where('tripCurrentStatus', isEqualTo: 'accepted')
+          .snapshots()
+          .map((snapshot) {
+        return snapshot.docs
+            .map((doc) => CityToCityTripModel.fromJson(doc.data()))
+            .toList();
+      });
+    }
+  }
 }

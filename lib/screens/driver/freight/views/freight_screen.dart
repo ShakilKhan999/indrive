@@ -74,37 +74,44 @@ class _FreightScreenState extends State<FreightScreen>
   }
 
   Widget _buildCreateRequestView() {
-    return SingleChildScrollView(
-      physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SpaceHelper.verticalSpace10,
-          _buildTopImgView(),
-          _buildTextFiledView('Pickup location',
-              _freightController.pickUpController.value, true),
-          _buildTextFiledView('Destination',
-              _freightController.destinationController.value, false),
-          _buildSelectionButtons(),
-          _buildDropdownFieldView('Select Size'),
-          SpaceHelper.verticalSpace10,
-          _buildCargoPhoto(),
-          SpaceHelper.verticalSpace10,
-          _buildTextFiledView('Offer your fare',
-              _freightController.offerFareController.value, false),
-          SpaceHelper.verticalSpace10,
-          _buildBottomButtom()
-        ],
-      ),
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            physics:
+                BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SpaceHelper.verticalSpace10,
+                _buildTopImgView(),
+                _buildTextFiledView('Pickup location',
+                    _freightController.pickUpController.value, true),
+                _buildTextFiledView('Destination',
+                    _freightController.destinationController.value, false),
+                _buildSelectionButtons(),
+                _buildDropdownFieldView('Select Size'),
+                SpaceHelper.verticalSpace10,
+                _buildCargoPhoto(),
+                SpaceHelper.verticalSpace10,
+                _buildTextFiledView('Offer your fare',
+                    _freightController.offerFareController.value, false),
+                SpaceHelper.verticalSpace10,
+              ],
+            ),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 15.h),
+          child: _buildBottomButtom(),
+        )
+      ],
     );
   }
 
   Widget _buildBottomButtom() {
-    return Padding(
-      padding: EdgeInsets.all(22.sp),
-      child: CommonComponents()
-          .commonButton(text: 'Create Request', onPressed: () {}),
-    );
+    return CommonComponents()
+        .commonButton(text: 'Create Request', onPressed: () {});
   }
 
   Widget _buildRequestListView() {
@@ -193,35 +200,27 @@ class _FreightScreenState extends State<FreightScreen>
       String hintText, TextEditingController controller, bool? isFrom) {
     return Padding(
       padding: EdgeInsets.fromLTRB(16.sp, 10.h, 16.sp, 0.sp),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          color: ColorHelper.lightGreyColor,
+      child: TextField(
+        style: TextStyle(
+          fontSize: 16.sp,
+          color: Colors.white,
+          fontWeight: FontWeight.w400,
+          decoration: TextDecoration.none,
         ),
-        child: TextField(
-          style: TextStyle(
-            fontSize: 16.sp,
-            color: Colors.black,
-            fontWeight: FontWeight.w400,
-            decoration: TextDecoration.none,
+        onTap: () {},
+        controller: controller,
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: TextStyle(color: Colors.grey),
+          filled: true,
+          fillColor: ColorHelper.grey850,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide.none,
           ),
-          onTap: () {},
-          controller: controller,
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            hintText: hintText,
-            hintStyle: TextStyle(
-              fontSize: 16.sp,
-              color: ColorHelper.greyColor,
-              fontWeight: FontWeight.w400,
-              decoration: TextDecoration.none,
-            ),
-            suffixIcon: Icon(
-              Icons.arrow_forward_ios,
-              color: ColorHelper.greyColor,
-            ),
-            contentPadding:
-                EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
+          suffixIcon: Icon(
+            Icons.arrow_forward_ios,
+            color: ColorHelper.greyColor,
           ),
         ),
       ),
@@ -233,8 +232,8 @@ class _FreightScreenState extends State<FreightScreen>
       padding: EdgeInsets.fromLTRB(16.sp, 10.h, 16.sp, 0.sp),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          color: ColorHelper.lightGreyColor,
+          borderRadius: BorderRadius.circular(8),
+          color: ColorHelper.grey850,
         ),
         child: Obx(() => DropdownButtonFormField<String>(
               value: _freightController.selectedSize.value,
