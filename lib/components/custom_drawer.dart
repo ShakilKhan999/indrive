@@ -149,7 +149,8 @@ class CustomDrawer extends StatelessWidget {
                 transition: Transition.rightToLeft);
           },
           child: Container(
-            height: 60.h,
+            // height: 60.h,
+            padding: EdgeInsets.fromLTRB(0, 6.h, 0, 6.h),
             color: const Color.fromARGB(255, 70, 70, 70),
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 8.w),
@@ -190,12 +191,19 @@ class CustomDrawer extends StatelessWidget {
                           Obx(
                             () => Padding(
                               padding: EdgeInsets.only(left: 3.w),
-                              child: CommonComponents().printText(
-                                  fontSize: 15,
-                                  textData:
-                                      _authController.currentUser.value.name!,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
+                              child: SizedBox(
+                                width: 150.w,
+                                child: Text(
+                                  _authController.currentUser.value.name!,
+                                  style: TextStyle(
+                                    fontSize: 15.sp,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
                             ),
                           ),
                           SpaceHelper.verticalSpace3,
