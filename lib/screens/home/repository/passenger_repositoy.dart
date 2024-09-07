@@ -18,7 +18,7 @@ class PassengerRepository {
     return _firestore.collection('All Trips').doc(docId).snapshots();
   }
 
-  Future<void> callDriver(String docId, String newDriverId, double rent) async {
+  Future<void> callDriver(String docId, String newDriverId, int rent) async {
     try {
       await _firestore
           .collection('All Trips')

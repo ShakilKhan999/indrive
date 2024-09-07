@@ -429,7 +429,7 @@ class HomeController extends GetxController {
     String tripId = generateUniqueId();
     Trip trip = Trip(
         userId: "8mCWZ9uBrWME2Bfm9YOCvb0U2EJ3",
-        rent: double.parse(offerPriceController.text),
+        rent: int.parse(offerPriceController.text),
         bids: bidList.map((e) => e as Bid).toList(),
         driverId: "",
         destination: destinationController.text,
@@ -490,7 +490,7 @@ class HomeController extends GetxController {
   }
 
   Future<void> acceptBid(
-      {required String driverId, required double rent}) async {
+      {required String driverId, required int rent}) async {
     await PassengerRepository()
         .callDriver(calledTrip[0].tripId, driverId, rent);
     var myRider = sortedDriverList

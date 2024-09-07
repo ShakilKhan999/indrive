@@ -122,7 +122,7 @@ class _BidItemState extends State<BidItem> with SingleTickerProviderStateMixin {
                           onPressed: () async {
                             homeController.acceptBid(
                                 driverId: widget.bid.driverId!,
-                                rent: double.parse(widget.bid.offerPrice!));
+                                rent: widget.bid.offerPrice!.toInt());
                           },
                           color: Colors.green,
                         ),
