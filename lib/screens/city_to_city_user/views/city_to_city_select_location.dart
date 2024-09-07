@@ -7,8 +7,8 @@ import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
 
 
-class SelectLocation extends StatelessWidget {
-  SelectLocation({super.key});
+class CityToCitySelectLocation extends StatelessWidget {
+  CityToCitySelectLocation({super.key});
 
   final CityToCityTripController cityToCityRequestController =
       Get.put(CityToCityTripController());

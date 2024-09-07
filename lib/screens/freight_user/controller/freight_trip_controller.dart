@@ -1,35 +1,31 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:indrive/helpers/method_helper.dart';
 import 'package:indrive/main.dart';
-import 'package:indrive/models/city_to_city_trip_model.dart';
-import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
-import 'package:indrive/screens/city_to_city_user/repository/city_to_city_trip_repository.dart';
-import 'package:indrive/utils/database_collection_names.dart';
+import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../helpers/color_helper.dart';
+import '../../../helpers/method_helper.dart';
+import '../../../models/freight_trip_model.dart';
+import '../../../utils/database_collection_names.dart';
 import '../../../utils/global_toast_service.dart';
+import '../../auth_screen/controller/auth_controller.dart';
+import '../repository/freight_trip_repository.dart';
 
-class CityToCityTripController extends GetxController {
-  var fromController = TextEditingController().obs;
-  var toController = TextEditingController().obs;
-  var riderFareController = TextEditingController().obs;
-  var parcelFareController = TextEditingController().obs;
-  var parcelDescriptionController = TextEditingController().obs;
-  var addDescriptionController = TextEditingController().obs;
-  var numberOfPassengers = Rx<int>(0);
-  var selectedOptionIndex = 0.obs;
-  var selectedDate = Rx<DateTime?>(null);
-  var tripType = "ride".obs;
-  var isCityToCityTripCreationLoading = false.obs;
-  var driverOfferYourFareController = <TextEditingController>[].obs;
+class FreightTripController extends GetxController {
   var changingPickup = false.obs;
+  var pickUpController = TextEditingController().obs;
+  var destinationController = TextEditingController().obs;
+  var offerFareController = TextEditingController().obs;
+  var photoPath = ''.obs;
+  var isPhotoLoading = false.obs;
+  var photoUrl = ''.obs;
   var startPickedCenter = const LatLng(23.80, 90.41).obs;
   var cameraMoving = false.obs;
   var destinationPickedCenter = const LatLng(23.80, 90.41).obs;
@@ -38,19 +34,60 @@ class CityToCityTripController extends GetxController {
   late GoogleMapController mapController;
   late GoogleMapController mapControllerTO;
   var center = const LatLng(23.80, 90.41).obs;
-  final RxList<CityToCityTripModel> tripList = <CityToCityTripModel>[].obs;
-  final RxList<CityToCityTripModel> tripListForUser =
-      <CityToCityTripModel>[].obs;
-  var selectedTripIndex = 0.obs;
+  var isFreightTripCreationLoading = false.obs;
+  var selectedButtonIndex = (-1).obs;
+  var selectedDate = ''.obs;
   var selectedTripIndexForUser = 0.obs;
-  var selectedBidIndex = 0.obs;
-  final RxList<CityToCityTripModel> myTripListForUser =
-      <CityToCityTripModel>[].obs;
 
-  final RxList<CityToCityTripModel> myTripList = <CityToCityTripModel>[].obs;
+  var selectedSize = 'Small'.obs;
+  final List<String> sizes = ['Small', 'Medium', 'Big'];
+  void setSelectedSize(String? value) {
+    if (value != null) {
+      selectedSize.value = value;
+    }
+  }
 
-  void updateDate(DateTime date) {
-    selectedDate.value = date;
+  void selectButton(int index) async {
+    selectedButtonIndex.value = index;
+    if (index == 0) {
+      selectedDate.value = 'time: 10-20 min';
+    }
+    if (index == 1) {
+      selectedDate.value = 'time: up to 1 hour';
+    }
+    if (index == 2) {
+      MethodHelper().hideKeyboard();
+      DateTime? date = await showDatePicker(
+        context: Get.context!,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2000),
+        lastDate: DateTime(2101),
+      );
+      if (date != null) {
+        selectedDate.value = 'date: ${date.toString()}';
+      }
+    }
+  }
+
+  void addPhoto(String imageLocationName) async {
+    try {
+      fToast.init(Get.context!);
+      File? file = await MethodHelper().pickImage();
+      if (file != null) {
+        photoPath.value = file.path;
+        isPhotoLoading.value = true;
+        photoUrl.value = (await MethodHelper()
+            .uploadImage(file: file, imageLocationName: imageLocationName))!;
+        isPhotoLoading.value = false;
+        log('Photo URL: ${photoUrl.value}');
+      } else {
+        showToast(toastText: 'No image selected', toastColor: ColorHelper.red);
+      }
+    } catch (e) {
+      photoPath.value = '';
+      isPhotoLoading.value = false;
+      showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
+    }
   }
 
   void onCameraMove(CameraPosition position) {
@@ -72,13 +109,6 @@ class CityToCityTripController extends GetxController {
         destinationPickedCenter.value.longitude, true);
   }
 
-  void onCameraIdle() {
-    cameraMoving.value = false;
-    log("camera Idle");
-    getPlaceNameFromCoordinates(startPickedCenter.value.latitude,
-        startPickedCenter.value.longitude, false);
-  }
-
   Future<void> getPlaceNameFromCoordinates(
       double latitude, double longitude, bool destination) async {
     try {
@@ -91,10 +121,10 @@ class CityToCityTripController extends GetxController {
 
         if (destination) {
           toPlaceName.value = location;
-          toController.value.text = toPlaceName.value;
+          destinationController.value.text = toPlaceName.value;
         } else {
           fromPlaceName.value = location;
-          fromController.value.text = fromPlaceName.value;
+          pickUpController.value.text = fromPlaceName.value;
         }
       } else {
         log("Unknown place");
@@ -102,6 +132,13 @@ class CityToCityTripController extends GetxController {
     } catch (e) {
       log("Error getting place name: $e");
     }
+  }
+
+  void onCameraIdle() {
+    cameraMoving.value = false;
+    log("camera Idle");
+    getPlaceNameFromCoordinates(startPickedCenter.value.latitude,
+        startPickedCenter.value.longitude, false);
   }
 
   void onMapCreated(GoogleMapController controller) {
@@ -112,22 +149,18 @@ class CityToCityTripController extends GetxController {
     mapControllerTO = controller;
   }
 
-  void onPressFindRider() async {
+  void onPressCreateRequest() async {
     try {
       fToast.init(Get.context!);
-      isCityToCityTripCreationLoading.value = true;
+      isFreightTripCreationLoading.value = true;
       var uuid = Uuid();
       AuthController _authController = Get.find();
-      CityToCityTripModel cityToCityTripModel = CityToCityTripModel(
+      FreightTripModel freightTripModel = FreightTripModel(
         id: uuid.v1(),
-        cityFrom: fromPlaceName.value,
-        cityTo: toPlaceName.value,
+        from: fromPlaceName.value,
+        to: toPlaceName.value,
         date: selectedDate.value.toString(),
-        userPrice: tripType.value == 'ride'
-            ? riderFareController.value.text
-            : parcelFareController.value.text,
-        numberOfPassengers:
-            tripType.value == 'ride' ? numberOfPassengers.value : null,
+        userPrice: offerFareController.value.text,
         userPhone: _authController.currentUser.value.phone,
         userName: _authController.currentUser.value.name,
         userImage: _authController.currentUser.value.photo,
@@ -136,42 +169,47 @@ class CityToCityTripController extends GetxController {
         isTripCancelled: false,
         isTripCompleted: false,
         tripCurrentStatus: "new",
-        tripType: tripType.value,
         pickLatLng: GeoPoint(startPickedCenter.value.latitude,
             startPickedCenter.value.longitude),
         dropLatLng: GeoPoint(destinationPickedCenter.value.latitude,
             destinationPickedCenter.value.longitude),
         bids: [],
-        description: addDescriptionController.value.text,
         declineDriverIds: '',
+        cargoImage: photoUrl.value,
+        truckSize: selectedSize.value,
       );
+      log('FreightTripModel: ${freightTripModel.toJson()}');
 
-      bool response = await CityToCityTripRepository()
-          .addCityToCityRequest(cityToCityTripModel);
+      bool response =
+          await FreightTripRepository().addFreightRequest(freightTripModel);
       if (response) {
-        isCityToCityTripCreationLoading.value = false;
+        isFreightTripCreationLoading.value = false;
         showToast(
             toastText: 'Request sent successfully',
             toastColor: ColorHelper.primaryColor);
         Get.back();
       } else {
-        isCityToCityTripCreationLoading.value = false;
+        isFreightTripCreationLoading.value = false;
         showToast(
             toastText: 'Request sending failed', toastColor: ColorHelper.red);
       }
     } catch (e) {
-      isCityToCityTripCreationLoading.value = false;
+      isFreightTripCreationLoading.value = false;
       showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
       log("Error while finding rider for city to city trip: $e");
     }
   }
 
-  void getCityToCityTrips() {
+  final RxList<FreightTripModel> tripList = <FreightTripModel>[].obs;
+  var driverOfferYourFareController = <TextEditingController>[].obs;
+  var selectedTripIndex = 0.obs;
+
+  void getFreightTrips() {
     try {
       tripList.clear();
-      CityToCityTripRepository()
-          .getCityToCityTripList()
-          .listen((List<CityToCityTripModel> trips) {
+      FreightTripRepository()
+          .getFreightTripList()
+          .listen((List<FreightTripModel> trips) {
         filterTrips(trips: trips);
       });
     } catch (e) {
@@ -179,24 +217,8 @@ class CityToCityTripController extends GetxController {
     }
   }
 
-  void getCityToCityTripsForUser() {
-    try {
-      AuthController _authController = Get.find();
-      tripList.clear();
-      CityToCityTripRepository()
-          .getCityToCityTripListForUser(
-              userId: _authController.currentUser.value.uid!)
-          .listen((List<CityToCityTripModel> trips) {
-        tripListForUser.assignAll(trips);
-        log('tripList: $tripListForUser');
-      });
-    } catch (e) {
-      log("Error while getting city to city trips for user: $e");
-    }
-  }
-
-  void filterTrips({required List<CityToCityTripModel> trips}) {
-    List<CityToCityTripModel> filteredTrips = [];
+  void filterTrips({required List<FreightTripModel> trips}) {
+    List<FreightTripModel> filteredTrips = [];
     AuthController _authController = Get.find();
     for (var trip in trips) {
       if (trip.tripCurrentStatus == 'new' &&
@@ -215,17 +237,6 @@ class CityToCityTripController extends GetxController {
 
     assignTheDriverPriceInDriverOfferYourFareControllerIfExists();
 
-    log('tripList: $tripList');
-  }
-
-  void filterTripsForUser({required List<CityToCityTripModel> trips}) {
-    List<CityToCityTripModel> filteredTrips = [];
-    for (var trip in trips) {
-      if (trip.tripCurrentStatus == 'new') {
-        filteredTrips.add(trip);
-      }
-    }
-    tripListForUser.assignAll(filteredTrips);
     log('tripList: $tripList');
   }
 
@@ -269,7 +280,7 @@ class CityToCityTripController extends GetxController {
         previousBids.add(bids);
         List<Map<String, dynamic>> newBids =
             previousBids.map((bid) => bid.toJson()).toList();
-        var response = await CityToCityTripRepository()
+        var response = await FreightTripRepository()
             .updateBidsList(tripList[selectedTripIndex.value].id!, newBids);
         if (response) {
           showToast(
@@ -296,7 +307,7 @@ class CityToCityTripController extends GetxController {
         List<Map<String, dynamic>> newBids =
             previousBids.map((bid) => bid.toJson()).toList();
 
-        var response = await CityToCityTripRepository()
+        var response = await FreightTripRepository()
             .updateBidsList(tripList[selectedTripIndex.value].id!, newBids);
         if (response) {
           showToast(
@@ -336,6 +347,24 @@ class CityToCityTripController extends GetxController {
     return bids;
   }
 
+  final RxList<FreightTripModel> tripListForUser = <FreightTripModel>[].obs;
+  void getFreightTripsForUser() {
+    try {
+      AuthController _authController = Get.find();
+      tripList.clear();
+      FreightTripRepository()
+          .getFreightTripListForUser(
+              userId: _authController.currentUser.value.uid!)
+          .listen((List<FreightTripModel> trips) {
+        tripListForUser.assignAll(trips);
+        log('tripList: $tripListForUser');
+      });
+    } catch (e) {
+      log("Error while getting city to city trips for user: $e");
+    }
+  }
+
+  var selectedBidIndex = 0.obs;
   void acceptRideForUser() async {
     try {
       fToast.init(Get.context!);
@@ -365,7 +394,7 @@ class CityToCityTripController extends GetxController {
       bool result = await MethodHelper().updateDocFields(
           docId: tripListForUser[selectedTripIndexForUser.value].id!,
           fieldsToUpdate: updateData,
-          collection: cityToCityTripCollection);
+          collection: freightTripCollection);
       if (result) {
         showToast(
             toastText: 'Ride accepted successfully',
@@ -381,19 +410,30 @@ class CityToCityTripController extends GetxController {
     }
   }
 
-  void getCityToCityMyTripsForUser() {
+  final RxList<FreightTripModel> myTripListForUser = <FreightTripModel>[].obs;
+
+  void getFreightMyTripsForUser() {
     try {
       AuthController _authController = Get.find();
       tripList.clear();
-      CityToCityTripRepository()
-          .getCityToCityMyTripListForUser(
+      FreightTripRepository()
+          .getFreightMyTripListForUser(
               userId: _authController.currentUser.value.uid!)
-          .listen((List<CityToCityTripModel> trips) {
+          .listen((List<FreightTripModel> trips) {
         myTripListForUser.assignAll(trips);
         log('my tripList: $tripListForUser');
       });
     } catch (e) {
       log("Error while getting city to city my trips for user: $e");
+    }
+  }
+
+  String extractDate({required String date}) {
+    if (date.contains('date')) {
+      String stDate = date.replaceAll('date: ', '');
+      return DateFormat('dd/MM/yyyy').format(DateTime.parse(stDate));
+    } else {
+      return date.replaceAll('time: ', '');
     }
   }
 
@@ -410,7 +450,7 @@ class CityToCityTripController extends GetxController {
               .bids![selectedBidIndex.value]
               .driverUid!);
 
-      var result = await CityToCityTripRepository()
+      var result = await FreightTripRepository()
           .updateBidsList(
               tripListForUser[selectedTripIndexForUser.value].id!, newBids)
           .then(
@@ -448,117 +488,5 @@ class CityToCityTripController extends GetxController {
       }
     }
     return bids;
-  }
-
-  List<Bids> removeBidFromBidList() {
-    List<Bids> bids = [];
-    for (var bid in tripList[selectedTripIndex.value].bids!) {
-      if (bid.driverUid !=
-          tripList[selectedTripIndex.value]
-              .bids![selectedBidIndex.value]
-              .driverUid) {
-        bids.add(bid);
-      }
-    }
-    return bids;
-  }
-
-  void getCityToCityMyTrips() {
-    try {
-      AuthController _authController = Get.find();
-      tripList.clear();
-      CityToCityTripRepository()
-          .getCityToCityMyTripList(
-              userId: _authController.currentUser.value.uid!)
-          .listen((List<CityToCityTripModel> trips) {
-        myTripList.assignAll(trips);
-        log('my tripList: $tripListForUser');
-      });
-    } catch (e) {
-      log("Error while getting city to city my trips for user: $e");
-    }
-  }
-
-  void acceptRide() async {
-    try {
-      fToast.init(Get.context!);
-      AuthController _authController = Get.find();
-      Map<String, dynamic> updateData = {
-        'tripCurrentStatus': 'accepted',
-        'driverUid': _authController.currentUser.value.uid!,
-        'driverName': _authController.currentUser.value.name!,
-        'driverImage': _authController.currentUser.value.photo ??
-            'https://www.pngitem.com/pimgs/m/506-5067022_sweet-shap-profile-placeholder-hd-png-download.png',
-        'driverPhone': _authController.currentUser.value.phone ?? '',
-        'driverVehicle':
-            _authController.currentUser.value.cityToCityVehicleType,
-        'finalPrice': tripList[selectedTripIndex.value].userPrice!,
-        'bids': [],
-        'acceptBy': 'rider',
-      };
-      bool result = await MethodHelper().updateDocFields(
-          docId: tripList[selectedTripIndex.value].id!,
-          fieldsToUpdate: updateData,
-          collection: cityToCityTripCollection);
-      if (result) {
-        showToast(
-            toastText: 'Ride accepted successfully',
-            toastColor: ColorHelper.primaryColor);
-      } else {
-        showToast(
-            toastText: 'Ride accepting failed', toastColor: ColorHelper.red);
-      }
-    } catch (e) {
-      log("Error while accepting ride: $e");
-      showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
-    }
-  }
-
-  void declineRide() async {
-    try {
-      fToast.init(Get.context!);
-      AuthController _authController = Get.find();
-      List<Bids> bids = [];
-      if (checkUserAlreadyOfferedFare()) {
-        bids = removeBidFromBidList();
-      } else {
-        bids = tripList[selectedTripIndex.value].bids!;
-      }
-
-      List<Map<String, dynamic>> newBids =
-          bids.map((bid) => bid.toJson()).toList();
-
-      String declineUserUids = MethodHelper.joinStringsWithComma(
-          tripList[selectedTripIndex.value].declineDriverIds!,
-          _authController.currentUser.value.uid!);
-
-      var result = await CityToCityTripRepository()
-          .updateBidsList(
-              tripListForUser[selectedTripIndexForUser.value].id!, newBids)
-          .then(
-        (value) {
-          Map<String, dynamic> updateData = {
-            'declineDriverIds': declineUserUids,
-          };
-          MethodHelper().updateDocFields(
-              docId: tripListForUser[selectedTripIndexForUser.value].id!,
-              fieldsToUpdate: updateData,
-              collection: cityToCityTripCollection);
-        },
-      );
-
-      if (result) {
-        showToast(
-            toastText: 'Ride declined successfully',
-            toastColor: ColorHelper.primaryColor);
-        Get.back();
-      } else {
-        showToast(
-            toastText: 'Ride declining failed', toastColor: ColorHelper.red);
-      }
-    } catch (e) {
-      log("Error while accepting ride: $e");
-      showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
-    }
   }
 }

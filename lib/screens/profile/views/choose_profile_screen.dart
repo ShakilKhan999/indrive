@@ -14,6 +14,7 @@ import 'package:indrive/screens/driver/city_to_city/views/cityToCity_types_scree
 import 'package:indrive/screens/driver/courier/views/courier_types_screen.dart';
 import 'package:indrive/screens/driver/driver_info/views/vehicle_type_screen.dart';
 import 'package:indrive/screens/driver/freight/views/freight_info_screen.dart';
+import 'package:indrive/screens/freight_user/controller/freight_trip_controller.dart';
 import 'package:indrive/screens/profile/controller/profile_controller.dart';
 
 import 'package:indrive/screens/profile/views/profile_screen.dart';
@@ -21,6 +22,7 @@ import 'package:indrive/utils/global_toast_service.dart';
 
 import '../../auth_screen/controller/auth_controller.dart';
 import '../../city_to_city_user/views/driver_city_to_city_request_list.dart';
+import '../../freight_user/view/freight_request_for_rider.dart';
 
 class ChooseProfileScreen extends StatelessWidget {
   ChooseProfileScreen({super.key});
@@ -156,8 +158,30 @@ class ChooseProfileScreen extends StatelessWidget {
                     child: Center(
                       child: InkWell(
                         onTap: () {
-                          Get.to(() => FreightInfoScreen(),
-                              transition: Transition.rightToLeft);
+                          fToast.init(context);
+                          if (_profileController.freightStatus.value.status ==
+                              'Registration completed') {
+                            FreightTripController _freightTripController =
+                                Get.put(FreightTripController());
+                            _freightTripController.getFreightTrips();
+                            // _cityToCityTripController.getCityToCityMyTrips();
+                            Get.to(() => FreightRequesForRider(),
+                                transition: Transition.rightToLeft);
+                          } else if (_profileController
+                                  .freightStatus.value.status ==
+                              'Not Registered') {
+                            Get.to(() => FreightInfoScreen(),
+                                transition: Transition.rightToLeft);
+                          } else if (_profileController
+                                  .freightStatus.value.status ==
+                              'Verification pending') {
+                            showToast(
+                                toastText:
+                                    'Documents submitted but verification pending',
+                                toastColor: ColorHelper.red);
+                          } else if (_profileController
+                                  .freightStatus.value.status ==
+                              'Verification failed') {}
                         },
                         child: ListTile(
                           leading: SizedBox(
@@ -171,8 +195,10 @@ class ChooseProfileScreen extends StatelessWidget {
                               fontWeight: FontWeight.bold),
                           subtitle: CommonComponents().printText(
                               fontSize: 14,
-                              textData: "Not Registered",
-                              color: ColorHelper.greyColor,
+                              textData: _profileController
+                                  .freightStatus.value.status!,
+                              color:
+                                  _profileController.freightStatus.value.color!,
                               fontWeight: FontWeight.normal),
                           trailing: Icon(
                             Icons.arrow_forward_ios,

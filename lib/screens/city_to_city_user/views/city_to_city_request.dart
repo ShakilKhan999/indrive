@@ -7,7 +7,7 @@ import 'package:indrive/helpers/method_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
 import 'package:indrive/screens/city_to_city_user/views/bid_list.dart';
-import 'package:indrive/screens/city_to_city_user/views/select_location.dart';
+import 'package:indrive/screens/city_to_city_user/views/city_to_city_select_location.dart';
 
 class CityToCityRequest extends StatefulWidget {
   CityToCityRequest({super.key});
@@ -384,18 +384,13 @@ class _CityToCityRequestState extends State<CityToCityRequest>
     return Padding(
       padding: EdgeInsets.fromLTRB(16.sp, 10.h, 16.sp, 0.sp),
       child: TextField(
-        // style: TextStyle(
-        //   fontSize: 16.sp,
-        //   color: ColorHelper.whiteColor,
-        //   fontWeight: FontWeight.w400,
-        // ),
         onTap: () {
           if (isFrom!) {
             _cityToCityTripController.changingPickup.value = isFrom;
-            Get.to(() => SelectLocation(), transition: Transition.rightToLeft);
+            Get.to(() => CityToCitySelectLocation(), transition: Transition.rightToLeft);
           } else if (!isFrom) {
             _cityToCityTripController.changingPickup.value = isFrom;
-            Get.to(() => SelectLocation(), transition: Transition.rightToLeft);
+            Get.to(() => CityToCitySelectLocation(), transition: Transition.rightToLeft);
           }
         },
         controller: controller,

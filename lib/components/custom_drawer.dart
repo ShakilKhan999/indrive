@@ -7,7 +7,7 @@ import 'package:indrive/helpers/color_helper.dart';
 import 'package:indrive/helpers/space_helper.dart';
 import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
 import 'package:indrive/screens/drawer_screen/my_ride_screen.dart';
-import 'package:indrive/screens/driver/freight/views/freight_screen.dart';
+import 'package:indrive/screens/freight_user/view/freight_request_screen.dart';
 import 'package:indrive/screens/home/views/passenger_home.dart';
 import 'package:indrive/screens/profile/views/choose_profile_screen.dart';
 
@@ -98,7 +98,7 @@ class CustomDrawer extends StatelessWidget {
           color: Colors.white,
           onTap: () {
             // Get.back();
-            Get.to(() => FreightScreen(), transition: Transition.rightToLeft);
+            Get.to(() => FreightRequestScreen(), transition: Transition.rightToLeft);
           },
         ),
         buildDrawerItem(

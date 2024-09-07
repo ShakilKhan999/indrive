@@ -1,13 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class CityToCityTripModel {
+class FreightTripModel {
   final String? id;
-  final String? cityFrom;
-  final String? cityTo;
+  final String? from;
+  final String? to;
   final String? date;
+  final String? truckSize;
+  final String? cargoImage;
   final String? userPrice;
   final String? finalPrice;
-  final int? numberOfPassengers;
   final String? userPhone;
   final String? userName;
   final String? userImage;
@@ -22,21 +23,20 @@ class CityToCityTripModel {
   final bool? isTripCancelled;
   final bool? isTripAccepted;
   final String? tripCurrentStatus;
-  final String? tripType;
-  final String? description;
   final GeoPoint? pickLatLng;
   final GeoPoint? dropLatLng;
   final String? acceptBy;
   final String? declineDriverIds;
 
-  CityToCityTripModel({
+  FreightTripModel({
     this.id,
-    this.cityFrom,
-    this.cityTo,
+    this.from,
+    this.to,
     this.date,
+    this.truckSize,
+    this.cargoImage,
     this.userPrice,
     this.finalPrice,
-    this.numberOfPassengers,
     this.userPhone,
     this.userName,
     this.userImage,
@@ -51,8 +51,6 @@ class CityToCityTripModel {
     this.isTripCancelled,
     this.isTripAccepted,
     this.tripCurrentStatus,
-    this.tripType,
-    this.description,
     this.pickLatLng,
     this.dropLatLng,
     this.acceptBy,
@@ -62,12 +60,13 @@ class CityToCityTripModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'cityFrom': cityFrom,
-      'cityTo': cityTo,
+      'from': from,
+      'to': to,
       'date': date,
+      'truckSize': truckSize,
+      'cargoImage': cargoImage,
       'userPrice': userPrice,
       'finalPrice': finalPrice,
-      'numberOfPassengers': numberOfPassengers,
       'userPhone': userPhone,
       'userName': userName,
       'userImage': userImage,
@@ -82,8 +81,6 @@ class CityToCityTripModel {
       'isTripCancelled': isTripCancelled,
       'isTripAccepted': isTripAccepted,
       'tripCurrentStatus': tripCurrentStatus,
-      'tripType': tripType,
-      'description': description,
       'pickLatLng': pickLatLng,
       'dropLatLng': dropLatLng,
       'acceptBy': acceptBy,
@@ -91,15 +88,16 @@ class CityToCityTripModel {
     };
   }
 
-  factory CityToCityTripModel.fromJson(Map<String, dynamic> json) {
-    return CityToCityTripModel(
+  factory FreightTripModel.fromJson(Map<String, dynamic> json) {
+    return FreightTripModel(
       id: json['id'],
-      cityFrom: json['cityFrom'],
-      cityTo: json['cityTo'],
+      from: json['from'],
+      to: json['to'],
       date: json['date'],
+      truckSize: json['truckSize'],
+      cargoImage: json['cargoImage'],
       userPrice: json['userPrice'],
       finalPrice: json['finalPrice'],
-      numberOfPassengers: json['numberOfPassengers'],
       userPhone: json['userPhone'],
       userName: json['userName'],
       userImage: json['userImage'],
@@ -116,8 +114,6 @@ class CityToCityTripModel {
       isTripCancelled: json['isTripCancelled'] ?? false,
       isTripAccepted: json['isTripAccepted'] ?? false,
       tripCurrentStatus: json['tripCurrentStatus'],
-      tripType: json['tripType'],
-      description: json['description'],
       pickLatLng: json['pickLatLng'],
       dropLatLng: json['dropLatLng'],
       acceptBy: json['acceptBy'],

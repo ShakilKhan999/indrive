@@ -4,13 +4,13 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:indrive/components/common_components.dart';
 import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/screens/home/controller/home_controller.dart';
+import 'package:indrive/screens/freight_user/controller/freight_trip_controller.dart';
 
-// ignore: must_be_immutable
-class SelectDestination extends StatelessWidget {
-  SelectDestination({super.key});
+class FreightSelectLocation extends StatelessWidget {
+  FreightSelectLocation({super.key});
 
-  HomeController homeController = Get.put(HomeController());
+  final FreightTripController _freightTripController =
+      Get.put(FreightTripController());
 
   @override
   Widget build(BuildContext context) {
@@ -22,20 +22,20 @@ class SelectDestination extends StatelessWidget {
                   height: MediaQuery.of(context).size.height,
                   width: MediaQuery.of(context).size.width,
                   child: GoogleMap(
-                    onCameraMove: homeController.changingPickup.value
-                        ? homeController.onCameraMove
-                        : homeController.onCameraMoveTo,
-                    onCameraIdle: homeController.changingPickup.value
-                        ? homeController.onCameraIdle
-                        : homeController.onCameraIdleTo,
+                    onCameraMove: _freightTripController.changingPickup.value
+                        ? _freightTripController.onCameraMove
+                        : _freightTripController.onCameraMoveTo,
+                    onCameraIdle: _freightTripController.changingPickup.value
+                        ? _freightTripController.onCameraIdle
+                        : _freightTripController.onCameraIdleTo,
                     myLocationEnabled: true,
                     myLocationButtonEnabled: true,
                     mapType: MapType.terrain,
-                    onMapCreated: homeController.changingPickup.value
-                        ? homeController.onMapCreated
-                        : homeController.onMapCreatedTo,
+                    onMapCreated: _freightTripController.changingPickup.value
+                        ? _freightTripController.onMapCreated
+                        : _freightTripController.onMapCreatedTo,
                     initialCameraPosition: CameraPosition(
-                      target: homeController.center.value,
+                      target: _freightTripController.center.value,
                       zoom: 15.0,
                     ),
                   ),
@@ -45,7 +45,6 @@ class SelectDestination extends StatelessWidget {
                 left: 15.w,
                 child: InkWell(
                   onTap: () {
-                    homeController.pickingDestination.value = false;
                     Get.back();
                   },
                   child: Container(
@@ -64,7 +63,7 @@ class SelectDestination extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Padding(
                   padding: EdgeInsets.only(bottom: 32.sp),
-                  child: Obx(() => homeController.cameraMoving.value
+                  child: Obx(() => _freightTripController.cameraMoving.value
                       ? Icon(
                           Icons.pin_drop,
                           color: ColorHelper.bgColor,
@@ -85,12 +84,11 @@ class SelectDestination extends StatelessWidget {
                       color: ColorHelper.blueColor,
                       borderRadius: 15,
                       onPressed: () {
-                        homeController.getPolyline();
-                        homeController.pickingDestination.value = false;
                         Get.back();
                       },
-                      disabled:
-                          homeController.cameraMoving.value ? true : false)),
+                      disabled: _freightTripController.cameraMoving.value
+                          ? true
+                          : false)),
                 ),
               ),
             )

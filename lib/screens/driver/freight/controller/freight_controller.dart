@@ -303,35 +303,4 @@ class FreightController extends GetxController {
       log('Error while updating freight data: $e');
     }
   }
-
-  var photoPath = ''.obs;
-  var isPhotoLoading = false.obs;
-  var photoUrl = ''.obs;
-
-  void addPhoto(String imageLocationName) async {
-    try {
-      File? file = await MethodHelper().pickImage();
-      if (file != null) {
-        photoPath.value = file.path;
-        isPhotoLoading.value = true;
-        photoUrl.value = (await MethodHelper()
-            .uploadImage(file: file, imageLocationName: imageLocationName))!;
-        isPhotoLoading.value = false;
-        log('Photo URL: ${photoUrl.value}');
-      } else {
-        showToast(toastText: 'No image selected', toastColor: ColorHelper.red);
-      }
-    } catch (e) {
-      photoPath.value = '';
-      isPhotoLoading.value = false;
-      showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
-    }
-  }
-
-  var selectedButtonIndex =
-      (-1).obs; // -1 means no button is selected initially.
-
-  void selectButton(int index) {
-    selectedButtonIndex.value = index;
-  }
 }

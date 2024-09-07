@@ -13,7 +13,8 @@ import 'package:indrive/screens/city_to_city_user/controller/city_to_city_trip_c
 import 'package:indrive/screens/city_to_city_user/views/city_to_city_request.dart';
 import 'package:indrive/screens/driver/courier/views/courier_screen.dart';
 import 'package:indrive/screens/driver/driver_home/repository/driver_repository.dart';
-import 'package:indrive/screens/driver/freight/views/freight_screen.dart';
+import 'package:indrive/screens/freight_user/controller/freight_trip_controller.dart';
+import 'package:indrive/screens/freight_user/view/freight_request_screen.dart';
 import 'package:indrive/screens/home/controller/home_controller.dart';
 import 'package:indrive/screens/home/repository/passenger_repositoy.dart';
 import 'package:indrive/screens/home/views/bid.dart';
@@ -34,6 +35,8 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
   final HomeController homeController = Get.put(HomeController());
   final CityToCityTripController cityToCityTripController =
       Get.put(CityToCityTripController());
+  final FreightTripController freightTripController =
+      Get.put(FreightTripController());
 
   void onSearchTextChanged(String query) async {
     if (query.isNotEmpty) {
@@ -951,7 +954,9 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                         onTap: () {
                           // homeController.selectedVehicle.value = "freight";
                           // homeController.loadMarkers();
-                          Get.to(() => FreightScreen(),
+                          freightTripController.getFreightTripsForUser();
+                          freightTripController.getFreightMyTripsForUser();
+                          Get.to(() => FreightRequestScreen(),
                               transition: Transition.rightToLeft);
                         },
                         child: Container(
