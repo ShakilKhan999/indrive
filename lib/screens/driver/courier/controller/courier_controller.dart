@@ -305,4 +305,15 @@ class CourierController extends GetxController {
   var fareCourierController = TextEditingController().obs;
   var isMotorcycleSelected = true.obs;
   var isOptionButtonEnabled = true.obs;
+
+  //oder deatils----------------------->>>>>
+  var pickUpStreetInfoController = TextEditingController().obs;
+  var pickUpFloorInfoController = TextEditingController().obs;
+  var pickUpSenderPhoneInfoController = TextEditingController().obs;
+
+  var deliveryStreetInfoController = TextEditingController().obs;
+  var deliveryFloorInfoController = TextEditingController().obs;
+  var deliverySenderPhoneInfoController = TextEditingController().obs;
+
+  var descriptionDeliverController = TextEditingController().obs;
 }
