@@ -365,9 +365,11 @@ class FreightTripController extends GetxController {
   }
 
   var selectedBidIndex = 0.obs;
+
   void acceptRideForUser() async {
     try {
       fToast.init(Get.context!);
+      Get.back();
       Map<String, dynamic> updateData = {
         'tripCurrentStatus': 'accepted',
         'driverUid': tripListForUser[selectedTripIndexForUser.value]
@@ -399,7 +401,6 @@ class FreightTripController extends GetxController {
         showToast(
             toastText: 'Ride accepted successfully',
             toastColor: ColorHelper.primaryColor);
-        Get.back();
       } else {
         showToast(
             toastText: 'Ride accepting failed', toastColor: ColorHelper.red);
@@ -449,19 +450,20 @@ class FreightTripController extends GetxController {
           tripListForUser[selectedTripIndexForUser.value]
               .bids![selectedBidIndex.value]
               .driverUid!);
-
-      var result = await FreightTripRepository()
+      bool result = false;
+      await FreightTripRepository()
           .updateBidsList(
               tripListForUser[selectedTripIndexForUser.value].id!, newBids)
           .then(
-        (value) {
+        (value) async {
           Map<String, dynamic> updateData = {
             'declineDriverIds': declineUserUids,
           };
-          MethodHelper().updateDocFields(
+          await MethodHelper().updateDocFields(
               docId: tripListForUser[selectedTripIndexForUser.value].id!,
               fieldsToUpdate: updateData,
               collection: freightTripCollection);
+          result = true;
         },
       );
 

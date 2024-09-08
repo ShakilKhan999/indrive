@@ -339,6 +339,7 @@ class CityToCityTripController extends GetxController {
   void acceptRideForUser() async {
     try {
       fToast.init(Get.context!);
+      Get.back();
       Map<String, dynamic> updateData = {
         'tripCurrentStatus': 'accepted',
         'driverUid': tripListForUser[selectedTripIndexForUser.value]
@@ -370,7 +371,6 @@ class CityToCityTripController extends GetxController {
         showToast(
             toastText: 'Ride accepted successfully',
             toastColor: ColorHelper.primaryColor);
-        Get.back();
       } else {
         showToast(
             toastText: 'Ride accepting failed', toastColor: ColorHelper.red);
@@ -409,19 +409,20 @@ class CityToCityTripController extends GetxController {
           tripListForUser[selectedTripIndexForUser.value]
               .bids![selectedBidIndex.value]
               .driverUid!);
-
-      var result = await CityToCityTripRepository()
+      bool result = false;
+      await CityToCityTripRepository()
           .updateBidsList(
               tripListForUser[selectedTripIndexForUser.value].id!, newBids)
           .then(
-        (value) {
+        (value) async {
           Map<String, dynamic> updateData = {
             'declineDriverIds': declineUserUids,
           };
-          MethodHelper().updateDocFields(
+          await MethodHelper().updateDocFields(
               docId: tripListForUser[selectedTripIndexForUser.value].id!,
               fieldsToUpdate: updateData,
               collection: cityToCityTripCollection);
+          result = true;
         },
       );
 
@@ -531,19 +532,19 @@ class CityToCityTripController extends GetxController {
       String declineUserUids = MethodHelper.joinStringsWithComma(
           tripList[selectedTripIndex.value].declineDriverIds!,
           _authController.currentUser.value.uid!);
-
-      var result = await CityToCityTripRepository()
-          .updateBidsList(
-              tripList[selectedTripIndex.value].id!, newBids)
+      bool result = false;
+      await CityToCityTripRepository()
+          .updateBidsList(tripList[selectedTripIndex.value].id!, newBids)
           .then(
-        (value) {
+        (value) async {
           Map<String, dynamic> updateData = {
             'declineDriverIds': declineUserUids,
           };
-          MethodHelper().updateDocFields(
+          await MethodHelper().updateDocFields(
               docId: tripList[selectedTripIndex.value].id!,
               fieldsToUpdate: updateData,
               collection: cityToCityTripCollection);
+          result = true;
         },
       );
 
