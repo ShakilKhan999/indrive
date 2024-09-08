@@ -164,7 +164,7 @@ class ChooseProfileScreen extends StatelessWidget {
                             FreightTripController _freightTripController =
                                 Get.put(FreightTripController());
                             _freightTripController.getFreightTrips();
-                            // _cityToCityTripController.getCityToCityMyTrips();
+                            _freightTripController.getCityToCityMyTrips();
                             Get.to(() => FreightRequesForRider(),
                                 transition: Transition.rightToLeft);
                           } else if (_profileController

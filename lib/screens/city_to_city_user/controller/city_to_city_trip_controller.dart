@@ -534,14 +534,14 @@ class CityToCityTripController extends GetxController {
 
       var result = await CityToCityTripRepository()
           .updateBidsList(
-              tripListForUser[selectedTripIndexForUser.value].id!, newBids)
+              tripList[selectedTripIndex.value].id!, newBids)
           .then(
         (value) {
           Map<String, dynamic> updateData = {
             'declineDriverIds': declineUserUids,
           };
           MethodHelper().updateDocFields(
-              docId: tripListForUser[selectedTripIndexForUser.value].id!,
+              docId: tripList[selectedTripIndex.value].id!,
               fieldsToUpdate: updateData,
               collection: cityToCityTripCollection);
         },

@@ -18,12 +18,12 @@ class PassengerRepository {
     return _firestore.collection('All Trips').doc(docId).snapshots();
   }
 
-  Future<void> callDriver(String docId, String newDriverId) async {
+  Future<void> callDriver(String docId, String newDriverId, int rent) async {
     try {
       await _firestore
           .collection('All Trips')
           .doc(docId)
-          .update({'driverId': newDriverId, 'bids': []});
+          .update({'driverId': newDriverId, 'rent': rent, 'bids': []});
       print('Driver ID updated successfully');
     } catch (e) {
       print('Error updating Driver ID: $e');

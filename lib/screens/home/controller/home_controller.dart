@@ -326,10 +326,8 @@ class HomeController extends GetxController {
 
   Future<void> getDriverList() async {
     PassengerRepository().listenToDriverDocs().listen((event) {
-      driverList.value = List.generate(
-          event.docs.length,
-          (index) => UserModel.fromJson(
-              event.docs[index].data()));
+      driverList.value = List.generate(event.docs.length,
+          (index) => UserModel.fromJson(event.docs[index].data()));
 
       cardriverMarkerList.value = driverList
           .where(
@@ -414,14 +412,14 @@ class HomeController extends GetxController {
         .addAll(sortDriversByDistance(driverList, startPickedCenter.value));
     var bidList = [];
     for (var driver in sortedDriverList) {
-      await Future.delayed(Duration(seconds: 3));
+      // await Future.delayed(Duration(seconds: 3));
       bidList.add(Bid(
-          bidStart: DateTime.now(),
+          bidStart: null,
           driverAccept: false,
           driverDecline: false,
           driverId: driver.uid,
           driverName: driver.name,
-          offerPrice: "100",
+          offerPrice: null,
           driverOffer: "0",
           driverPhoto: driver.photo));
     }
@@ -430,6 +428,7 @@ class HomeController extends GetxController {
     String tripId = generateUniqueId();
     Trip trip = Trip(
         userId: "8mCWZ9uBrWME2Bfm9YOCvb0U2EJ3",
+        rent: int.parse(offerPriceController.text),
         bids: bidList.map((e) => e as Bid).toList(),
         driverId: "",
         destination: destinationController.text,
@@ -489,8 +488,10 @@ class HomeController extends GetxController {
     //loadMarkers();
   }
 
-  Future<void> acceptBid({required String driverId}) async {
-    await PassengerRepository().callDriver(calledTrip[0].tripId, driverId);
+  Future<void> acceptBid(
+      {required String driverId, required int rent}) async {
+    await PassengerRepository()
+        .callDriver(calledTrip[0].tripId, driverId, rent);
     var myRider = sortedDriverList
         .firstWhere((driver) => driver.uid == driverId, orElse: () => null);
     riderFound.value = true;

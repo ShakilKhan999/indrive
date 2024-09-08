@@ -96,17 +96,17 @@ class FreightTripRepository {
     }
   }
 
-  Stream<List<CityToCityTripModel>> getCityToCityMyTripList(
+  Stream<List<FreightTripModel>> getFreightMyTripList(
       {required String userId}) {
     {
       return FirebaseFirestore.instance
-          .collection(cityToCityTripCollection)
+          .collection(freightTripCollection)
           .where('driverUid', isEqualTo: userId)
           .where('tripCurrentStatus', isEqualTo: 'accepted')
           .snapshots()
           .map((snapshot) {
         return snapshot.docs
-            .map((doc) => CityToCityTripModel.fromJson(doc.data()))
+            .map((doc) => FreightTripModel.fromJson(doc.data()))
             .toList();
       });
     }

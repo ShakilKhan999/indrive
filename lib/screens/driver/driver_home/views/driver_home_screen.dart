@@ -191,7 +191,119 @@ class DriverHomeScreen extends StatelessWidget {
                             : _buildcallactions(),
                   ),
                 )),
-          )
+          ),
+          Align(
+              alignment: Alignment.center,
+              child: Obx(() => driverHomeController.myActiveTrips.isEmpty
+                  ? SizedBox()
+                  : Container(
+                      width: 300.w,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          color: ColorHelper.blackColor.withOpacity(0.9)),
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: driverHomeController.myActiveTrips.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          var bid = driverHomeController.myActiveTrips[index];
+
+                          return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                children: [
+                                  SizedBox(
+                                    height: 60.h,
+                                    width: 300.w,
+                                    child: bid.bids.any((mybid) =>
+                                            mybid.driverId ==
+                                                "I54BCk2Qa3NNMpVMytnMofUiSzy1" &&
+                                            mybid.offerPrice != null)
+                                        ? Center(
+                                            child: CommonComponents().printText(
+                                                fontSize: 14,
+                                                textData:
+                                                    "Waiting for user action",
+                                                fontWeight: FontWeight.bold),
+                                          )
+                                        : Column(
+                                            children: [
+                                              CommonComponents().printText(
+                                                  fontSize: 12,
+                                                  textData:
+                                                      "To: " + bid.destination,
+                                                  fontWeight: FontWeight.bold),
+                                              SpaceHelper.verticalSpace5,
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Padding(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 10.0),
+                                                    child: SizedBox(
+                                                      height: 30.h,
+                                                      width: 50.w,
+                                                      child: TextField(
+                                                        style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 15.sp),
+                                                        decoration:
+                                                            InputDecoration(
+                                                          hintText:
+                                                              "Offered ${bid.rent.toString()}",
+                                                          hintStyle: TextStyle(
+                                                              color:
+                                                                  Colors.white),
+                                                          border: InputBorder
+                                                              .none, // No border
+                                                        ),
+                                                        controller:
+                                                            driverHomeController
+                                                                .offerPriceController,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  IconButton(
+                                                      onPressed: () {
+                                                        DriverRepository().offerRent(
+                                                            tripId: bid.tripId,
+                                                            driverId:
+                                                                "I54BCk2Qa3NNMpVMytnMofUiSzy1",
+                                                            rent: double.parse(
+                                                                driverHomeController
+                                                                    .offerPriceController
+                                                                    .text));
+                                                      },
+                                                      icon: Icon(
+                                                        Icons.send,
+                                                        color: Colors.green,
+                                                      )),
+                                                  CommonComponents()
+                                                      .commonButton(
+                                                          text: "Accept",
+                                                          onPressed: () {
+                                                            DriverRepository()
+                                                                .AcceptTrip(
+                                                                    bid.tripId,
+                                                                    "I54BCk2Qa3NNMpVMytnMofUiSzy1",
+                                                                    bid.rent);
+                                                            driverHomeController
+                                                                .listenCall();
+                                                          })
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                  ),
+                                  Divider()
+                                ],
+                              ));
+                        },
+                      ),
+                    ))),
         ],
       )),
     );
@@ -231,10 +343,10 @@ class DriverHomeScreen extends StatelessWidget {
                 child: CommonComponents().commonButton(
                     text: "Decline",
                     onPressed: () async {
-                      await PassengerRepository().callDriver(
-                          driverHomeController.activeCall[0].tripId, "");
-                      driverHomeController.polyLines.clear();
-                      driverHomeController.polylineCoordinates.clear();
+                      // await PassengerRepository().callDriver(
+                      //     driverHomeController.activeCall[0].tripId, "");
+                      // driverHomeController.polyLines.clear();
+                      // driverHomeController.polylineCoordinates.clear();
                     },
                     color: Colors.red,
                     borderRadius: 14)),
@@ -316,6 +428,9 @@ class DriverHomeScreen extends StatelessWidget {
                             driverHomeController.activeCall.clear();
                             driverHomeController.polylineCoordinates.clear();
                             driverHomeController.polyLines.clear();
+                            driverHomeController.mapController.animateCamera(
+                                CameraUpdate.newLatLng(
+                                    driverHomeController.center.value));
                           },
                           color: Colors.green,
                           borderRadius: 14))

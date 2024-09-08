@@ -20,6 +20,8 @@ class DriverHomeController extends GetxController {
   var cameraMoving = false.obs;
   var center = const LatLng(23.80, 90.41).obs;
 
+  final TextEditingController offerPriceController = TextEditingController();
+
   GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
   late GoogleMapController mapController;
 
@@ -29,14 +31,26 @@ class DriverHomeController extends GetxController {
     authController.getUserData();
     getUserLocation();
     listenCall();
+    listenToTrips("I54BCk2Qa3NNMpVMytnMofUiSzy1");
     super.onInit();
+  }
+
+  var myActiveTrips = [].obs;
+
+  void listenToTrips(String driverId) {
+    DriverRepository().getTripsByDriverId(driverId).listen((trips) {
+      myActiveTrips.clear();
+      myActiveTrips.addAll(trips);
+      // Additional logic here if needed, like updating UI
+      print("Updated list of trips: ${myActiveTrips.length} trips found.");
+    });
   }
 
   void onMapCreated(GoogleMapController controller) {
     mapController = controller;
   }
 
-    Future<void> checkLocationServiceAndPermission() async {
+  Future<void> checkLocationServiceAndPermission() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       return;
@@ -45,7 +59,7 @@ class DriverHomeController extends GetxController {
 
   Future<Position> getCurrentLocation() async {
     log("getCurrentLocation called");
-    
+
     checkLocationServiceAndPermission();
     LocationPermission permission;
     permission = await Geolocator.checkPermission();
