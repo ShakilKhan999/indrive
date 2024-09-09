@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:indrive/components/common_components.dart';
-import 'package:indrive/components/custom_appbar.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/screens/driver/freight/controller/freight_controller.dart';
-import 'package:indrive/screens/driver/freight/views/freight_basicInfo_screen.dart';
-import 'package:indrive/screens/driver/freight/views/freight_driverLicence_screen.dart';
-import 'package:indrive/screens/driver/freight/views/freight_idConfirmation_screen.dart';
-import 'package:indrive/screens/driver/freight/views/freight_national_idCardBirth_screen.dart';
-import 'package:indrive/screens/driver/freight/views/freight_vehicleInfo_screen.dart';
+import 'package:callandgo/components/common_components.dart';
+import 'package:callandgo/components/custom_appbar.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/space_helper.dart';
+import 'package:callandgo/screens/driver/freight/controller/freight_controller.dart';
+import 'package:callandgo/screens/driver/freight/views/freight_basicInfo_screen.dart';
+import 'package:callandgo/screens/driver/freight/views/freight_driverLicence_screen.dart';
+import 'package:callandgo/screens/driver/freight/views/freight_idConfirmation_screen.dart';
+import 'package:callandgo/screens/driver/freight/views/freight_national_idCardBirth_screen.dart';
+import 'package:callandgo/screens/driver/freight/views/freight_vehicleInfo_screen.dart';
 
 class FreightInfoScreen extends StatelessWidget {
   FreightInfoScreen({super.key});

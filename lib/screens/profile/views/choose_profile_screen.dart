@@ -3,22 +3,22 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:indrive/components/common_components.dart';
+import 'package:callandgo/components/common_components.dart';
 
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/main.dart';
-import 'package:indrive/screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/space_helper.dart';
+import 'package:callandgo/main.dart';
+import 'package:callandgo/screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
 
-import 'package:indrive/screens/driver/city_to_city/views/cityToCity_types_screen.dart';
-import 'package:indrive/screens/driver/courier/views/courier_types_screen.dart';
-import 'package:indrive/screens/driver/driver_info/views/vehicle_type_screen.dart';
-import 'package:indrive/screens/driver/freight/views/freight_info_screen.dart';
-import 'package:indrive/screens/freight_user/controller/freight_trip_controller.dart';
-import 'package:indrive/screens/profile/controller/profile_controller.dart';
+import 'package:callandgo/screens/driver/city_to_city/views/cityToCity_types_screen.dart';
+import 'package:callandgo/screens/driver/courier/views/courier_types_screen.dart';
+import 'package:callandgo/screens/driver/driver_info/views/vehicle_type_screen.dart';
+import 'package:callandgo/screens/driver/freight/views/freight_info_screen.dart';
+import 'package:callandgo/screens/freight_user/controller/freight_trip_controller.dart';
+import 'package:callandgo/screens/profile/controller/profile_controller.dart';
 
-import 'package:indrive/screens/profile/views/profile_screen.dart';
-import 'package:indrive/utils/global_toast_service.dart';
+import 'package:callandgo/screens/profile/views/profile_screen.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 
 import '../../auth_screen/controller/auth_controller.dart';
 import '../../city_to_city_user/views/driver_city_to_city_request_list.dart';

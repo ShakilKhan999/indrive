@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:indrive/components/common_components.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/space_helper.dart';
+import 'package:callandgo/components/common_components.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/space_helper.dart';
 
 class MyRideScreen extends StatelessWidget {
   const MyRideScreen({super.key});

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:indrive/components/common_components.dart';
-import 'package:indrive/helpers/color_helper.dart';
+import 'package:callandgo/components/common_components.dart';
+import 'package:callandgo/helpers/color_helper.dart';
 
 class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
   final String titleText;

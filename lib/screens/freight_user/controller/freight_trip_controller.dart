@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:indrive/main.dart';
+import 'package:callandgo/main.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
@@ -235,12 +235,12 @@ class FreightTripController extends GetxController {
       (index) => TextEditingController(),
     );
 
-    assignTheDriverPriceInDriverOfferYourFareControllerIfExists();
+    assignTheDriverPricecallandgorOfferYourFareControllerIfExists();
 
     log('tripList: $tripList');
   }
 
-  assignTheDriverPriceInDriverOfferYourFareControllerIfExists() {
+  assignTheDriverPricecallandgorOfferYourFareControllerIfExists() {
     try {
       AuthController _authController = Get.find();
       for (var trip in tripList) {

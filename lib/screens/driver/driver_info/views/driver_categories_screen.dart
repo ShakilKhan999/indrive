@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:indrive/components/common_components.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/screens/driver/city_to_city/views/cityToCity_types_screen.dart';
-import 'package:indrive/screens/driver/courier/views/courier_types_screen.dart';
-import 'package:indrive/screens/driver/driver_info/views/vehicle_type_screen.dart';
-import 'package:indrive/screens/driver/freight/views/freight_info_screen.dart';
+import 'package:callandgo/components/common_components.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/space_helper.dart';
+import 'package:callandgo/screens/driver/city_to_city/views/cityToCity_types_screen.dart';
+import 'package:callandgo/screens/driver/courier/views/courier_types_screen.dart';
+import 'package:callandgo/screens/driver/driver_info/views/vehicle_type_screen.dart';
+import 'package:callandgo/screens/driver/freight/views/freight_info_screen.dart';
 
 class DriverCategoriesScreen extends StatelessWidget {
   const DriverCategoriesScreen({super.key});

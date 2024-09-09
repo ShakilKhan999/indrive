@@ -7,8 +7,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_place/google_place.dart';
-import 'package:indrive/models/trip_model.dart';
-import 'package:indrive/screens/driver/driver_home/repository/driver_repository.dart';
+import 'package:callandgo/models/trip_model.dart';
+import 'package:callandgo/screens/driver/driver_home/repository/driver_repository.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../utils/app_config.dart';

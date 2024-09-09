@@ -1,8 +1,8 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:indrive/models/freight_trip_model.dart';
-import 'package:indrive/utils/database_collection_names.dart';
+import 'package:callandgo/models/freight_trip_model.dart';
+import 'package:callandgo/utils/database_collection_names.dart';
 
 import '../../../models/city_to_city_trip_model.dart';
 

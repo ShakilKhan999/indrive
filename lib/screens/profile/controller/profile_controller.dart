@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/models/driver_vehicle_status.dart';
-import 'package:indrive/models/user_model.dart';
-import 'package:indrive/screens/profile/repository/profile_repository.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/models/driver_vehicle_status.dart';
+import 'package:callandgo/models/user_model.dart';
+import 'package:callandgo/screens/profile/repository/profile_repository.dart';
 
 class ProfileController extends GetxController {
   @override

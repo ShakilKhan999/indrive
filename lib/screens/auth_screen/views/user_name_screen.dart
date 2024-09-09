@@ -2,12 +2,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:indrive/components/common_components.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/helpers/style_helper.dart';
-import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
-import 'package:indrive/utils/app_config.dart';
+import 'package:callandgo/components/common_components.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/space_helper.dart';
+import 'package:callandgo/helpers/style_helper.dart';
+import 'package:callandgo/screens/auth_screen/controller/auth_controller.dart';
+import 'package:callandgo/utils/app_config.dart';
 
 class UserNameScreen extends StatelessWidget {
   UserNameScreen({super.key});

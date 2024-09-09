@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:indrive/components/simple_appbar.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/space_helper.dart';
+import 'package:callandgo/components/simple_appbar.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/space_helper.dart';
 import '../../../components/common_components.dart';
 import '../../../models/freight_trip_model.dart';
 import '../controller/freight_trip_controller.dart';

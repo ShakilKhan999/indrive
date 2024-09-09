@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:indrive/components/common_components.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/helpers/style_helper.dart';
-import 'package:indrive/screens/auth_screen/views/confirm_location.dart';
+import 'package:callandgo/components/common_components.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/space_helper.dart';
+import 'package:callandgo/helpers/style_helper.dart';
+import 'package:callandgo/screens/auth_screen/views/confirm_location.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class LocationPermissionScreen extends StatelessWidget {

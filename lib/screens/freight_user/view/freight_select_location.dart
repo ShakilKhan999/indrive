@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:indrive/components/common_components.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/screens/freight_user/controller/freight_trip_controller.dart';
+import 'package:callandgo/components/common_components.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/screens/freight_user/controller/freight_trip_controller.dart';
 
 class FreightSelectLocation extends StatelessWidget {
   FreightSelectLocation({super.key});

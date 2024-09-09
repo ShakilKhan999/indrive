@@ -5,10 +5,10 @@ import 'package:get/get.dart';
 import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/method_helper.dart';
-import 'package:indrive/utils/firebase_image_locations.dart';
-import 'package:indrive/utils/global_toast_service.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/method_helper.dart';
+import 'package:callandgo/utils/firebase_image_locations.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 

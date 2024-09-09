@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:indrive/components/simple_appbar.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
+import 'package:callandgo/components/simple_appbar.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/space_helper.dart';
+import 'package:callandgo/screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
 import '../../../components/common_components.dart';
 import '../../../models/city_to_city_trip_model.dart';
 

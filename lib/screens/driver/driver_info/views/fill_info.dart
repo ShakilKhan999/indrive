@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:indrive/components/common_components.dart';
-import 'package:indrive/components/custom_appbar.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/screens/driver/driver_info/controller/driver_info_controller.dart';
-import 'package:indrive/screens/driver/driver_info/views/basic_info_screen.dart';
-import 'package:indrive/screens/driver/driver_info/views/driver_licence_screen.dart';
-import 'package:indrive/screens/driver/driver_info/views/id_confirmation_screen.dart';
-import 'package:indrive/screens/driver/driver_info/views/nid_card_birth_certificate_screen.dart';
-import 'package:indrive/screens/driver/driver_info/views/vehicle_info_screen.dart';
+import 'package:callandgo/components/common_components.dart';
+import 'package:callandgo/components/custom_appbar.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/space_helper.dart';
+import 'package:callandgo/screens/driver/driver_info/controller/driver_info_controller.dart';
+import 'package:callandgo/screens/driver/driver_info/views/basic_info_screen.dart';
+import 'package:callandgo/screens/driver/driver_info/views/driver_licence_screen.dart';
+import 'package:callandgo/screens/driver/driver_info/views/id_confirmation_screen.dart';
+import 'package:callandgo/screens/driver/driver_info/views/nid_card_birth_certificate_screen.dart';
+import 'package:callandgo/screens/driver/driver_info/views/vehicle_info_screen.dart';
 
 import '../../../../main.dart';
 

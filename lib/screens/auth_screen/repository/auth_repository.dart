@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:indrive/models/user_model.dart';
+import 'package:callandgo/models/user_model.dart';
 
 import '../../../models/driver_info_model.dart';
 import '../../../utils/database_collection_names.dart';

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:indrive/components/common_components.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/method_helper.dart';
-import 'package:indrive/helpers/space_helper.dart';
+import 'package:callandgo/components/common_components.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/method_helper.dart';
+import 'package:callandgo/helpers/space_helper.dart';
 import '../../../components/simple_appbar.dart';
 import '../controller/freight_trip_controller.dart';
 import 'freight_bid_list.dart';

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:indrive/components/common_components.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/method_helper.dart';
-import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
-import 'package:indrive/screens/city_to_city_user/views/bid_list.dart';
-import 'package:indrive/screens/city_to_city_user/views/city_to_city_select_location.dart';
+import 'package:callandgo/components/common_components.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/method_helper.dart';
+import 'package:callandgo/helpers/space_helper.dart';
+import 'package:callandgo/screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
+import 'package:callandgo/screens/city_to_city_user/views/bid_list.dart';
+import 'package:callandgo/screens/city_to_city_user/views/city_to_city_select_location.dart';
 
 class CityToCityRequest extends StatefulWidget {
   CityToCityRequest({super.key});

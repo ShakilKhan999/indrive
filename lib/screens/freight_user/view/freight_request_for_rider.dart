@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/method_helper.dart';
-import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/screens/freight_user/controller/freight_trip_controller.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/method_helper.dart';
+import 'package:callandgo/helpers/space_helper.dart';
+import 'package:callandgo/screens/freight_user/controller/freight_trip_controller.dart';
 import '../../../components/common_components.dart';
 
 class FreightRequesForRider extends StatefulWidget {

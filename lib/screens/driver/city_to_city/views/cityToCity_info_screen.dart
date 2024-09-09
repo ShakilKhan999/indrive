@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:indrive/components/common_components.dart';
-import 'package:indrive/components/custom_appbar.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/screens/driver/city_to_city/views/cityToCity_basic_info_screen.dart';
-import 'package:indrive/screens/driver/city_to_city/views/cityToCity_driver_licence_screen.dart';
-import 'package:indrive/screens/driver/city_to_city/views/cityToCity_national_id_verfication_screen.dart';
-import 'package:indrive/screens/driver/city_to_city/views/cityToCity_vehicle_info_screen.dart';
-import 'package:indrive/screens/driver/city_to_city/views/cityToCityid_confirmation_screen.dart';
-import 'package:indrive/screens/driver/city_to_city/controller/cityToCity_controller.dart';
+import 'package:callandgo/components/common_components.dart';
+import 'package:callandgo/components/custom_appbar.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/space_helper.dart';
+import 'package:callandgo/screens/driver/city_to_city/views/cityToCity_basic_info_screen.dart';
+import 'package:callandgo/screens/driver/city_to_city/views/cityToCity_driver_licence_screen.dart';
+import 'package:callandgo/screens/driver/city_to_city/views/cityToCity_national_id_verfication_screen.dart';
+import 'package:callandgo/screens/driver/city_to_city/views/cityToCity_vehicle_info_screen.dart';
+import 'package:callandgo/screens/driver/city_to_city/views/cityToCityid_confirmation_screen.dart';
+import 'package:callandgo/screens/driver/city_to_city/controller/cityToCity_controller.dart';
 
 class CitytocityInfoScreen extends StatelessWidget {
   CitytocityInfoScreen({super.key});

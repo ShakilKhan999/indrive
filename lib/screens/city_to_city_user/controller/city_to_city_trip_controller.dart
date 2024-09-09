@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:indrive/helpers/method_helper.dart';
-import 'package:indrive/main.dart';
-import 'package:indrive/models/city_to_city_trip_model.dart';
-import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
-import 'package:indrive/screens/city_to_city_user/repository/city_to_city_trip_repository.dart';
-import 'package:indrive/utils/database_collection_names.dart';
+import 'package:callandgo/helpers/method_helper.dart';
+import 'package:callandgo/main.dart';
+import 'package:callandgo/models/city_to_city_trip_model.dart';
+import 'package:callandgo/screens/auth_screen/controller/auth_controller.dart';
+import 'package:callandgo/screens/city_to_city_user/repository/city_to_city_trip_repository.dart';
+import 'package:callandgo/utils/database_collection_names.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../helpers/color_helper.dart';
@@ -213,7 +213,7 @@ class CityToCityTripController extends GetxController {
       (index) => TextEditingController(),
     );
 
-    assignTheDriverPriceInDriverOfferYourFareControllerIfExists();
+    assignTheDriverPricecallandgorOfferYourFareControllerIfExists();
 
     log('tripList: $tripList');
   }
@@ -229,7 +229,7 @@ class CityToCityTripController extends GetxController {
     log('tripList: $tripList');
   }
 
-  assignTheDriverPriceInDriverOfferYourFareControllerIfExists() {
+  assignTheDriverPricecallandgorOfferYourFareControllerIfExists() {
     try {
       AuthController _authController = Get.find();
       for (var trip in tripList) {
