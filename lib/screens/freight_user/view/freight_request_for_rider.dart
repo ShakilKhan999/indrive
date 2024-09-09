@@ -400,7 +400,7 @@ class _FreightRequesForRiderState extends State<FreightRequesForRider>
       centerTitle: true,
       title: CommonComponents().printText(
         fontSize: 15,
-        textData: "City to City Requests",
+        textData: "Freight Requests",
         fontWeight: FontWeight.bold,
       ),
     );

@@ -95,7 +95,6 @@ class DriverInfoController extends GetxController {
         isDriverDataSaving.value = false;
         Get.offAll(() => DriverHomeScreen(),
             transition: Transition.rightToLeft);
-        
       } else {
         isDriverDataSaving.value = false;
         showToast(
@@ -293,7 +292,7 @@ class DriverInfoController extends GetxController {
       await MethodHelper().updateDocFields(
           docId: FirebaseAuth.instance.currentUser!.uid,
           fieldsToUpdate: {
-            "isDriver": true,
+            "isDriverMode": true,
             "driverStatus": 'pending',
             "vehicleType": vehicleType.value,
             "driverVehicleType": vehicleType.value

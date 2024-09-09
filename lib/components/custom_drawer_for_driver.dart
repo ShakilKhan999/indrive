@@ -1,6 +1,5 @@
-import 'package:callandgo/screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
-import 'package:callandgo/screens/driver/city_to_city/controller/cityToCity_controller.dart';
-import 'package:callandgo/screens/freight_user/controller/freight_trip_controller.dart';
+import 'package:callandgo/main.dart';
+import 'package:callandgo/screens/driver/driver_home/views/driver_home_screen.dart';
 import 'package:callandgo/screens/profile/controller/profile_controller.dart';
 import 'package:five_pointed_star/five_pointed_star.dart';
 import 'package:flutter/material.dart';
@@ -15,11 +14,18 @@ import 'package:callandgo/screens/freight_user/view/freight_request_screen.dart'
 import 'package:callandgo/screens/home/views/passenger_home.dart';
 import 'package:callandgo/screens/profile/views/choose_profile_screen.dart';
 
+import '../screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
 import '../screens/city_to_city_user/views/city_to_city_request.dart';
+import '../screens/city_to_city_user/views/driver_city_to_city_request_list.dart';
+import '../screens/driver/city_to_city/views/cityToCity_types_screen.dart';
 import '../screens/driver/courier/views/courier_screen.dart';
+import '../screens/driver/freight/views/freight_info_screen.dart';
+import '../screens/freight_user/controller/freight_trip_controller.dart';
+import '../screens/freight_user/view/freight_request_for_rider.dart';
+import '../utils/global_toast_service.dart';
 
-class CustomDrawer extends StatelessWidget {
-  CustomDrawer({super.key});
+class CustomDrawerForDriver extends StatelessWidget {
+  CustomDrawerForDriver({super.key});
   final AuthController _authController = Get.find();
   final ProfileController _profileController = Get.put(ProfileController());
 
@@ -83,7 +89,7 @@ class CustomDrawer extends StatelessWidget {
           text: 'City',
           color: Colors.white,
           onTap: () {
-            Get.offAll(() => PassengerHomeScreen(),
+            Get.offAll(() => DriverHomeScreen(),
                 transition: Transition.noTransition);
           },
         ),
@@ -91,28 +97,58 @@ class CustomDrawer extends StatelessWidget {
           icon: Icons.maps_home_work_sharp,
           text: 'City to City',
           color: Colors.white,
-          onTap: () {
-            // Get.back();
-            CityToCityTripController cityToCityTripController =
-                Get.put(CityToCityTripController());
-            cityToCityTripController.getCityToCityTripsForUser();
-            cityToCityTripController.getCityToCityMyTripsForUser();
-            Get.to(() => CityToCityRequest(),
-                transition: Transition.rightToLeft);
+          onTap: () async {
+            fToast.init(Get.context!);
+            ProfileController _profileController = Get.put(ProfileController());
+            await _profileController.getUserProfile();
+
+            if (_profileController.cityToCityStatus.value.status ==
+                'Registration completed') {
+              CityToCityTripController _cityToCityTripController =
+                  Get.put(CityToCityTripController());
+              _cityToCityTripController.getCityToCityTrips();
+              _cityToCityTripController.getCityToCityMyTrips();
+              Get.to(() => DriverCityToCityRequestList(),
+                  transition: Transition.rightToLeft);
+            } else if (_profileController.cityToCityStatus.value.status ==
+                'Not Registered') {
+              Get.to(() => CitytocityTypesScreen(),
+                  transition: Transition.rightToLeft);
+            } else if (_profileController.cityToCityStatus.value.status ==
+                'Verification pending') {
+              showToast(
+                  toastText: 'Documents submitted but verification pending',
+                  toastColor: ColorHelper.red);
+            } else if (_profileController.cityToCityStatus.value.status ==
+                'Verification failed') {}
           },
         ),
         buildDrawerItem(
           icon: Icons.fire_truck,
           text: 'Freight',
           color: Colors.white,
-          onTap: () {
-            // Get.back();
-            FreightTripController freightTripController =
-                Get.put(FreightTripController());
-            freightTripController.getFreightTripsForUser();
-            freightTripController.getFreightMyTripsForUser();
-            Get.to(() => FreightRequestScreen(),
-                transition: Transition.rightToLeft);
+          onTap: () async {
+            fToast.init(Get.context!);
+            await _profileController.getUserProfile();
+            if (_profileController.freightStatus.value.status ==
+                'Registration completed') {
+              FreightTripController _freightTripController =
+                  Get.put(FreightTripController());
+              _freightTripController.getFreightTrips();
+              _freightTripController.getFreightTrips();
+              Get.to(() => FreightRequesForRider(),
+                  transition: Transition.rightToLeft);
+            } else if (_profileController.freightStatus.value.status ==
+                'Not Registered') {
+              Get.to(() => FreightInfoScreen(),
+                  transition: Transition.rightToLeft);
+            } else if (_profileController.freightStatus.value.status ==
+                'Verification pending') {
+              showToast(
+                  toastText: 'Documents submitted but verification pending',
+                  toastColor: ColorHelper.red);
+            } else if (_profileController.freightStatus.value.status ==
+                'Verification failed') {}
           },
         ),
         buildDrawerItem(

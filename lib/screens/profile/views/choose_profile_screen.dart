@@ -89,8 +89,32 @@ class ChooseProfileScreen extends StatelessWidget {
                     child: Center(
                       child: InkWell(
                         onTap: () {
-                          Get.to(() => VehicleTypeScreen(),
-                              transition: Transition.rightToLeft);
+                          fToast.init(context);
+
+                          if (_profileController.cityRiderStatus.value.status ==
+                              'Registration completed') {
+                            FreightTripController _freightTripController =
+                                Get.put(FreightTripController());
+                            // _freightTripController.getFreightTrips();
+                            // _freightTripController.getCityToCityMyTrips();
+                            // Get.to(() => FreightRequesForRider(),
+                            //     transition: Transition.rightToLeft);
+                          } else if (_profileController
+                                  .cityRiderStatus.value.status ==
+                              'Not Registered') {
+                            Get.to(() => VehicleTypeScreen(),
+                                transition: Transition.rightToLeft);
+                          } else if (_profileController
+                                  .cityRiderStatus.value.status ==
+                              'Verification pending') {
+                            showToast(
+                                toastText:
+                                    'Documents submitted but verification pending',
+                                toastColor: ColorHelper.red);
+                          } else if (_profileController
+                                  .cityRiderStatus.value.status ==
+                              'Verification failed') {}
+
                         },
                         child: ListTile(
                           leading: SizedBox(
@@ -103,8 +127,10 @@ class ChooseProfileScreen extends StatelessWidget {
                               fontWeight: FontWeight.bold),
                           subtitle: CommonComponents().printText(
                               fontSize: 14,
-                              textData: "Not Registered",
-                              color: ColorHelper.greyColor,
+                              textData: _profileController
+                                  .cityRiderStatus.value.status!,
+                              color: _profileController
+                                  .cityRiderStatus.value.color!,
                               fontWeight: FontWeight.normal),
                           trailing: Icon(
                             Icons.arrow_forward_ios,
@@ -164,7 +190,7 @@ class ChooseProfileScreen extends StatelessWidget {
                             FreightTripController _freightTripController =
                                 Get.put(FreightTripController());
                             _freightTripController.getFreightTrips();
-                            _freightTripController.getCityToCityMyTrips();
+                            _freightTripController.getFreightMyTrips();
                             Get.to(() => FreightRequesForRider(),
                                 transition: Transition.rightToLeft);
                           } else if (_profileController

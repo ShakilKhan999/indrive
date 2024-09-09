@@ -562,4 +562,10 @@ class CityToCityTripController extends GetxController {
       showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
     }
   }
+
+  cancelRideForUser({required String docId}) {
+    try {
+      MethodHelper().cancelRide(cityToCityTripCollection, docId);
+    } catch (e) {}
+  }
 }

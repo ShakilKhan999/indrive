@@ -54,7 +54,6 @@ class AuthController extends GetxController {
   var locations =
       ['Dhaka (ঢাকা)', 'Gazipur City', 'Chittagong', 'Sylhet', 'Khulna'].obs;
 
-  var isDriver = false.obs;
   var loginType = ''.obs;
   var currentUser = UserModel().obs;
   var userSwitchLoading = false.obs;
@@ -63,14 +62,15 @@ class AuthController extends GetxController {
   var isGoogleSigninLoaidng = false.obs;
   var isOtpSubmitLoading = false.obs;
   var isUserDataSaving = false.obs;
+  var isDriverMode = false.obs;
 
   getUserData() async {
     if (FirebaseAuth.instance.currentUser != null) {
       try {
         currentUser.value = (await getCurrentUser())!;
+        isDriverMode.value = currentUser.value.isDriverMode!;
         fullNameController.value.text = currentUser.value.name!;
         emailController.value.text = currentUser.value.email!;
-        isDriver.value = currentUser.value.isDriver!;
       } catch (e) {
         log('Error while fethching user data: $e');
       }
@@ -80,10 +80,10 @@ class AuthController extends GetxController {
   switchMode() async {
     try {
       userSwitchLoading.value = true;
-      if (currentUser.value.isDriver!) {
+      if (currentUser.value.isDriverMode!) {
         await MethodHelper().updateDocFields(
             docId: FirebaseAuth.instance.currentUser!.uid,
-            fieldsToUpdate: {"isDriver": false},
+            fieldsToUpdate: {"isDriverMode": false},
             collection: userCollection);
         await getUserData();
         Get.offAll(() => PassengerHomeScreen(),
@@ -92,7 +92,7 @@ class AuthController extends GetxController {
       } else {
         await MethodHelper().updateDocFields(
             docId: FirebaseAuth.instance.currentUser!.uid,
-            fieldsToUpdate: {"isDriver": true},
+            fieldsToUpdate: {"isDriverMode": true},
             collection: userCollection);
         userSwitchLoading.value = false;
         Get.offAll(() => DriverHomeScreen(),
@@ -113,7 +113,7 @@ class AuthController extends GetxController {
           () async {
             UserModel? userModel = await getCurrentUser();
             currentUser.value = userModel!;
-            if (userModel.isDriver!) {
+            if (userModel.isDriverMode!) {
               Get.offAll(() => DriverHomeScreen(),
                   transition: Transition.rightToLeft);
               isCheckingCurrentUser.value = false;
@@ -188,7 +188,7 @@ class AuthController extends GetxController {
         isGoogleSigninLoaidng.value = false;
         if (userModel != null) {
           isGoogleSigninLoaidng.value = false;
-          if (userModel.isDriver!) {
+          if (userModel.isDriverMode!) {
             Get.offAll(() => DriverHomeScreen(),
                 transition: Transition.rightToLeft);
           } else {
@@ -239,13 +239,13 @@ class AuthController extends GetxController {
       assert(user?.uid == user!.uid);
       UserModel? userModel = await getCurrentUser();
       if (userModel != null) {
-        if (userModel.isDriver!) {
-          await setUserType(type: userModel.isDriver!);
+        if (userModel.isDriverMode!) {
+          await setUserType(type: userModel.isDriverMode!);
           isOtpSubmitLoading.value = false;
           Get.offAll(() => DriverHomeScreen(),
               transition: Transition.rightToLeft);
         } else {
-          await setUserType(type: userModel.isDriver!);
+          await setUserType(type: userModel.isDriverMode!);
           isOtpSubmitLoading.value = false;
           Get.offAll(() => const PassengerHomeScreen(),
               transition: Transition.rightToLeft);
@@ -333,7 +333,7 @@ class AuthController extends GetxController {
           vehicleType: null,
           vehicleAngle: null,
           latLng: null,
-          isDriver: isDriver.value,
+          isDriverMode: isDriverMode.value,
           driverStatus: null,
           driverStatusDescription: null,
           driverVehicleType: null,
@@ -363,7 +363,7 @@ class AuthController extends GetxController {
           vehicleType: null,
           vehicleAngle: null,
           latLng: null,
-          isDriver: isDriver.value,
+          isDriverMode: isDriverMode.value,
           driverStatus: null,
           driverStatusDescription: null,
           driverVehicleType: null,
@@ -402,21 +402,21 @@ class AuthController extends GetxController {
   }
 
   onPressPassenger() async {
-    isDriver.value = false;
+    isDriverMode.value = false;
     await setUserType(type: false);
     Get.offAll(() => const PassengerHomeScreen(),
         transition: Transition.rightToLeft);
   }
 
   onPressDriver() async {
-    isDriver.value = true;
+    isDriverMode.value = true;
     await setUserType(type: true);
     Get.offAll(() => VehicleTypeScreen(), transition: Transition.rightToLeft);
   }
 
   Future setUserType({required bool type}) async {
     await SharedPreferenceHelper()
-        .setBool(key: SharedPreferenceKeys.isDriver, value: type);
+        .setBool(key: SharedPreferenceKeys.isDriverMode, value: type);
   }
 
   Future setLoginType({required String type}) async {

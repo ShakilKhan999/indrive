@@ -223,7 +223,7 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
                   _buildCargoPhoto(),
                   SpaceHelper.verticalSpace10,
                   _buildTextFiledView('Offer your fare',
-                      _freightController.offerFareController.value, false),
+                      _freightController.offerFareController.value, null),
                   SpaceHelper.verticalSpace10,
                 ],
               ),
@@ -310,6 +310,14 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
                               textData:
                                   '${_freightController.tripListForUser[index].to!}',
                               fontWeight: FontWeight.normal)),
+                      CommonComponents().commonButton(
+                        text: 'Cancel Ride',
+                        onPressed: () {
+                          _freightController.cancelRideForUser(
+                              docId: _freightController
+                                  .tripListForUser[index].id!);
+                        },
+                      )
                     ],
                   ),
                 ),

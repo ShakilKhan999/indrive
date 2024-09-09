@@ -6,11 +6,11 @@ import 'package:callandgo/models/user_model.dart';
 import 'package:callandgo/screens/profile/repository/profile_repository.dart';
 
 class ProfileController extends GetxController {
-  @override
-  void onInit() {
-    getUserProfile();
-    super.onInit();
-  }
+  // @override
+  // void onInit() {
+  //   getUserProfile();
+  //   super.onInit();
+  // }
 
   var userData = UserModel().obs;
   var cityRiderStatus = DriverVehicleStatus().obs;

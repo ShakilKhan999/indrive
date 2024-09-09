@@ -56,10 +56,11 @@ class AuthRepository {
   Future<DriverInfoModel?> getCurrentUserDriverData(
       {required String userId}) async {
     try {
-      DocumentSnapshot<Map<String, dynamic>> documentSnapshot = await FirebaseFirestore.instance
-          .collection(riderCollection)
-          .doc(userId)
-          .get();
+      DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
+          await FirebaseFirestore.instance
+              .collection(riderCollection)
+              .doc(userId)
+              .get();
 
       if (documentSnapshot.exists) {
         Map<String, dynamic> data = documentSnapshot.data()!;

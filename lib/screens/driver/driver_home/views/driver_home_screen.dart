@@ -8,10 +8,9 @@ import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/screens/auth_screen/controller/auth_controller.dart';
 import 'package:callandgo/screens/driver/driver_home/controller/driver_home_controller.dart';
 import 'package:callandgo/screens/driver/driver_home/repository/driver_repository.dart';
-import 'package:callandgo/screens/home/repository/passenger_repositoy.dart';
 import 'package:callandgo/screens/profile/views/profile_screen.dart';
 
-import '../../../../components/custom_drawer.dart';
+import '../../../../components/custom_drawer_for_driver.dart';
 
 class DriverHomeScreen extends StatelessWidget {
   DriverHomeScreen({super.key});
@@ -24,7 +23,7 @@ class DriverHomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       key: scaffoldKey,
-      drawer: CustomDrawer(),
+      drawer: CustomDrawerForDriver(),
       appBar: AppBar(
         backgroundColor: ColorHelper.bgColor,
         centerTitle: true,

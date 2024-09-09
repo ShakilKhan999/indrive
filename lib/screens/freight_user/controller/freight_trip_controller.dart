@@ -528,7 +528,7 @@ class FreightTripController extends GetxController {
 
   final RxList<FreightTripModel> myTripList = <FreightTripModel>[].obs;
 
-  void getCityToCityMyTrips() {
+  void getFreightMyTrips() {
     try {
       AuthController _authController = Get.find();
       tripList.clear();
@@ -602,5 +602,11 @@ class FreightTripController extends GetxController {
       }
     }
     return bids;
+  }
+
+  cancelRideForUser({required String docId}) {
+    try {
+      MethodHelper().cancelRide(freightTripCollection, docId);
+    } catch (e) {}
   }
 }

@@ -121,7 +121,6 @@ class _CityToCityRequestState extends State<CityToCityRequest>
                                   fontWeight: FontWeight.bold),
                             ],
                           ),
-                          
                         ],
                       ),
                       SpaceHelper.verticalSpace10,
@@ -271,6 +270,14 @@ class _CityToCityRequestState extends State<CityToCityRequest>
                               textData:
                                   '${_cityToCityTripController.tripListForUser[index].cityTo!}',
                               fontWeight: FontWeight.normal)),
+                      CommonComponents().commonButton(
+                        text: 'Cancel Ride',
+                        onPressed: () {
+                          _cityToCityTripController.cancelRideForUser(
+                              docId: _cityToCityTripController
+                                  .tripListForUser[index].id!);
+                        },
+                      )
                     ],
                   ),
                 ),
@@ -387,10 +394,12 @@ class _CityToCityRequestState extends State<CityToCityRequest>
         onTap: () {
           if (isFrom!) {
             _cityToCityTripController.changingPickup.value = isFrom;
-            Get.to(() => CityToCitySelectLocation(), transition: Transition.rightToLeft);
+            Get.to(() => CityToCitySelectLocation(),
+                transition: Transition.rightToLeft);
           } else if (!isFrom) {
             _cityToCityTripController.changingPickup.value = isFrom;
-            Get.to(() => CityToCitySelectLocation(), transition: Transition.rightToLeft);
+            Get.to(() => CityToCitySelectLocation(),
+                transition: Transition.rightToLeft);
           }
         },
         controller: controller,
