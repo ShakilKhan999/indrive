@@ -12,6 +12,7 @@ class UserModel {
   String? vehicleType;
   double? vehicleAngle;
   GeoPoint? latLng;
+  bool? isDriverMode;
   bool? isDriver;
   String? driverStatus;
   String? driverStatusDescription;
@@ -41,6 +42,7 @@ class UserModel {
     this.vehicleType,
     this.vehicleAngle,
     this.latLng,
+    this.isDriverMode,
     this.isDriver,
     this.driverStatus,
     this.driverStatusDescription,
@@ -72,6 +74,7 @@ class UserModel {
       'vehicleType': vehicleType,
       'vehicleAngle': vehicleAngle,
       'latlng': latLng,
+      'isDriverMode': isDriverMode,
       'isDriver': isDriver,
       'driverStatus': driverStatus,
       'driverStatusDescription': driverStatusDescription,
@@ -102,6 +105,7 @@ class UserModel {
       vehicleType: json['vehicleType'],
       vehicleAngle: json['vehicleAngle'],
       latLng: json['latlng'],
+      isDriverMode: json['isDriverMode'] ?? false,
       isDriver: json['isDriver'] ?? false,
       driverStatus: json['driverStatus'],
       driverStatusDescription: json['driverStatusDescription'],

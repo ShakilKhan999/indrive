@@ -85,4 +85,26 @@ class MethodHelper {
     location = '$name, $subLocality, $locality';
     return location;
   }
+
+  String formatedDate(String date) {
+    DateTime dateTime = DateTime.parse(date);
+    String formatedDate = '${dateTime.day}/${dateTime.month}/${dateTime.year}';
+    return formatedDate;
+  }
+
+  static String joinStringsWithComma(String str1, String str2) {
+    return '$str1, $str2';
+  }
+
+  Future<void> cancelRide(String collectionName, String documentId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection(collectionName)
+          .doc(documentId)
+          .delete();
+      print("Document deleted successfully!");
+    } catch (e) {
+      print("Error deleting document: $e");
+    }
+  }
 }

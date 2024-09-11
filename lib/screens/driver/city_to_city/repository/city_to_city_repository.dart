@@ -10,10 +10,8 @@ class CityToCityRepository {
       required String driverInfoDoc}) async {
     try {
       await FirebaseFirestore.instance
-          .collection(userCollection)
-          .doc(uid)
           .collection(cityToCityCollection)
-          .doc(driverInfoDoc)
+          .doc(uid)
           .set(driverInfoModel.toJson());
       return true;
     } catch (e) {

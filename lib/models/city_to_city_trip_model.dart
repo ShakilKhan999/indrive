@@ -26,6 +26,8 @@ class CityToCityTripModel {
   final String? description;
   final GeoPoint? pickLatLng;
   final GeoPoint? dropLatLng;
+  final String? acceptBy;
+  final String? declineDriverIds;
 
   CityToCityTripModel({
     this.id,
@@ -53,6 +55,8 @@ class CityToCityTripModel {
     this.description,
     this.pickLatLng,
     this.dropLatLng,
+    this.acceptBy,
+    this.declineDriverIds,
   });
 
   Map<String, dynamic> toJson() {
@@ -82,6 +86,8 @@ class CityToCityTripModel {
       'description': description,
       'pickLatLng': pickLatLng,
       'dropLatLng': dropLatLng,
+      'acceptBy': acceptBy,
+      'declineDriverIds': declineDriverIds,
     };
   }
 
@@ -114,6 +120,8 @@ class CityToCityTripModel {
       description: json['description'],
       pickLatLng: json['pickLatLng'],
       dropLatLng: json['dropLatLng'],
+      acceptBy: json['acceptBy'],
+      declineDriverIds: json['declineDriverIds'],
     );
   }
 }

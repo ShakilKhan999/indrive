@@ -5,13 +5,13 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/method_helper.dart';
-import 'package:indrive/main.dart';
-import 'package:indrive/models/driver_info_model.dart';
-import 'package:indrive/screens/profile/controller/profile_controller.dart';
-import 'package:indrive/utils/firebase_image_locations.dart';
-import 'package:indrive/utils/global_toast_service.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/method_helper.dart';
+import 'package:callandgo/main.dart';
+import 'package:callandgo/models/driver_info_model.dart';
+import 'package:callandgo/screens/profile/controller/profile_controller.dart';
+import 'package:callandgo/utils/firebase_image_locations.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
@@ -258,6 +258,9 @@ class CityToCityInfoController extends GetxController {
             vehicleType.value == 'moto' ? null : selectedCarColor.value,
         vehicleModelNo: carModelNumberController.value.text,
         vehicleType: vehicleType.value,
+        isApproved: false,
+        adminComment: null,
+        status: 'pending',
       );
       log('driver info model : ${jsonEncode(driverInfoModel)}');
       var response = await CityToCityRepository().saveCityToCityInfo(

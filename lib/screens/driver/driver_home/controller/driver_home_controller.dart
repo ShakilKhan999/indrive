@@ -7,8 +7,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_place/google_place.dart';
-import 'package:indrive/models/trip_model.dart';
-import 'package:indrive/screens/driver/driver_home/repository/driver_repository.dart';
+import 'package:callandgo/models/trip_model.dart';
+import 'package:callandgo/screens/driver/driver_home/repository/driver_repository.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../utils/app_config.dart';
@@ -24,16 +24,16 @@ class DriverHomeController extends GetxController {
 
   GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
   late GoogleMapController mapController;
-
+ AuthController authController = Get.put(AuthController());
   @override
   void onInit() {
     polyLines.clear();
     polylineCoordinates.clear();
-    AuthController authController = Get.put(AuthController());
+   
     authController.getUserData();
     getUserLocation();
     listenCall();
-    listenToTrips("I54BCk2Qa3NNMpVMytnMofUiSzy1");
+    listenToTrips(authController.currentUser.value.uid!);
     super.onInit();
   }
 
@@ -122,7 +122,7 @@ class DriverHomeController extends GetxController {
   var activeCall = [].obs;
   var onTheWay = [].obs;
   Future<void> listenCall() async {
-    DriverRepository().listenToCall().listen((event) {
+    DriverRepository().listenToCall(authController.currentUser.value.uid!).listen((event) {
       activeCall.value = List.generate(
           event.docs.length,
           (index) =>

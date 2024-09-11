@@ -2,16 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:indrive/components/common_components.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
-import 'package:indrive/screens/driver/driver_home/controller/driver_home_controller.dart';
-import 'package:indrive/screens/driver/driver_home/repository/driver_repository.dart';
-import 'package:indrive/screens/home/repository/passenger_repositoy.dart';
-import 'package:indrive/screens/profile/views/profile_screen.dart';
+import 'package:callandgo/components/common_components.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/space_helper.dart';
+import 'package:callandgo/screens/auth_screen/controller/auth_controller.dart';
+import 'package:callandgo/screens/driver/driver_home/controller/driver_home_controller.dart';
+import 'package:callandgo/screens/driver/driver_home/repository/driver_repository.dart';
+import 'package:callandgo/screens/profile/views/profile_screen.dart';
 
-import '../../../../components/custom_drawer.dart';
+import '../../../../components/custom_drawer_for_driver.dart';
 
 class DriverHomeScreen extends StatelessWidget {
   DriverHomeScreen({super.key});
@@ -19,12 +18,14 @@ class DriverHomeScreen extends StatelessWidget {
 
   final DriverHomeController driverHomeController =
       Get.put(DriverHomeController());
+
+      
   final AuthController _authController = Get.find();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: scaffoldKey,
-      drawer: CustomDrawer(),
+      drawer: CustomDrawerForDriver(),
       appBar: AppBar(
         backgroundColor: ColorHelper.bgColor,
         centerTitle: true,
@@ -217,7 +218,7 @@ class DriverHomeScreen extends StatelessWidget {
                                     width: 300.w,
                                     child: bid.bids.any((mybid) =>
                                             mybid.driverId ==
-                                                "I54BCk2Qa3NNMpVMytnMofUiSzy1" &&
+                                                _authController.currentUser.value.uid &&
                                             mybid.offerPrice != null)
                                         ? Center(
                                             child: CommonComponents().printText(
@@ -271,7 +272,7 @@ class DriverHomeScreen extends StatelessWidget {
                                                         DriverRepository().offerRent(
                                                             tripId: bid.tripId,
                                                             driverId:
-                                                                "I54BCk2Qa3NNMpVMytnMofUiSzy1",
+                                                                _authController.currentUser.value.uid!,
                                                             rent: double.parse(
                                                                 driverHomeController
                                                                     .offerPriceController
@@ -288,7 +289,7 @@ class DriverHomeScreen extends StatelessWidget {
                                                             await DriverRepository()
                                                                 .AcceptTrip(
                                                                     bid.tripId,
-                                                                    "I54BCk2Qa3NNMpVMytnMofUiSzy1",
+                                                                    _authController.currentUser.value.uid!,
                                                                     bid.rent);
                                                             driverHomeController
                                                                 .listenCall();

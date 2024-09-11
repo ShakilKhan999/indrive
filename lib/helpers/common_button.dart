@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/style_helper.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/style_helper.dart';
 
 class CommonButton extends StatelessWidget {
   final VoidCallback onTap;

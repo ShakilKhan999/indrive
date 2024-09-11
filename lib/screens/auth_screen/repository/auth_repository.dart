@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:indrive/models/user_model.dart';
+import 'package:callandgo/models/user_model.dart';
 
 import '../../../models/driver_info_model.dart';
 import '../../../utils/database_collection_names.dart';
@@ -56,21 +56,18 @@ class AuthRepository {
   Future<DriverInfoModel?> getCurrentUserDriverData(
       {required String userId}) async {
     try {
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection(userCollection)
-          .doc(userId)
-          .collection(driverDetialsCollection)
-          .limit(1)
-          .get();
+      DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
+          await FirebaseFirestore.instance
+              .collection(riderCollection)
+              .doc(userId)
+              .get();
 
-      if (querySnapshot.docs.isNotEmpty) {
-        DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
-        Map<String, dynamic> data =
-            documentSnapshot.data() as Map<String, dynamic>;
+      if (documentSnapshot.exists) {
+        Map<String, dynamic> data = documentSnapshot.data()!;
         DriverInfoModel driverInfo = DriverInfoModel.fromJson(data);
         return driverInfo;
       } else {
-        print('No documents found in the collection');
+        print('No document found for the user');
         return null;
       }
     } catch (e) {

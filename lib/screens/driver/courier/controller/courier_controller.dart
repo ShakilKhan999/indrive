@@ -5,10 +5,10 @@ import 'package:get/get.dart';
 import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/method_helper.dart';
-import 'package:indrive/utils/firebase_image_locations.dart';
-import 'package:indrive/utils/global_toast_service.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/method_helper.dart';
+import 'package:callandgo/utils/firebase_image_locations.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
@@ -257,6 +257,9 @@ class CourierController extends GetxController {
             vehicleType.value == 'moto' ? null : selectedCarColor.value,
         vehicleModelNo: carModelNumberController.value.text,
         vehicleType: vehicleType.value,
+        isApproved: false,
+        adminComment: null,
+        status: 'pending',
       );
       log('driver info model : ${jsonEncode(driverInfoModel)}');
       var response = await CourierRepository().saveCourierInfo(
@@ -301,4 +304,16 @@ class CourierController extends GetxController {
   var toCourierController = TextEditingController().obs;
   var fareCourierController = TextEditingController().obs;
   var isMotorcycleSelected = true.obs;
+  var isOptionButtonEnabled = true.obs;
+
+  //oder deatils----------------------->>>>>
+  var pickUpStreetInfoController = TextEditingController().obs;
+  var pickUpFloorInfoController = TextEditingController().obs;
+  var pickUpSenderPhoneInfoController = TextEditingController().obs;
+
+  var deliveryStreetInfoController = TextEditingController().obs;
+  var deliveryFloorInfoController = TextEditingController().obs;
+  var deliverySenderPhoneInfoController = TextEditingController().obs;
+
+  var descriptionDeliverController = TextEditingController().obs;
 }

@@ -1,16 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/models/driver_vehicle_status.dart';
-import 'package:indrive/models/user_model.dart';
-import 'package:indrive/screens/profile/repository/profile_repository.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/models/driver_vehicle_status.dart';
+import 'package:callandgo/models/user_model.dart';
+import 'package:callandgo/screens/profile/repository/profile_repository.dart';
 
 class ProfileController extends GetxController {
-  @override
-  void onInit() {
-    getUserProfile();
-    super.onInit();
-  }
+  // @override
+  // void onInit() {
+  //   getUserProfile();
+  //   super.onInit();
+  // }
 
   var userData = UserModel().obs;
   var cityRiderStatus = DriverVehicleStatus().obs;
@@ -45,15 +45,15 @@ class ProfileController extends GetxController {
   getDriverStatus({required String type}) {
     if (type == 'cityRider') {
       if (userData.value.isDriver == true) {
-        if (userData.value.driverStatus == 'pending') {
+        if (userData.value.driverStatus!.toLowerCase() == 'pending') {
           cityRiderStatus.value = DriverVehicleStatus(
               status: 'Verification pending', color: ColorHelper.blueColor);
         }
-        if (userData.value.driverStatus == 'approved') {
+        if (userData.value.driverStatus!.toLowerCase() == 'approved') {
           cityRiderStatus.value = DriverVehicleStatus(
               status: 'Registration completed', color: ColorHelper.blueColor);
         }
-        if (userData.value.driverStatus == 'rejected') {
+        if (userData.value.driverStatus!.toLowerCase() == 'rejected') {
           cityRiderStatus.value = DriverVehicleStatus(
               status: 'Verification failed', color: ColorHelper.red);
         }
@@ -63,15 +63,15 @@ class ProfileController extends GetxController {
       }
     } else if (type == 'courier') {
       if (userData.value.isCourier == true) {
-        if (userData.value.courierStatus == 'pending') {
+        if (userData.value.courierStatus!.toLowerCase() == 'pending') {
           courierStatus.value = DriverVehicleStatus(
               status: 'Verification pending', color: ColorHelper.blueColor);
         }
-        if (userData.value.courierStatus == 'approved') {
+        if (userData.value.courierStatus!.toLowerCase() == 'approved') {
           courierStatus.value = DriverVehicleStatus(
               status: 'Registration completed', color: ColorHelper.blueColor);
         }
-        if (userData.value.courierStatus == 'rejected') {
+        if (userData.value.courierStatus!.toLowerCase() == 'rejected') {
           courierStatus.value = DriverVehicleStatus(
               status: 'Verification failed', color: ColorHelper.red);
         }
@@ -81,15 +81,15 @@ class ProfileController extends GetxController {
       }
     } else if (type == 'freight') {
       if (userData.value.isFreight == true) {
-        if (userData.value.freightStatus == 'pending') {
+        if (userData.value.freightStatus!.toLowerCase() == 'pending') {
           freightStatus.value = DriverVehicleStatus(
               status: 'Verification pending', color: ColorHelper.blueColor);
         }
-        if (userData.value.freightStatus == 'approved') {
+        if (userData.value.freightStatus!.toLowerCase() == 'approved') {
           freightStatus.value = DriverVehicleStatus(
               status: 'Registration completed', color: ColorHelper.blueColor);
         }
-        if (userData.value.freightStatus == 'rejected') {
+        if (userData.value.freightStatus!.toLowerCase() == 'rejected') {
           freightStatus.value = DriverVehicleStatus(
               status: 'Verification failed', color: ColorHelper.red);
         }
@@ -99,15 +99,15 @@ class ProfileController extends GetxController {
       }
     } else if (type == 'cityToCity') {
       if (userData.value.isCityToCity == true) {
-        if (userData.value.cityToCityStatus == 'pending') {
+        if (userData.value.cityToCityStatus!.toLowerCase() == 'pending') {
           cityToCityStatus.value = DriverVehicleStatus(
               status: 'Verification pending', color: ColorHelper.blueColor);
         }
-        if (userData.value.cityToCityStatus == 'approved') {
+        if (userData.value.cityToCityStatus!.toLowerCase() == 'approved') {
           cityToCityStatus.value = DriverVehicleStatus(
               status: 'Registration completed', color: ColorHelper.blueColor);
         }
-        if (userData.value.cityToCityStatus == 'rejected') {
+        if (userData.value.cityToCityStatus!.toLowerCase() == 'rejected') {
           cityToCityStatus.value = DriverVehicleStatus(
               status: 'Verification failed', color: ColorHelper.red);
         }

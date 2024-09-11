@@ -5,10 +5,10 @@ import 'package:get/get.dart';
 import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/method_helper.dart';
-import 'package:indrive/utils/firebase_image_locations.dart';
-import 'package:indrive/utils/global_toast_service.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/method_helper.dart';
+import 'package:callandgo/utils/firebase_image_locations.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
@@ -261,6 +261,9 @@ class FreightController extends GetxController {
         vehicleColor: selectedCarColor.value,
         vehicleModelNo: carModelNumberController.value.text,
         vehicleType: 'freight',
+        isApproved: false,
+        adminComment: null,
+        status: 'pending',
       );
       log('driver info model : ${jsonEncode(driverInfoModel)}');
       var response = await FreightRepository().saveFreightInfo(
@@ -299,36 +302,5 @@ class FreightController extends GetxController {
     } catch (e) {
       log('Error while updating freight data: $e');
     }
-  }
-
-  var photoPath = ''.obs;
-  var isPhotoLoading = false.obs;
-  var photoUrl = ''.obs;
-
-  void addPhoto(String imageLocationName) async {
-    try {
-      File? file = await MethodHelper().pickImage();
-      if (file != null) {
-        photoPath.value = file.path;
-        isPhotoLoading.value = true;
-        photoUrl.value = (await MethodHelper()
-            .uploadImage(file: file, imageLocationName: imageLocationName))!;
-        isPhotoLoading.value = false;
-        log('Photo URL: ${photoUrl.value}');
-      } else {
-        showToast(toastText: 'No image selected', toastColor: ColorHelper.red);
-      }
-    } catch (e) {
-      photoPath.value = '';
-      isPhotoLoading.value = false;
-      showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
-    }
-  }
-
-  var selectedButtonIndex =
-      (-1).obs; // -1 means no button is selected initially.
-
-  void selectButton(int index) {
-    selectedButtonIndex.value = index;
   }
 }

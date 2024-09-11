@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "indrive" "\0"
+            VALUE "FileDescription", "callandgo" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "indrive" "\0"
+            VALUE "InternalName", "callandgo" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2024 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "indrive.exe" "\0"
-            VALUE "ProductName", "indrive" "\0"
+            VALUE "OriginalFilename", "callandgo.exe" "\0"
+            VALUE "ProductName", "callandgo" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

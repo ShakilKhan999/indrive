@@ -7,11 +7,10 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_place/google_place.dart';
-import 'package:indrive/models/trip_model.dart';
-import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
-import 'package:indrive/screens/auth_screen/repository/auth_repository.dart';
-import 'package:indrive/screens/home/repository/passenger_repositoy.dart';
-import 'package:indrive/utils/app_config.dart';
+import 'package:callandgo/models/trip_model.dart';
+import 'package:callandgo/screens/auth_screen/controller/auth_controller.dart';
+import 'package:callandgo/screens/home/repository/passenger_repositoy.dart';
+import 'package:callandgo/utils/app_config.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../models/user_model.dart';
@@ -396,7 +395,7 @@ class HomeController extends GetxController {
           polyLines.clear();
           polylineCoordinates.clear();
         } else if (calledTrip[0].accepted) {
-          riderFound.value = true;jhjhjh
+          riderFound.value = true;
           thisDriver.add(driverList.where((driver)=>driver.uid==calledTrip[0].driverId));
           tripCalled.value = false;
         }

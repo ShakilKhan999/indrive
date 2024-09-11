@@ -1,3 +1,4 @@
+
 class DriverInfoModel {
   String id;
   String uid;
@@ -16,6 +17,10 @@ class DriverInfoModel {
   String? vehicleNumberOfSeat;
   String? vehicleColor;
   String vehicleType;
+  bool? isApproved;
+  String? adminComment;
+  String? status;
+
   DriverInfoModel({
     required this.id,
     required this.uid,
@@ -34,6 +39,9 @@ class DriverInfoModel {
     this.vehicleNumberOfSeat,
     this.vehicleColor,
     required this.vehicleType,
+    this.isApproved,
+    this.adminComment,
+    this.status,
   });
 
   factory DriverInfoModel.fromJson(Map<String, dynamic> json) {
@@ -55,6 +63,9 @@ class DriverInfoModel {
       vehicleNumberOfSeat: json['vehicleNumberOfSeat'],
       vehicleColor: json['vehicleColor'],
       vehicleType: json['vehicleType'],
+      isApproved: json['isApproved'] ?? false,
+      adminComment: json['adminComment'],
+      status: json['status'],
     );
   }
 
@@ -77,6 +88,9 @@ class DriverInfoModel {
       'vehicleNumberOfSeat': vehicleNumberOfSeat,
       'vehicleColor': vehicleColor,
       'vehicleType': vehicleType,
+      'isApproved': isApproved,
+      'adminComment': adminComment,
+      'status': status,
     };
   }
 }

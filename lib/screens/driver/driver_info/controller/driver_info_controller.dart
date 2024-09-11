@@ -4,13 +4,13 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/method_helper.dart';
-import 'package:indrive/models/driver_info_model.dart';
-import 'package:indrive/screens/driver/driver_home/views/driver_home_screen.dart';
-import 'package:indrive/screens/driver/driver_info/repository/driver_info_repository.dart';
-import 'package:indrive/utils/database_collection_names.dart';
-import 'package:indrive/utils/global_toast_service.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/method_helper.dart';
+import 'package:callandgo/models/driver_info_model.dart';
+import 'package:callandgo/screens/driver/driver_home/views/driver_home_screen.dart';
+import 'package:callandgo/screens/driver/driver_info/repository/driver_info_repository.dart';
+import 'package:callandgo/utils/database_collection_names.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
@@ -80,6 +80,9 @@ class DriverInfoController extends GetxController {
             vehicleType.value == 'moto' ? null : selectedCarColor.value,
         vehicleModelNo: carModelNumberController.value.text,
         vehicleType: vehicleType.value,
+        isApproved: false,
+        adminComment: null,
+        status: 'pending',
       );
       log('driver info model : ${jsonEncode(driverInfoModel)}');
       var response = await DriverInfoRepository().saveDriverInfoData(
@@ -92,7 +95,6 @@ class DriverInfoController extends GetxController {
         isDriverDataSaving.value = false;
         Get.offAll(() => DriverHomeScreen(),
             transition: Transition.rightToLeft);
-        
       } else {
         isDriverDataSaving.value = false;
         showToast(
@@ -290,7 +292,7 @@ class DriverInfoController extends GetxController {
       await MethodHelper().updateDocFields(
           docId: FirebaseAuth.instance.currentUser!.uid,
           fieldsToUpdate: {
-            "isDriver": true,
+            "isDriverMode": true,
             "driverStatus": 'pending',
             "vehicleType": vehicleType.value,
             "driverVehicleType": vehicleType.value

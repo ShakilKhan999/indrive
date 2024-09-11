@@ -1,11 +1,15 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:indrive/components/common_components.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/screens/driver/courier/controller/courier_controller.dart';
+import 'package:callandgo/components/common_components.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/space_helper.dart';
+import 'package:callandgo/helpers/style_helper.dart';
+import 'package:callandgo/screens/driver/courier/controller/courier_controller.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 
 class CourierScreen extends StatelessWidget {
   CourierScreen({super.key});
@@ -15,8 +19,8 @@ class CourierScreen extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          _buildMapView(),
-          // _buildAppBarVierw(),
+          _buildMapView(context),
+          _buildTopBackButtonView(),
           _buildCourierDeliveryDeatilsView(),
         ],
       ),
@@ -44,26 +48,19 @@ class CourierScreen extends StatelessWidget {
             SpaceHelper.verticalSpace15,
             _buildSetAddressView(),
             _buildTexfiledView(
-                _courierController.toCourierController.value,
-                'To',
-                Icon(
+                _courierController.toCourierController.value, 'To',
+                prefixIcon: Icon(
                   Icons.search,
                   color: Colors.grey,
                 )),
             SpaceHelper.verticalSpace15,
             _buildOptionButton(Icons.door_front_door, 'Door to door'),
-            _buildTexfiledView(
-                _courierController.toCourierController.value,
-                'Order Deatils',
-                Icon(
-                  Icons.details,
-                  color: Colors.grey,
-                )),
+            SpaceHelper.verticalSpace15,
+            _buildOderdeatilsView(),
             SpaceHelper.verticalSpace10,
-            _buildTexfiledView(
-                _courierController.fareCourierController.value,
+            _buildTexfiledView(_courierController.fareCourierController.value,
                 'Offer your fare',
-                Icon(
+                prefixIcon: Icon(
                   Icons.payment,
                   color: Colors.grey,
                 )),
@@ -107,9 +104,11 @@ class CourierScreen extends StatelessWidget {
         ));
   }
 
-  Widget _buildMapView() {
+  Widget _buildMapView(BuildContext context) {
     return Container(
-      color: Color.fromARGB(255, 180, 81, 81),
+      height: MediaQuery.of(context).size.height,
+      width: MediaQuery.of(context).size.width,
+      color: ColorHelper.whiteColor,
       child: GoogleMap(
         initialCameraPosition: CameraPosition(
           target: LatLng(23.80, 90.41),
@@ -119,29 +118,38 @@ class CourierScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAppBarVierw() {
-    return AppBar(
-      backgroundColor: Colors.black,
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: Colors.white),
+  Widget _buildTopBackButtonView() {
+    return Positioned(
+      top: 30.h,
+      left: 15.w,
+      child: IconButton(
         onPressed: () {
           Get.back();
         },
+        icon: Icon(
+          Icons.arrow_back,
+          color: Colors.black,
+        ),
       ),
-      elevation: 0,
     );
   }
 
-  Widget _buildTexfiledView(
-      TextEditingController controller, String text, Icon prefixIcon) {
+  Widget _buildTexfiledView(TextEditingController controller, String text,
+      {Icon? prefixIcon, int? maxLines}) {
     return TextField(
+      maxLines: maxLines,
+      // expands: true,
       controller: controller,
       style: TextStyle(color: Colors.white),
       decoration: InputDecoration(
         hintText: text,
-        hintStyle: TextStyle(color: Colors.grey),
+        hintTextDirection: TextDirection.ltr,
+        hintStyle: TextStyle(
+            color: Colors.grey, fontSize: 14.sp, fontWeight: FontWeight.w600),
         prefixIcon: prefixIcon,
         filled: true,
+        helperMaxLines: 2,
+        hintMaxLines: 4,
         fillColor: Colors.grey[850],
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
@@ -172,16 +180,293 @@ class CourierScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildOptionButton(IconData icon, String label) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.grey),
-          SizedBox(width: 16),
-          Text(label, style: TextStyle(color: Colors.white)),
-        ],
+  Widget _buildOderdeatilsView() {
+    return GestureDetector(
+      onTap: () {
+        if (_courierController.isOptionButtonEnabled.value) {
+          _showEnabledBottomSheet(Get.context!);
+        } else {
+          _showDisabledBottomSheet(Get.context!);
+        }
+      },
+      child: Container(
+        width: double.infinity,
+        height: 40.h,
+        decoration: BoxDecoration(
+          color: ColorHelper.grey850,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 8.w),
+              child: Icon(
+                Icons.details,
+                color: Colors.grey,
+              ),
+            ),
+            SpaceHelper.horizontalSpace10,
+            CommonComponents().printText(
+                fontSize: 14,
+                textData: 'Order Deatils',
+                color: Colors.grey,
+                fontWeight: FontWeight.w600)
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildOptionButton(IconData icon, String label) {
+    return Obx(() => GestureDetector(
+          onTap: () {
+            _courierController.isOptionButtonEnabled.value =
+                !_courierController.isOptionButtonEnabled.value;
+          },
+          child: Container(
+            width: 130.w,
+            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+            decoration: BoxDecoration(
+              color: _courierController.isOptionButtonEnabled.value
+                  ? ColorHelper.primaryColor
+                  : ColorHelper.grey850,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(left: 3.w),
+                  child: Icon(icon, color: Colors.grey),
+                ),
+                SpaceHelper.horizontalSpace5,
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ));
+  }
+
+  void _showEnabledBottomSheet(context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.grey[900],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16.0.w,
+            right: 16.0.w,
+            top: 16.0.h,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16.h,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                _buildPickUpInfoView(context),
+                _buildDeliveryInfoView(context),
+                _buildBottomDescription(),
+                SpaceHelper.verticalSpace10,
+                CommonComponents().commonButton(text: 'Save', onPressed: () {})
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPickUpInfoView(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildTopTextView(),
+        SpaceHelper.verticalSpace10,
+        CommonComponents().printText(
+            fontSize: 16,
+            textData: 'Where to pick up',
+            fontWeight: FontWeight.w600),
+        SpaceHelper.verticalSpace5,
+        _buildTexfiledView(_courierController.pickUpStreetInfoController.value,
+            'Street,building',
+            prefixIcon: Icon(
+              Icons.streetview_outlined,
+              color: Colors.grey,
+            )),
+        SpaceHelper.verticalSpace10,
+        _buildTexfiledView(_courierController.pickUpFloorInfoController.value,
+            'Floor,apartment,entryphone',
+            prefixIcon: Icon(
+              Icons.apartment,
+              color: Colors.grey,
+            )),
+        SpaceHelper.verticalSpace10,
+        _buildPhoneTextFiled(
+            context,
+            _courierController.pickUpSenderPhoneInfoController.value,
+            'Sender phone number'),
+      ],
+    );
+  }
+
+  Widget _buildDeliveryInfoView(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SpaceHelper.verticalSpace10,
+        CommonComponents().printText(
+            fontSize: 16,
+            textData: 'Where to deliver',
+            fontWeight: FontWeight.w600),
+        SpaceHelper.verticalSpace5,
+        _buildTexfiledView(
+            _courierController.deliveryStreetInfoController.value,
+            'Street,building',
+            prefixIcon: Icon(
+              Icons.streetview_outlined,
+              color: Colors.grey,
+            )),
+        SpaceHelper.verticalSpace10,
+        _buildTexfiledView(_courierController.deliveryFloorInfoController.value,
+            'Floor,apartment,entryphone',
+            prefixIcon: Icon(
+              Icons.apartment,
+              color: Colors.grey,
+            )),
+        SpaceHelper.verticalSpace10,
+        _buildPhoneTextFiled(
+            context,
+            _courierController.deliverySenderPhoneInfoController.value,
+            'Recipient phone number'),
+      ],
+    );
+  }
+
+  Widget _buildBottomDescription() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SpaceHelper.verticalSpace10,
+        CommonComponents().printText(
+            fontSize: 16,
+            textData: 'What to deliver',
+            fontWeight: FontWeight.w600),
+        SpaceHelper.verticalSpace5,
+        _buildTexfiledView(
+          maxLines: 3,
+          _courierController.descriptionDeliverController.value,
+          'Add description',
+        ),
+      ],
+    );
+  }
+
+  void _showDisabledBottomSheet(context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.grey[900],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16.0.w,
+            right: 16.0.w,
+            top: 16.0.h,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16.h,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                _buildTopTextView(),
+                SpaceHelper.verticalSpace10,
+                _buildSenderRecipientPhoneNumberView(context),
+                _buildBottomDescription(),
+                SpaceHelper.verticalSpace10,
+                CommonComponents().commonButton(text: 'Save', onPressed: () {})
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTopTextView() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        CommonComponents().printText(
+            fontSize: 16,
+            textData: 'Oder details',
+            fontWeight: FontWeight.w600),
+        Icon(
+          Icons.cancel_rounded,
+          color: Colors.grey,
+        )
+      ],
+    );
+  }
+
+  Widget _buildSenderRecipientPhoneNumberView(BuildContext context) {
+    return Column(
+      children: [
+        _buildPhoneTextFiled(
+            context,
+            _courierController.pickUpSenderPhoneInfoController.value,
+            'Sender phone number'),
+        SpaceHelper.verticalSpace5,
+        _buildPhoneTextFiled(
+            context,
+            _courierController.deliverySenderPhoneInfoController.value,
+            'Recipient phone number'),
+      ],
+    );
+  }
+
+  Widget _buildPhoneTextFiled(BuildContext context,
+      TextEditingController controller, String labelText) {
+    return IntlPhoneField(
+      controller: controller,
+      cursorColor: Colors.grey,
+      style: StyleHelper.regular14,
+      dropdownTextStyle: const TextStyle(color: Colors.grey),
+      dropdownIcon: const Icon(
+        Icons.arrow_drop_down,
+        color: Colors.grey,
+      ),
+      decoration: InputDecoration(
+          labelText: labelText,
+          labelStyle: TextStyle(color: Colors.grey),
+          fillColor: ColorHelper.grey850,
+          filled: true,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: ColorHelper.grey850,
+              width: 2.0,
+            ),
+          ),
+          suffixIcon: Icon(
+            Icons.contact_page,
+            color: Colors.grey,
+          )),
+      initialCountryCode: 'BD',
+      onCountryChanged: (value) {},
+      onChanged: (phone) {},
     );
   }
 }

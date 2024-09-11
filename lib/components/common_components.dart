@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/space_helper.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/space_helper.dart';
 
 class CommonComponents {
   Widget printText(
@@ -250,6 +250,24 @@ class CommonComponents {
             ),
           ),
           SpaceHelper.verticalSpace5,
+        ],
+      ),
+    );
+  }
+
+  Widget customTab(String text, IconData icon) {
+    return Tab(
+      height: 40.h,
+      iconMargin: EdgeInsets.all(5.sp),
+      child: Column(
+        // mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon),
+          SpaceHelper.verticalSpace3,
+          Text(
+            text,
+            style: TextStyle(fontSize: 12.sp),
+          ),
         ],
       ),
     );

@@ -6,22 +6,21 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/method_helper.dart';
-import 'package:indrive/helpers/shared_preference_helper.dart';
-import 'package:indrive/models/driver_info_model.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/method_helper.dart';
+import 'package:callandgo/helpers/shared_preference_helper.dart';
+import 'package:callandgo/models/driver_info_model.dart';
 
-import 'package:indrive/models/user_model.dart';
-import 'package:indrive/screens/auth_screen/repository/auth_repository.dart';
-import 'package:indrive/screens/auth_screen/views/register_screen.dart';
-import 'package:indrive/screens/auth_screen/views/user_type_select_screen.dart';
-import 'package:indrive/screens/driver/driver_home/views/driver_home_screen.dart';
-import 'package:indrive/screens/driver/driver_info/views/vehicle_type_screen.dart';
-import 'package:indrive/utils/database_collection_names.dart';
-import 'package:indrive/utils/firebase_option.dart';
-import 'package:indrive/utils/global_toast_service.dart';
-import 'package:indrive/utils/shared_preference_keys.dart';
-import '../../driver/driver_info/views/driver_categories_screen.dart';
+import 'package:callandgo/models/user_model.dart';
+import 'package:callandgo/screens/auth_screen/repository/auth_repository.dart';
+import 'package:callandgo/screens/auth_screen/views/register_screen.dart';
+import 'package:callandgo/screens/auth_screen/views/user_type_select_screen.dart';
+import 'package:callandgo/screens/driver/driver_home/views/driver_home_screen.dart';
+import 'package:callandgo/screens/driver/driver_info/views/vehicle_type_screen.dart';
+import 'package:callandgo/utils/database_collection_names.dart';
+import 'package:callandgo/utils/firebase_option.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
+import 'package:callandgo/utils/shared_preference_keys.dart';
 import '../../home/views/passenger_home.dart';
 import '../views/location_permission_screeen.dart';
 
@@ -55,7 +54,6 @@ class AuthController extends GetxController {
   var locations =
       ['Dhaka (ঢাকা)', 'Gazipur City', 'Chittagong', 'Sylhet', 'Khulna'].obs;
 
-  var isDriver = false.obs;
   var loginType = ''.obs;
   var currentUser = UserModel().obs;
   var userSwitchLoading = false.obs;
@@ -64,14 +62,15 @@ class AuthController extends GetxController {
   var isGoogleSigninLoaidng = false.obs;
   var isOtpSubmitLoading = false.obs;
   var isUserDataSaving = false.obs;
+  var isDriverMode = false.obs;
 
   getUserData() async {
     if (FirebaseAuth.instance.currentUser != null) {
       try {
         currentUser.value = (await getCurrentUser())!;
+        isDriverMode.value = currentUser.value.isDriverMode!;
         fullNameController.value.text = currentUser.value.name!;
         emailController.value.text = currentUser.value.email!;
-        isDriver.value = currentUser.value.isDriver!;
       } catch (e) {
         log('Error while fethching user data: $e');
       }
@@ -81,10 +80,10 @@ class AuthController extends GetxController {
   switchMode() async {
     try {
       userSwitchLoading.value = true;
-      if (currentUser.value.isDriver!) {
+      if (currentUser.value.isDriverMode!) {
         await MethodHelper().updateDocFields(
             docId: FirebaseAuth.instance.currentUser!.uid,
-            fieldsToUpdate: {"isDriver": false},
+            fieldsToUpdate: {"isDriverMode": false},
             collection: userCollection);
         await getUserData();
         Get.offAll(() => PassengerHomeScreen(),
@@ -93,7 +92,7 @@ class AuthController extends GetxController {
       } else {
         await MethodHelper().updateDocFields(
             docId: FirebaseAuth.instance.currentUser!.uid,
-            fieldsToUpdate: {"isDriver": true},
+            fieldsToUpdate: {"isDriverMode": true},
             collection: userCollection);
         userSwitchLoading.value = false;
         Get.offAll(() => DriverHomeScreen(),
@@ -114,7 +113,7 @@ class AuthController extends GetxController {
           () async {
             UserModel? userModel = await getCurrentUser();
             currentUser.value = userModel!;
-            if (userModel.isDriver!) {
+            if (userModel.isDriverMode!) {
               Get.offAll(() => DriverHomeScreen(),
                   transition: Transition.rightToLeft);
               isCheckingCurrentUser.value = false;
@@ -189,7 +188,7 @@ class AuthController extends GetxController {
         isGoogleSigninLoaidng.value = false;
         if (userModel != null) {
           isGoogleSigninLoaidng.value = false;
-          if (userModel.isDriver!) {
+          if (userModel.isDriverMode!) {
             Get.offAll(() => DriverHomeScreen(),
                 transition: Transition.rightToLeft);
           } else {
@@ -240,13 +239,13 @@ class AuthController extends GetxController {
       assert(user?.uid == user!.uid);
       UserModel? userModel = await getCurrentUser();
       if (userModel != null) {
-        if (userModel.isDriver!) {
-          await setUserType(type: userModel.isDriver!);
+        if (userModel.isDriverMode!) {
+          await setUserType(type: userModel.isDriverMode!);
           isOtpSubmitLoading.value = false;
           Get.offAll(() => DriverHomeScreen(),
               transition: Transition.rightToLeft);
         } else {
-          await setUserType(type: userModel.isDriver!);
+          await setUserType(type: userModel.isDriverMode!);
           isOtpSubmitLoading.value = false;
           Get.offAll(() => const PassengerHomeScreen(),
               transition: Transition.rightToLeft);
@@ -325,9 +324,31 @@ class AuthController extends GetxController {
         userModel = UserModel(
           uid: FirebaseAuth.instance.currentUser!.uid,
           name: nameController.value.text,
+          email: null,
+          photo: null,
+          lat: null,
+          long: null,
           phone: '+${countryCode.value}${phoneNumbercontroller.value.text}',
           signInWith: 'phone',
-          isDriver: isDriver.value,
+          vehicleType: null,
+          vehicleAngle: null,
+          latLng: null,
+          isDriverMode: isDriverMode.value,
+          driverStatus: null,
+          driverStatusDescription: null,
+          driverVehicleType: null,
+          isCityToCity: false,
+          cityToCityStatus: null,
+          cityToCityStatusDescription: null,
+          cityToCityVehicleType: null,
+          isCourier: false,
+          courierStatus: null,
+          courierStatusDescription: null,
+          courierVehicleType: null,
+          isFreight: false,
+          freightStatus: null,
+          freightStatusDescription: null,
+          freightVehicleType: null,
         );
       } else {
         userModel = UserModel(
@@ -335,9 +356,29 @@ class AuthController extends GetxController {
           name: nameController.value.text,
           email: userInfo.email,
           photo: userInfo.photoURL,
+          lat: null,
+          long: null,
           phone: userInfo.phoneNumber,
           signInWith: 'google',
-          isDriver: isDriver.value,
+          vehicleType: null,
+          vehicleAngle: null,
+          latLng: null,
+          isDriverMode: isDriverMode.value,
+          driverStatus: null,
+          driverStatusDescription: null,
+          driverVehicleType: null,
+          isCityToCity: false,
+          cityToCityStatus: null,
+          cityToCityStatusDescription: null,
+          cityToCityVehicleType: null,
+          isCourier: false,
+          courierStatus: null,
+          courierStatusDescription: null,
+          courierVehicleType: null,
+          isFreight: false,
+          freightStatus: null,
+          freightStatusDescription: null,
+          freightVehicleType: null,
         );
       }
       var response = await AuthRepository().saveUserData(userModel: userModel);
@@ -361,21 +402,21 @@ class AuthController extends GetxController {
   }
 
   onPressPassenger() async {
-    isDriver.value = false;
+    isDriverMode.value = false;
     await setUserType(type: false);
     Get.offAll(() => const PassengerHomeScreen(),
         transition: Transition.rightToLeft);
   }
 
   onPressDriver() async {
-    isDriver.value = true;
+    isDriverMode.value = true;
     await setUserType(type: true);
     Get.offAll(() => VehicleTypeScreen(), transition: Transition.rightToLeft);
   }
 
   Future setUserType({required bool type}) async {
     await SharedPreferenceHelper()
-        .setBool(key: SharedPreferenceKeys.isDriver, value: type);
+        .setBool(key: SharedPreferenceKeys.isDriverMode, value: type);
   }
 
   Future setLoginType({required String type}) async {

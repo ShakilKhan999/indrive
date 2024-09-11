@@ -2,18 +2,21 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:indrive/helpers/method_helper.dart';
-import 'package:indrive/main.dart';
-import 'package:indrive/models/city_to_city_trip_model.dart';
-import 'package:indrive/screens/auth_screen/controller/auth_controller.dart';
-import 'package:indrive/screens/city_to_city_user/repository/city_to_city_trip_repository.dart';
-import 'package:indrive/screens/driver/city_to_city/repository/city_to_city_repository.dart';
+import 'package:callandgo/helpers/method_helper.dart';
+import 'package:callandgo/main.dart';
+import 'package:callandgo/models/city_to_city_trip_model.dart';
+import 'package:callandgo/screens/auth_screen/controller/auth_controller.dart';
+import 'package:callandgo/screens/city_to_city_user/repository/city_to_city_trip_repository.dart';
+import 'package:callandgo/utils/database_collection_names.dart';
+import 'package:google_place/google_place.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../helpers/color_helper.dart';
+import '../../../utils/app_config.dart';
 import '../../../utils/global_toast_service.dart';
 
 class CityToCityTripController extends GetxController {
@@ -28,7 +31,7 @@ class CityToCityTripController extends GetxController {
   var selectedDate = Rx<DateTime?>(null);
   var tripType = "ride".obs;
   var isCityToCityTripCreationLoading = false.obs;
-
+  var driverOfferYourFareController = <TextEditingController>[].obs;
   var changingPickup = false.obs;
   var startPickedCenter = const LatLng(23.80, 90.41).obs;
   var cameraMoving = false.obs;
@@ -36,9 +39,19 @@ class CityToCityTripController extends GetxController {
   var fromPlaceName = "".obs;
   var toPlaceName = "".obs;
   late GoogleMapController mapController;
+  late GoogleMapController mapControllerForRide;
   late GoogleMapController mapControllerTO;
   var center = const LatLng(23.80, 90.41).obs;
   final RxList<CityToCityTripModel> tripList = <CityToCityTripModel>[].obs;
+  final RxList<CityToCityTripModel> tripListForUser =
+      <CityToCityTripModel>[].obs;
+  var selectedTripIndex = 0.obs;
+  var selectedTripIndexForUser = 0.obs;
+  var selectedBidIndex = 0.obs;
+  final RxList<CityToCityTripModel> myTripListForUser =
+      <CityToCityTripModel>[].obs;
+
+  final RxList<CityToCityTripModel> myTripList = <CityToCityTripModel>[].obs;
 
   void updateDate(DateTime date) {
     selectedDate.value = date;
@@ -134,6 +147,7 @@ class CityToCityTripController extends GetxController {
             destinationPickedCenter.value.longitude),
         bids: [],
         description: addDescriptionController.value.text,
+        declineDriverIds: '',
       );
 
       bool response = await CityToCityTripRepository()
@@ -156,13 +170,33 @@ class CityToCityTripController extends GetxController {
     }
   }
 
-  void fetchCityToCityTrips() {
-    AuthController _authController = Get.find();
-    CityToCityTripRepository()
-        .getCityToCityTripList(uid: _authController.currentUser.value.uid!)
-        .listen((List<CityToCityTripModel> trips) {
-      filterTrips(trips: trips);
-    });
+  void getCityToCityTrips() {
+    try {
+      tripList.clear();
+      CityToCityTripRepository()
+          .getCityToCityTripList()
+          .listen((List<CityToCityTripModel> trips) {
+        filterTrips(trips: trips);
+      });
+    } catch (e) {
+      log("Error while getting city to city trips: $e");
+    }
+  }
+
+  void getCityToCityTripsForUser() {
+    try {
+      AuthController _authController = Get.find();
+      tripList.clear();
+      CityToCityTripRepository()
+          .getCityToCityTripListForUser(
+              userId: _authController.currentUser.value.uid!)
+          .listen((List<CityToCityTripModel> trips) {
+        tripListForUser.assignAll(trips);
+        log('tripList: $tripListForUser');
+      });
+    } catch (e) {
+      log("Error while getting city to city trips for user: $e");
+    }
   }
 
   void filterTrips({required List<CityToCityTripModel> trips}) {
@@ -170,11 +204,459 @@ class CityToCityTripController extends GetxController {
     AuthController _authController = Get.find();
     for (var trip in trips) {
       if (trip.tripCurrentStatus == 'new' &&
-          trip.userUid != _authController.currentUser.value.uid) {
+          trip.userUid != _authController.currentUser.value.uid &&
+          trip.declineDriverIds!
+                  .contains(_authController.currentUser.value.uid!) ==
+              false) {
         filteredTrips.add(trip);
       }
     }
     tripList.assignAll(filteredTrips);
+    driverOfferYourFareController.value = List.generate(
+      filteredTrips.length,
+      (index) => TextEditingController(),
+    );
+
+    assignTheDriverPricecallandgorOfferYourFareControllerIfExists();
+
     log('tripList: $tripList');
+  }
+
+  void filterTripsForUser({required List<CityToCityTripModel> trips}) {
+    List<CityToCityTripModel> filteredTrips = [];
+    for (var trip in trips) {
+      if (trip.tripCurrentStatus == 'new') {
+        filteredTrips.add(trip);
+      }
+    }
+    tripListForUser.assignAll(filteredTrips);
+    log('tripList: $tripList');
+  }
+
+  assignTheDriverPricecallandgorOfferYourFareControllerIfExists() {
+    try {
+      AuthController _authController = Get.find();
+      for (var trip in tripList) {
+        if (trip.bids!.isNotEmpty) {
+          for (var bid in trip.bids!) {
+            if (bid.driverUid == _authController.currentUser.value.uid) {
+              driverOfferYourFareController[tripList.indexOf(trip)].text =
+                  bid.driverPrice!;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      log("Error while assigning driver price in driverOfferYourFareController: $e");
+    }
+  }
+
+  sendDriverFareOffer() async {
+    try {
+      AuthController _authController = Get.find();
+
+      if (checkUserAlreadyOfferedFare()) {
+        Bids bids = Bids(
+          driverUid: _authController.currentUser.value.uid,
+          driverName: _authController.currentUser.value.name,
+          driverImage: _authController.currentUser.value.photo,
+          driverPhone: _authController.currentUser.value.phone,
+          driverPrice:
+              driverOfferYourFareController[selectedTripIndex.value].text,
+          driverVehicle:
+              _authController.currentUser.value.cityToCityVehicleType,
+        );
+
+        List<Bids> previousBids = removeBidsFromBidListByDriverUid(
+            driverUid: _authController.currentUser.value.uid!);
+
+        previousBids.add(bids);
+        List<Map<String, dynamic>> newBids =
+            previousBids.map((bid) => bid.toJson()).toList();
+        var response = await CityToCityTripRepository()
+            .updateBidsList(tripList[selectedTripIndex.value].id!, newBids);
+        if (response) {
+          showToast(
+              toastText: 'Fare offer updated successfully',
+              toastColor: ColorHelper.primaryColor);
+        } else {
+          showToast(
+              toastText: 'Fare offer updating failed',
+              toastColor: ColorHelper.red);
+        }
+      } else {
+        Bids bids = Bids(
+          driverUid: _authController.currentUser.value.uid,
+          driverName: _authController.currentUser.value.name,
+          driverImage: _authController.currentUser.value.photo,
+          driverPhone: _authController.currentUser.value.phone,
+          driverPrice:
+              driverOfferYourFareController[selectedTripIndex.value].text,
+          driverVehicle: null,
+        );
+
+        List<Bids> previousBids = tripList[selectedTripIndex.value].bids!;
+        previousBids.add(bids);
+        List<Map<String, dynamic>> newBids =
+            previousBids.map((bid) => bid.toJson()).toList();
+
+        var response = await CityToCityTripRepository()
+            .updateBidsList(tripList[selectedTripIndex.value].id!, newBids);
+        if (response) {
+          showToast(
+              toastText: 'Fare offer sent successfully',
+              toastColor: ColorHelper.primaryColor);
+        } else {
+          showToast(
+              toastText: 'Fare offer sending failed',
+              toastColor: ColorHelper.red);
+        }
+      }
+    } catch (e) {
+      log("Error while sending driver fare offer: $e");
+      showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
+    }
+  }
+
+  checkUserAlreadyOfferedFare() {
+    bool isAlreadyOffered = false;
+    AuthController _authController = Get.find();
+    for (var bid in tripList[selectedTripIndex.value].bids!) {
+      if (bid.driverUid == _authController.currentUser.value.uid) {
+        isAlreadyOffered = true;
+        break;
+      }
+    }
+    return isAlreadyOffered;
+  }
+
+  List<Bids> removeBidsFromBidListByDriverUid({required String driverUid}) {
+    List<Bids> bids = [];
+    for (var bid in tripList[selectedTripIndex.value].bids!) {
+      if (bid.driverUid != driverUid) {
+        bids.add(bid);
+      }
+    }
+    return bids;
+  }
+
+  void acceptRideForUser() async {
+    try {
+      fToast.init(Get.context!);
+      Get.back();
+      Map<String, dynamic> updateData = {
+        'tripCurrentStatus': 'accepted',
+        'driverUid': tripListForUser[selectedTripIndexForUser.value]
+            .bids![selectedBidIndex.value]
+            .driverUid,
+        'driverName': tripListForUser[selectedTripIndexForUser.value]
+            .bids![selectedBidIndex.value]
+            .driverName,
+        'driverImage': tripListForUser[selectedTripIndexForUser.value]
+            .bids![selectedBidIndex.value]
+            .driverImage,
+        'driverPhone': tripListForUser[selectedTripIndexForUser.value]
+            .bids![selectedBidIndex.value]
+            .driverPhone,
+        'driverVehicle': tripListForUser[selectedTripIndexForUser.value]
+            .bids![selectedBidIndex.value]
+            .driverVehicle,
+        'finalPrice': tripListForUser[selectedTripIndexForUser.value]
+            .bids![selectedBidIndex.value]
+            .driverPrice,
+        'bids': [],
+        'acceptBy': 'user',
+      };
+      bool result = await MethodHelper().updateDocFields(
+          docId: tripListForUser[selectedTripIndexForUser.value].id!,
+          fieldsToUpdate: updateData,
+          collection: cityToCityTripCollection);
+      if (result) {
+        showToast(
+            toastText: 'Ride accepted successfully',
+            toastColor: ColorHelper.primaryColor);
+      } else {
+        showToast(
+            toastText: 'Ride accepting failed', toastColor: ColorHelper.red);
+      }
+    } catch (e) {
+      log("Error while accepting ride for user: $e");
+      showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
+    }
+  }
+
+  void getCityToCityMyTripsForUser() {
+    try {
+      AuthController _authController = Get.find();
+      tripList.clear();
+      CityToCityTripRepository()
+          .getCityToCityMyTripListForUser(
+              userId: _authController.currentUser.value.uid!)
+          .listen((List<CityToCityTripModel> trips) {
+        myTripListForUser.assignAll(trips);
+        log('my tripList: $tripListForUser');
+      });
+    } catch (e) {
+      log("Error while getting city to city my trips for user: $e");
+    }
+  }
+
+  void declineBidForUser() async {
+    try {
+      fToast.init(Get.context!);
+      List<Bids> bids = removeBidFromBidListForUser();
+      List<Map<String, dynamic>> newBids =
+          bids.map((bid) => bid.toJson()).toList();
+
+      String declineUserUids = MethodHelper.joinStringsWithComma(
+          tripListForUser[selectedTripIndexForUser.value].declineDriverIds!,
+          tripListForUser[selectedTripIndexForUser.value]
+              .bids![selectedBidIndex.value]
+              .driverUid!);
+      bool result = false;
+      await CityToCityTripRepository()
+          .updateBidsList(
+              tripListForUser[selectedTripIndexForUser.value].id!, newBids)
+          .then(
+        (value) async {
+          Map<String, dynamic> updateData = {
+            'declineDriverIds': declineUserUids,
+          };
+          await MethodHelper().updateDocFields(
+              docId: tripListForUser[selectedTripIndexForUser.value].id!,
+              fieldsToUpdate: updateData,
+              collection: cityToCityTripCollection);
+          result = true;
+        },
+      );
+
+      if (result) {
+        showToast(
+            toastText: 'Ride declined successfully',
+            toastColor: ColorHelper.primaryColor);
+        Get.back();
+      } else {
+        showToast(
+            toastText: 'Ride declining failed', toastColor: ColorHelper.red);
+      }
+    } catch (e) {}
+  }
+
+  List<Bids> removeBidFromBidListForUser() {
+    List<Bids> bids = [];
+    for (var bid in tripListForUser[selectedTripIndexForUser.value].bids!) {
+      if (bid.driverUid !=
+          tripListForUser[selectedTripIndexForUser.value]
+              .bids![selectedBidIndex.value]
+              .driverUid) {
+        bids.add(bid);
+      }
+    }
+    return bids;
+  }
+
+  List<Bids> removeBidFromBidList() {
+    List<Bids> bids = [];
+    for (var bid in tripList[selectedTripIndex.value].bids!) {
+      if (bid.driverUid !=
+          tripList[selectedTripIndex.value]
+              .bids![selectedBidIndex.value]
+              .driverUid) {
+        bids.add(bid);
+      }
+    }
+    return bids;
+  }
+
+  void getCityToCityMyTrips() {
+    try {
+      AuthController _authController = Get.find();
+      tripList.clear();
+      CityToCityTripRepository()
+          .getCityToCityMyTripList(
+              userId: _authController.currentUser.value.uid!)
+          .listen((List<CityToCityTripModel> trips) {
+        myTripList.assignAll(trips);
+        log('my tripList: $tripListForUser');
+      });
+    } catch (e) {
+      log("Error while getting city to city my trips for user: $e");
+    }
+  }
+
+  void acceptRide() async {
+    try {
+      fToast.init(Get.context!);
+      AuthController _authController = Get.find();
+      Map<String, dynamic> updateData = {
+        'tripCurrentStatus': 'accepted',
+        'driverUid': _authController.currentUser.value.uid!,
+        'driverName': _authController.currentUser.value.name!,
+        'driverImage': _authController.currentUser.value.photo ??
+            'https://www.pngitem.com/pimgs/m/506-5067022_sweet-shap-profile-placeholder-hd-png-download.png',
+        'driverPhone': _authController.currentUser.value.phone ?? '',
+        'driverVehicle':
+            _authController.currentUser.value.cityToCityVehicleType,
+        'finalPrice': tripList[selectedTripIndex.value].userPrice!,
+        'bids': [],
+        'acceptBy': 'rider',
+      };
+      bool result = await MethodHelper().updateDocFields(
+          docId: tripList[selectedTripIndex.value].id!,
+          fieldsToUpdate: updateData,
+          collection: cityToCityTripCollection);
+      if (result) {
+        showToast(
+            toastText: 'Ride accepted successfully',
+            toastColor: ColorHelper.primaryColor);
+      } else {
+        showToast(
+            toastText: 'Ride accepting failed', toastColor: ColorHelper.red);
+      }
+    } catch (e) {
+      log("Error while accepting ride: $e");
+      showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
+    }
+  }
+
+  void declineRide() async {
+    try {
+      fToast.init(Get.context!);
+      AuthController _authController = Get.find();
+      List<Bids> bids = [];
+      if (checkUserAlreadyOfferedFare()) {
+        bids = removeBidFromBidList();
+      } else {
+        bids = tripList[selectedTripIndex.value].bids!;
+      }
+
+      List<Map<String, dynamic>> newBids =
+          bids.map((bid) => bid.toJson()).toList();
+
+      String declineUserUids = MethodHelper.joinStringsWithComma(
+          tripList[selectedTripIndex.value].declineDriverIds!,
+          _authController.currentUser.value.uid!);
+      bool result = false;
+      await CityToCityTripRepository()
+          .updateBidsList(tripList[selectedTripIndex.value].id!, newBids)
+          .then(
+        (value) async {
+          Map<String, dynamic> updateData = {
+            'declineDriverIds': declineUserUids,
+          };
+          await MethodHelper().updateDocFields(
+              docId: tripList[selectedTripIndex.value].id!,
+              fieldsToUpdate: updateData,
+              collection: cityToCityTripCollection);
+          result = true;
+        },
+      );
+
+      if (result) {
+        showToast(
+            toastText: 'Ride declined successfully',
+            toastColor: ColorHelper.primaryColor);
+        Get.back();
+      } else {
+        showToast(
+            toastText: 'Ride declining failed', toastColor: ColorHelper.red);
+      }
+    } catch (e) {
+      log("Error while accepting ride: $e");
+      showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
+    }
+  }
+
+  cancelRideForUser({required String docId}) {
+    try {
+      MethodHelper().cancelRide(cityToCityTripCollection, docId);
+    } catch (e) {}
+  }
+
+  var rideRoute = const LatLng(23.80, 90.41).obs;
+  onPressItemDetailsView({required int index}) {
+    rideRoute.value = LatLng(
+      double.parse(myTripList[index].pickLatLng!.latitude.toString()),
+      double.parse(myTripList[index].pickLatLng!.longitude.toString()),
+    );
+  }
+
+  GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
+  Map<PolylineId, Polyline> polyLines = {};
+  var polylineCoordinates = [].obs;
+  var findingRoutes = false.obs;
+  getPolyline({required int index}) async {
+    polyLines = {};
+    polylineCoordinates.value = [];
+    PolylinePoints polylinePoints = PolylinePoints();
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+      AppConfig.mapApiKey,
+      PointLatLng(myTripList[index].pickLatLng!.latitude,
+          myTripList[index].pickLatLng!.longitude),
+      PointLatLng(myTripList[index].dropLatLng!.latitude,
+          myTripList[index].dropLatLng!.longitude),
+      travelMode: TravelMode.driving,
+    );
+    log("polyLineResponse: ${result.points.length}");
+    log("polylineCoordinates: ${polylineCoordinates.length}");
+    if (result.points.isNotEmpty) {
+      for (var point in result.points) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      }
+    } else {
+      log("${result.errorMessage}");
+    }
+
+    addPolyLine(
+      polylineCoordinates
+          .map((geoPoint) => LatLng(geoPoint.latitude, geoPoint.longitude))
+          .toList(),
+    );
+  }
+
+  addPolyLine(List<LatLng> polylineCoordinates) {
+    PolylineId id = const PolylineId("poly");
+    Polyline polyline = Polyline(
+      polylineId: id,
+      color: Colors.deepPurpleAccent,
+      points: polylineCoordinates,
+      width: 8,
+    );
+    polyLines[id] = polyline;
+    moveCameraToPolyline();
+  }
+
+  void moveCameraToPolyline() {
+    if (polylineCoordinates.isEmpty) return;
+
+    double minLat = polylineCoordinates[0].latitude;
+    double maxLat = polylineCoordinates[0].latitude;
+    double minLng = polylineCoordinates[0].longitude;
+    double maxLng = polylineCoordinates[0].longitude;
+
+    for (var point in polylineCoordinates) {
+      if (point.latitude < minLat) minLat = point.latitude;
+      if (point.latitude > maxLat) maxLat = point.latitude;
+      if (point.longitude < minLng) minLng = point.longitude;
+      if (point.longitude > maxLng) maxLng = point.longitude;
+    }
+
+    LatLngBounds bounds = LatLngBounds(
+      southwest: LatLng(minLat, minLng),
+      northeast: LatLng(maxLat, maxLng),
+    );
+
+    mapControllerForRide
+        .animateCamera(CameraUpdate.newLatLngBounds(bounds, 60));
+  }
+
+  void onMapCreatedForRide(GoogleMapController controller) {
+    mapControllerForRide = controller;
+  }
+    void onCameraMoveForRide(CameraPosition position) {
+    log("camera Moving");
+    rideRoute.value =
+        LatLng(position.target.latitude, position.target.longitude);
+    cameraMoving.value = true;
   }
 }

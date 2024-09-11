@@ -3,24 +3,26 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:indrive/components/common_components.dart';
+import 'package:callandgo/components/common_components.dart';
 
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/main.dart';
-import 'package:indrive/screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/space_helper.dart';
+import 'package:callandgo/main.dart';
+import 'package:callandgo/screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
 
-import 'package:indrive/screens/driver/city_to_city/views/cityToCity_types_screen.dart';
-import 'package:indrive/screens/driver/courier/views/courier_types_screen.dart';
-import 'package:indrive/screens/driver/driver_info/views/vehicle_type_screen.dart';
-import 'package:indrive/screens/driver/freight/views/freight_info_screen.dart';
-import 'package:indrive/screens/profile/controller/profile_controller.dart';
+import 'package:callandgo/screens/driver/city_to_city/views/cityToCity_types_screen.dart';
+import 'package:callandgo/screens/driver/courier/views/courier_types_screen.dart';
+import 'package:callandgo/screens/driver/driver_info/views/vehicle_type_screen.dart';
+import 'package:callandgo/screens/driver/freight/views/freight_info_screen.dart';
+import 'package:callandgo/screens/freight_user/controller/freight_trip_controller.dart';
+import 'package:callandgo/screens/profile/controller/profile_controller.dart';
 
-import 'package:indrive/screens/profile/views/profile_screen.dart';
-import 'package:indrive/utils/global_toast_service.dart';
+import 'package:callandgo/screens/profile/views/profile_screen.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 
 import '../../auth_screen/controller/auth_controller.dart';
 import '../../city_to_city_user/views/driver_city_to_city_request_list.dart';
+import '../../freight_user/view/freight_request_for_rider.dart';
 
 class ChooseProfileScreen extends StatelessWidget {
   ChooseProfileScreen({super.key});
@@ -87,8 +89,32 @@ class ChooseProfileScreen extends StatelessWidget {
                     child: Center(
                       child: InkWell(
                         onTap: () {
-                          Get.to(() => VehicleTypeScreen(),
-                              transition: Transition.rightToLeft);
+                          fToast.init(context);
+
+                          if (_profileController.cityRiderStatus.value.status ==
+                              'Registration completed') {
+                            FreightTripController _freightTripController =
+                                Get.put(FreightTripController());
+                            // _freightTripController.getFreightTrips();
+                            // _freightTripController.getCityToCityMyTrips();
+                            // Get.to(() => FreightRequesForRider(),
+                            //     transition: Transition.rightToLeft);
+                          } else if (_profileController
+                                  .cityRiderStatus.value.status ==
+                              'Not Registered') {
+                            Get.to(() => VehicleTypeScreen(),
+                                transition: Transition.rightToLeft);
+                          } else if (_profileController
+                                  .cityRiderStatus.value.status ==
+                              'Verification pending') {
+                            showToast(
+                                toastText:
+                                    'Documents submitted but verification pending',
+                                toastColor: ColorHelper.red);
+                          } else if (_profileController
+                                  .cityRiderStatus.value.status ==
+                              'Verification failed') {}
+
                         },
                         child: ListTile(
                           leading: SizedBox(
@@ -101,8 +127,10 @@ class ChooseProfileScreen extends StatelessWidget {
                               fontWeight: FontWeight.bold),
                           subtitle: CommonComponents().printText(
                               fontSize: 14,
-                              textData: "Not Registered",
-                              color: ColorHelper.greyColor,
+                              textData: _profileController
+                                  .cityRiderStatus.value.status!,
+                              color: _profileController
+                                  .cityRiderStatus.value.color!,
                               fontWeight: FontWeight.normal),
                           trailing: Icon(
                             Icons.arrow_forward_ios,
@@ -156,8 +184,30 @@ class ChooseProfileScreen extends StatelessWidget {
                     child: Center(
                       child: InkWell(
                         onTap: () {
-                          Get.to(() => FreightInfoScreen(),
-                              transition: Transition.rightToLeft);
+                          fToast.init(context);
+                          if (_profileController.freightStatus.value.status ==
+                              'Registration completed') {
+                            FreightTripController _freightTripController =
+                                Get.put(FreightTripController());
+                            _freightTripController.getFreightTrips();
+                            _freightTripController.getFreightMyTrips();
+                            Get.to(() => FreightRequesForRider(),
+                                transition: Transition.rightToLeft);
+                          } else if (_profileController
+                                  .freightStatus.value.status ==
+                              'Not Registered') {
+                            Get.to(() => FreightInfoScreen(),
+                                transition: Transition.rightToLeft);
+                          } else if (_profileController
+                                  .freightStatus.value.status ==
+                              'Verification pending') {
+                            showToast(
+                                toastText:
+                                    'Documents submitted but verification pending',
+                                toastColor: ColorHelper.red);
+                          } else if (_profileController
+                                  .freightStatus.value.status ==
+                              'Verification failed') {}
                         },
                         child: ListTile(
                           leading: SizedBox(
@@ -171,8 +221,10 @@ class ChooseProfileScreen extends StatelessWidget {
                               fontWeight: FontWeight.bold),
                           subtitle: CommonComponents().printText(
                               fontSize: 14,
-                              textData: "Not Registered",
-                              color: ColorHelper.greyColor,
+                              textData: _profileController
+                                  .freightStatus.value.status!,
+                              color:
+                                  _profileController.freightStatus.value.color!,
                               fontWeight: FontWeight.normal),
                           trailing: Icon(
                             Icons.arrow_forward_ios,
@@ -198,7 +250,8 @@ class ChooseProfileScreen extends StatelessWidget {
                               'Registration completed') {
                             CityToCityTripController _cityToCityTripController =
                                 Get.put(CityToCityTripController());
-                            _cityToCityTripController.fetchCityToCityTrips();
+                            _cityToCityTripController.getCityToCityTrips();
+                            _cityToCityTripController.getCityToCityMyTrips();
                             Get.to(() => DriverCityToCityRequestList(),
                                 transition: Transition.rightToLeft);
                           } else if (_profileController
@@ -314,34 +367,34 @@ class ChooseProfileScreen extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(right: 18.0),
           child: InkWell(
-              onTap: () {
-                Get.to(() => ProfileScreen(),
-                    transition: Transition.rightToLeft);
-              },
-              child: Container(
-                height: 35.h,
-                width: 35.h,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(90),
-                    color: Colors.white,
-                    border: Border.all(color: Colors.white)),
-                child: ClipRRect(
+            onTap: () {
+              Get.to(() => ProfileScreen(), transition: Transition.rightToLeft);
+            },
+            child: Container(
+              height: 35.h,
+              width: 35.h,
+              decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(90),
-                  child: _authController.currentUser.value.photo != null
-                      ? Image.network(
-                          _authController.currentUser.value.photo!,
-                          height: 35.h,
-                          width: 35.h,
-                          fit: BoxFit.cover,
-                        )
-                      : Image.asset(
-                          "assets/images/person.jpg",
-                          height: 35.h,
-                          width: 35.h,
-                          fit: BoxFit.cover,
-                        ),
-                ),
-              )),
+                  color: Colors.white,
+                  border: Border.all(color: Colors.white)),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(90),
+                child: _authController.currentUser.value.photo != null
+                    ? Image.network(
+                        _authController.currentUser.value.photo!,
+                        height: 35.h,
+                        width: 35.h,
+                        fit: BoxFit.cover,
+                      )
+                    : Image.asset(
+                        "assets/images/person.jpg",
+                        height: 35.h,
+                        width: 35.h,
+                        fit: BoxFit.cover,
+                      ),
+              ),
+            ),
+          ),
         ),
       ],
     );

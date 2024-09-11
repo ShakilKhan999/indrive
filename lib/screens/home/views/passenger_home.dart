@@ -6,17 +6,19 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_place/google_place.dart';
-import 'package:indrive/components/common_components.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/screens/city_to_city_user/views/city_to_city_request.dart';
-import 'package:indrive/screens/driver/courier/views/courier_screen.dart';
-import 'package:indrive/screens/driver/driver_home/repository/driver_repository.dart';
-import 'package:indrive/screens/driver/freight/views/freight_screen.dart';
-import 'package:indrive/screens/home/controller/home_controller.dart';
-import 'package:indrive/screens/home/repository/passenger_repositoy.dart';
-import 'package:indrive/screens/home/views/bid.dart';
-import 'package:indrive/screens/home/views/select_destination.dart';
+import 'package:callandgo/components/common_components.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/space_helper.dart';
+import 'package:callandgo/screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
+import 'package:callandgo/screens/city_to_city_user/views/city_to_city_request.dart';
+import 'package:callandgo/screens/driver/courier/views/courier_screen.dart';
+import 'package:callandgo/screens/driver/driver_home/repository/driver_repository.dart';
+import 'package:callandgo/screens/freight_user/controller/freight_trip_controller.dart';
+import 'package:callandgo/screens/freight_user/view/freight_request_screen.dart';
+import 'package:callandgo/screens/home/controller/home_controller.dart';
+import 'package:callandgo/screens/home/repository/passenger_repositoy.dart';
+import 'package:callandgo/screens/home/views/bid.dart';
+import 'package:callandgo/screens/home/views/select_destination.dart';
 
 import '../../../components/custom_drawer.dart';
 
@@ -31,6 +33,10 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   List suggestions = [];
   final HomeController homeController = Get.put(HomeController());
+  final CityToCityTripController cityToCityTripController =
+      Get.put(CityToCityTripController());
+  final FreightTripController freightTripController =
+      Get.put(FreightTripController());
 
   void onSearchTextChanged(String query) async {
     if (query.isNotEmpty) {
@@ -892,6 +898,9 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                         onTap: () {
                           // homeController.selectedVehicle.value = "city to city";
                           // homeController.loadMarkers();
+                          cityToCityTripController.getCityToCityTripsForUser();
+                          cityToCityTripController
+                              .getCityToCityMyTripsForUser();
                           Get.to(() => CityToCityRequest(),
                               transition: Transition.rightToLeft);
                         },
@@ -945,7 +954,9 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                         onTap: () {
                           // homeController.selectedVehicle.value = "freight";
                           // homeController.loadMarkers();
-                          Get.to(() => FreightScreen(),
+                          freightTripController.getFreightTripsForUser();
+                          freightTripController.getFreightMyTripsForUser();
+                          Get.to(() => FreightRequestScreen(),
                               transition: Transition.rightToLeft);
                         },
                         child: Container(

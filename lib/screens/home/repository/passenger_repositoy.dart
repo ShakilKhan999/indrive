@@ -9,7 +9,7 @@ class PassengerRepository {
   Stream<QuerySnapshot<Map<String, dynamic>>> listenToDriverDocs() {
     return _firestore
         .collection('users')
-        .where('isDriver', isEqualTo: true)
+        .where('isDriverMode', isEqualTo: true)
         .snapshots();
   }
 

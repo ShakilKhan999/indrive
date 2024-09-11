@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:indrive/components/common_components.dart';
-import 'package:indrive/components/custom_appbar.dart';
-import 'package:indrive/helpers/color_helper.dart';
-import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/main.dart';
-import 'package:indrive/screens/driver/freight/controller/freight_controller.dart';
+import 'package:callandgo/components/common_components.dart';
+import 'package:callandgo/components/custom_appbar.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/helpers/space_helper.dart';
+import 'package:callandgo/main.dart';
+import 'package:callandgo/screens/driver/freight/controller/freight_controller.dart';
 
 class FreightNationalIdcardbirthScreen extends StatelessWidget {
   FreightNationalIdcardbirthScreen({super.key});

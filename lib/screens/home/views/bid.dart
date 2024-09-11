@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:indrive/components/common_components.dart';
-import 'package:indrive/helpers/space_helper.dart';
-import 'package:indrive/models/trip_model.dart';
-import 'package:indrive/screens/home/controller/home_controller.dart';
+import 'package:callandgo/components/common_components.dart';
+import 'package:callandgo/helpers/space_helper.dart';
+import 'package:callandgo/models/trip_model.dart';
+import 'package:callandgo/screens/home/controller/home_controller.dart';
 
 class BidItem extends StatefulWidget {
   final Bid bid;
