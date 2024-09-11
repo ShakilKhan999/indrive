@@ -5,6 +5,7 @@ import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/method_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../components/common_components.dart';
 
 class DriverCityToCityRequestList extends StatefulWidget {
@@ -42,7 +43,6 @@ class _DriverCityToCityRequestListState
       child: Scaffold(
         backgroundColor: ColorHelper.bgColor,
         appBar: _buildAppBarView(),
-        // body: _buildBodyView(),
         body: Column(
           children: [
             Expanded(
@@ -64,95 +64,102 @@ class _DriverCityToCityRequestListState
   Widget _buildMyRequestView() {
     return ListView.separated(
         itemBuilder: (context, index) {
-          return Card(
-            color: ColorHelper.blackColor,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            height: 35.h,
-                            width: 35.h,
-                            decoration: BoxDecoration(
+          return InkWell(
+            onTap: () {
+              _cityToCityTripController.onPressItemDetailsView(index: index);
+              _cityToCityTripController.getPolyline(index: index);
+              _showRideDetailsBottomSheet(index);
+            },
+            child: Card(
+              color: ColorHelper.blackColor,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              height: 35.h,
+                              width: 35.h,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(90),
+                                  color: Colors.white,
+                                  border: Border.all(color: Colors.white)),
+                              child: ClipRRect(
                                 borderRadius: BorderRadius.circular(90),
-                                color: Colors.white,
-                                border: Border.all(color: Colors.white)),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(90),
-                              child: _cityToCityTripController
-                                          .myTripList[index].userImage !=
-                                      null
-                                  ? Image.network(
-                                      _cityToCityTripController
-                                          .myTripList[index].userImage!,
-                                      height: 35.h,
-                                      width: 35.h,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : Image.asset(
-                                      "assets/images/person.jpg",
-                                      height: 35.h,
-                                      width: 35.h,
-                                      fit: BoxFit.cover,
-                                    ),
+                                child: _cityToCityTripController
+                                            .myTripList[index].userImage !=
+                                        null
+                                    ? Image.network(
+                                        _cityToCityTripController
+                                            .myTripList[index].userImage!,
+                                        height: 35.h,
+                                        width: 35.h,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Image.asset(
+                                        "assets/images/person.jpg",
+                                        height: 35.h,
+                                        width: 35.h,
+                                        fit: BoxFit.cover,
+                                      ),
+                              ),
                             ),
+                            SpaceHelper.horizontalSpace10,
+                            CommonComponents().printText(
+                                fontSize: 15,
+                                textData:
+                                    '${_cityToCityTripController.myTripList[index].userName}',
+                                fontWeight: FontWeight.bold),
+                          ],
+                        ),
+                        CommonComponents().printText(
+                            fontSize: 15,
+                            textData:
+                                '${_cityToCityTripController.myTripList[index].finalPrice}',
+                            fontWeight: FontWeight.bold),
+                      ],
+                    ),
+                    SpaceHelper.verticalSpace15,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(Icons.radio_button_checked,
+                            color: ColorHelper.primaryColor),
+                        SpaceHelper.horizontalSpace10,
+                        Expanded(
+                          child: CommonComponents().printText(
+                            fontSize: 12,
+                            textData:
+                                '${_cityToCityTripController.myTripList[index].cityFrom}',
+                            fontWeight: FontWeight.normal,
                           ),
-                          SpaceHelper.horizontalSpace10,
-                          CommonComponents().printText(
-                              fontSize: 15,
-                              textData:
-                                  '${_cityToCityTripController.myTripList[index].userName}',
-                              fontWeight: FontWeight.bold),
-                        ],
-                      ),
-                      CommonComponents().printText(
-                          fontSize: 15,
-                          textData:
-                              '${_cityToCityTripController.myTripList[index].finalPrice}',
-                          fontWeight: FontWeight.bold),
-                    ],
-                  ),
-                  SpaceHelper.verticalSpace15,
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Icon(Icons.radio_button_checked,
-                          color: ColorHelper.primaryColor),
-                      SpaceHelper.horizontalSpace10,
-                      Expanded(
-                        child: CommonComponents().printText(
-                          fontSize: 12,
-                          textData:
-                              '${_cityToCityTripController.myTripList[index].cityFrom}',
-                          fontWeight: FontWeight.normal,
-                        ),
-                      )
-                    ],
-                  ),
-                  SpaceHelper.verticalSpace5,
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Icon(Icons.radio_button_checked,
-                          color: ColorHelper.blueColor),
-                      SpaceHelper.horizontalSpace10,
-                      Expanded(
-                        child: CommonComponents().printText(
-                          fontSize: 12,
-                          textData:
-                              '${_cityToCityTripController.myTripList[index].cityTo}',
-                          fontWeight: FontWeight.normal,
-                        ),
-                      )
-                    ],
-                  ),
-                ],
+                        )
+                      ],
+                    ),
+                    SpaceHelper.verticalSpace5,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(Icons.radio_button_checked,
+                            color: ColorHelper.blueColor),
+                        SpaceHelper.horizontalSpace10,
+                        Expanded(
+                          child: CommonComponents().printText(
+                            fontSize: 12,
+                            textData:
+                                '${_cityToCityTripController.myTripList[index].cityTo}',
+                            fontWeight: FontWeight.normal,
+                          ),
+                        )
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           );
@@ -456,6 +463,94 @@ class _DriverCityToCityRequestListState
                 ),
               ],
             ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showRideDetailsBottomSheet(int index) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.grey[900],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16.0.w,
+            right: 16.0.w,
+            top: 16.0.h,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16.h,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CommonComponents().printText(
+                  fontSize: 16,
+                  textData: 'Ride Details',
+                  fontWeight: FontWeight.bold),
+              SizedBox(height: 22.h),
+              SingleChildScrollView(
+                physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      height: 200,
+                      color: ColorHelper.whiteColor,
+                      child: Obx(
+                        () => GoogleMap(
+                          onMapCreated: (controller) =>
+                              _cityToCityTripController.onMapCreatedForRide,
+                          onCameraMove: (position) =>
+                              _cityToCityTripController.onCameraMoveForRide,
+                          initialCameraPosition: CameraPosition(
+                            target: _cityToCityTripController.rideRoute.value,
+                            zoom: 12,
+                          ),
+                          polylines: {
+                            Polyline(
+                                polylineId: const PolylineId("poly"),
+                                points: _cityToCityTripController
+                                    .polylineCoordinates
+                                    .map((geoPoint) => LatLng(
+                                        geoPoint.latitude, geoPoint.longitude))
+                                    .toList(),
+                                color: ColorHelper.primaryColor,
+                                width: 7)
+                          },
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 10.h),
+                    CommonComponents().printText(
+                        fontSize: 16,
+                        textData:
+                            'Passengers: ${_cityToCityTripController.myTripList[index].numberOfPassengers}',
+                        fontWeight: FontWeight.normal),
+                    CommonComponents().printText(
+                        fontSize: 16,
+                        textData:
+                            'Fare: ${_cityToCityTripController.myTripList[index].finalPrice}',
+                        fontWeight: FontWeight.normal),
+                    CommonComponents().printText(
+                        fontSize: 16,
+                        textData:
+                            'Description: ${_cityToCityTripController.myTripList[index].description}',
+                        fontWeight: FontWeight.normal),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20.h),
+              CommonComponents().commonButton(
+                text: 'Cancel Ride',
+                onPressed: () {},
+              )
+            ],
           ),
         );
       },

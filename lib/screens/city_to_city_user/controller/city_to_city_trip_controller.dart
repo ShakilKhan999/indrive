@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -11,9 +12,11 @@ import 'package:callandgo/models/city_to_city_trip_model.dart';
 import 'package:callandgo/screens/auth_screen/controller/auth_controller.dart';
 import 'package:callandgo/screens/city_to_city_user/repository/city_to_city_trip_repository.dart';
 import 'package:callandgo/utils/database_collection_names.dart';
+import 'package:google_place/google_place.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../helpers/color_helper.dart';
+import '../../../utils/app_config.dart';
 import '../../../utils/global_toast_service.dart';
 
 class CityToCityTripController extends GetxController {
@@ -36,6 +39,7 @@ class CityToCityTripController extends GetxController {
   var fromPlaceName = "".obs;
   var toPlaceName = "".obs;
   late GoogleMapController mapController;
+  late GoogleMapController mapControllerForRide;
   late GoogleMapController mapControllerTO;
   var center = const LatLng(23.80, 90.41).obs;
   final RxList<CityToCityTripModel> tripList = <CityToCityTripModel>[].obs;
@@ -567,5 +571,92 @@ class CityToCityTripController extends GetxController {
     try {
       MethodHelper().cancelRide(cityToCityTripCollection, docId);
     } catch (e) {}
+  }
+
+  var rideRoute = const LatLng(23.80, 90.41).obs;
+  onPressItemDetailsView({required int index}) {
+    rideRoute.value = LatLng(
+      double.parse(myTripList[index].pickLatLng!.latitude.toString()),
+      double.parse(myTripList[index].pickLatLng!.longitude.toString()),
+    );
+  }
+
+  GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
+  Map<PolylineId, Polyline> polyLines = {};
+  var polylineCoordinates = [].obs;
+  var findingRoutes = false.obs;
+  getPolyline({required int index}) async {
+    polyLines = {};
+    polylineCoordinates.value = [];
+    PolylinePoints polylinePoints = PolylinePoints();
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+      AppConfig.mapApiKey,
+      PointLatLng(myTripList[index].pickLatLng!.latitude,
+          myTripList[index].pickLatLng!.longitude),
+      PointLatLng(myTripList[index].dropLatLng!.latitude,
+          myTripList[index].dropLatLng!.longitude),
+      travelMode: TravelMode.driving,
+    );
+    log("polyLineResponse: ${result.points.length}");
+    log("polylineCoordinates: ${polylineCoordinates.length}");
+    if (result.points.isNotEmpty) {
+      for (var point in result.points) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      }
+    } else {
+      log("${result.errorMessage}");
+    }
+
+    addPolyLine(
+      polylineCoordinates
+          .map((geoPoint) => LatLng(geoPoint.latitude, geoPoint.longitude))
+          .toList(),
+    );
+  }
+
+  addPolyLine(List<LatLng> polylineCoordinates) {
+    PolylineId id = const PolylineId("poly");
+    Polyline polyline = Polyline(
+      polylineId: id,
+      color: Colors.deepPurpleAccent,
+      points: polylineCoordinates,
+      width: 8,
+    );
+    polyLines[id] = polyline;
+    moveCameraToPolyline();
+  }
+
+  void moveCameraToPolyline() {
+    if (polylineCoordinates.isEmpty) return;
+
+    double minLat = polylineCoordinates[0].latitude;
+    double maxLat = polylineCoordinates[0].latitude;
+    double minLng = polylineCoordinates[0].longitude;
+    double maxLng = polylineCoordinates[0].longitude;
+
+    for (var point in polylineCoordinates) {
+      if (point.latitude < minLat) minLat = point.latitude;
+      if (point.latitude > maxLat) maxLat = point.latitude;
+      if (point.longitude < minLng) minLng = point.longitude;
+      if (point.longitude > maxLng) maxLng = point.longitude;
+    }
+
+    LatLngBounds bounds = LatLngBounds(
+      southwest: LatLng(minLat, minLng),
+      northeast: LatLng(maxLat, maxLng),
+    );
+
+    mapControllerForRide
+        .animateCamera(CameraUpdate.newLatLngBounds(bounds, 60));
+  }
+
+  void onMapCreatedForRide(GoogleMapController controller) {
+    mapControllerForRide = controller;
+  }
+    void onCameraMoveForRide(CameraPosition position) {
+    log("camera Moving");
+    rideRoute.value =
+        LatLng(position.target.latitude, position.target.longitude);
+    cameraMoving.value = true;
   }
 }

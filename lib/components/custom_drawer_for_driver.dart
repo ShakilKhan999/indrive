@@ -10,12 +10,9 @@ import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/screens/auth_screen/controller/auth_controller.dart';
 import 'package:callandgo/screens/drawer_screen/my_ride_screen.dart';
-import 'package:callandgo/screens/freight_user/view/freight_request_screen.dart';
-import 'package:callandgo/screens/home/views/passenger_home.dart';
 import 'package:callandgo/screens/profile/views/choose_profile_screen.dart';
 
 import '../screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
-import '../screens/city_to_city_user/views/city_to_city_request.dart';
 import '../screens/city_to_city_user/views/driver_city_to_city_request_list.dart';
 import '../screens/driver/city_to_city/views/cityToCity_types_screen.dart';
 import '../screens/driver/courier/views/courier_screen.dart';
