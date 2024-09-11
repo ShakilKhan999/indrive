@@ -302,23 +302,23 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                   children: [
                     Row(
                       children: [
-                        Container(
-                          height: 50.h,
-                          width: 50.h,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(90),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(90),
-                            child: Image.network(
-                              homeController.thisDriver[0].photo ??
-                                  "https://cdn-icons-png.flaticon.com/512/8583/8583437.png",
-                              height: 50.h,
-                              width: 50.h,
-                              fit: BoxFit.fill,
-                            ),
-                          ),
-                        ),
+                        // Container(
+                        //   height: 50.h,
+                        //   width: 50.h,
+                        //   decoration: BoxDecoration(
+                        //     borderRadius: BorderRadius.circular(90),
+                        //   ),
+                        //   child: ClipRRect(
+                        //     borderRadius: BorderRadius.circular(90),
+                        //     child: Image.network(
+                        //       homeController.thisDriver[0].photo ??
+                        //           "https://cdn-icons-png.flaticon.com/512/8583/8583437.png",
+                        //       height: 50.h,
+                        //       width: 50.h,
+                        //       fit: BoxFit.fill,
+                        //     ),
+                        //   ),
+                        // ),
                         SpaceHelper.horizontalSpace10,
                         CommonComponents().printText(
                             fontSize: 18,

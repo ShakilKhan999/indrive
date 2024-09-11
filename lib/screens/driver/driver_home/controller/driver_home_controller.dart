@@ -24,14 +24,16 @@ class DriverHomeController extends GetxController {
 
   GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
   late GoogleMapController mapController;
-
+ AuthController authController = Get.put(AuthController());
   @override
   void onInit() {
-    AuthController authController = Get.put(AuthController());
+    polyLines.clear();
+    polylineCoordinates.clear();
+   
     authController.getUserData();
     getUserLocation();
     listenCall();
-    listenToTrips("I54BCk2Qa3NNMpVMytnMofUiSzy1");
+    listenToTrips(authController.currentUser.value.uid!);
     super.onInit();
   }
 
@@ -120,18 +122,20 @@ class DriverHomeController extends GetxController {
   var activeCall = [].obs;
   var onTheWay = [].obs;
   Future<void> listenCall() async {
-    DriverRepository().listenToCall().listen((event) {
+    DriverRepository().listenToCall(authController.currentUser.value.uid!).listen((event) {
       activeCall.value = List.generate(
           event.docs.length,
           (index) =>
               Trip.fromJson(event.docs[index].data() as Map<String, dynamic>));
 
+
       if (activeCall.isNotEmpty) {
-        if (activeCall[0].accepted == false) {
-          getPolyline(picking: false);
-        } else {
-          getPolyline(picking: true);
-        }
+        // if(activeCall[0].accepted == true && activeCall[0].picked == false) {
+        //   getPolyline(picking: true);
+        // }
+        // else if (activeCall[0].accepted == true && activeCall[0].picked == true) {
+        //   getPolyline(picking: false);
+        // }
 
         //playSound();
       } else {
