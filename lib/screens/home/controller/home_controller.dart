@@ -395,6 +395,13 @@ class HomeController extends GetxController {
           tripCalled.value = false;
           polyLines.clear();
           polylineCoordinates.clear();
+        } else if (calledTrip[0].accepted) {
+          riderFound.value = true;
+          thisDriver.clear();
+          var myRider = sortedDriverList
+              .firstWhere((driver) => driver.uid == calledTrip[0].driverId, orElse: () => null);
+          thisDriver.add(myRider);
+          tripCalled.value = false;
         }
       } else {
         log('Document does not exist');
@@ -489,8 +496,7 @@ class HomeController extends GetxController {
     //loadMarkers();
   }
 
-  Future<void> acceptBid(
-      {required String driverId, required int rent}) async {
+  Future<void> acceptBid({required String driverId, required int rent}) async {
     await PassengerRepository()
         .callDriver(calledTrip[0].tripId, driverId, rent);
     var myRider = sortedDriverList

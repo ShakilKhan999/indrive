@@ -27,6 +27,8 @@ class DriverHomeController extends GetxController {
 
   @override
   void onInit() {
+    polyLines.clear();
+    polylineCoordinates.clear();
     AuthController authController = Get.put(AuthController());
     authController.getUserData();
     getUserLocation();
@@ -126,12 +128,14 @@ class DriverHomeController extends GetxController {
           (index) =>
               Trip.fromJson(event.docs[index].data() as Map<String, dynamic>));
 
+
       if (activeCall.isNotEmpty) {
-        if (activeCall[0].accepted == false) {
-          getPolyline(picking: false);
-        } else {
-          getPolyline(picking: true);
-        }
+        // if(activeCall[0].accepted == true && activeCall[0].picked == false) {
+        //   getPolyline(picking: true);
+        // }
+        // else if (activeCall[0].accepted == true && activeCall[0].picked == true) {
+        //   getPolyline(picking: false);
+        // }
 
         //playSound();
       } else {

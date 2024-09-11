@@ -47,9 +47,9 @@ class _MyAppState extends State<MyApp> {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: DriverHomeScreen(),
+        //home: DriverHomeScreen(),
         // home: DriverCategoriesScreen(),
-        //home: RegisterScreen(),
+        home: DriverHomeScreen(),
         builder: (context, child) {
           return Overlay(
             initialEntries: [

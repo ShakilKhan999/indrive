@@ -65,8 +65,8 @@ class DriverHomeScreen extends StatelessWidget {
                                   .map((geoPoint) => LatLng(
                                       geoPoint.latitude, geoPoint.longitude))
                                   .toList(),
-                              color: ColorHelper.primaryColor,
-                              width: 7)
+                              color: Colors.deepPurpleAccent,
+                              width: 5)
                         },
                   myLocationEnabled: true,
                   myLocationButtonEnabled: true,
@@ -284,14 +284,15 @@ class DriverHomeScreen extends StatelessWidget {
                                                   CommonComponents()
                                                       .commonButton(
                                                           text: "Accept",
-                                                          onPressed: () {
-                                                            DriverRepository()
+                                                          onPressed: () async{
+                                                            await DriverRepository()
                                                                 .AcceptTrip(
                                                                     bid.tripId,
                                                                     "I54BCk2Qa3NNMpVMytnMofUiSzy1",
                                                                     bid.rent);
                                                             driverHomeController
                                                                 .listenCall();
+                                                            driverHomeController.getPolyline(picking: true);
                                                           })
                                                 ],
                                               ),
@@ -326,10 +327,13 @@ class DriverHomeScreen extends StatelessWidget {
                 CommonComponents().printText(
                     fontSize: 18, textData: "To:", fontWeight: FontWeight.bold),
                 SpaceHelper.horizontalSpace10,
-                CommonComponents().printText(
-                    fontSize: 18,
-                    textData: driverHomeController.activeCall[0].destination,
-                    fontWeight: FontWeight.normal),
+                SizedBox(
+                  width: 210.w,
+                  child: CommonComponents().printText(
+                      fontSize: 18,
+                      textData: driverHomeController.activeCall[0].destination,
+                      fontWeight: FontWeight.normal),
+                ),
               ],
             ),
           ),
@@ -360,6 +364,7 @@ class DriverHomeScreen extends StatelessWidget {
                           driverHomeController.activeCall[0].tripId,
                           "accepted",
                           true);
+                      driverHomeController.getPolyline(picking: true);
                     },
                     color: Colors.green,
                     borderRadius: 14))
@@ -386,10 +391,13 @@ class DriverHomeScreen extends StatelessWidget {
                 CommonComponents().printText(
                     fontSize: 18, textData: "To:", fontWeight: FontWeight.bold),
                 SpaceHelper.horizontalSpace10,
-                CommonComponents().printText(
-                    fontSize: 18,
-                    textData: driverHomeController.activeCall[0].destination,
-                    fontWeight: FontWeight.normal),
+                SizedBox(
+                  width: 210.w,
+                  child: CommonComponents().printText(
+                      fontSize: 18,
+                      textData: driverHomeController.activeCall[0].destination,
+                      fontWeight: FontWeight.normal),
+                ),
               ],
             ),
           ),
