@@ -411,7 +411,10 @@ class HomeController extends GetxController {
           polylineCoordinates.clear();
         } else if (calledTrip[0].accepted) {
           riderFound.value = true;
-          thisDriver.add(driverList.where((driver)=>driver.uid==calledTrip[0].driverId));
+          var myRider = sortedDriverList
+              .firstWhere((driver) => driver.uid == calledTrip[0].driverId, orElse: () => null);
+          thisDriver.clear();
+          thisDriver.add(myRider);
           tripCalled.value = false;
         }
       } else {
@@ -468,7 +471,7 @@ class HomeController extends GetxController {
 
     listenCalledTrip(tripId);
 
-    for(int i=0;i<20;i++)
+    for(int i=0;i<60;i++)
       {
         if(selectedVehicle=="cng" && cngdriverMarkerList.isEmpty)
           {
@@ -491,10 +494,14 @@ class HomeController extends GetxController {
             showToast("Driver found");
             break;
           }
-        else if(i==19)
+        else if(i==59)
           {
             showToast("Busy hours, Please try again later");
             PassengerRepository().removeThisTrip(tripId);
+          }
+        else if(tripCalled==false)
+          {
+            break;
           }
         await Future.delayed(Duration(seconds: 1));
       }
@@ -560,6 +567,7 @@ class HomeController extends GetxController {
         .firstWhere((driver) => driver.uid == driverId, orElse: () => null);
     riderFound.value = true;
     tripCalled.value = false;
+    thisDriver.clear();
     thisDriver.add(myRider);
     thisDriverDetails.clear();
     // thisDriverDetails

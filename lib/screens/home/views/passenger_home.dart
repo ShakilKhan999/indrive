@@ -424,10 +424,8 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                         homeController.polylineCoordinates.clear();
                         homeController.tripCalled.value = false;
                         homeController.riderFound.value = false;
-                        DriverRepository().updateTripState(
-                            homeController.calledTrip[0].tripId,
-                            "userCancel",
-                            true);
+                        PassengerRepository().removeThisTrip(homeController.calledTrip[0].tripId);
+
                       },
                     )),
               ],
