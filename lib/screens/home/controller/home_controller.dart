@@ -396,11 +396,8 @@ class HomeController extends GetxController {
           polyLines.clear();
           polylineCoordinates.clear();
         } else if (calledTrip[0].accepted) {
-          riderFound.value = true;
-          thisDriver.clear();
-          var myRider = sortedDriverList
-              .firstWhere((driver) => driver.uid == calledTrip[0].driverId, orElse: () => null);
-          thisDriver.add(myRider);
+          riderFound.value = true;jhjhjh
+          thisDriver.add(driverList.where((driver)=>driver.uid==calledTrip[0].driverId));
           tripCalled.value = false;
         }
       } else {
