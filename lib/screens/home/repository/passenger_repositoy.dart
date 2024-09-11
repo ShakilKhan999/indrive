@@ -30,6 +30,18 @@ class PassengerRepository {
     }
   }
 
+  Future<void> removeThisTrip( String docId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection("All Trips")
+          .doc(docId)
+          .delete();
+      print("Document with ID $docId deleted successfully.");
+    } catch (e) {
+      print("Error deleting document: $e");
+    }
+  }
+
   Future<void> removeBidByDriverId({
     required String tripId,
     required String driverId,

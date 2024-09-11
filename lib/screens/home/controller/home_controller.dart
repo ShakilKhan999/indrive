@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
@@ -122,12 +123,12 @@ class HomeController extends GetxController {
     final BitmapDescriptor markerIconMoto =
         await BitmapDescriptor.fromAssetImage(
       const ImageConfiguration(size: Size(24, 24)),
-      'assets/images/cngMarker.png',
+      'assets/images/motoMarker.png',
     );
     final BitmapDescriptor markerIconCng =
         await BitmapDescriptor.fromAssetImage(
       const ImageConfiguration(size: Size(24, 24)),
-      'assets/images/cngMarker.png',
+      'assets/images/taxiMarker.png',
     );
     var carListToMarked = cardriverMarkerList;
     var motoListToMarked = motodriverMarkerList;
@@ -325,33 +326,47 @@ class HomeController extends GetxController {
   }
 
   Future<void> getDriverList() async {
-    PassengerRepository().listenToDriverDocs().listen((event) {
+    PassengerRepository().listenToDriverDocs().listen((event) async{
       driverList.value = List.generate(event.docs.length,
           (index) => UserModel.fromJson(event.docs[index].data()));
-
-      cardriverMarkerList.value = driverList
-          .where(
-              (driver) => driver.latLng != null && driver.vehicleType == "car")
-          .map((driver) =>
-              LatLng(driver.latLng.latitude, driver.latLng.longitude))
-          .toList();
-
-      motodriverMarkerList.value = driverList
-          .where(
-              (driver) => driver.latLng != null && driver.vehicleType == "moto")
-          .map((driver) =>
-              LatLng(driver.latLng.latitude, driver.latLng.longitude))
-          .toList();
-
-      cngdriverMarkerList.value = driverList
-          .where(
-              (driver) => driver.latLng != null && driver.vehicleType == "cng")
-          .map((driver) =>
-              LatLng(driver.latLng.latitude, driver.latLng.longitude))
-          .toList();
-
-      loadMarkers();
+   await filterRider();
+    
     });
+  }
+
+  Future<void> filterRider()async {
+    cardriverMarkerList.clear();
+    motodriverMarkerList.clear();
+    cngdriverMarkerList.clear();
+
+    log("driverList: ${driverList[0].uid}      ${driverList[1].uid}");
+
+    cardriverMarkerList.addAll(driverList
+        .where(
+            (driver) => driver.latLng != null && driver.vehicleType == "car")
+        .map((driver) =>
+        LatLng(driver.latLng.latitude, driver.latLng.longitude))
+        .toList());
+
+    log("CarDriverList: ${cardriverMarkerList.length.toString()}");
+
+    motodriverMarkerList.addAll(driverList
+        .where(
+            (driver) => driver.latLng != null && driver.vehicleType == "moto")
+        .map((driver) =>
+        LatLng(driver.latLng.latitude, driver.latLng.longitude))
+        .toList());
+    log("MotoDriverList: ${motodriverMarkerList.length.toString()}");
+
+    cngdriverMarkerList.addAll(driverList
+        .where(
+            (driver) => driver.latLng != null && driver.vehicleType == "cng")
+        .map((driver) =>
+        LatLng(driver.latLng.latitude, driver.latLng.longitude))
+        .toList());
+    log("CngDriverList: ${cngdriverMarkerList.length.toString()}");
+
+    loadMarkers();
   }
 
   var sortedDriverList = [].obs;
@@ -410,6 +425,8 @@ class HomeController extends GetxController {
   var thisDriver = [].obs;
   var thisDriverDetails = [].obs;
 
+  var tempTripId="";
+
   Future<void> callTrip() async {
     sortedDriverList.clear();
     sortedDriverList
@@ -430,6 +447,7 @@ class HomeController extends GetxController {
 
     tripCalled.value = true;
     String tripId = generateUniqueId();
+    tempTripId=tripId;
     Trip trip = Trip(
         userId: "8mCWZ9uBrWME2Bfm9YOCvb0U2EJ3",
         rent: int.parse(offerPriceController.text),
@@ -450,7 +468,38 @@ class HomeController extends GetxController {
 
     listenCalledTrip(tripId);
 
-    await Future.delayed(Duration(seconds: 3));
+    for(int i=0;i<20;i++)
+      {
+        if(selectedVehicle=="cng" && cngdriverMarkerList.isEmpty)
+          {
+            showToast("No Taxi available nearby");
+            break;
+          }
+        else if(selectedVehicle=="car" && cardriverMarkerList.isEmpty)
+        {
+          showToast("No Taxi car nearby");
+          break;
+        }
+        else if(selectedVehicle=="moto" && motodriverMarkerList.isEmpty)
+        {
+          showToast("No Moto available nearby");
+          break;
+        }
+        else if(riderFound.value == true &&
+            calledTrip.isNotEmpty)
+          {
+            showToast("Driver found");
+            break;
+          }
+        else if(i==19)
+          {
+            showToast("Busy hours, Please try again later");
+            PassengerRepository().removeThisTrip(tripId);
+          }
+        await Future.delayed(Duration(seconds: 1));
+      }
+
+
 
     // for (int i = 0; i < sortedDriverList.length; i++) {
     //   if (sortedDriverList[i].latLng != null &&
@@ -490,6 +539,18 @@ class HomeController extends GetxController {
     // }
     tripCalled.value = false;
     //loadMarkers();
+  }
+
+  void showToast(String message) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.black,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
   }
 
   Future<void> acceptBid({required String driverId, required int rent}) async {

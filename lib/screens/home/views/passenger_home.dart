@@ -714,9 +714,14 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                   ? "Cancel Search"
                                   : "Find a driver",
                               onPressed: () {
-                                homeController.tripCalled.value == false
-                                    ? homeController.callTrip()
-                                    : homeController.tripCalled.value = false;
+                                if(homeController.tripCalled.value==false)
+                                  {
+                                    homeController.callTrip();
+                                  }
+                                else{
+                                  homeController.tripCalled.value=false;
+                                  PassengerRepository().removeThisTrip(homeController.tempTripId);
+                                }
                               },
                             ))),
                     Icon(
