@@ -71,7 +71,7 @@ class CustomDrawerForDriver extends StatelessWidget {
               onPressed: () {
                 showDeleteDialog(context);
               },
-              color: const Color.fromARGB(255, 161, 9, 9)),
+              color: ColorHelper.red),
         ),
         SpaceHelper.verticalSpace20
       ],
@@ -166,15 +166,15 @@ class CustomDrawerForDriver extends StatelessWidget {
             Get.to(() => MyRideScreen(), transition: Transition.rightToLeft);
           },
         ),
-        buildDrawerItem(
-          icon: Icons.safety_check,
-          text: 'Safety',
-          color: Colors.white,
-          onTap: () {
-            // Get.offAll(() =>
-            //     transition: Transition.rightToLeft);
-          },
-        ),
+        // buildDrawerItem(
+        //   icon: Icons.safety_check,
+        //   text: 'Safety',
+        //   color: Colors.white,
+        //   onTap: () {
+        //     // Get.offAll(() =>
+        //     //     transition: Transition.rightToLeft);
+        //   },
+        // ),
         buildDrawerItem(
           icon: Icons.logout_rounded,
           text: 'Logout',
