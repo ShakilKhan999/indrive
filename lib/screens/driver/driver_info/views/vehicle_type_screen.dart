@@ -134,32 +134,32 @@ class VehicleTypeScreen extends StatelessWidget {
           ),
         ),
         SpaceHelper.verticalSpace5,
-        Container(
-          height: 60.h,
-          width: MediaQuery.of(context).size.width - 30.w,
-          decoration: BoxDecoration(
-              color: Colors.black, borderRadius: BorderRadius.circular(12)),
-          child: Center(
-            child: InkWell(
-              onTap: () {},
-              child: ListTile(
-                leading: SizedBox(
-                    height: 30.h,
-                    width: 40.h,
-                    child: Image.asset("assets/images/wheelchair.png")),
-                title: CommonComponents().printText(
-                    fontSize: 18,
-                    textData: "Reduced Mobility",
-                    fontWeight: FontWeight.bold),
-                trailing: Icon(
-                  Icons.arrow_forward_ios,
-                  color: Colors.white,
-                  size: 18.sp,
-                ),
-              ),
-            ),
-          ),
-        ),
+        // Container(
+        //   height: 60.h,
+        //   width: MediaQuery.of(context).size.width - 30.w,
+        //   decoration: BoxDecoration(
+        //       color: Colors.black, borderRadius: BorderRadius.circular(12)),
+        //   child: Center(
+        //     child: InkWell(
+        //       onTap: () {},
+        //       child: ListTile(
+        //         leading: SizedBox(
+        //             height: 30.h,
+        //             width: 40.h,
+        //             child: Image.asset("assets/images/wheelchair.png")),
+        //         title: CommonComponents().printText(
+        //             fontSize: 18,
+        //             textData: "Reduced Mobility",
+        //             fontWeight: FontWeight.bold),
+        //         trailing: Icon(
+        //           Icons.arrow_forward_ios,
+        //           color: Colors.white,
+        //           size: 18.sp,
+        //         ),
+        //       ),
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }
