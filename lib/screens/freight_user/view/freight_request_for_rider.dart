@@ -67,7 +67,7 @@ class _FreightRequesForRiderState extends State<FreightRequesForRider>
           return Card(
             color: ColorHelper.blackColor,
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(8.sp),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -104,21 +104,79 @@ class _FreightRequesForRiderState extends State<FreightRequesForRider>
                             ),
                           ),
                           SpaceHelper.horizontalSpace10,
-                          CommonComponents().printText(
-                              fontSize: 15,
-                              textData:
-                                  '${_freightTripController.myTripList[index].userName}',
-                              fontWeight: FontWeight.bold),
+                          Padding(
+                            padding: EdgeInsets.only(left: 3.w),
+                            child: SizedBox(
+                              width: 120.w,
+                              child: Text(
+                                '${_freightTripController.myTripList[index].userName}',
+                                style: TextStyle(
+                                  fontSize: 15.sp,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                          // CommonComponents().printText(
+                          //     fontSize: 15,
+                          //     textData:
+                          //         '${_freightTripController.myTripList[index].userName}',
+                          //     fontWeight: FontWeight.bold),
                         ],
                       ),
-                      CommonComponents().printText(
-                          fontSize: 15,
-                          textData:
-                              '${_freightTripController.myTripList[index].finalPrice}',
-                          fontWeight: FontWeight.bold),
+                      // CommonComponents().printText(
+                      //     fontSize: 15,
+                      //     textData:
+                      //         '${_freightTripController.myTripList[index].finalPrice}',
+                      //     fontWeight: FontWeight.bold),
+                      Row(
+                        children: [
+                          _buildMyRideCancelRideButtonView(),
+                          SpaceHelper.horizontalSpace5,
+                          _buildMyRidePickupButtonView(),
+                        ],
+                      ),
                     ],
                   ),
                   SpaceHelper.verticalSpace15,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      CommonComponents().printText(
+                        fontSize: 12,
+                        textData: 'Status :',
+                        fontWeight: FontWeight.w600,
+                      ),
+                      SpaceHelper.horizontalSpace10,
+                      CommonComponents().printText(
+                        fontSize: 12,
+                        textData: 'Accepted',
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ],
+                  ),
+                  SpaceHelper.verticalSpace10,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      CommonComponents().printText(
+                        fontSize: 12,
+                        textData: 'Price :',
+                        fontWeight: FontWeight.w600,
+                      ),
+                      SpaceHelper.horizontalSpace10,
+                      CommonComponents().printText(
+                        fontSize: 12,
+                        textData:
+                            '${_freightTripController.myTripList[index].finalPrice}',
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ],
+                  ),
+                  SpaceHelper.verticalSpace10,
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -458,6 +516,42 @@ class _FreightRequesForRiderState extends State<FreightRequesForRider>
           ),
         );
       },
+    );
+  }
+
+  Widget _buildMyRidePickupButtonView() {
+    return InkWell(
+      onTap: () {},
+      child: Container(
+        padding: EdgeInsets.all(7.sp),
+        decoration: BoxDecoration(
+          color: ColorHelper.primaryColor,
+          borderRadius: BorderRadius.circular(8.r),
+        ),
+        child: Center(
+          child: CommonComponents().printText(
+              fontSize: 14, textData: 'Pick Up', fontWeight: FontWeight.normal),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMyRideCancelRideButtonView() {
+    return InkWell(
+      onTap: () {},
+      child: Container(
+        padding: EdgeInsets.all(7.sp),
+        decoration: BoxDecoration(
+          color: ColorHelper.red,
+          borderRadius: BorderRadius.circular(8.r),
+        ),
+        child: Center(
+          child: CommonComponents().printText(
+              fontSize: 14,
+              textData: 'Cancel Ride',
+              fontWeight: FontWeight.normal),
+        ),
+      ),
     );
   }
 }

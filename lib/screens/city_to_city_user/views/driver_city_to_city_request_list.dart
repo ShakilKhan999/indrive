@@ -49,8 +49,8 @@ class _DriverCityToCityRequestListState
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  _buildBodyView(),
-                  Obx(() => _buildMyRequestView()),
+                  _buildRequestListView(),
+                  Obx(() => _buildMyRideView()),
                 ],
               ),
             ),
@@ -61,7 +61,7 @@ class _DriverCityToCityRequestListState
     );
   }
 
-  Widget _buildMyRequestView() {
+  Widget _buildMyRideView() {
     return ListView.separated(
         itemBuilder: (context, index) {
           return InkWell(
@@ -73,7 +73,8 @@ class _DriverCityToCityRequestListState
             child: Card(
               color: ColorHelper.blackColor,
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding:
+                    EdgeInsets.only(top: 8.0.h, bottom: 8.0.h, right: 8.0.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -110,21 +111,76 @@ class _DriverCityToCityRequestListState
                               ),
                             ),
                             SpaceHelper.horizontalSpace10,
-                            CommonComponents().printText(
-                                fontSize: 15,
-                                textData:
-                                    '${_cityToCityTripController.myTripList[index].userName}',
-                                fontWeight: FontWeight.bold),
+                            Padding(
+                              padding: EdgeInsets.only(left: 3.w),
+                              child: SizedBox(
+                                width: 120.w,
+                                child: Text(
+                                  '${_cityToCityTripController.myTripList[index].userName}',
+                                  style: TextStyle(
+                                    fontSize: 15.sp,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                            // CommonComponents().printText(
+                            //     fontSize: 15,
+                            //     textData:
+                            //         // '${_cityToCityTripController.myTripList[index].userName}',
+                            //         'sdsdafasdfaasdfasfffffffffffffffff',
+                            //     maxLine: 2,
+                            //     fontWeight: FontWeight.bold),
                           ],
                         ),
-                        CommonComponents().printText(
-                            fontSize: 15,
-                            textData:
-                                '${_cityToCityTripController.myTripList[index].finalPrice}',
-                            fontWeight: FontWeight.bold),
+                        Row(
+                          children: [
+                            _buildMyRideCancelRideButtonView(),
+                            SpaceHelper.horizontalSpace5,
+                            _buildMyRidePickupButtonView(),
+                          ],
+                        ),
                       ],
                     ),
                     SpaceHelper.verticalSpace15,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        CommonComponents().printText(
+                          fontSize: 12,
+                          textData: 'Status :',
+                          fontWeight: FontWeight.w600,
+                        ),
+                        SpaceHelper.horizontalSpace10,
+                        CommonComponents().printText(
+                          fontSize: 12,
+                          textData: 'Accepted',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ],
+                    ),
+                    SpaceHelper.verticalSpace10,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        CommonComponents().printText(
+                          fontSize: 12,
+                          textData: 'Price :',
+                          fontWeight: FontWeight.w600,
+                        ),
+                        SpaceHelper.horizontalSpace10,
+                        CommonComponents().printText(
+                          fontSize: 12,
+                          textData:
+                              '${_cityToCityTripController.myTripList[index].finalPrice}',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ],
+                    ),
+                    SpaceHelper.verticalSpace10,
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -170,6 +226,42 @@ class _DriverCityToCityRequestListState
         itemCount: _cityToCityTripController.myTripList.length);
   }
 
+  Widget _buildMyRidePickupButtonView() {
+    return InkWell(
+      onTap: () {},
+      child: Container(
+        padding: EdgeInsets.all(7.sp),
+        decoration: BoxDecoration(
+          color: ColorHelper.primaryColor,
+          borderRadius: BorderRadius.circular(8.r),
+        ),
+        child: Center(
+          child: CommonComponents().printText(
+              fontSize: 14, textData: 'Pick Up', fontWeight: FontWeight.normal),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMyRideCancelRideButtonView() {
+    return InkWell(
+      onTap: () {},
+      child: Container(
+        padding: EdgeInsets.all(7.sp),
+        decoration: BoxDecoration(
+          color: ColorHelper.red,
+          borderRadius: BorderRadius.circular(8.r),
+        ),
+        child: Center(
+          child: CommonComponents().printText(
+              fontSize: 14,
+              textData: 'Cancel Ride',
+              fontWeight: FontWeight.normal),
+        ),
+      ),
+    );
+  }
+
   Widget _buildTabBar() {
     return Container(
       color: ColorHelper.secondaryBgColor,
@@ -188,7 +280,7 @@ class _DriverCityToCityRequestListState
     );
   }
 
-  Widget _buildBodyView() {
+  Widget _buildRequestListView() {
     return Obx(
       () => _cityToCityTripController.tripList.isNotEmpty
           ? ListView.separated(
@@ -495,7 +587,8 @@ class _DriverCityToCityRequestListState
                   fontWeight: FontWeight.bold),
               SizedBox(height: 22.h),
               SingleChildScrollView(
-                physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                physics: BouncingScrollPhysics(
+                    parent: AlwaysScrollableScrollPhysics()),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
