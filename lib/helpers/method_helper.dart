@@ -118,4 +118,26 @@ class MethodHelper {
       return UserModel.fromJson(snapshot.data() as Map<String, dynamic>);
     });
   }
+
+  sortTripsByCreatedAt(List trips) {
+    trips.sort((a, b) {
+      DateTime dateA = DateTime.parse(a.createdAt);
+      DateTime dateB = DateTime.parse(b.createdAt);
+      return dateA.compareTo(dateB);
+    });
+  }
+
+  Color statusColor({required String status}) {
+    Color color = Colors.white;
+    if (status == 'accepted') {
+      color = Colors.green;
+    } else if (status == 'cancelled') {
+      color = Colors.red;
+    } else if (status == 'completed') {
+      color = Colors.blue;
+    } else if (status == 'picked up') {
+      color = Colors.yellow;
+    }
+    return color;
+  }
 }

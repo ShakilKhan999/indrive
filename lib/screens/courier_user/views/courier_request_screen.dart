@@ -1,5 +1,4 @@
-import 'dart:ffi';
-
+import 'package:callandgo/screens/courier_user/controller/courier_trip_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -11,19 +10,59 @@ import 'package:callandgo/helpers/style_helper.dart';
 import 'package:callandgo/screens/driver/courier/controller/courier_controller.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 
-class CourierScreen extends StatelessWidget {
-  CourierScreen({super.key});
-  final CourierController _courierController = Get.put(CourierController());
+import 'courier_select_location.dart';
+
+class CourierRequestScreen extends StatefulWidget {
+  CourierRequestScreen({super.key});
+
+  @override
+  State<CourierRequestScreen> createState() => _CourierRequestScreenState();
+}
+
+class _CourierRequestScreenState extends State<CourierRequestScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  CourierTripController courierTripController =
+      Get.put(CourierTripController());
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          _buildMapView(context),
-          _buildTopBackButtonView(),
-          _buildCourierDeliveryDeatilsView(),
-        ],
-      ),
+        body: Column(
+      children: [
+        Expanded(
+            child: TabBarView(
+          controller: _tabController,
+          children: [
+            _buildCreateRequestView(context),
+            Container(),
+            Container(),
+          ],
+        )),
+        _buildTabBar(),
+      ],
+    ));
+  }
+
+  Stack _buildCreateRequestView(BuildContext context) {
+    return Stack(
+      children: [
+        _buildMapView(context),
+        _buildTopBackButtonView(),
+        _buildCourierDeliveryDeatilsView(),
+      ],
     );
   }
 
@@ -46,19 +85,20 @@ class CourierScreen extends StatelessWidget {
             SpaceHelper.verticalSpace10,
             _buildOptionsView(),
             SpaceHelper.verticalSpace15,
-            _buildSetAddressView(),
-            _buildTexfiledView(
-                _courierController.toCourierController.value, 'To',
-                prefixIcon: Icon(
-                  Icons.search,
-                  color: Colors.grey,
-                )),
+            // _buildSetAddressView(),
+            _buildTextFiledView('Pickup location',
+                courierTripController.pickUpController.value, true),
+            SpaceHelper.verticalSpace15,
+            _buildTextFiledView('Destination location',
+                courierTripController.destinationController.value, false),
+
             SpaceHelper.verticalSpace15,
             _buildOptionButton(Icons.door_front_door, 'Door to door'),
             SpaceHelper.verticalSpace15,
             _buildOderdeatilsView(),
             SpaceHelper.verticalSpace10,
-            _buildTexfiledView(_courierController.fareCourierController.value,
+            _buildTexfiledView(
+                courierTripController.fareCourierController.value,
                 'Offer your fare',
                 prefixIcon: Icon(
                   Icons.payment,
@@ -67,6 +107,44 @@ class CourierScreen extends StatelessWidget {
             SpaceHelper.verticalSpace15,
             _buildBottomButton(),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextFiledView(
+      String hintText, TextEditingController controller, bool? isFrom) {
+    return TextField(
+      style: TextStyle(
+        fontSize: 16.sp,
+        color: Colors.white,
+        fontWeight: FontWeight.w400,
+        decoration: TextDecoration.none,
+      ),
+      onTap: () {
+        if (isFrom!) {
+          courierTripController.changingPickup.value = isFrom;
+          Get.to(() => CourierSelectLocation(),
+              transition: Transition.rightToLeft);
+        } else if (!isFrom) {
+          courierTripController.changingPickup.value = isFrom;
+          Get.to(() => CourierSelectLocation(),
+              transition: Transition.rightToLeft);
+        }
+      },
+      controller: controller,
+      decoration: InputDecoration(
+        hintText: hintText,
+        hintStyle: TextStyle(color: Colors.grey),
+        filled: true,
+        fillColor: ColorHelper.grey850,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide.none,
+        ),
+        suffixIcon: Icon(
+          Icons.arrow_forward_ios,
+          color: ColorHelper.greyColor,
         ),
       ),
     );
@@ -84,22 +162,14 @@ class CourierScreen extends StatelessWidget {
         fontWeight: FontWeight.bold);
   }
 
-  Widget _buildSetAddressView() {
-    return ListTile(
-      leading:
-          Icon(Icons.radio_button_checked, color: ColorHelper.primaryColor),
-      title: Text('STL Rd', style: TextStyle(color: Colors.white)),
-    );
-  }
-
   Widget _buildOptionsView() {
     return Obx(() => Row(
           children: [
             _buildTransportOption(
-                'Car', !_courierController.isMotorcycleSelected.value),
+                'Car', !courierTripController.isMotorcycleSelected.value),
             SpaceHelper.horizontalSpace15,
             _buildTransportOption(
-                'Motorcycle', _courierController.isMotorcycleSelected.value),
+                'Motorcycle', courierTripController.isMotorcycleSelected.value),
           ],
         ));
   }
@@ -183,7 +253,7 @@ class CourierScreen extends StatelessWidget {
   Widget _buildOderdeatilsView() {
     return GestureDetector(
       onTap: () {
-        if (_courierController.isOptionButtonEnabled.value) {
+        if (courierTripController.isOptionButtonEnabled.value) {
           _showEnabledBottomSheet(Get.context!);
         } else {
           _showDisabledBottomSheet(Get.context!);
@@ -220,14 +290,14 @@ class CourierScreen extends StatelessWidget {
   Widget _buildOptionButton(IconData icon, String label) {
     return Obx(() => GestureDetector(
           onTap: () {
-            _courierController.isOptionButtonEnabled.value =
-                !_courierController.isOptionButtonEnabled.value;
+            courierTripController.isOptionButtonEnabled.value =
+                !courierTripController.isOptionButtonEnabled.value;
           },
           child: Container(
-            width: 130.w,
+            width: 140.w,
             padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
             decoration: BoxDecoration(
-              color: _courierController.isOptionButtonEnabled.value
+              color: courierTripController.isOptionButtonEnabled.value
                   ? ColorHelper.primaryColor
                   : ColorHelper.grey850,
               borderRadius: BorderRadius.circular(8),
@@ -239,11 +309,13 @@ class CourierScreen extends StatelessWidget {
                   child: Icon(icon, color: Colors.grey),
                 ),
                 SpaceHelper.horizontalSpace5,
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -295,14 +367,16 @@ class CourierScreen extends StatelessWidget {
             textData: 'Where to pick up',
             fontWeight: FontWeight.w600),
         SpaceHelper.verticalSpace5,
-        _buildTexfiledView(_courierController.pickUpStreetInfoController.value,
+        _buildTexfiledView(
+            courierTripController.pickUpStreetInfoController.value,
             'Street,building',
             prefixIcon: Icon(
               Icons.streetview_outlined,
               color: Colors.grey,
             )),
         SpaceHelper.verticalSpace10,
-        _buildTexfiledView(_courierController.pickUpFloorInfoController.value,
+        _buildTexfiledView(
+            courierTripController.pickUpFloorInfoController.value,
             'Floor,apartment,entryphone',
             prefixIcon: Icon(
               Icons.apartment,
@@ -311,7 +385,7 @@ class CourierScreen extends StatelessWidget {
         SpaceHelper.verticalSpace10,
         _buildPhoneTextFiled(
             context,
-            _courierController.pickUpSenderPhoneInfoController.value,
+            courierTripController.pickUpSenderPhoneInfoController.value,
             'Sender phone number'),
       ],
     );
@@ -328,14 +402,15 @@ class CourierScreen extends StatelessWidget {
             fontWeight: FontWeight.w600),
         SpaceHelper.verticalSpace5,
         _buildTexfiledView(
-            _courierController.deliveryStreetInfoController.value,
+            courierTripController.deliveryStreetInfoController.value,
             'Street,building',
             prefixIcon: Icon(
               Icons.streetview_outlined,
               color: Colors.grey,
             )),
         SpaceHelper.verticalSpace10,
-        _buildTexfiledView(_courierController.deliveryFloorInfoController.value,
+        _buildTexfiledView(
+            courierTripController.deliveryFloorInfoController.value,
             'Floor,apartment,entryphone',
             prefixIcon: Icon(
               Icons.apartment,
@@ -344,7 +419,7 @@ class CourierScreen extends StatelessWidget {
         SpaceHelper.verticalSpace10,
         _buildPhoneTextFiled(
             context,
-            _courierController.deliverySenderPhoneInfoController.value,
+            courierTripController.recipientPhoneController.value,
             'Recipient phone number'),
       ],
     );
@@ -362,7 +437,7 @@ class CourierScreen extends StatelessWidget {
         SpaceHelper.verticalSpace5,
         _buildTexfiledView(
           maxLines: 3,
-          _courierController.descriptionDeliverController.value,
+          courierTripController.descriptionDeliverController.value,
           'Add description',
         ),
       ],
@@ -423,12 +498,12 @@ class CourierScreen extends StatelessWidget {
       children: [
         _buildPhoneTextFiled(
             context,
-            _courierController.pickUpSenderPhoneInfoController.value,
+            courierTripController.pickUpSenderPhoneInfoController.value,
             'Sender phone number'),
         SpaceHelper.verticalSpace5,
         _buildPhoneTextFiled(
             context,
-            _courierController.deliverySenderPhoneInfoController.value,
+            courierTripController.recipientPhoneController.value,
             'Recipient phone number'),
       ],
     );
@@ -467,6 +542,25 @@ class CourierScreen extends StatelessWidget {
       initialCountryCode: 'BD',
       onCountryChanged: (value) {},
       onChanged: (phone) {},
+    );
+  }
+
+  Widget _buildTabBar() {
+    return Container(
+      color: ColorHelper.secondaryBgColor,
+      child: TabBar(
+        padding: EdgeInsets.zero,
+        controller: _tabController,
+        indicatorPadding: EdgeInsets.all(2.sp),
+        indicatorColor: ColorHelper.primaryColor,
+        unselectedLabelColor: Colors.grey,
+        labelColor: ColorHelper.primaryColor,
+        tabs: [
+          CommonComponents().customTab('Create Request', Icons.add),
+          CommonComponents().customTab('Request List', Icons.list),
+          CommonComponents().customTab('My Ride', Icons.list),
+        ],
+      ),
     );
   }
 }

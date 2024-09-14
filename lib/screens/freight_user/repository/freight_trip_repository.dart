@@ -3,9 +3,6 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:callandgo/models/freight_trip_model.dart';
 import 'package:callandgo/utils/database_collection_names.dart';
-
-import '../../../models/city_to_city_trip_model.dart';
-
 class FreightTripRepository {
   Future<bool> addFreightRequest(FreightTripModel freightTripModel) async {
     try {
@@ -102,7 +99,6 @@ class FreightTripRepository {
       return FirebaseFirestore.instance
           .collection(freightTripCollection)
           .where('driverUid', isEqualTo: userId)
-          .where('tripCurrentStatus', isEqualTo: 'accepted')
           .snapshots()
           .map((snapshot) {
         return snapshot.docs

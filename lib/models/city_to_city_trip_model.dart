@@ -28,6 +28,9 @@ class CityToCityTripModel {
   final GeoPoint? dropLatLng;
   final String? acceptBy;
   final String? declineDriverIds;
+  final String? cancelReason;
+  final String? cancelBy;
+  final String? createdAt;
 
   CityToCityTripModel({
     this.id,
@@ -57,6 +60,9 @@ class CityToCityTripModel {
     this.dropLatLng,
     this.acceptBy,
     this.declineDriverIds,
+    this.cancelReason,
+    this.cancelBy,
+    required this.createdAt,
   });
 
   Map<String, dynamic> toJson() {
@@ -88,6 +94,9 @@ class CityToCityTripModel {
       'dropLatLng': dropLatLng,
       'acceptBy': acceptBy,
       'declineDriverIds': declineDriverIds,
+      'cancelReason': cancelReason,
+      'cancelBy': cancelBy,
+      'createdAt': createdAt,
     };
   }
 
@@ -122,6 +131,9 @@ class CityToCityTripModel {
       dropLatLng: json['dropLatLng'],
       acceptBy: json['acceptBy'],
       declineDriverIds: json['declineDriverIds'],
+      cancelReason: json['cancelReason'],
+      cancelBy: json['cancelBy'],
+      createdAt: json['createdAt'],
     );
   }
 }

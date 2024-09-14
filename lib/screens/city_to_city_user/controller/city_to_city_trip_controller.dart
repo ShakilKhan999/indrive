@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -123,32 +124,32 @@ class CityToCityTripController extends GetxController {
       var uuid = Uuid();
       AuthController _authController = Get.find();
       CityToCityTripModel cityToCityTripModel = CityToCityTripModel(
-        id: uuid.v1(),
-        cityFrom: fromPlaceName.value,
-        cityTo: toPlaceName.value,
-        date: selectedDate.value.toString(),
-        userPrice: tripType.value == 'ride'
-            ? riderFareController.value.text
-            : parcelFareController.value.text,
-        numberOfPassengers:
-            tripType.value == 'ride' ? numberOfPassengers.value : null,
-        userPhone: _authController.currentUser.value.phone,
-        userName: _authController.currentUser.value.name,
-        userImage: _authController.currentUser.value.photo,
-        userUid: _authController.currentUser.value.uid,
-        isTripAccepted: false,
-        isTripCancelled: false,
-        isTripCompleted: false,
-        tripCurrentStatus: "new",
-        tripType: tripType.value,
-        pickLatLng: GeoPoint(startPickedCenter.value.latitude,
-            startPickedCenter.value.longitude),
-        dropLatLng: GeoPoint(destinationPickedCenter.value.latitude,
-            destinationPickedCenter.value.longitude),
-        bids: [],
-        description: addDescriptionController.value.text,
-        declineDriverIds: '',
-      );
+          id: uuid.v1(),
+          cityFrom: fromPlaceName.value,
+          cityTo: toPlaceName.value,
+          date: selectedDate.value.toString(),
+          userPrice: tripType.value == 'ride'
+              ? riderFareController.value.text
+              : parcelFareController.value.text,
+          numberOfPassengers:
+              tripType.value == 'ride' ? numberOfPassengers.value : null,
+          userPhone: _authController.currentUser.value.phone,
+          userName: _authController.currentUser.value.name,
+          userImage: _authController.currentUser.value.photo,
+          userUid: _authController.currentUser.value.uid,
+          isTripAccepted: false,
+          isTripCancelled: false,
+          isTripCompleted: false,
+          tripCurrentStatus: "new",
+          tripType: tripType.value,
+          pickLatLng: GeoPoint(startPickedCenter.value.latitude,
+              startPickedCenter.value.longitude),
+          dropLatLng: GeoPoint(destinationPickedCenter.value.latitude,
+              destinationPickedCenter.value.longitude),
+          bids: [],
+          description: addDescriptionController.value.text,
+          declineDriverIds: '',
+          createdAt: DateTime.now().toString());
 
       bool response = await CityToCityTripRepository()
           .addCityToCityRequest(cityToCityTripModel);
@@ -346,6 +347,7 @@ class CityToCityTripController extends GetxController {
       Get.back();
       Map<String, dynamic> updateData = {
         'tripCurrentStatus': 'accepted',
+        'isTripAccepted': true,
         'driverUid': tripListForUser[selectedTripIndexForUser.value]
             .bids![selectedBidIndex.value]
             .driverUid,
@@ -476,6 +478,7 @@ class CityToCityTripController extends GetxController {
           .getCityToCityMyTripList(
               userId: _authController.currentUser.value.uid!)
           .listen((List<CityToCityTripModel> trips) {
+        MethodHelper().sortTripsByCreatedAt(trips);
         myTripList.assignAll(trips);
         log('my tripList: $tripListForUser');
       });
@@ -490,6 +493,7 @@ class CityToCityTripController extends GetxController {
       AuthController _authController = Get.find();
       Map<String, dynamic> updateData = {
         'tripCurrentStatus': 'accepted',
+        'isTripAccepted': true,
         'driverUid': _authController.currentUser.value.uid!,
         'driverName': _authController.currentUser.value.name!,
         'driverImage': _authController.currentUser.value.photo ??
@@ -653,10 +657,106 @@ class CityToCityTripController extends GetxController {
   void onMapCreatedForRide(GoogleMapController controller) {
     mapControllerForRide = controller;
   }
-    void onCameraMoveForRide(CameraPosition position) {
+
+  void onCameraMoveForRide(CameraPosition position) {
     log("camera Moving");
     rideRoute.value =
         LatLng(position.target.latitude, position.target.longitude);
     cameraMoving.value = true;
   }
+
+  var actionStarted = false.obs;
+
+  onPressPickup({required int index}) async {
+    try {
+      fToast.init(Get.context!);
+      actionStarted.value = true;
+      Map<String, dynamic> data = {
+        'tripCurrentStatus': 'picked up',
+      };
+      bool result = await MethodHelper().updateDocFields(
+          docId: myTripList[index].id!,
+          fieldsToUpdate: data,
+          collection: cityToCityTripCollection);
+      if (result) {
+        actionStarted.value = false;
+        Get.back();
+        showToast(toastText: 'Picked up', toastColor: ColorHelper.primaryColor);
+      } else {
+        actionStarted.value = false;
+        Get.back();
+        showToast(toastText: 'Failed', toastColor: ColorHelper.primaryColor);
+      }
+    } catch (e) {
+      actionStarted.value = false;
+      Get.back();
+      showToast(
+          toastText: 'Something went wrong',
+          toastColor: ColorHelper.primaryColor);
+    }
+  }
+
+  onPressDrop({required int index}) async {
+    try {
+      fToast.init(Get.context!);
+      actionStarted.value = true;
+      Map<String, dynamic> data = {
+        'tripCurrentStatus': 'completed',
+        'isTripCompleted': true,
+      };
+      bool result = await MethodHelper().updateDocFields(
+          docId: myTripList[index].id!,
+          fieldsToUpdate: data,
+          collection: cityToCityTripCollection);
+      if (result) {
+        actionStarted.value = false;
+        Get.back();
+        showToast(toastText: 'Droped', toastColor: ColorHelper.primaryColor);
+      } else {
+        actionStarted.value = false;
+        Get.back();
+        showToast(toastText: 'Failed', toastColor: ColorHelper.primaryColor);
+      }
+    } catch (e) {
+      actionStarted.value = false;
+      Get.back();
+      showToast(
+          toastText: 'Something went wrong',
+          toastColor: ColorHelper.primaryColor);
+    }
+  }
+
+  onPressCancel({required int index}) async {
+    try {
+      fToast.init(Get.context!);
+      actionStarted.value = true;
+      Map<String, dynamic> data = {
+        'tripCurrentStatus': 'cancelled',
+        'isTripCancelled': true,
+        'cancelBy': 'Rider',
+        'cancelReason': 'Rider Canceled',
+      };
+      bool result = await MethodHelper().updateDocFields(
+          docId: myTripList[index].id!,
+          fieldsToUpdate: data,
+          collection: cityToCityTripCollection);
+      if (result) {
+        actionStarted.value = false;
+        Get.back();
+        showToast(toastText: 'Canceled', toastColor: ColorHelper.primaryColor);
+      } else {
+        actionStarted.value = false;
+        Get.back();
+        showToast(toastText: 'Failed', toastColor: ColorHelper.primaryColor);
+      }
+    } catch (e) {
+      actionStarted.value = false;
+      Get.back();
+      showToast(
+          toastText: 'Something went wrong',
+          toastColor: ColorHelper.primaryColor);
+    }
+  }
+
+
 }

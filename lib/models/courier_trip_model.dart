@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:get/get_connect/http/src/request/request.dart';
 
-class FreightTripModel {
+class CourierTripModel {
   final String? id;
   final String? from;
   final String? to;
@@ -32,7 +31,16 @@ class FreightTripModel {
   final String? cancelBy;
   final String? createdAt;
 
-  FreightTripModel({
+  final bool? isDoorToDoor;
+  final String? senderPhone;
+  final String? pickupFullAddress;
+  final String? pickupHomeAddress;
+  final String? recipientPhone;
+  final String? destinationFullAddress;
+  final String? destinationHomeAddress;
+  final String? description;
+
+  CourierTripModel({
     this.id,
     this.from,
     this.to,
@@ -62,6 +70,14 @@ class FreightTripModel {
     this.cancelReason,
     this.cancelBy,
     required this.createdAt,
+    this.isDoorToDoor,
+    this.senderPhone,
+    this.pickupFullAddress,
+    this.pickupHomeAddress,
+    this.recipientPhone,
+    this.destinationFullAddress,
+    this.destinationHomeAddress,
+    this.description,
   });
 
   Map<String, dynamic> toJson() {
@@ -95,11 +111,19 @@ class FreightTripModel {
       'cancelReason': cancelReason,
       'cancelBy': cancelBy,
       'createdAt': createdAt,
+      'isDoorToDoor': isDoorToDoor,
+      'senderPhone': senderPhone,
+      'pickupFullAddress': pickupFullAddress,
+      'pickupHomeAddress': pickupHomeAddress,
+      'recipientPhone': recipientPhone,
+      'destinationFullAddress': destinationFullAddress,
+      'destinationHomeAddress': destinationHomeAddress,
+      'description': description,
     };
   }
 
-  factory FreightTripModel.fromJson(Map<String, dynamic> json) {
-    return FreightTripModel(
+  factory CourierTripModel.fromJson(Map<String, dynamic> json) {
+    return CourierTripModel(
       id: json['id'],
       from: json['from'],
       to: json['to'],
@@ -131,6 +155,14 @@ class FreightTripModel {
       cancelReason: json['cancelReason'],
       cancelBy: json['cancelBy'],
       createdAt: json['createdAt'],
+      isDoorToDoor: json['isDoorToDoor'],
+      senderPhone: json['senderPhone'],
+      pickupFullAddress: json['pickupFullAddress'],
+      pickupHomeAddress: json['pickupHomeAddress'],
+      recipientPhone: json['recipientPhone'],
+      destinationFullAddress: json['destinationFullAddress'],
+      destinationHomeAddress: json['destinationHomeAddress'],
+      description: json['description'],
     );
   }
 }

@@ -16,7 +16,7 @@ import 'package:callandgo/screens/home/views/passenger_home.dart';
 import 'package:callandgo/screens/profile/views/choose_profile_screen.dart';
 
 import '../screens/city_to_city_user/views/city_to_city_request.dart';
-import '../screens/driver/courier/views/courier_screen.dart';
+import '../screens/courier_user/views/courier_request_screen.dart';
 
 class CustomDrawer extends StatelessWidget {
   CustomDrawer({super.key});
@@ -121,7 +121,8 @@ class CustomDrawer extends StatelessWidget {
           color: Colors.white,
           onTap: () {
             // Get.back();
-            Get.to(() => CourierScreen(), transition: Transition.rightToLeft);
+            Get.to(() => CourierRequestScreen(),
+                transition: Transition.rightToLeft);
           },
         ),
         buildDrawerItem(

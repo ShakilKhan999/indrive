@@ -29,6 +29,7 @@ class AuthController extends GetxController {
   void onInit() {
     super.onInit();
     checkCurrentUser();
+    log('date time: ${DateTime.now().toString()}');
   }
 
   var nameController = TextEditingController().obs;

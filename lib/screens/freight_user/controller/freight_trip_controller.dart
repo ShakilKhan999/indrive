@@ -156,28 +156,28 @@ class FreightTripController extends GetxController {
       var uuid = Uuid();
       AuthController _authController = Get.find();
       FreightTripModel freightTripModel = FreightTripModel(
-        id: uuid.v1(),
-        from: fromPlaceName.value,
-        to: toPlaceName.value,
-        date: selectedDate.value.toString(),
-        userPrice: offerFareController.value.text,
-        userPhone: _authController.currentUser.value.phone,
-        userName: _authController.currentUser.value.name,
-        userImage: _authController.currentUser.value.photo,
-        userUid: _authController.currentUser.value.uid,
-        isTripAccepted: false,
-        isTripCancelled: false,
-        isTripCompleted: false,
-        tripCurrentStatus: "new",
-        pickLatLng: GeoPoint(startPickedCenter.value.latitude,
-            startPickedCenter.value.longitude),
-        dropLatLng: GeoPoint(destinationPickedCenter.value.latitude,
-            destinationPickedCenter.value.longitude),
-        bids: [],
-        declineDriverIds: '',
-        cargoImage: photoUrl.value,
-        truckSize: selectedSize.value,
-      );
+          id: uuid.v1(),
+          from: fromPlaceName.value,
+          to: toPlaceName.value,
+          date: selectedDate.value.toString(),
+          userPrice: offerFareController.value.text,
+          userPhone: _authController.currentUser.value.phone,
+          userName: _authController.currentUser.value.name,
+          userImage: _authController.currentUser.value.photo,
+          userUid: _authController.currentUser.value.uid,
+          isTripAccepted: false,
+          isTripCancelled: false,
+          isTripCompleted: false,
+          tripCurrentStatus: "new",
+          pickLatLng: GeoPoint(startPickedCenter.value.latitude,
+              startPickedCenter.value.longitude),
+          dropLatLng: GeoPoint(destinationPickedCenter.value.latitude,
+              destinationPickedCenter.value.longitude),
+          bids: [],
+          declineDriverIds: '',
+          cargoImage: photoUrl.value,
+          truckSize: selectedSize.value,
+          createdAt: DateTime.now().toString());
       log('FreightTripModel: ${freightTripModel.toJson()}');
 
       bool response =
@@ -372,6 +372,7 @@ class FreightTripController extends GetxController {
       Get.back();
       Map<String, dynamic> updateData = {
         'tripCurrentStatus': 'accepted',
+        'isTripAccepted': true,
         'driverUid': tripListForUser[selectedTripIndexForUser.value]
             .bids![selectedBidIndex.value]
             .driverUid,
@@ -498,6 +499,7 @@ class FreightTripController extends GetxController {
       AuthController _authController = Get.find();
       Map<String, dynamic> updateData = {
         'tripCurrentStatus': 'accepted',
+        'isTripAccepted': true,
         'driverUid': _authController.currentUser.value.uid!,
         'driverName': _authController.currentUser.value.name!,
         'driverImage': _authController.currentUser.value.photo ??
@@ -535,6 +537,7 @@ class FreightTripController extends GetxController {
       FreightTripRepository()
           .getFreightMyTripList(userId: _authController.currentUser.value.uid!)
           .listen((List<FreightTripModel> trips) {
+        MethodHelper().sortTripsByCreatedAt(trips);
         myTripList.assignAll(trips);
         log('my tripList: $myTripList');
       });
@@ -608,5 +611,98 @@ class FreightTripController extends GetxController {
     try {
       MethodHelper().cancelRide(freightTripCollection, docId);
     } catch (e) {}
+  }
+
+  var actionStarted = false.obs;
+
+  onPressPickup({required int index}) async {
+    try {
+      fToast.init(Get.context!);
+      actionStarted.value = true;
+      Map<String, dynamic> data = {
+        'tripCurrentStatus': 'picked up',
+      };
+      bool result = await MethodHelper().updateDocFields(
+          docId: myTripList[index].id!,
+          fieldsToUpdate: data,
+          collection: freightTripCollection);
+      if (result) {
+        actionStarted.value = false;
+        Get.back();
+        showToast(toastText: 'Picked up', toastColor: ColorHelper.primaryColor);
+      } else {
+        actionStarted.value = false;
+        Get.back();
+        showToast(toastText: 'Failed', toastColor: ColorHelper.primaryColor);
+      }
+    } catch (e) {
+      actionStarted.value = false;
+      Get.back();
+      showToast(
+          toastText: 'Something went wrong',
+          toastColor: ColorHelper.primaryColor);
+    }
+  }
+
+  onPressDrop({required int index}) async {
+    try {
+      fToast.init(Get.context!);
+      actionStarted.value = true;
+      Map<String, dynamic> data = {
+        'tripCurrentStatus': 'completed',
+        'isTripCompleted': true,
+      };
+      bool result = await MethodHelper().updateDocFields(
+          docId: myTripList[index].id!,
+          fieldsToUpdate: data,
+          collection: freightTripCollection);
+      if (result) {
+        actionStarted.value = false;
+        Get.back();
+        showToast(toastText: 'Droped', toastColor: ColorHelper.primaryColor);
+      } else {
+        actionStarted.value = false;
+        Get.back();
+        showToast(toastText: 'Failed', toastColor: ColorHelper.primaryColor);
+      }
+    } catch (e) {
+      actionStarted.value = false;
+      Get.back();
+      showToast(
+          toastText: 'Something went wrong',
+          toastColor: ColorHelper.primaryColor);
+    }
+  }
+
+  onPressCancel({required int index}) async {
+    try {
+      fToast.init(Get.context!);
+      actionStarted.value = true;
+      Map<String, dynamic> data = {
+        'tripCurrentStatus': 'cancelled',
+        'isTripCancelled': true,
+        'cancelBy': 'Rider',
+        'cancelReason': 'Rider Canceled',
+      };
+      bool result = await MethodHelper().updateDocFields(
+          docId: myTripList[index].id!,
+          fieldsToUpdate: data,
+          collection: freightTripCollection);
+      if (result) {
+        actionStarted.value = false;
+        Get.back();
+        showToast(toastText: 'Canceled', toastColor: ColorHelper.primaryColor);
+      } else {
+        actionStarted.value = false;
+        Get.back();
+        showToast(toastText: 'Failed', toastColor: ColorHelper.primaryColor);
+      }
+    } catch (e) {
+      actionStarted.value = false;
+      Get.back();
+      showToast(
+          toastText: 'Something went wrong',
+          toastColor: ColorHelper.primaryColor);
+    }
   }
 }

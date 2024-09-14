@@ -11,7 +11,7 @@ import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
 import 'package:callandgo/screens/city_to_city_user/views/city_to_city_request.dart';
-import 'package:callandgo/screens/driver/courier/views/courier_screen.dart';
+import 'package:callandgo/screens/courier_user/views/courier_request_screen.dart';
 import 'package:callandgo/screens/driver/driver_home/repository/driver_repository.dart';
 import 'package:callandgo/screens/freight_user/controller/freight_trip_controller.dart';
 import 'package:callandgo/screens/freight_user/view/freight_request_screen.dart';
@@ -424,10 +424,8 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                         homeController.polylineCoordinates.clear();
                         homeController.tripCalled.value = false;
                         homeController.riderFound.value = false;
-                        DriverRepository().updateTripState(
-                            homeController.calledTrip[0].tripId,
-                            "userCancel",
-                            true);
+                        PassengerRepository().removeThisTrip(homeController.calledTrip[0].tripId);
+
                       },
                     )),
               ],
@@ -714,9 +712,14 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                   ? "Cancel Search"
                                   : "Find a driver",
                               onPressed: () {
-                                homeController.tripCalled.value == false
-                                    ? homeController.callTrip()
-                                    : homeController.tripCalled.value = false;
+                                if(homeController.tripCalled.value==false)
+                                  {
+                                    homeController.callTrip();
+                                  }
+                                else{
+                                  homeController.tripCalled.value=false;
+                                  PassengerRepository().removeThisTrip(homeController.tempTripId);
+                                }
                               },
                             ))),
                     Icon(
@@ -1009,7 +1012,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                         onTap: () {
                           // homeController.selectedVehicle.value = "courier";
                           // homeController.loadMarkers();
-                          Get.to(() => CourierScreen(),
+                          Get.to(() => CourierRequestScreen(),
                               transition: Transition.rightToLeft);
                         },
                         child: Container(

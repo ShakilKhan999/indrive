@@ -102,7 +102,6 @@ class CityToCityTripRepository {
       return FirebaseFirestore.instance
           .collection(cityToCityTripCollection)
           .where('driverUid', isEqualTo: userId)
-          .where('tripCurrentStatus', isEqualTo: 'accepted')
           .snapshots()
           .map((snapshot) {
         return snapshot.docs

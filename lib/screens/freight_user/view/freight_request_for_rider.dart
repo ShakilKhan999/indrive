@@ -6,6 +6,7 @@ import 'package:callandgo/helpers/method_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/screens/freight_user/controller/freight_trip_controller.dart';
 import '../../../components/common_components.dart';
+import '../../../components/confirmation_dialog.dart';
 
 class FreightRequesForRider extends StatefulWidget {
   FreightRequesForRider({super.key});
@@ -67,7 +68,7 @@ class _FreightRequesForRiderState extends State<FreightRequesForRider>
           return Card(
             color: ColorHelper.blackColor,
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(8.sp),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -104,21 +105,84 @@ class _FreightRequesForRiderState extends State<FreightRequesForRider>
                             ),
                           ),
                           SpaceHelper.horizontalSpace10,
-                          CommonComponents().printText(
-                              fontSize: 15,
-                              textData:
-                                  '${_freightTripController.myTripList[index].userName}',
-                              fontWeight: FontWeight.bold),
+                          Padding(
+                            padding: EdgeInsets.only(left: 3.w),
+                            child: SizedBox(
+                              width: 120.w,
+                              child: Text(
+                                '${_freightTripController.myTripList[index].userName}',
+                                style: TextStyle(
+                                  fontSize: 15.sp,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                      CommonComponents().printText(
-                          fontSize: 15,
-                          textData:
-                              '${_freightTripController.myTripList[index].finalPrice}',
-                          fontWeight: FontWeight.bold),
+                      Row(
+                        children: [
+                          _freightTripController
+                                      .myTripList[index].tripCurrentStatus ==
+                                  'accepted'
+                              ? _buildMyRideCancelRideButtonView(index: index)
+                              : SizedBox(),
+                          SpaceHelper.horizontalSpace5,
+                          _freightTripController
+                                      .myTripList[index].tripCurrentStatus ==
+                                  'accepted'
+                              ? _buildMyRidePickupButtonView(index: index)
+                              : _freightTripController.myTripList[index]
+                                          .tripCurrentStatus ==
+                                      'picked up'
+                                  ? _buildMyRideDropButtonView(index: index)
+                                  : SizedBox(),
+                        ],
+                      ),
                     ],
                   ),
                   SpaceHelper.verticalSpace15,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      CommonComponents().printText(
+                        fontSize: 12,
+                        textData: 'Status :',
+                        fontWeight: FontWeight.w600,
+                      ),
+                      SpaceHelper.horizontalSpace10,
+                      CommonComponents().printText(
+                          fontSize: 12,
+                          textData:
+                              '${_freightTripController.myTripList[index].tripCurrentStatus!.toUpperCase()}',
+                          fontWeight: FontWeight.bold,
+                          color: MethodHelper().statusColor(
+                              status: _freightTripController
+                                  .myTripList[index].tripCurrentStatus!)),
+                    ],
+                  ),
+                  SpaceHelper.verticalSpace10,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      CommonComponents().printText(
+                        fontSize: 12,
+                        textData: 'Price :',
+                        fontWeight: FontWeight.w600,
+                      ),
+                      SpaceHelper.horizontalSpace10,
+                      CommonComponents().printText(
+                        fontSize: 12,
+                        textData:
+                            '${_freightTripController.myTripList[index].finalPrice}',
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ],
+                  ),
+                  SpaceHelper.verticalSpace10,
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -458,6 +522,83 @@ class _FreightRequesForRiderState extends State<FreightRequesForRider>
           ),
         );
       },
+    );
+  }
+
+  Widget _buildMyRideDropButtonView({required int index}) {
+    return InkWell(
+      onTap: () {
+        showConfirmationDialog(
+            title: 'Drop',
+            onPressConfirm: () async {
+              _freightTripController.onPressDrop(index: index);
+            },
+            onPressCancel: () => Get.back(),
+            controller: _freightTripController);
+      },
+      child: Container(
+        padding: EdgeInsets.all(7.sp),
+        decoration: BoxDecoration(
+          color: ColorHelper.primaryColor,
+          borderRadius: BorderRadius.circular(8.r),
+        ),
+        child: Center(
+          child: CommonComponents().printText(
+              fontSize: 14, textData: 'Drop', fontWeight: FontWeight.normal),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMyRidePickupButtonView({required int index}) {
+    return InkWell(
+      onTap: () {
+        showConfirmationDialog(
+            title: 'Pickup',
+            onPressConfirm: () async {
+              _freightTripController.onPressPickup(index: index);
+            },
+            onPressCancel: () => Get.back(),
+            controller: _freightTripController);
+      },
+      child: Container(
+        padding: EdgeInsets.all(7.sp),
+        decoration: BoxDecoration(
+          color: ColorHelper.primaryColor,
+          borderRadius: BorderRadius.circular(8.r),
+        ),
+        child: Center(
+          child: CommonComponents().printText(
+              fontSize: 14, textData: 'Pick Up', fontWeight: FontWeight.normal),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMyRideCancelRideButtonView({required int index}) {
+    return InkWell(
+      onTap: () {
+        showConfirmationDialog(
+            title: 'Cancel Ride',
+            onPressConfirm: () {
+              _freightTripController.onPressCancel(index: index);
+            },
+            onPressCancel: () => Get.back(),
+            controller: _freightTripController);
+      },
+      child: Container(
+        padding: EdgeInsets.all(7.sp),
+        decoration: BoxDecoration(
+          color: ColorHelper.red,
+          borderRadius: BorderRadius.circular(8.r),
+        ),
+        child: Center(
+          child: CommonComponents().printText(
+              fontSize: 14,
+              textData: 'Cancel Ride',
+              fontWeight: FontWeight.normal),
+        ),
+      ),
     );
   }
 }
