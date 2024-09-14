@@ -1,5 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
+import 'package:callandgo/models/user_model.dart';
+import 'package:callandgo/utils/database_collection_names.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -42,7 +44,6 @@ class MethodHelper {
       CollectionReference users =
           FirebaseFirestore.instance.collection(collection);
       await users.doc(docId).update(fieldsToUpdate);
-      log('User fields updated successfully');
       return true;
     } catch (e) {
       log('Error updating user fields: $e');
@@ -106,5 +107,15 @@ class MethodHelper {
     } catch (e) {
       print("Error deleting document: $e");
     }
+  }
+
+  Stream<UserModel> listerUserData({required String userId}) {
+    return FirebaseFirestore.instance
+        .collection(userCollection)
+        .doc(userId)
+        .snapshots()
+        .map((snapshot) {
+      return UserModel.fromJson(snapshot.data() as Map<String, dynamic>);
+    });
   }
 }

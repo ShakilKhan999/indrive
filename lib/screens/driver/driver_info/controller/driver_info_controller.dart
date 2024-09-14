@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:callandgo/screens/auth_screen/controller/auth_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -91,6 +92,14 @@ class DriverInfoController extends GetxController {
           driverInfoDoc: id);
       if (response) {
         await updateDriverStatus();
+        await MethodHelper()
+            .listerUserData(userId: FirebaseAuth.instance.currentUser!.uid)
+            .listen(
+          (userData) {
+            AuthController authController = Get.find();
+            authController.currentUser.value = userData;
+          },
+        );
 
         isDriverDataSaving.value = false;
         Get.offAll(() => DriverHomeScreen(),

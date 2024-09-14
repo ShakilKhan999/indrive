@@ -114,10 +114,26 @@ class AuthController extends GetxController {
             UserModel? userModel = await getCurrentUser();
             currentUser.value = userModel!;
             if (userModel.isDriverMode!) {
+              await MethodHelper()
+                  .listerUserData(
+                      userId: FirebaseAuth.instance.currentUser!.uid)
+                  .listen(
+                (userData) {
+                  currentUser.value = userData;
+                },
+              );
               Get.offAll(() => DriverHomeScreen(),
                   transition: Transition.rightToLeft);
               isCheckingCurrentUser.value = false;
             } else {
+              await MethodHelper()
+                  .listerUserData(
+                      userId: FirebaseAuth.instance.currentUser!.uid)
+                  .listen(
+                (userData) {
+                  currentUser.value = userData;
+                },
+              );
               Get.offAll(() => const PassengerHomeScreen(),
                   transition: Transition.rightToLeft);
               isCheckingCurrentUser.value = false;
@@ -189,9 +205,23 @@ class AuthController extends GetxController {
         if (userModel != null) {
           isGoogleSigninLoaidng.value = false;
           if (userModel.isDriverMode!) {
+            await MethodHelper()
+                .listerUserData(userId: FirebaseAuth.instance.currentUser!.uid)
+                .listen(
+              (userData) {
+                currentUser.value = userData;
+              },
+            );
             Get.offAll(() => DriverHomeScreen(),
                 transition: Transition.rightToLeft);
           } else {
+            await MethodHelper()
+                .listerUserData(userId: FirebaseAuth.instance.currentUser!.uid)
+                .listen(
+              (userData) {
+                currentUser.value = userData;
+              },
+            );
             Get.offAll(() => const PassengerHomeScreen(),
                 transition: Transition.rightToLeft);
           }
@@ -241,11 +271,27 @@ class AuthController extends GetxController {
       if (userModel != null) {
         if (userModel.isDriverMode!) {
           await setUserType(type: userModel.isDriverMode!);
+
+          await MethodHelper()
+              .listerUserData(userId: FirebaseAuth.instance.currentUser!.uid)
+              .listen(
+            (userData) {
+              currentUser.value = userData;
+            },
+          );
           isOtpSubmitLoading.value = false;
           Get.offAll(() => DriverHomeScreen(),
               transition: Transition.rightToLeft);
         } else {
           await setUserType(type: userModel.isDriverMode!);
+
+          await MethodHelper()
+              .listerUserData(userId: FirebaseAuth.instance.currentUser!.uid)
+              .listen(
+            (userData) {
+              currentUser.value = userData;
+            },
+          );
           isOtpSubmitLoading.value = false;
           Get.offAll(() => const PassengerHomeScreen(),
               transition: Transition.rightToLeft);
@@ -404,6 +450,13 @@ class AuthController extends GetxController {
   onPressPassenger() async {
     isDriverMode.value = false;
     await setUserType(type: false);
+    await MethodHelper()
+        .listerUserData(userId: FirebaseAuth.instance.currentUser!.uid)
+        .listen(
+      (userData) {
+        currentUser.value = userData;
+      },
+    );
     Get.offAll(() => const PassengerHomeScreen(),
         transition: Transition.rightToLeft);
   }

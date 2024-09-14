@@ -1,4 +1,7 @@
+import 'dart:async';
 import 'dart:developer';
+import 'package:callandgo/helpers/method_helper.dart';
+import 'package:callandgo/utils/database_collection_names.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -252,6 +255,9 @@ class HomeController extends GetxController {
     }
   }
 
+  Position? _currentPosition;
+  StreamSubscription<Position>? _positionStreamSubscription;
+
   Future<Position> getCurrentLocation() async {
     checkLocationServiceAndPermission();
     LocationPermission permission;
@@ -266,7 +272,36 @@ class HomeController extends GetxController {
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
     }
+    _positionStreamSubscription = Geolocator.getPositionStream(
+      locationSettings: LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 1, // Update only if moved 10 meters
+      ),
+    ).listen((Position position) {
+      _currentPosition = position;
+      updateUserLocation(
+          lat: _currentPosition!.latitude, long: _currentPosition!.longitude);
+    });
     return await Geolocator.getCurrentPosition();
+  }
+
+  updateUserLocation({required double lat, required double long}) async {
+    try {
+      Map<String, dynamic> updateData = {
+        "latlng": GeoPoint(
+          lat,
+          long,
+        )
+      };
+      AuthController authController = Get.find();
+      MethodHelper().updateDocFields(
+          docId: authController.currentUser.value.uid!,
+          fieldsToUpdate: updateData,
+          collection: userCollection);
+    } catch (e) {
+      userLocationPicking.value = false;
+      log('Failed to get location: $e');
+    }
   }
 
   var userLocationPicking = false.obs;
@@ -397,8 +432,9 @@ class HomeController extends GetxController {
         } else if (calledTrip[0].accepted) {
           riderFound.value = true;
           thisDriver.clear();
-          var myRider = sortedDriverList
-              .firstWhere((driver) => driver.uid == calledTrip[0].driverId, orElse: () => null);
+          var myRider = sortedDriverList.firstWhere(
+              (driver) => driver.uid == calledTrip[0].driverId,
+              orElse: () => null);
           thisDriver.add(myRider);
           tripCalled.value = false;
         }
