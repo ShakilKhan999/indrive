@@ -272,4 +272,93 @@ class CommonComponents {
       ),
     );
   }
+
+  Widget CommonCard({
+    required BuildContext context,
+    required IconData icon,
+    required String number,
+    required String text,
+    Color? iconColor,
+    Color textColor = Colors.black,
+    Color? cardColor,
+    bool isDescription = false,
+  }) {
+    return SizedBox(
+      width: isDescription ? MediaQuery.of(context).size.width : 70.w,
+      child: Card(
+        color: cardColor ?? ColorHelper.blackColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.r),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(16.w),
+          child: Column(
+            children: [
+              if (isDescription) ...[
+                SizedBox(
+                  height: 100.h,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              icon,
+                              color: iconColor ?? ColorHelper.primaryColor,
+                              size: 20.w,
+                            ),
+                            SpaceHelper.horizontalSpace3,
+                            CommonComponents().printText(
+                              fontSize: 16,
+                              textData: text,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ],
+                        ),
+                        SpaceHelper.verticalSpace20,
+                        CommonComponents().printText(
+                          fontSize: 14,
+                          textData: number,
+                          maxLine: 10,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ] else ...[
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Center(
+                      child: Icon(
+                        icon,
+                        color: iconColor ?? ColorHelper.primaryColor,
+                        size: 30.w,
+                      ),
+                    ),
+                    SingleChildScrollView(
+                      child: CommonComponents().printText(
+                        fontSize: 18,
+                        maxLine: 3,
+                        textData: number.toString(),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    CommonComponents().printText(
+                      fontSize: 14,
+                      textData: text,
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

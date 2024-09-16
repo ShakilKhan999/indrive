@@ -1,3 +1,4 @@
+import 'package:callandgo/screens/freight_user/view/freight_trip_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -72,7 +73,11 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
       () => ListView.separated(
           itemBuilder: (context, index) {
             return InkWell(
-              onTap: () {},
+              onTap: () {
+                Get.to(() => FreightTripDetails(
+                    freightTripModel:
+                        _freightController.myTripListForUser[index]));
+              },
               child: Card(
                 color: ColorHelper.blackColor,
                 child: Padding(

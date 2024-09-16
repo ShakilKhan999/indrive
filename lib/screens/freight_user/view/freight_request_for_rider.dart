@@ -1,3 +1,4 @@
+import 'package:callandgo/screens/freight_user/view/freight_trip_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -64,153 +65,159 @@ class _FreightRequesForRiderState extends State<FreightRequesForRider>
   Widget _buildMyRequestView() {
     return ListView.separated(
         itemBuilder: (context, index) {
-          return Card(
-            color: ColorHelper.blackColor,
-            child: Padding(
-              padding: EdgeInsets.all(8.sp),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            height: 35.h,
-                            width: 35.h,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(90),
-                                color: Colors.white,
-                                border: Border.all(color: Colors.white)),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(90),
-                              child: _freightTripController
-                                          .myTripList[index].userImage !=
-                                      null
-                                  ? Image.network(
-                                      _freightTripController
-                                          .myTripList[index].userImage!,
-                                      height: 35.h,
-                                      width: 35.h,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : Image.asset(
-                                      "assets/images/person.jpg",
-                                      height: 35.h,
-                                      width: 35.h,
-                                      fit: BoxFit.cover,
-                                    ),
-                            ),
-                          ),
-                          SpaceHelper.horizontalSpace10,
-                          Padding(
-                            padding: EdgeInsets.only(left: 3.w),
-                            child: SizedBox(
-                              width: 120.w,
-                              child: Text(
-                                '${_freightTripController.myTripList[index].userName}',
-                                style: TextStyle(
-                                  fontSize: 15.sp,
+          return InkWell(
+            onTap: () {
+              Get.to(() => FreightTripDetails(
+                  freightTripModel: _freightTripController.myTripList[index]));
+            },
+            child: Card(
+              color: ColorHelper.blackColor,
+              child: Padding(
+                padding: EdgeInsets.all(8.sp),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              height: 35.h,
+                              width: 35.h,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(90),
                                   color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
+                                  border: Border.all(color: Colors.white)),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(90),
+                                child: _freightTripController
+                                            .myTripList[index].userImage !=
+                                        null
+                                    ? Image.network(
+                                        _freightTripController
+                                            .myTripList[index].userImage!,
+                                        height: 35.h,
+                                        width: 35.h,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Image.asset(
+                                        "assets/images/person.jpg",
+                                        height: 35.h,
+                                        width: 35.h,
+                                        fit: BoxFit.cover,
+                                      ),
                               ),
                             ),
+                            SpaceHelper.horizontalSpace10,
+                            Padding(
+                              padding: EdgeInsets.only(left: 3.w),
+                              child: SizedBox(
+                                width: 120.w,
+                                child: Text(
+                                  '${_freightTripController.myTripList[index].userName}',
+                                  style: TextStyle(
+                                    fontSize: 15.sp,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                            // CommonComponents().printText(
+                            //     fontSize: 15,
+                            //     textData:
+                            //         '${_freightTripController.myTripList[index].userName}',
+                            //     fontWeight: FontWeight.bold),
+                          ],
+                        ),
+                        // CommonComponents().printText(
+                        //     fontSize: 15,
+                        //     textData:
+                        //         '${_freightTripController.myTripList[index].finalPrice}',
+                        //     fontWeight: FontWeight.bold),
+                        Row(
+                          children: [
+                            _buildMyRideCancelRideButtonView(),
+                            SpaceHelper.horizontalSpace5,
+                            _buildMyRidePickupButtonView(),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SpaceHelper.verticalSpace15,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        CommonComponents().printText(
+                          fontSize: 12,
+                          textData: 'Status :',
+                          fontWeight: FontWeight.w600,
+                        ),
+                        SpaceHelper.horizontalSpace10,
+                        CommonComponents().printText(
+                          fontSize: 12,
+                          textData: 'Accepted',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ],
+                    ),
+                    SpaceHelper.verticalSpace10,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        CommonComponents().printText(
+                          fontSize: 12,
+                          textData: 'Price :',
+                          fontWeight: FontWeight.w600,
+                        ),
+                        SpaceHelper.horizontalSpace10,
+                        CommonComponents().printText(
+                          fontSize: 12,
+                          textData:
+                              '${_freightTripController.myTripList[index].finalPrice}',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ],
+                    ),
+                    SpaceHelper.verticalSpace10,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(Icons.radio_button_checked,
+                            color: ColorHelper.primaryColor),
+                        SpaceHelper.horizontalSpace10,
+                        Expanded(
+                          child: CommonComponents().printText(
+                            fontSize: 12,
+                            textData:
+                                '${_freightTripController.myTripList[index].from}',
+                            fontWeight: FontWeight.normal,
                           ),
-                          // CommonComponents().printText(
-                          //     fontSize: 15,
-                          //     textData:
-                          //         '${_freightTripController.myTripList[index].userName}',
-                          //     fontWeight: FontWeight.bold),
-                        ],
-                      ),
-                      // CommonComponents().printText(
-                      //     fontSize: 15,
-                      //     textData:
-                      //         '${_freightTripController.myTripList[index].finalPrice}',
-                      //     fontWeight: FontWeight.bold),
-                      Row(
-                        children: [
-                          _buildMyRideCancelRideButtonView(),
-                          SpaceHelper.horizontalSpace5,
-                          _buildMyRidePickupButtonView(),
-                        ],
-                      ),
-                    ],
-                  ),
-                  SpaceHelper.verticalSpace15,
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      CommonComponents().printText(
-                        fontSize: 12,
-                        textData: 'Status :',
-                        fontWeight: FontWeight.w600,
-                      ),
-                      SpaceHelper.horizontalSpace10,
-                      CommonComponents().printText(
-                        fontSize: 12,
-                        textData: 'Accepted',
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ],
-                  ),
-                  SpaceHelper.verticalSpace10,
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      CommonComponents().printText(
-                        fontSize: 12,
-                        textData: 'Price :',
-                        fontWeight: FontWeight.w600,
-                      ),
-                      SpaceHelper.horizontalSpace10,
-                      CommonComponents().printText(
-                        fontSize: 12,
-                        textData:
-                            '${_freightTripController.myTripList[index].finalPrice}',
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ],
-                  ),
-                  SpaceHelper.verticalSpace10,
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Icon(Icons.radio_button_checked,
-                          color: ColorHelper.primaryColor),
-                      SpaceHelper.horizontalSpace10,
-                      Expanded(
-                        child: CommonComponents().printText(
-                          fontSize: 12,
-                          textData:
-                              '${_freightTripController.myTripList[index].from}',
-                          fontWeight: FontWeight.normal,
-                        ),
-                      )
-                    ],
-                  ),
-                  SpaceHelper.verticalSpace5,
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Icon(Icons.radio_button_checked,
-                          color: ColorHelper.blueColor),
-                      SpaceHelper.horizontalSpace10,
-                      Expanded(
-                        child: CommonComponents().printText(
-                          fontSize: 12,
-                          textData:
-                              '${_freightTripController.myTripList[index].to}',
-                          fontWeight: FontWeight.normal,
-                        ),
-                      )
-                    ],
-                  ),
-                ],
+                        )
+                      ],
+                    ),
+                    SpaceHelper.verticalSpace5,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(Icons.radio_button_checked,
+                            color: ColorHelper.blueColor),
+                        SpaceHelper.horizontalSpace10,
+                        Expanded(
+                          child: CommonComponents().printText(
+                            fontSize: 12,
+                            textData:
+                                '${_freightTripController.myTripList[index].to}',
+                            fontWeight: FontWeight.normal,
+                          ),
+                        )
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           );

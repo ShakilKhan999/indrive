@@ -1,3 +1,4 @@
+import 'package:callandgo/screens/city_to_city_user/views/cityTocityTripDetails.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -68,7 +69,10 @@ class _DriverCityToCityRequestListState
             onTap: () {
               _cityToCityTripController.onPressItemDetailsView(index: index);
               _cityToCityTripController.getPolyline(index: index);
-              _showRideDetailsBottomSheet(index);
+              // _showRideDetailsBottomSheet(index);
+              Get.to(CityToCityTripDetailsScreen(
+                  cityToCityTripModel:
+                      _cityToCityTripController.myTripList[index]));
             },
             child: Card(
               color: ColorHelper.blackColor,
