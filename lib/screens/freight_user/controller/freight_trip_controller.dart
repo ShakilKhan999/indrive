@@ -705,4 +705,36 @@ class FreightTripController extends GetxController {
           toastColor: ColorHelper.primaryColor);
     }
   }
+
+  onPressCancelForUser({required int index}) async {
+    try {
+      fToast.init(Get.context!);
+      actionStarted.value = true;
+      Map<String, dynamic> data = {
+        'tripCurrentStatus': 'cancelled',
+        'isTripCancelled': true,
+        'cancelBy': 'User',
+        'cancelReason': 'User Canceled',
+      };
+      bool result = await MethodHelper().updateDocFields(
+          docId: myTripListForUser[index].id!,
+          fieldsToUpdate: data,
+          collection: freightTripCollection);
+      if (result) {
+        actionStarted.value = false;
+        Get.back();
+        showToast(toastText: 'Canceled', toastColor: ColorHelper.primaryColor);
+      } else {
+        actionStarted.value = false;
+        Get.back();
+        showToast(toastText: 'Failed', toastColor: ColorHelper.primaryColor);
+      }
+    } catch (e) {
+      actionStarted.value = false;
+      Get.back();
+      showToast(
+          toastText: 'Something went wrong',
+          toastColor: ColorHelper.primaryColor);
+    }
+  }
 }

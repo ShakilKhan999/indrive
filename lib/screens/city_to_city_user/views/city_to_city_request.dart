@@ -10,6 +10,8 @@ import 'package:callandgo/screens/city_to_city_user/controller/city_to_city_trip
 import 'package:callandgo/screens/city_to_city_user/views/bid_list.dart';
 import 'package:callandgo/screens/city_to_city_user/views/city_to_city_select_location.dart';
 
+import '../../../components/confirmation_dialog.dart';
+
 class CityToCityRequest extends StatefulWidget {
   CityToCityRequest({super.key});
 
@@ -88,45 +90,54 @@ class _CityToCityRequestState extends State<CityToCityRequest>
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(
-                            children: [
-                              Container(
-                                height: 35.h,
-                                width: 35.h,
-                                decoration: BoxDecoration(
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Container(
+                                  height: 35.h,
+                                  width: 35.h,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(90),
+                                      color: Colors.white,
+                                      border: Border.all(color: Colors.white)),
+                                  child: ClipRRect(
                                     borderRadius: BorderRadius.circular(90),
-                                    color: Colors.white,
-                                    border: Border.all(color: Colors.white)),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(90),
-                                  child: _cityToCityTripController
-                                              .myTripListForUser[index]
-                                              .driverImage !=
-                                          null
-                                      ? Image.network(
-                                          _cityToCityTripController
-                                              .myTripListForUser[index]
-                                              .driverImage!,
-                                          height: 35.h,
-                                          width: 35.h,
-                                          fit: BoxFit.cover,
-                                        )
-                                      : Image.asset(
-                                          "assets/images/person.jpg",
-                                          height: 35.h,
-                                          width: 35.h,
-                                          fit: BoxFit.cover,
-                                        ),
+                                    child: _cityToCityTripController
+                                                .myTripListForUser[index]
+                                                .driverImage !=
+                                            null
+                                        ? Image.network(
+                                            _cityToCityTripController
+                                                .myTripListForUser[index]
+                                                .driverImage!,
+                                            height: 35.h,
+                                            width: 35.h,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : Image.asset(
+                                            "assets/images/person.jpg",
+                                            height: 35.h,
+                                            width: 35.h,
+                                            fit: BoxFit.cover,
+                                          ),
+                                  ),
                                 ),
-                              ),
-                              SpaceHelper.horizontalSpace10,
-                              CommonComponents().printText(
-                                  fontSize: 15,
-                                  textData: _cityToCityTripController
-                                      .myTripListForUser[index].driverName!,
-                                  fontWeight: FontWeight.bold),
-                            ],
+                                SpaceHelper.horizontalSpace10,
+                                Expanded(
+                                  child: CommonComponents().printText(
+                                      fontSize: 15,
+                                      textData: _cityToCityTripController
+                                          .myTripListForUser[index].driverName!,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
                           ),
+                          _cityToCityTripController.myTripListForUser[index]
+                                      .tripCurrentStatus ==
+                                  'accepted'
+                              ? _buildMyRideCancelRideButtonView(index: index)
+                              : SizedBox()
                         ],
                       ),
                       SpaceHelper.verticalSpace10,
@@ -174,6 +185,27 @@ class _CityToCityRequestState extends State<CityToCityRequest>
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
+                          CommonComponents().printText(
+                            fontSize: 12,
+                            textData: 'Status :',
+                            fontWeight: FontWeight.w600,
+                          ),
+                          SpaceHelper.horizontalSpace10,
+                          CommonComponents().printText(
+                              fontSize: 12,
+                              textData:
+                                  '${_cityToCityTripController.myTripListForUser[index].tripCurrentStatus!.toUpperCase()}',
+                              fontWeight: FontWeight.bold,
+                              color: MethodHelper().statusColor(
+                                  status: _cityToCityTripController
+                                      .myTripListForUser[index]
+                                      .tripCurrentStatus!)),
+                        ],
+                      ),
+                      SpaceHelper.verticalSpace15,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
                           Icon(Icons.radio_button_checked,
                               color: ColorHelper.primaryColor),
                           SpaceHelper.horizontalSpace10,
@@ -205,24 +237,6 @@ class _CityToCityRequestState extends State<CityToCityRequest>
                         ],
                       ),
                       SpaceHelper.verticalSpace10,
-                      // ListTile(
-                      //     contentPadding: EdgeInsets.zero,
-                      //     leading: Icon(Icons.radio_button_checked,
-                      //         color: ColorHelper.primaryColor),
-                      //     title: CommonComponents().printText(
-                      //         fontSize: 12,
-                      //         textData:
-                      //             '${_cityToCityTripController.myTripListForUser[index].cityFrom!}',
-                      //         fontWeight: FontWeight.normal)),
-                      // ListTile(
-                      //     contentPadding: EdgeInsets.zero,
-                      //     leading: Icon(Icons.radio_button_checked,
-                      //         color: ColorHelper.blueColor),
-                      //     title: CommonComponents().printText(
-                      //         fontSize: 12,
-                      //         textData:
-                      //             '${_cityToCityTripController.myTripListForUser[index].cityTo!}',
-                      //         fontWeight: FontWeight.normal)),
                     ],
                   ),
                 ),
@@ -294,6 +308,12 @@ class _CityToCityRequestState extends State<CityToCityRequest>
                         ],
                       ),
                       SpaceHelper.verticalSpace15,
+                      CommonComponents().printText(
+                          fontSize: 18,
+                          textData:
+                              'Bids: ${_cityToCityTripController.tripListForUser[index].bids!.length}',
+                          fontWeight: FontWeight.bold),
+                      SpaceHelper.verticalSpace15,
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
@@ -328,24 +348,6 @@ class _CityToCityRequestState extends State<CityToCityRequest>
                         ],
                       ),
                       SpaceHelper.verticalSpace10,
-                      // ListTile(
-                      //     contentPadding: EdgeInsets.zero,
-                      //     leading: Icon(Icons.radio_button_checked,
-                      //         color: ColorHelper.primaryColor),
-                      //     title: CommonComponents().printText(
-                      //         fontSize: 12,
-                      //         textData:
-                      //             '${_cityToCityTripController.tripListForUser[index].cityFrom!}',
-                      //         fontWeight: FontWeight.normal)),
-                      // ListTile(
-                      //     contentPadding: EdgeInsets.zero,
-                      //     leading: Icon(Icons.radio_button_checked,
-                      //         color: ColorHelper.blueColor),
-                      //     title: CommonComponents().printText(
-                      //         fontSize: 12,
-                      //         textData:
-                      //             '${_cityToCityTripController.tripListForUser[index].cityTo!}',
-                      //         fontWeight: FontWeight.normal)),
                       CommonComponents().commonButton(
                         text: 'Cancel Ride',
                         onPressed: () {
@@ -364,6 +366,33 @@ class _CityToCityRequestState extends State<CityToCityRequest>
             return SpaceHelper.verticalSpace10;
           },
           itemCount: _cityToCityTripController.tripListForUser.length),
+    );
+  }
+
+  Widget _buildMyRideCancelRideButtonView({required int index}) {
+    return InkWell(
+      onTap: () {
+        showConfirmationDialog(
+            title: 'Cancel Ride',
+            onPressConfirm: () {
+              _cityToCityTripController.onPressCancelForUser(index: index);
+            },
+            onPressCancel: () => Get.back(),
+            controller: _cityToCityTripController);
+      },
+      child: Container(
+        padding: EdgeInsets.all(7.sp),
+        decoration: BoxDecoration(
+          color: ColorHelper.red,
+          borderRadius: BorderRadius.circular(8.r),
+        ),
+        child: Center(
+          child: CommonComponents().printText(
+              fontSize: 14,
+              textData: 'Cancel Ride',
+              fontWeight: FontWeight.normal),
+        ),
+      ),
     );
   }
 

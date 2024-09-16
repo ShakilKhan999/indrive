@@ -6,6 +6,7 @@ import 'package:callandgo/components/common_components.dart';
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/method_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
+import '../../../components/confirmation_dialog.dart';
 import '../../../components/simple_appbar.dart';
 import '../controller/freight_trip_controller.dart';
 import 'freight_bid_list.dart';
@@ -122,9 +123,15 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
                                 textData: _freightController
                                     .myTripListForUser[index].driverName!,
                                 fontWeight: FontWeight.bold),
-                          )
+                          ),
+                          _freightController.myTripListForUser[index]
+                                      .tripCurrentStatus ==
+                                  'accepted'
+                              ? _buildMyRideCancelRideButtonView(index: index)
+                              : SizedBox()
                         ],
                       ),
+
                       SpaceHelper.verticalSpace10,
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -153,6 +160,27 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
                                   fontWeight: FontWeight.bold),
                             ],
                           ),
+                        ],
+                      ),
+                      SpaceHelper.verticalSpace10,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          CommonComponents().printText(
+                            fontSize: 12,
+                            textData: 'Status :',
+                            fontWeight: FontWeight.w600,
+                          ),
+                          SpaceHelper.horizontalSpace10,
+                          CommonComponents().printText(
+                              fontSize: 12,
+                              textData:
+                                  '${_freightController.myTripListForUser[index].tripCurrentStatus!.toUpperCase()}',
+                              fontWeight: FontWeight.bold,
+                              color: MethodHelper().statusColor(
+                                  status: _freightController
+                                      .myTripListForUser[index]
+                                      .tripCurrentStatus!)),
                         ],
                       ),
                       SpaceHelper.verticalSpace15,
@@ -219,6 +247,33 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
             return SpaceHelper.verticalSpace10;
           },
           itemCount: _freightController.myTripListForUser.length),
+    );
+  }
+
+  Widget _buildMyRideCancelRideButtonView({required int index}) {
+    return InkWell(
+      onTap: () {
+        showConfirmationDialog(
+            title: 'Cancel Ride',
+            onPressConfirm: () {
+              _freightController.onPressCancelForUser(index: index);
+            },
+            onPressCancel: () => Get.back(),
+            controller: _freightController);
+      },
+      child: Container(
+        padding: EdgeInsets.all(7.sp),
+        decoration: BoxDecoration(
+          color: ColorHelper.red,
+          borderRadius: BorderRadius.circular(8.r),
+        ),
+        child: Center(
+          child: CommonComponents().printText(
+              fontSize: 14,
+              textData: 'Cancel Ride',
+              fontWeight: FontWeight.normal),
+        ),
+      ),
     );
   }
 
@@ -331,6 +386,11 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
                                   fontWeight: FontWeight.bold),
                             ],
                           ),
+                          CommonComponents().printText(
+                              fontSize: 18,
+                              textData:
+                                  'Bids: ${_freightController.tripListForUser[index].bids!.length}',
+                              fontWeight: FontWeight.bold),
                         ],
                       ),
                       SpaceHelper.verticalSpace15,

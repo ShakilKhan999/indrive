@@ -133,7 +133,7 @@ class CourierTripController extends GetxController {
         transportOptionList: transportOptionList,
         from: fromPlaceName.value,
         to: toPlaceName.value,
-        userPrice: offerFareController.value.text,
+        userPrice: fareCourierController.value.text,
         userPhone: _authController.currentUser.value.phone,
         userName: _authController.currentUser.value.name,
         userImage: _authController.currentUser.value.photo,
@@ -677,11 +677,11 @@ class CourierTripController extends GetxController {
       Map<String, dynamic> data = {
         'tripCurrentStatus': 'cancelled',
         'isTripCancelled': true,
-        'cancelBy': 'Rider',
-        'cancelReason': 'Rider Canceled',
+        'cancelBy': 'User',
+        'cancelReason': 'User Canceled',
       };
       bool result = await MethodHelper().updateDocFields(
-          docId: myTripList[index].id!,
+          docId: myTripListForUser[index].id!,
           fieldsToUpdate: data,
           collection: courierTripCollection);
       if (result) {

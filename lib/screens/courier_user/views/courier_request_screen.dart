@@ -10,6 +10,7 @@ import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/helpers/style_helper.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 
+import '../../../components/confirmation_dialog.dart';
 import '../../../helpers/method_helper.dart';
 import 'courier_bid_list.dart';
 import 'courier_select_location.dart';
@@ -111,7 +112,12 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
                                 textData: courierTripController
                                     .myTripListForUser[index].driverName!,
                                 fontWeight: FontWeight.bold),
-                          )
+                          ),
+                          courierTripController.myTripListForUser[index]
+                                      .tripCurrentStatus ==
+                                  'accepted'
+                              ? _buildMyRideCancelRideButtonView(index: index)
+                              : SizedBox()
                         ],
                       ),
                       SpaceHelper.verticalSpace10,
@@ -187,25 +193,6 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
                         ],
                       ),
                       SpaceHelper.verticalSpace10,
-                      // ListTile(
-
-                      //     contentPadding: EdgeInsets.zero,
-                      //     leading: Icon(Icons.radio_button_checked,
-                      //         color: ColorHelper.primaryColor),
-                      //     title: CommonComponents().printText(
-                      //         fontSize: 12,
-                      //         textData:
-                      //             '${courierTripController.myTripListForUser[index].from!}',
-                      //         fontWeight: FontWeight.normal)),
-                      // ListTile(
-                      //     contentPadding: EdgeInsets.zero,
-                      //     leading: Icon(Icons.radio_button_checked,
-                      //         color: ColorHelper.blueColor),
-                      //     title: CommonComponents().printText(
-                      //         fontSize: 12,
-                      //         textData:
-                      //             '${courierTripController.myTripListForUser[index].to!}',
-                      //         fontWeight: FontWeight.normal)),
                     ],
                   ),
                 ),
@@ -216,6 +203,33 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
             return SpaceHelper.verticalSpace10;
           },
           itemCount: courierTripController.myTripListForUser.length),
+    );
+  }
+
+  Widget _buildMyRideCancelRideButtonView({required int index}) {
+    return InkWell(
+      onTap: () {
+        showConfirmationDialog(
+            title: 'Cancel Ride',
+            onPressConfirm: () {
+              courierTripController.onPressCancelForUser(index: index);
+            },
+            onPressCancel: () => Get.back(),
+            controller: courierTripController);
+      },
+      child: Container(
+        padding: EdgeInsets.all(7.sp),
+        decoration: BoxDecoration(
+          color: ColorHelper.red,
+          borderRadius: BorderRadius.circular(8.r),
+        ),
+        child: Center(
+          child: CommonComponents().printText(
+              fontSize: 14,
+              textData: 'Cancel Ride',
+              fontWeight: FontWeight.normal),
+        ),
+      ),
     );
   }
 
@@ -250,6 +264,11 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
                                   fontWeight: FontWeight.bold),
                             ],
                           ),
+                          CommonComponents().printText(
+                              fontSize: 18,
+                              textData:
+                                  'Bids: ${courierTripController.tripListForUser[index].bids!.length}',
+                              fontWeight: FontWeight.bold),
                         ],
                       ),
                       SpaceHelper.verticalSpace15,
