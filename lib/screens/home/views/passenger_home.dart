@@ -755,7 +755,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                           homeController.loadMarkers();
                         },
                         child: Container(
-                            height: 55.h,
+                            height: 70.h,
                             padding: EdgeInsets.symmetric(horizontal: 5.w),
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(14),
@@ -773,14 +773,13 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                   Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                        CrossAxisAlignment.center,
                                     children: [
                                       Image.asset(
                                         'assets/images/car.png',
-                                        fit: BoxFit
-                                            .fill, // Replace with your asset
+                                        fit: BoxFit.fill,
                                         width: 40.h,
-                                        height: 22.h,
+                                        height: 35.h,
                                       ),
                                       CommonComponents().printText(
                                           fontSize: 15,
@@ -789,10 +788,13 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                     ],
                                   ),
                                   homeController.selectedVehicle.value == "car"
-                                      ? Icon(
-                                          Icons.check_box_outlined,
-                                          color: ColorHelper.primaryColor,
-                                          size: 20.sp,
+                                      ? Padding(
+                                          padding: EdgeInsets.only(left: 3.w),
+                                          child: Icon(
+                                            Icons.check_box_outlined,
+                                            color: ColorHelper.primaryColor,
+                                            size: 20.sp,
+                                          ),
                                         )
                                       : const SizedBox()
                                 ],
@@ -805,7 +807,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                           homeController.loadMarkers();
                         },
                         child: Container(
-                            height: 55.h,
+                            height: 70.h,
                             padding: EdgeInsets.symmetric(horizontal: 5.w),
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(14),
@@ -823,14 +825,13 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                   Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                        CrossAxisAlignment.center,
                                     children: [
                                       Image.asset(
                                         'assets/images/bike.png',
-                                        fit: BoxFit
-                                            .fill, // Replace with your asset
+                                        fit: BoxFit.cover,
                                         width: 40.h,
-                                        height: 22.h,
+                                        height: 40.h,
                                       ),
                                       CommonComponents().printText(
                                           fontSize: 15,
@@ -839,10 +840,13 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                     ],
                                   ),
                                   homeController.selectedVehicle.value == "moto"
-                                      ? Icon(
-                                          Icons.check_box_outlined,
-                                          color: ColorHelper.primaryColor,
-                                          size: 20.sp,
+                                      ? Padding(
+                                          padding: EdgeInsets.only(left: 3.w),
+                                          child: Icon(
+                                            Icons.check_box_outlined,
+                                            color: ColorHelper.primaryColor,
+                                            size: 20.sp,
+                                          ),
                                         )
                                       : const SizedBox()
                                 ],
@@ -855,7 +859,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                           homeController.loadMarkers();
                         },
                         child: Container(
-                            height: 55.h,
+                            height: 70.h,
                             padding: EdgeInsets.symmetric(horizontal: 5.w),
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(14),
@@ -873,14 +877,13 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                   Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                        CrossAxisAlignment.center,
                                     children: [
                                       Image.asset(
                                         'assets/images/taxi.png',
-                                        fit: BoxFit
-                                            .fill, // Replace with your asset
+                                        fit: BoxFit.cover,
                                         width: 40.h,
-                                        height: 22.h,
+                                        height: 40.h,
                                       ),
                                       CommonComponents().printText(
                                           fontSize: 15,
@@ -889,10 +892,13 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                     ],
                                   ),
                                   homeController.selectedVehicle.value == "cng"
-                                      ? Icon(
-                                          Icons.check_box_outlined,
-                                          color: ColorHelper.primaryColor,
-                                          size: 20.sp,
+                                      ? Padding(
+                                          padding: EdgeInsets.only(left: 3.w),
+                                          child: Icon(
+                                            Icons.check_box_outlined,
+                                            color: ColorHelper.primaryColor,
+                                            size: 20.sp,
+                                          ),
                                         )
                                       : const SizedBox()
                                 ],
@@ -908,7 +914,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                               transition: Transition.rightToLeft);
                         },
                         child: Container(
-                            height: 55.h,
+                            height: 70.h,
                             padding: EdgeInsets.symmetric(horizontal: 5.w),
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(14),
@@ -926,14 +932,13 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                   Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                        CrossAxisAlignment.center,
                                     children: [
                                       Image.asset(
                                         'assets/images/city_to_city.png',
-                                        fit: BoxFit
-                                            .fill, // Replace with your asset
+                                        fit: BoxFit.cover,
                                         width: 40.h,
-                                        height: 22.h,
+                                        height: 40.h,
                                       ),
                                       CommonComponents().printText(
                                           fontSize: 15,
@@ -943,10 +948,13 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                   ),
                                   homeController.selectedVehicle.value ==
                                           "city to city"
-                                      ? Icon(
-                                          Icons.check_box_outlined,
-                                          color: ColorHelper.primaryColor,
-                                          size: 20.sp,
+                                      ? Padding(
+                                          padding: EdgeInsets.only(left: 3.w),
+                                          child: Icon(
+                                            Icons.check_box_outlined,
+                                            color: ColorHelper.primaryColor,
+                                            size: 20.sp,
+                                          ),
                                         )
                                       : const SizedBox()
                                 ],
@@ -979,14 +987,13 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                   Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                        CrossAxisAlignment.center,
                                     children: [
                                       Image.asset(
                                         'assets/images/freight.png',
-                                        fit: BoxFit
-                                            .fill, // Replace with your asset
-                                        width: 40.h,
-                                        height: 22.h,
+                                        fit: BoxFit.cover,
+                                        width: 35.h,
+                                        height: 25.h,
                                       ),
                                       CommonComponents().printText(
                                           fontSize: 15,
@@ -1032,14 +1039,13 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                   Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                        CrossAxisAlignment.center,
                                     children: [
                                       Image.asset(
                                         'assets/images/courier.png',
-                                        fit: BoxFit
-                                            .fill, // Replace with your asset
-                                        width: 40.h,
-                                        height: 22.h,
+                                        fit: BoxFit.cover,
+                                        width: 30.h,
+                                        height: 25.h,
                                       ),
                                       CommonComponents().printText(
                                           fontSize: 15,
