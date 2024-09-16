@@ -1,3 +1,4 @@
+import 'package:callandgo/screens/city_to_city_user/views/cityTocityTripDetails.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -71,7 +72,12 @@ class _CityToCityRequestState extends State<CityToCityRequest>
       () => ListView.separated(
           itemBuilder: (context, index) {
             return InkWell(
-              onTap: () {},
+              onTap: () {
+                Get.to(() => CityToCityTripDetailsScreen(
+                      cityToCityTripModel:
+                          _cityToCityTripController.myTripListForUser[index],
+                    ));
+              },
               child: Card(
                 color: ColorHelper.blackColor,
                 child: Padding(
@@ -599,7 +605,7 @@ class _CityToCityRequestState extends State<CityToCityRequest>
                               ? 'Selected Date: ${_cityToCityTripController.selectedDate.value!.toLocal().toString().split(' ')[0]}'
                               : 'Select a date',
                           style: TextStyle(
-                            color: Colors.grey,
+                            color: Colors.white,
                             fontSize: 16.sp,
                           ),
                         ),
@@ -628,6 +634,7 @@ class _CityToCityRequestState extends State<CityToCityRequest>
                 SpaceHelper.horizontalSpace10,
                 Expanded(
                   child: TextField(
+                    style: TextStyle(color: Colors.white),
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       border: InputBorder.none,
