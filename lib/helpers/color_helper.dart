@@ -9,6 +9,7 @@ class ColorHelper {
   static Color greyColor = const Color(0xFF75788D);
   static Color grey850 = const Color.fromARGB(255, 48, 48, 48);
   static Color lightGreyColor = const Color.fromARGB(71, 158, 158, 158);
+  static Color primaryGreyIcon = const Color.fromARGB(255, 212, 202, 202);
   static Color whiteColor = const Color.fromARGB(255, 255, 255, 255);
   static Color SecondarywhiteColor = Colors.white.withOpacity(0.9);
   static Color blackColor = const Color.fromARGB(255, 0, 0, 0);
