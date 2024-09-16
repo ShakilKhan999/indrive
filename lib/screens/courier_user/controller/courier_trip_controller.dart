@@ -2,15 +2,19 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_place/google_place.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../helpers/color_helper.dart';
 import '../../../helpers/method_helper.dart';
 import '../../../main.dart';
 import '../../../models/courier_trip_model.dart';
+import '../../../models/user_model.dart';
+import '../../../utils/app_config.dart';
 import '../../../utils/database_collection_names.dart';
 import '../../../utils/global_toast_service.dart';
 import '../../auth_screen/controller/auth_controller.dart';
@@ -45,6 +49,7 @@ class CourierTripController extends GetxController {
   var fromPlaceName = "".obs;
   var toPlaceName = "".obs;
   late GoogleMapController mapController;
+  late GoogleMapController mapControllerForRide;
   late GoogleMapController mapControllerTO;
   var center = const LatLng(23.80, 90.41).obs;
   var isCourierTripCreationLoading = false.obs;
@@ -53,6 +58,14 @@ class CourierTripController extends GetxController {
   var selectedTripIndex = 0.obs;
   var selectedTripIndexForUser = 0.obs;
   var selectedBidIndex = 0.obs;
+  var rideRoute = const LatLng(23.80, 90.41).obs;
+  GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
+  Map<PolylineId, Polyline> polyLines = {};
+  var polylineCoordinates = [].obs;
+  var findingRoutes = false.obs;
+  var driverData = UserModel().obs;
+  var senderPhoneNumber = ''.obs;
+  var recipientPhoneNumber = ''.obs;
 
   void onCameraMove(CameraPosition position) {
     log("camera Moving");
@@ -113,6 +126,17 @@ class CourierTripController extends GetxController {
     mapControllerTO = controller;
   }
 
+  void onMapCreatedForRide(GoogleMapController controller) {
+    mapControllerForRide = controller;
+  }
+
+  void onCameraMoveForRide(CameraPosition position) {
+    log("camera Moving");
+    rideRoute.value =
+        LatLng(position.target.latitude, position.target.longitude);
+    cameraMoving.value = true;
+  }
+
   onPressTransportOption(String transportOption) {
     if (transportOptionList.contains(transportOption)) {
       transportOptionList.remove(transportOption);
@@ -150,10 +174,10 @@ class CourierTripController extends GetxController {
         declineDriverIds: '',
         createdAt: DateTime.now().toString(),
         isDoorToDoor: isOptionButtonEnabled.value,
-        senderPhone: pickUpSenderPhoneInfoController.value.text,
+        senderPhone: senderPhoneNumber.value,
         pickupFullAddress: pickUpStreetInfoController.value.text,
         pickupHomeAddress: pickUpFloorInfoController.value.text,
-        recipientPhone: recipientPhoneController.value.text,
+        recipientPhone: recipientPhoneNumber.value,
         destinationFullAddress: deliveryStreetInfoController.value.text,
         destinationHomeAddress: deliveryFloorInfoController.value.text,
         description: descriptionDeliverController.value.text,
@@ -700,5 +724,123 @@ class CourierTripController extends GetxController {
           toastText: 'Something went wrong',
           toastColor: ColorHelper.primaryColor);
     }
+  }
+
+  onPressItem({required CourierTripModel trip}) {
+    onPressItemDetailsView(trip: trip);
+    getPolyline(trip: trip);
+    getDriverData(trip: trip);
+  }
+
+  onPressItemDetailsView({required CourierTripModel trip}) {
+    rideRoute.value = LatLng(
+      double.parse(trip.pickLatLng!.latitude.toString()),
+      double.parse(trip.pickLatLng!.longitude.toString()),
+    );
+  }
+
+  getDriverData({required CourierTripModel trip}) async {
+    await MethodHelper().listerUserData(userId: trip.driverUid!).listen(
+      (userData) {
+        driverData.value = userData;
+        log('lat long : ${userData.latLng!.latitude.toString()} - ${userData.latLng!.longitude.toString()}');
+        loadMarkers(trip: trip);
+      },
+    );
+  }
+
+  getPolyline({required CourierTripModel trip}) async {
+    polyLines = {};
+    polylineCoordinates.value = [];
+    PolylinePoints polylinePoints = PolylinePoints();
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+      AppConfig.mapApiKey,
+      PointLatLng(trip.pickLatLng!.latitude, trip.pickLatLng!.longitude),
+      PointLatLng(trip.dropLatLng!.latitude, trip.dropLatLng!.longitude),
+      travelMode: TravelMode.driving,
+    );
+    log("polyLineResponse: ${result.points.length}");
+    log("polylineCoordinates: ${polylineCoordinates.length}");
+    if (result.points.isNotEmpty) {
+      for (var point in result.points) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      }
+    } else {
+      log("${result.errorMessage}");
+    }
+
+    addPolyLine(
+      polylineCoordinates
+          .map((geoPoint) => LatLng(geoPoint.latitude, geoPoint.longitude))
+          .toList(),
+    );
+  }
+
+  addPolyLine(List<LatLng> polylineCoordinates) {
+    PolylineId id = const PolylineId("poly");
+    Polyline polyline = Polyline(
+      polylineId: id,
+      color: Colors.deepPurpleAccent,
+      points: polylineCoordinates,
+      width: 8,
+    );
+    polyLines[id] = polyline;
+    // moveCameraToPolyline();
+  }
+
+  final List<double> _rotations = [
+    0.0,
+    0.0,
+    0.0,
+  ];
+  var allMarkers = <Marker>{}.obs;
+  Future<void> loadMarkers({required CourierTripModel trip}) async {
+    allMarkers.clear();
+    final BitmapDescriptor markerIconCar = await BitmapDescriptor.asset(
+      const ImageConfiguration(size: Size(24, 24)),
+      'assets/images/marker.png',
+    );
+
+    final BitmapDescriptor markerIconPickLocation =
+        await BitmapDescriptor.asset(
+      const ImageConfiguration(size: Size(24, 24)),
+      'assets/images/pick_location.png',
+    );
+    final BitmapDescriptor markerIconDropLocation =
+        await BitmapDescriptor.asset(
+      const ImageConfiguration(size: Size(24, 24)),
+      'assets/images/drop_location.png',
+    );
+
+    var locationList = [
+      LatLng(driverData.value.latLng!.latitude,
+          driverData.value.latLng!.longitude),
+      LatLng(trip.pickLatLng!.latitude, trip.pickLatLng!.longitude),
+      LatLng(trip.dropLatLng!.latitude, trip.dropLatLng!.longitude),
+    ];
+
+    Set<Marker> markers = locationList.asMap().entries.map((entry) {
+      int idx = entry.key;
+      LatLng location = entry.value;
+      double rotation = _rotations[idx % _rotations.length];
+
+      BitmapDescriptor icon;
+      if (idx == 0) {
+        icon = markerIconCar;
+      } else if (idx == 1) {
+        icon = markerIconPickLocation;
+      } else {
+        icon = markerIconDropLocation;
+      }
+
+      return Marker(
+        markerId: MarkerId(location.toString()),
+        position: location,
+        icon: icon,
+        rotation: rotation,
+      );
+    }).toSet();
+    allMarkers.addAll(markers);
+    log("markers len: ${allMarkers.length}");
   }
 }

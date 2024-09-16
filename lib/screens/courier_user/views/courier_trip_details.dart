@@ -1,5 +1,4 @@
 import 'package:callandgo/components/common_components.dart';
-import 'package:callandgo/components/custom_appbar.dart';
 import 'package:callandgo/components/simple_appbar.dart';
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
@@ -7,10 +6,16 @@ import 'package:callandgo/models/courier_trip_model.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import '../controller/courier_trip_controller.dart';
 
 class CourierTripDetails extends StatelessWidget {
   final CourierTripModel courierTripModel;
   CourierTripDetails({required this.courierTripModel});
+
+  final CourierTripController _courierTripController = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -23,12 +28,10 @@ class CourierTripDetails extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              _buildTextView(),
-              SpaceHelper.verticalSpace20,
-              _buildMapView(context),
-              SpaceHelper.verticalSpace10,
-            ]),
+            Expanded(
+              child: _buildMapView(context),
+            ),
+            SpaceHelper.verticalSpace10,
             Column(children: [
               _buildPickupButtonView(),
               SpaceHelper.verticalSpace10,
@@ -47,42 +50,36 @@ class CourierTripDetails extends StatelessWidget {
         Container(
           height: 200.h,
           color: ColorHelper.whiteColor,
-          // child:
-          //   Obx(
-          //     () => GoogleMap(
-          //       onMapCreated: (controller) =>
-          //           // _cityToCityTripController.onMapCreatedForRide,
-          //       onCameraMove: (position) =>
-          //           _cityToCityTripController.onCameraMoveForRide,
-          //       initialCameraPosition: CameraPosition(
-          //         target: _cityToCityTripController.rideRoute.value,
-          //         zoom: 12,
-          //       ),
-          //       polylines: {
-          //         Polyline(
-          //           polylineId: const PolylineId("poly"),
-          //           points: _cityToCityTripController.polylineCoordinates
-          //               .map((geoPoint) =>
-          //                   LatLng(geoPoint.latitude, geoPoint.longitude))
-          //               .toList(),
-          //           color: ColorHelper.primaryColor,
-          //           width: 7,
-          //         ),
-          //       },
-          //     ),
-          //   ),
+          child: Obx(
+            () => GoogleMap(
+              markers: _courierTripController.allMarkers.cast<Marker>().toSet(),
+              onMapCreated: (controller) =>
+                  _courierTripController.onMapCreatedForRide,
+              onCameraMove: (position) =>
+                  _courierTripController.onCameraMoveForRide,
+              initialCameraPosition: CameraPosition(
+                target: _courierTripController.rideRoute.value,
+                zoom: 14,
+              ),
+              polylines: {
+                Polyline(
+                  polylineId: const PolylineId("poly"),
+                  points: _courierTripController.polylineCoordinates
+                      .map((geoPoint) =>
+                          LatLng(geoPoint.latitude, geoPoint.longitude))
+                      .toList(),
+                  color: ColorHelper.primaryColor,
+                  width: 5,
+                ),
+              },
+            ),
+          ),
         ),
         SizedBox(height: 10.h),
-        _buildTextInfoView(context),
+        Expanded(
+          child: _buildTextInfoView(context),
+        )
       ],
-    );
-  }
-
-  Widget _buildTextView() {
-    return CommonComponents().printText(
-      fontSize: 16,
-      textData: 'Ride Details',
-      fontWeight: FontWeight.bold,
     );
   }
 
@@ -105,7 +102,6 @@ class CourierTripDetails extends StatelessWidget {
   Widget _buildTextInfoView(BuildContext context) {
     return Container(
       height: 200.h,
-      // color: Colors.red,
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,17 +187,21 @@ class CourierTripDetails extends StatelessWidget {
               textData: 'Deliver Info:',
               color: ColorHelper.primaryColor),
         ),
-        SpaceHelper.verticalSpace10,
+        courierTripModel.destinationFullAddress != ''
+            ? SpaceHelper.verticalSpace10
+            : SizedBox(),
         courierTripModel.destinationFullAddress != ''
             ? _buildInfoTextView(
                 'Street,building :${courierTripModel.destinationFullAddress} ')
             : SizedBox(),
-        SpaceHelper.verticalSpace10,
+        courierTripModel.destinationHomeAddress != ''
+            ? SpaceHelper.verticalSpace10
+            : SizedBox(),
         courierTripModel.destinationHomeAddress != ''
             ? _buildInfoTextView(
                 'Floor,apartment,entryphone : ${courierTripModel.destinationHomeAddress}')
             : SizedBox(),
-        SpaceHelper.verticalSpace10,
+        SpaceHelper.verticalSpace5,
         courierTripModel.recipientPhone != null
             ? _buildInfoTextView(
                 'Sender phone number : ${courierTripModel.recipientPhone}')
@@ -222,22 +222,26 @@ class CourierTripDetails extends StatelessWidget {
               textData: 'Picup Info:',
               color: ColorHelper.primaryColor),
         ),
-        SpaceHelper.verticalSpace10,
+        courierTripModel.pickupFullAddress != ''
+            ? SpaceHelper.verticalSpace10
+            : SizedBox(),
         courierTripModel.pickupFullAddress != ''
             ? _buildInfoTextView(
                 'Street,building :${courierTripModel.pickupFullAddress} ')
             : SizedBox(),
-        SpaceHelper.verticalSpace10,
+        courierTripModel.pickupHomeAddress != ''
+            ? SpaceHelper.verticalSpace10
+            : SizedBox(),
         courierTripModel.pickupHomeAddress != ''
             ? _buildInfoTextView(
                 'Floor,apartment,entryphone : ${courierTripModel.pickupHomeAddress}')
             : SizedBox(),
-        SpaceHelper.verticalSpace10,
+        SpaceHelper.verticalSpace5,
         courierTripModel.senderPhone != null
             ? _buildInfoTextView(
                 'Sender phone number : ${courierTripModel.senderPhone}')
             : _buildInfoTextView('Sender phone number not found'),
-        SpaceHelper.verticalSpace20,
+        SpaceHelper.verticalSpace10,
       ],
     );
   }

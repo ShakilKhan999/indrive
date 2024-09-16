@@ -1,5 +1,5 @@
 import 'package:callandgo/components/confirmation_dialog.dart';
-import 'package:callandgo/screens/city_to_city_user/views/cityTocityTripDetails.dart';
+import 'package:callandgo/screens/city_to_city_user/views/city_to_city_trip_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -68,9 +68,9 @@ class _DriverCityToCityRequestListState
         itemBuilder: (context, index) {
           return InkWell(
             onTap: () {
-              _cityToCityTripController.onPressItemDetailsView(index: index);
-              _cityToCityTripController.getPolyline(index: index);
-              // _showRideDetailsBottomSheet(index);
+              _cityToCityTripController.onPressItem(
+                  trip: _cityToCityTripController.myTripList[index]);
+
               Get.to(CityToCityTripDetailsScreen(
                   cityToCityTripModel:
                       _cityToCityTripController.myTripList[index]));

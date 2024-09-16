@@ -1,5 +1,4 @@
 import 'package:callandgo/components/common_components.dart';
-import 'package:callandgo/components/custom_appbar.dart';
 import 'package:callandgo/components/simple_appbar.dart';
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
@@ -11,7 +10,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CityToCityTripDetailsScreen extends StatelessWidget {
-  // final int index;
   final CityToCityTripModel cityToCityTripModel;
 
   CityToCityTripDetailsScreen({required this.cityToCityTripModel});
@@ -31,12 +29,10 @@ class CityToCityTripDetailsScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              _buildTextView(),
-              SpaceHelper.verticalSpace20,
-              _buildMapView(context),
-              SpaceHelper.verticalSpace10,
-            ]),
+            Expanded(
+              child: _buildInofView(context),
+            ),
+            SpaceHelper.verticalSpace10,
             Column(children: [
               _buildPickupButtonView(),
               SpaceHelper.verticalSpace10,
@@ -48,7 +44,7 @@ class CityToCityTripDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMapView(BuildContext context) {
+  Widget _buildInofView(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -58,13 +54,15 @@ class CityToCityTripDetailsScreen extends StatelessWidget {
             height: 200.h,
             child: Obx(
               () => GoogleMap(
+                markers:
+                    _cityToCityTripController.allMarkers.cast<Marker>().toSet(),
                 onMapCreated: (controller) =>
                     _cityToCityTripController.onMapCreatedForRide,
                 onCameraMove: (position) =>
                     _cityToCityTripController.onCameraMoveForRide,
                 initialCameraPosition: CameraPosition(
                   target: _cityToCityTripController.rideRoute.value,
-                  zoom: 12,
+                  zoom: 14,
                 ),
                 polylines: {
                   Polyline(
@@ -74,24 +72,17 @@ class CityToCityTripDetailsScreen extends StatelessWidget {
                             LatLng(geoPoint.latitude, geoPoint.longitude))
                         .toList(),
                     color: ColorHelper.primaryColor,
-                    width: 7,
+                    width: 5,
                   ),
                 },
+                mapType: MapType.normal,
               ),
             ),
           ),
         ),
         SizedBox(height: 10.h),
-        _buildTextInfoView(context), // Pass context here
+        Expanded(child: _buildTextInfoView(context))
       ],
-    );
-  }
-
-  Widget _buildTextView() {
-    return CommonComponents().printText(
-      fontSize: 16,
-      textData: 'Ride Details',
-      fontWeight: FontWeight.bold,
     );
   }
 
@@ -113,8 +104,6 @@ class CityToCityTripDetailsScreen extends StatelessWidget {
 
   Widget _buildTextInfoView(BuildContext context) {
     return Container(
-      // color: Colors.red,
-      height: 200.h,
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -188,19 +177,3 @@ class CityToCityTripDetailsScreen extends StatelessWidget {
     );
   }
 }
-
-// CommonComponents().printText(
-//             fontSize: 16,
-//             textData:
-//                 'Passengers: ${_cityToCityTripController.myTripList[index].numberOfPassengers}',
-//             fontWeight: FontWeight.normal),
-//         CommonComponents().printText(
-//             fontSize: 16,
-//             textData:
-//                 'Fare: ${_cityToCityTripController.myTripList[index].finalPrice}',
-//             fontWeight: FontWeight.normal),
-//         CommonComponents().printText(
-//             fontSize: 16,
-//             textData:
-//                 'Description: ${_cityToCityTripController.myTripList[index].description}',
-//             fontWeight: FontWeight.normal),

@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geocoding/geocoding.dart';
@@ -16,6 +17,7 @@ import 'package:google_place/google_place.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../helpers/color_helper.dart';
+import '../../../models/user_model.dart';
 import '../../../utils/app_config.dart';
 import '../../../utils/global_toast_service.dart';
 
@@ -576,28 +578,44 @@ class CityToCityTripController extends GetxController {
     } catch (e) {}
   }
 
-  var rideRoute = const LatLng(23.80, 90.41).obs;
-  onPressItemDetailsView({required int index}) {
-    rideRoute.value = LatLng(
-      double.parse(myTripList[index].pickLatLng!.latitude.toString()),
-      double.parse(myTripList[index].pickLatLng!.longitude.toString()),
-    );
+  onPressItem({required CityToCityTripModel trip}) {
+    onPressItemDetailsView(trip: trip);
+    getPolyline(trip: trip);
+    getDriverData(trip: trip);
   }
 
+  var rideRoute = const LatLng(23.80, 90.41).obs;
   GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
   Map<PolylineId, Polyline> polyLines = {};
   var polylineCoordinates = [].obs;
   var findingRoutes = false.obs;
-  getPolyline({required int index}) async {
+  var driverData = UserModel().obs;
+
+  onPressItemDetailsView({required CityToCityTripModel trip}) {
+    rideRoute.value = LatLng(
+      double.parse(trip.pickLatLng!.latitude.toString()),
+      double.parse(trip.pickLatLng!.longitude.toString()),
+    );
+  }
+
+  getDriverData({required CityToCityTripModel trip}) async {
+    await MethodHelper().listerUserData(userId: trip.driverUid!).listen(
+      (userData) {
+        driverData.value = userData;
+        log('lat long : ${userData.latLng!.latitude.toString()} - ${userData.latLng!.longitude.toString()}');
+        loadMarkers(trip: trip);
+      },
+    );
+  }
+
+  getPolyline({required CityToCityTripModel trip}) async {
     polyLines = {};
     polylineCoordinates.value = [];
     PolylinePoints polylinePoints = PolylinePoints();
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
       AppConfig.mapApiKey,
-      PointLatLng(myTripList[index].pickLatLng!.latitude,
-          myTripList[index].pickLatLng!.longitude),
-      PointLatLng(myTripList[index].dropLatLng!.latitude,
-          myTripList[index].dropLatLng!.longitude),
+      PointLatLng(trip.pickLatLng!.latitude, trip.pickLatLng!.longitude),
+      PointLatLng(trip.dropLatLng!.latitude, trip.dropLatLng!.longitude),
       travelMode: TravelMode.driving,
     );
     log("polyLineResponse: ${result.points.length}");
@@ -626,7 +644,7 @@ class CityToCityTripController extends GetxController {
       width: 8,
     );
     polyLines[id] = polyline;
-    moveCameraToPolyline();
+    // moveCameraToPolyline();
   }
 
   void moveCameraToPolyline() {
@@ -787,5 +805,61 @@ class CityToCityTripController extends GetxController {
           toastText: 'Something went wrong',
           toastColor: ColorHelper.primaryColor);
     }
+  }
+
+  final List<double> _rotations = [
+    0.0,
+    0.0,
+    0.0,
+  ];
+  var allMarkers = <Marker>{}.obs;
+  Future<void> loadMarkers({required CityToCityTripModel trip}) async {
+    allMarkers.clear();
+    final BitmapDescriptor markerIconCar = await BitmapDescriptor.asset(
+      const ImageConfiguration(size: Size(24, 24)),
+      'assets/images/marker.png',
+    );
+
+    final BitmapDescriptor markerIconPickLocation =
+        await BitmapDescriptor.asset(
+      const ImageConfiguration(size: Size(24, 24)),
+      'assets/images/pick_location.png',
+    );
+    final BitmapDescriptor markerIconDropLocation =
+        await BitmapDescriptor.asset(
+      const ImageConfiguration(size: Size(24, 24)),
+      'assets/images/drop_location.png',
+    );
+
+    var locationList = [
+      LatLng(driverData.value.latLng!.latitude,
+          driverData.value.latLng!.longitude),
+      LatLng(trip.pickLatLng!.latitude, trip.pickLatLng!.longitude),
+      LatLng(trip.dropLatLng!.latitude, trip.dropLatLng!.longitude),
+    ];
+
+    Set<Marker> markers = locationList.asMap().entries.map((entry) {
+      int idx = entry.key;
+      LatLng location = entry.value;
+      double rotation = _rotations[idx % _rotations.length];
+
+      BitmapDescriptor icon;
+      if (idx == 0) {
+        icon = markerIconCar;
+      } else if (idx == 1) {
+        icon = markerIconPickLocation;
+      } else {
+        icon = markerIconDropLocation;
+      }
+
+      return Marker(
+        markerId: MarkerId(location.toString()),
+        position: location,
+        icon: icon,
+        rotation: rotation,
+      );
+    }).toSet();
+    allMarkers.addAll(markers);
+    log("markers len: ${allMarkers.length}");
   }
 }

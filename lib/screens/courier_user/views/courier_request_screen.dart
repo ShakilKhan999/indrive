@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:callandgo/components/simple_appbar.dart';
 import 'package:callandgo/screens/courier_user/controller/courier_trip_controller.dart';
 import 'package:callandgo/screens/courier_user/views/courier_trip_details.dart';
@@ -68,6 +70,8 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
           itemBuilder: (context, index) {
             return InkWell(
               onTap: () {
+                courierTripController.onPressItem(
+                    trip: courierTripController.myTripListForUser[index]);
                 Get.to(() => CourierTripDetails(
                     courierTripModel:
                         courierTripController.myTripListForUser[index]));
@@ -423,18 +427,16 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
   }
 
   Widget _buildBottomButton() {
-    return CommonComponents().commonButton(
+    return Obx(
+      () => CommonComponents().commonButton(
         onPressed: () {
           courierTripController.onPressCreateRequest();
         },
-        text: 'Find a courier');
-  }
-
-  Widget _buildTitleView() {
-    return CommonComponents().printText(
-        fontSize: 20,
-        textData: 'Courier delivery',
-        fontWeight: FontWeight.bold);
+        text: 'Find a courier',
+        isLoading: courierTripController.isCourierTripCreationLoading.value,
+        disabled: courierTripController.isCourierTripCreationLoading.value,
+      ),
+    );
   }
 
   Widget _buildOptionsView() {
@@ -537,6 +539,7 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
   Widget _buildOderdeatilsView() {
     return GestureDetector(
       onTap: () {
+        MethodHelper().hideKeyboard();
         if (courierTripController.isOptionButtonEnabled.value) {
           _showEnabledBottomSheet(Get.context!);
         } else {
@@ -631,7 +634,11 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
                 _buildDeliveryInfoView(context),
                 _buildBottomDescription(),
                 SpaceHelper.verticalSpace10,
-                CommonComponents().commonButton(text: 'Save', onPressed: () {})
+                CommonComponents().commonButton(
+                    text: 'Save',
+                    onPressed: () {
+                      Get.back();
+                    })
               ],
             ),
           ),
@@ -824,8 +831,20 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
             color: Colors.grey,
           )),
       initialCountryCode: 'BD',
-      onCountryChanged: (value) {},
-      onChanged: (phone) {},
+      onCountryChanged: (value) {
+        log('Country: $value');
+      },
+      onChanged: (phone) {
+        if (labelText == 'Sender phone number') {
+          courierTripController.senderPhoneNumber.value =
+              '${phone.countryCode}${phone.number}';
+          log('sender phone: ${courierTripController.senderPhoneNumber.value}');
+        } else {
+          courierTripController.recipientPhoneNumber.value =
+              '${phone.countryCode}${phone.number}';
+          log('recipient phone: ${courierTripController.recipientPhoneNumber.value}');
+        }
+      },
     );
   }
 

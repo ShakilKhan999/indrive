@@ -1,32 +1,37 @@
 import 'package:callandgo/components/common_components.dart';
 import 'package:callandgo/components/custom_appbar.dart';
+import 'package:callandgo/components/simple_appbar.dart';
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/models/freight_trip_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import '../controller/freight_trip_controller.dart';
 
 class FreightTripDetails extends StatelessWidget {
   final FreightTripModel freightTripModel;
   FreightTripDetails({required this.freightTripModel});
 
+  FreightTripController _freightTripController = Get.find();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[900],
-      appBar: CustomAppbar(titleText: 'Freight Trip Details', onTap: () {}),
+      appBar: SimpleAppbar(titleText: 'Freight Trip Details'),
       body: Padding(
         padding: EdgeInsets.all(16.0.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              _buildTextView(),
-              SpaceHelper.verticalSpace20,
-              _buildMapView(context),
-              SpaceHelper.verticalSpace10,
-            ]),
+            Expanded(
+              child: _buildMapView(context),
+            ),
+            SpaceHelper.verticalSpace10,
             Column(children: [
               _buildPickupButtonView(),
               SpaceHelper.verticalSpace10,
@@ -45,33 +50,35 @@ class FreightTripDetails extends StatelessWidget {
         Container(
           height: 200.h,
           color: ColorHelper.whiteColor,
-          // child:
-          //   Obx(
-          //     () => GoogleMap(
-          //       onMapCreated: (controller) =>
-          //           // _cityToCityTripController.onMapCreatedForRide,
-          //       onCameraMove: (position) =>
-          //           _cityToCityTripController.onCameraMoveForRide,
-          //       initialCameraPosition: CameraPosition(
-          //         target: _cityToCityTripController.rideRoute.value,
-          //         zoom: 12,
-          //       ),
-          //       polylines: {
-          //         Polyline(
-          //           polylineId: const PolylineId("poly"),
-          //           points: _cityToCityTripController.polylineCoordinates
-          //               .map((geoPoint) =>
-          //                   LatLng(geoPoint.latitude, geoPoint.longitude))
-          //               .toList(),
-          //           color: ColorHelper.primaryColor,
-          //           width: 7,
-          //         ),
-          //       },
-          //     ),
-          //   ),
+          child: Obx(
+            () => GoogleMap(
+              markers: _freightTripController.allMarkers.cast<Marker>().toSet(),
+              onMapCreated: (controller) =>
+                  _freightTripController.onMapCreatedForRide,
+              onCameraMove: (position) =>
+                  _freightTripController.onCameraMoveForRide,
+              initialCameraPosition: CameraPosition(
+                target: _freightTripController.rideRoute.value,
+                zoom: 14,
+              ),
+              polylines: {
+                Polyline(
+                  polylineId: const PolylineId("poly"),
+                  points: _freightTripController.polylineCoordinates
+                      .map((geoPoint) =>
+                          LatLng(geoPoint.latitude, geoPoint.longitude))
+                      .toList(),
+                  color: ColorHelper.primaryColor,
+                  width: 5,
+                ),
+              },
+            ),
+          ),
         ),
         SizedBox(height: 10.h),
-        _buildTextInfoView(context),
+        Expanded(
+          child: _buildTextInfoView(context),
+        )
       ],
     );
   }

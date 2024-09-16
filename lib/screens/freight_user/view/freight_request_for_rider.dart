@@ -1,4 +1,5 @@
 import 'package:callandgo/screens/freight_user/view/freight_trip_details.dart';
+import 'package:callandgo/utils/database_collection_names.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -68,6 +69,8 @@ class _FreightRequesForRiderState extends State<FreightRequesForRider>
         itemBuilder: (context, index) {
           return InkWell(
             onTap: () {
+              _freightTripController.onPressItem(
+                  trip: _freightTripController.myTripList[index]);
               Get.to(() => FreightTripDetails(
                   freightTripModel: _freightTripController.myTripList[index]));
             },

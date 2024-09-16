@@ -75,6 +75,8 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
           itemBuilder: (context, index) {
             return InkWell(
               onTap: () {
+                _freightController.onPressItem(
+                    trip: _freightController.myTripListForUser[index]);
                 Get.to(() => FreightTripDetails(
                     freightTripModel:
                         _freightController.myTripListForUser[index]));
@@ -335,11 +337,15 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
   }
 
   Widget _buildBottomButtom() {
-    return CommonComponents().commonButton(
-        text: 'Create Request',
-        onPressed: () {
-          _freightController.onPressCreateRequest();
-        });
+    return Obx(
+      () => CommonComponents().commonButton(
+          text: 'Create Request',
+          onPressed: () {
+            _freightController.onPressCreateRequest();
+          },
+          isLoading: _freightController.isFreightTripCreationLoading.value,
+          disabled: _freightController.isFreightTripCreationLoading.value),
+    );
   }
 
   Widget _buildRequestListView() {

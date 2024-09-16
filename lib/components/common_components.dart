@@ -284,7 +284,6 @@ class CommonComponents {
     bool isDescription = false,
   }) {
     return SizedBox(
-      width: isDescription ? MediaQuery.of(context).size.width : 70.w,
       child: Card(
         color: cardColor ?? ColorHelper.blackColor,
         shape: RoundedRectangleBorder(
@@ -296,35 +295,32 @@ class CommonComponents {
             children: [
               if (isDescription) ...[
                 SizedBox(
-                  height: 100.h,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              icon,
-                              color: iconColor ?? ColorHelper.primaryColor,
-                              size: 20.w,
-                            ),
-                            SpaceHelper.horizontalSpace3,
-                            CommonComponents().printText(
-                              fontSize: 16,
-                              textData: text,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ],
-                        ),
-                        SpaceHelper.verticalSpace20,
-                        CommonComponents().printText(
-                          fontSize: 14,
-                          textData: number,
-                          maxLine: 10,
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ],
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            icon,
+                            color: iconColor ?? ColorHelper.primaryColor,
+                            size: 20.w,
+                          ),
+                          SpaceHelper.horizontalSpace3,
+                          CommonComponents().printText(
+                            fontSize: 16,
+                            textData: text,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ],
+                      ),
+                      SpaceHelper.verticalSpace10,
+                      CommonComponents().printText(
+                        fontSize: 14,
+                        textData: number,
+                        maxLine: 10,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ],
                   ),
                 ),
               ] else ...[

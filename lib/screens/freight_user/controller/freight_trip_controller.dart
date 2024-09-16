@@ -3,16 +3,20 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:callandgo/main.dart';
+import 'package:google_place/google_place.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../helpers/color_helper.dart';
 import '../../../helpers/method_helper.dart';
 import '../../../models/freight_trip_model.dart';
+import '../../../models/user_model.dart';
+import '../../../utils/app_config.dart';
 import '../../../utils/database_collection_names.dart';
 import '../../../utils/global_toast_service.dart';
 import '../../auth_screen/controller/auth_controller.dart';
@@ -32,12 +36,19 @@ class FreightTripController extends GetxController {
   var fromPlaceName = "".obs;
   var toPlaceName = "".obs;
   late GoogleMapController mapController;
+  late GoogleMapController mapControllerForRide;
   late GoogleMapController mapControllerTO;
   var center = const LatLng(23.80, 90.41).obs;
   var isFreightTripCreationLoading = false.obs;
   var selectedButtonIndex = (-1).obs;
   var selectedDate = ''.obs;
   var selectedTripIndexForUser = 0.obs;
+  var rideRoute = const LatLng(23.80, 90.41).obs;
+  GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
+  Map<PolylineId, Polyline> polyLines = {};
+  var polylineCoordinates = [].obs;
+  var findingRoutes = false.obs;
+  var driverData = UserModel().obs;
 
   var selectedSize = 'Small'.obs;
   final List<String> sizes = ['Small', 'Medium', 'Big'];
@@ -736,5 +747,134 @@ class FreightTripController extends GetxController {
           toastText: 'Something went wrong',
           toastColor: ColorHelper.primaryColor);
     }
+  }
+
+  void onMapCreatedForRide(GoogleMapController controller) {
+    mapControllerForRide = controller;
+  }
+
+  void onCameraMoveForRide(CameraPosition position) {
+    log("camera Moving");
+    rideRoute.value =
+        LatLng(position.target.latitude, position.target.longitude);
+    cameraMoving.value = true;
+  }
+
+  onPressItem({required FreightTripModel trip}) {
+    onPressItemDetailsView(trip: trip);
+    getPolyline(trip: trip);
+    getDriverData(trip: trip);
+  }
+
+  onPressItemDetailsView({required FreightTripModel trip}) {
+    rideRoute.value = LatLng(
+      double.parse(trip.pickLatLng!.latitude.toString()),
+      double.parse(trip.pickLatLng!.longitude.toString()),
+    );
+  }
+
+  getDriverData({required FreightTripModel trip}) async {
+    await MethodHelper().listerUserData(userId: trip.driverUid!).listen(
+      (userData) {
+        driverData.value = userData;
+        log('lat long : ${userData.latLng!.latitude.toString()} - ${userData.latLng!.longitude.toString()}');
+        loadMarkers(trip: trip);
+      },
+    );
+  }
+
+  getPolyline({required FreightTripModel trip}) async {
+    polyLines = {};
+    polylineCoordinates.value = [];
+    PolylinePoints polylinePoints = PolylinePoints();
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+      AppConfig.mapApiKey,
+      PointLatLng(trip.pickLatLng!.latitude, trip.pickLatLng!.longitude),
+      PointLatLng(trip.dropLatLng!.latitude, trip.dropLatLng!.longitude),
+      travelMode: TravelMode.driving,
+    );
+    log("polyLineResponse: ${result.points.length}");
+    log("polylineCoordinates: ${polylineCoordinates.length}");
+    if (result.points.isNotEmpty) {
+      for (var point in result.points) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      }
+    } else {
+      log("${result.errorMessage}");
+    }
+
+    addPolyLine(
+      polylineCoordinates
+          .map((geoPoint) => LatLng(geoPoint.latitude, geoPoint.longitude))
+          .toList(),
+    );
+  }
+
+  addPolyLine(List<LatLng> polylineCoordinates) {
+    PolylineId id = const PolylineId("poly");
+    Polyline polyline = Polyline(
+      polylineId: id,
+      color: Colors.deepPurpleAccent,
+      points: polylineCoordinates,
+      width: 8,
+    );
+    polyLines[id] = polyline;
+    // moveCameraToPolyline();
+  }
+
+  final List<double> _rotations = [
+    0.0,
+    0.0,
+    0.0,
+  ];
+  var allMarkers = <Marker>{}.obs;
+  Future<void> loadMarkers({required FreightTripModel trip}) async {
+    allMarkers.clear();
+    final BitmapDescriptor markerIconCar = await BitmapDescriptor.asset(
+      const ImageConfiguration(size: Size(24, 24)),
+      'assets/images/marker.png',
+    );
+
+    final BitmapDescriptor markerIconPickLocation =
+        await BitmapDescriptor.asset(
+      const ImageConfiguration(size: Size(24, 24)),
+      'assets/images/pick_location.png',
+    );
+    final BitmapDescriptor markerIconDropLocation =
+        await BitmapDescriptor.asset(
+      const ImageConfiguration(size: Size(24, 24)),
+      'assets/images/drop_location.png',
+    );
+
+    var locationList = [
+      LatLng(driverData.value.latLng!.latitude,
+          driverData.value.latLng!.longitude),
+      LatLng(trip.pickLatLng!.latitude, trip.pickLatLng!.longitude),
+      LatLng(trip.dropLatLng!.latitude, trip.dropLatLng!.longitude),
+    ];
+
+    Set<Marker> markers = locationList.asMap().entries.map((entry) {
+      int idx = entry.key;
+      LatLng location = entry.value;
+      double rotation = _rotations[idx % _rotations.length];
+
+      BitmapDescriptor icon;
+      if (idx == 0) {
+        icon = markerIconCar;
+      } else if (idx == 1) {
+        icon = markerIconPickLocation;
+      } else {
+        icon = markerIconDropLocation;
+      }
+
+      return Marker(
+        markerId: MarkerId(location.toString()),
+        position: location,
+        icon: icon,
+        rotation: rotation,
+      );
+    }).toSet();
+    allMarkers.addAll(markers);
+    log("markers len: ${allMarkers.length}");
   }
 }

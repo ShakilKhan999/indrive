@@ -1,4 +1,4 @@
-import 'package:callandgo/screens/city_to_city_user/views/cityTocityTripDetails.dart';
+import 'package:callandgo/screens/city_to_city_user/views/city_to_city_trip_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -75,6 +75,8 @@ class _CityToCityRequestState extends State<CityToCityRequest>
           itemBuilder: (context, index) {
             return InkWell(
               onTap: () {
+                _cityToCityTripController.onPressItem(
+                    trip: _cityToCityTripController.myTripListForUser[index]);
                 Get.to(() => CityToCityTripDetailsScreen(
                       cityToCityTripModel:
                           _cityToCityTripController.myTripListForUser[index],
