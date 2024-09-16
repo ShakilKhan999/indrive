@@ -1,5 +1,6 @@
 import 'package:callandgo/components/simple_appbar.dart';
 import 'package:callandgo/screens/courier_user/controller/courier_trip_controller.dart';
+import 'package:callandgo/screens/courier_user/views/courier_trip_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -65,7 +66,11 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
       () => ListView.separated(
           itemBuilder: (context, index) {
             return InkWell(
-              onTap: () {},
+              onTap: () {
+                Get.to(() => CourierTripDetails(
+                    courierTripModel:
+                        courierTripController.myTripListForUser[index]));
+              },
               child: Card(
                 color: ColorHelper.blackColor,
                 child: Padding(

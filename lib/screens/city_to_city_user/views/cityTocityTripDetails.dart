@@ -1,5 +1,6 @@
 import 'package:callandgo/components/common_components.dart';
 import 'package:callandgo/components/custom_appbar.dart';
+import 'package:callandgo/components/simple_appbar.dart';
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/models/city_to_city_trip_model.dart';
@@ -21,7 +22,9 @@ class CityToCityTripDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[900],
-      appBar: CustomAppbar(titleText: 'Trip Details', onTap: () {}),
+      appBar: SimpleAppbar(
+        titleText: 'City to City Trip Details',
+      ),
       body: Padding(
         padding: EdgeInsets.all(16.0.w),
         child: Column(
@@ -109,41 +112,79 @@ class CityToCityTripDetailsScreen extends StatelessWidget {
   }
 
   Widget _buildTextInfoView(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
+    return Container(
+      // color: Colors.red,
+      height: 200.h,
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: CommonComponents().CommonCard(
-                context: context,
-                icon: Icons.person_outline_outlined,
-                number: '${cityToCityTripModel.numberOfPassengers}',
-                text: 'Passenger',
-                cardColor: ColorHelper.blackColor,
-              ),
+            SpaceHelper.verticalSpace15,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(Icons.radio_button_checked,
+                    color: ColorHelper.primaryColor),
+                SpaceHelper.horizontalSpace10,
+                Expanded(
+                  child: CommonComponents().printText(
+                    fontSize: 12,
+                    textData: '${cityToCityTripModel.cityFrom!}',
+                    fontWeight: FontWeight.normal,
+                  ),
+                )
+              ],
             ),
-            SpaceHelper.horizontalSpace10,
-            Expanded(
-              child: CommonComponents().CommonCard(
-                context: context,
-                icon: Icons.monetization_on_outlined,
-                number: '${cityToCityTripModel.finalPrice}',
-                text: 'Fare',
-                cardColor: ColorHelper.blackColor,
-              ),
+            SpaceHelper.verticalSpace5,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(Icons.radio_button_checked, color: ColorHelper.blueColor),
+                SpaceHelper.horizontalSpace10,
+                Expanded(
+                  child: CommonComponents().printText(
+                    fontSize: 12,
+                    textData: '${cityToCityTripModel.cityTo!}',
+                    fontWeight: FontWeight.normal,
+                  ),
+                )
+              ],
+            ),
+            SpaceHelper.verticalSpace10,
+            Row(
+              children: [
+                Expanded(
+                  child: CommonComponents().CommonCard(
+                    context: context,
+                    icon: Icons.person_outline_outlined,
+                    number: '${cityToCityTripModel.numberOfPassengers}',
+                    text: 'Passenger',
+                    cardColor: ColorHelper.blackColor,
+                  ),
+                ),
+                SpaceHelper.horizontalSpace10,
+                Expanded(
+                  child: CommonComponents().CommonCard(
+                    context: context,
+                    icon: Icons.monetization_on_outlined,
+                    number: '${cityToCityTripModel.finalPrice}',
+                    text: 'Fare',
+                    cardColor: ColorHelper.blackColor,
+                  ),
+                ),
+              ],
+            ),
+            CommonComponents().CommonCard(
+              context: context,
+              icon: Icons.description_outlined,
+              number: '${cityToCityTripModel.description}',
+              text: 'Description',
+              cardColor: ColorHelper.blackColor,
+              isDescription: true,
             ),
           ],
         ),
-        CommonComponents().CommonCard(
-          context: context,
-          icon: Icons.description_outlined,
-          number: '${cityToCityTripModel.description}',
-          text: 'Description',
-          cardColor: ColorHelper.blackColor,
-          isDescription: true,
-        ),
-      ],
+      ),
     );
   }
 }

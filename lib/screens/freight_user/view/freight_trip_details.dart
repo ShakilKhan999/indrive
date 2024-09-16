@@ -101,64 +101,109 @@ class FreightTripDetails extends StatelessWidget {
   }
 
   Widget _buildTextInfoView(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
+    return Container(
+      height: 200.h,
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-              height: 50.h,
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6.r),
-                  color: ColorHelper.blackColor),
-              child: Center(
-                  child: freightTripModel.date != null
-                      ? CommonComponents().printText(
-                          fontSize: 14,
-                          textData: 'Date : ${freightTripModel.date}',
-                          fontWeight: FontWeight.bold)
-                      : CommonComponents().printText(
-                          fontSize: 14,
-                          textData: 'Date not found',
-                          fontWeight: FontWeight.bold)),
+            SpaceHelper.verticalSpace15,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(Icons.radio_button_checked,
+                    color: ColorHelper.primaryColor),
+                SpaceHelper.horizontalSpace10,
+                Expanded(
+                  child: CommonComponents().printText(
+                    fontSize: 12,
+                    textData: '${freightTripModel.from!}',
+                    fontWeight: FontWeight.normal,
+                  ),
+                )
+              ],
+            ),
+            SpaceHelper.verticalSpace5,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(Icons.radio_button_checked, color: ColorHelper.blueColor),
+                SpaceHelper.horizontalSpace10,
+                Expanded(
+                  child: CommonComponents().printText(
+                    fontSize: 12,
+                    textData: '${freightTripModel.to!}',
+                    fontWeight: FontWeight.normal,
+                  ),
+                )
+              ],
             ),
             SpaceHelper.verticalSpace10,
-            Container(
-              height: 50.h,
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6.r),
-                  color: ColorHelper.blackColor),
-              child: Center(
-                  child: freightTripModel.truckSize != null
-                      ? CommonComponents().printText(
-                          fontSize: 14,
-                          textData:
-                              'Freight Size : ${freightTripModel.truckSize}',
-                          fontWeight: FontWeight.bold)
-                      : CommonComponents().printText(
-                          fontSize: 14,
-                          textData: 'Freight Size not found',
-                          fontWeight: FontWeight.bold)),
-            ),
+            _buildDateView(context),
             SpaceHelper.verticalSpace10,
-            Container(
-              height: 100.h,
-              width: 150.w,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6.r),
-                  color: ColorHelper.blackColor),
-              child: Center(
-                  child: freightTripModel.cargoImage != null
-                      ? Image.network(freightTripModel.cargoImage!,
-                          height: 50.h, width: 50.w, fit: BoxFit.cover)
-                      : Image.asset('assets/images/freight-delivery.png',
-                          height: 50.h, width: 50.w, fit: BoxFit.cover)),
-            ),
+            _buildFreightSizeView(context),
+            SpaceHelper.verticalSpace10,
+            _buildImageView(),
           ],
         ),
-      ],
+      ),
+    );
+  }
+
+  Widget _buildDateView(BuildContext context) {
+    return Container(
+      height: 50.h,
+      width: MediaQuery.of(context).size.width,
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(6.r),
+          color: ColorHelper.blackColor),
+      alignment: Alignment.centerLeft,
+      padding: EdgeInsets.only(left: 6.w),
+      child: Center(
+          child: freightTripModel.date != null
+              ? CommonComponents().printText(
+                  fontSize: 14,
+                  textData: 'Date : ${freightTripModel.date}',
+                  fontWeight: FontWeight.bold)
+              : CommonComponents().printText(
+                  fontSize: 14,
+                  textData: 'Date not found',
+                  fontWeight: FontWeight.bold)),
+    );
+  }
+
+  Widget _buildFreightSizeView(BuildContext context) {
+    return Container(
+      height: 50.h,
+      width: MediaQuery.of(context).size.width,
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(6.r),
+          color: ColorHelper.blackColor),
+      child: Center(
+          child: freightTripModel.truckSize != null
+              ? CommonComponents().printText(
+                  fontSize: 14,
+                  textData: 'Freight Size : ${freightTripModel.truckSize}',
+                  fontWeight: FontWeight.bold)
+              : CommonComponents().printText(
+                  fontSize: 14,
+                  textData: 'Freight Size not found',
+                  fontWeight: FontWeight.bold)),
+    );
+  }
+
+  Widget _buildImageView() {
+    return Container(
+      height: 100.h,
+      width: 150.w,
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(6.r),
+          color: ColorHelper.blackColor),
+      child: Center(
+          child: freightTripModel.cargoImage != null
+              ? Image.network(freightTripModel.cargoImage!, fit: BoxFit.cover)
+              : Image.asset('assets/images/freight-delivery.png',
+                  fit: BoxFit.cover)),
     );
   }
 }
