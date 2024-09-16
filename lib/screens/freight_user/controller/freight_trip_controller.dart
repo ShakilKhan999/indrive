@@ -351,7 +351,7 @@ class FreightTripController extends GetxController {
   void getFreightTripsForUser() {
     try {
       AuthController _authController = Get.find();
-      tripList.clear();
+      tripListForUser.clear();
       FreightTripRepository()
           .getFreightTripListForUser(
               userId: _authController.currentUser.value.uid!)

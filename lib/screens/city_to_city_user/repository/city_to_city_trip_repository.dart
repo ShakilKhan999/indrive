@@ -86,7 +86,7 @@ class CityToCityTripRepository {
       return FirebaseFirestore.instance
           .collection(cityToCityTripCollection)
           .where('userUid', isEqualTo: userId)
-          .where('tripCurrentStatus', isEqualTo: 'accepted')
+          .where('isTripAccepted', isEqualTo: true)
           .snapshots()
           .map((snapshot) {
         return snapshot.docs

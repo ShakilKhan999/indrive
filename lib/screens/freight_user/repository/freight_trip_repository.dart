@@ -83,7 +83,7 @@ class FreightTripRepository {
       return FirebaseFirestore.instance
           .collection(freightTripCollection)
           .where('userUid', isEqualTo: userId)
-          .where('tripCurrentStatus', isEqualTo: 'accepted')
+          .where('isTripAccepted', isEqualTo: true)
           .snapshots()
           .map((snapshot) {
         return snapshot.docs

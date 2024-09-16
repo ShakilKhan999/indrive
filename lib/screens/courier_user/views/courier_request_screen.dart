@@ -1,3 +1,4 @@
+import 'package:callandgo/components/simple_appbar.dart';
 import 'package:callandgo/screens/courier_user/controller/courier_trip_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,9 +8,10 @@ import 'package:callandgo/components/common_components.dart';
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/helpers/style_helper.dart';
-import 'package:callandgo/screens/driver/courier/controller/courier_controller.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 
+import '../../../helpers/method_helper.dart';
+import 'courier_bid_list.dart';
 import 'courier_select_location.dart';
 
 class CourierRequestScreen extends StatefulWidget {
@@ -40,74 +42,320 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: ColorHelper.bgColor,
+        appBar: SimpleAppbar(titleText: 'Courier'),
         body: Column(
-      children: [
-        Expanded(
-            child: TabBarView(
-          controller: _tabController,
           children: [
-            _buildCreateRequestView(context),
-            Container(),
-            Container(),
+            Expanded(
+                child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildCreateRequestView(context),
+                _buildRequestListView(),
+                _buildMyRideView(),
+              ],
+            )),
+            _buildTabBar(),
           ],
-        )),
-        _buildTabBar(),
-      ],
-    ));
+        ));
   }
 
-  Stack _buildCreateRequestView(BuildContext context) {
-    return Stack(
-      children: [
-        _buildMapView(context),
-        _buildTopBackButtonView(),
-        _buildCourierDeliveryDeatilsView(),
-      ],
+  Widget _buildMyRideView() {
+    return Obx(
+      () => ListView.separated(
+          itemBuilder: (context, index) {
+            return InkWell(
+              onTap: () {},
+              child: Card(
+                color: ColorHelper.blackColor,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            height: 35.h,
+                            width: 35.h,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(90),
+                                color: Colors.white,
+                                border: Border.all(color: Colors.white)),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(90),
+                              child: courierTripController
+                                          .myTripListForUser[index]
+                                          .driverImage !=
+                                      null
+                                  ? Image.network(
+                                      courierTripController
+                                          .myTripListForUser[index]
+                                          .driverImage!,
+                                      height: 35.h,
+                                      width: 35.h,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.asset(
+                                      "assets/images/person.jpg",
+                                      height: 35.h,
+                                      width: 35.h,
+                                      fit: BoxFit.cover,
+                                    ),
+                            ),
+                          ),
+                          SpaceHelper.horizontalSpace10,
+                          Expanded(
+                            child: CommonComponents().printText(
+                                fontSize: 15,
+                                textData: courierTripController
+                                    .myTripListForUser[index].driverName!,
+                                fontWeight: FontWeight.bold),
+                          )
+                        ],
+                      ),
+                      SpaceHelper.verticalSpace10,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.money, color: ColorHelper.whiteColor),
+                              SpaceHelper.horizontalSpace5,
+                              CommonComponents().printText(
+                                  fontSize: 18,
+                                  textData:
+                                      '${courierTripController.myTripListForUser[index].finalPrice!}',
+                                  fontWeight: FontWeight.bold),
+                            ],
+                          ),
+                        ],
+                      ),
+                      SpaceHelper.verticalSpace15,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          CommonComponents().printText(
+                            fontSize: 12,
+                            textData: 'Status :',
+                            fontWeight: FontWeight.w600,
+                          ),
+                          SpaceHelper.horizontalSpace10,
+                          CommonComponents().printText(
+                              fontSize: 12,
+                              textData:
+                                  '${courierTripController.myTripListForUser[index].tripCurrentStatus!.toUpperCase()}',
+                              fontWeight: FontWeight.bold,
+                              color: MethodHelper().statusColor(
+                                  status: courierTripController
+                                      .myTripListForUser[index]
+                                      .tripCurrentStatus!)),
+                        ],
+                      ),
+                      SpaceHelper.verticalSpace15,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(Icons.radio_button_checked,
+                              color: ColorHelper.primaryColor),
+                          SpaceHelper.horizontalSpace10,
+                          Expanded(
+                            child: CommonComponents().printText(
+                              fontSize: 12,
+                              textData:
+                                  '${courierTripController.myTripListForUser[index].from!}',
+                              fontWeight: FontWeight.normal,
+                            ),
+                          )
+                        ],
+                      ),
+                      SpaceHelper.verticalSpace5,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(Icons.radio_button_checked,
+                              color: ColorHelper.blueColor),
+                          SpaceHelper.horizontalSpace10,
+                          Expanded(
+                            child: CommonComponents().printText(
+                              fontSize: 12,
+                              textData:
+                                  '${courierTripController.myTripListForUser[index].to!}',
+                              fontWeight: FontWeight.normal,
+                            ),
+                          )
+                        ],
+                      ),
+                      SpaceHelper.verticalSpace10,
+                      // ListTile(
+
+                      //     contentPadding: EdgeInsets.zero,
+                      //     leading: Icon(Icons.radio_button_checked,
+                      //         color: ColorHelper.primaryColor),
+                      //     title: CommonComponents().printText(
+                      //         fontSize: 12,
+                      //         textData:
+                      //             '${courierTripController.myTripListForUser[index].from!}',
+                      //         fontWeight: FontWeight.normal)),
+                      // ListTile(
+                      //     contentPadding: EdgeInsets.zero,
+                      //     leading: Icon(Icons.radio_button_checked,
+                      //         color: ColorHelper.blueColor),
+                      //     title: CommonComponents().printText(
+                      //         fontSize: 12,
+                      //         textData:
+                      //             '${courierTripController.myTripListForUser[index].to!}',
+                      //         fontWeight: FontWeight.normal)),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+          separatorBuilder: (context, index) {
+            return SpaceHelper.verticalSpace10;
+          },
+          itemCount: courierTripController.myTripListForUser.length),
     );
   }
 
-  Widget _buildCourierDeliveryDeatilsView() {
-    return Positioned(
-      bottom: 0,
-      left: 0,
-      right: 0,
-      child: Container(
-        padding: EdgeInsets.all(16.sp),
-        decoration: BoxDecoration(
-          color: Colors.grey[900],
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTitleView(),
-            SpaceHelper.verticalSpace10,
-            _buildOptionsView(),
-            SpaceHelper.verticalSpace15,
-            // _buildSetAddressView(),
-            _buildTextFiledView('Pickup location',
-                courierTripController.pickUpController.value, true),
-            SpaceHelper.verticalSpace15,
-            _buildTextFiledView('Destination location',
-                courierTripController.destinationController.value, false),
+  Widget _buildRequestListView() {
+    return Obx(
+      () => ListView.separated(
+          itemBuilder: (context, index) {
+            return InkWell(
+              onTap: () {
+                courierTripController.selectedTripIndexForUser.value = index;
+                Get.to(() => CourierBidList(),
+                    transition: Transition.rightToLeft);
+              },
+              child: Card(
+                color: ColorHelper.blackColor,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.money, color: ColorHelper.whiteColor),
+                              SpaceHelper.horizontalSpace5,
+                              CommonComponents().printText(
+                                  fontSize: 18,
+                                  textData:
+                                      '${courierTripController.tripListForUser[index].userPrice!}',
+                                  fontWeight: FontWeight.bold),
+                            ],
+                          ),
+                        ],
+                      ),
+                      SpaceHelper.verticalSpace15,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(Icons.radio_button_checked,
+                              color: ColorHelper.primaryColor),
+                          SpaceHelper.horizontalSpace10,
+                          Expanded(
+                            child: CommonComponents().printText(
+                              fontSize: 12,
+                              textData:
+                                  '${courierTripController.tripListForUser[index].from!}',
+                              fontWeight: FontWeight.normal,
+                            ),
+                          )
+                        ],
+                      ),
+                      SpaceHelper.verticalSpace5,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(Icons.radio_button_checked,
+                              color: ColorHelper.blueColor),
+                          SpaceHelper.horizontalSpace10,
+                          Expanded(
+                            child: CommonComponents().printText(
+                              fontSize: 12,
+                              textData:
+                                  '${courierTripController.tripListForUser[index].to!}',
+                              fontWeight: FontWeight.normal,
+                            ),
+                          )
+                        ],
+                      ),
+                      SpaceHelper.verticalSpace10,
+                      CommonComponents().commonButton(
+                        text: 'Cancel Ride',
+                        onPressed: () {
+                          courierTripController.cancelRideForUser(
+                              docId: courierTripController
+                                  .tripListForUser[index].id!);
+                        },
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+          separatorBuilder: (context, index) {
+            return SpaceHelper.verticalSpace10;
+          },
+          itemCount: courierTripController.tripListForUser.length),
+    );
+  }
 
-            SpaceHelper.verticalSpace15,
-            _buildOptionButton(Icons.door_front_door, 'Door to door'),
-            SpaceHelper.verticalSpace15,
-            _buildOderdeatilsView(),
-            SpaceHelper.verticalSpace10,
-            _buildTexfiledView(
-                courierTripController.fareCourierController.value,
-                'Offer your fare',
-                prefixIcon: Icon(
-                  Icons.payment,
-                  color: Colors.grey,
-                )),
-            SpaceHelper.verticalSpace15,
-            _buildBottomButton(),
-          ],
-        ),
+  Widget _buildCreateRequestView(BuildContext context) {
+    return _buildCourierDeliveryDeatilsView();
+  }
+
+  Widget _buildCourierDeliveryDeatilsView() {
+    return Container(
+      padding: EdgeInsets.all(16.sp),
+      decoration: BoxDecoration(
+        color: Colors.grey[900],
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              physics: BouncingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics()),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildOptionsView(),
+                  SpaceHelper.verticalSpace15,
+                  _buildTextFiledView('Pickup location',
+                      courierTripController.pickUpController.value, true),
+                  SpaceHelper.verticalSpace15,
+                  _buildTextFiledView('Destination location',
+                      courierTripController.destinationController.value, false),
+                  SpaceHelper.verticalSpace15,
+                  _buildOptionButton(Icons.door_front_door, 'Door to door'),
+                  SpaceHelper.verticalSpace15,
+                  _buildOderdeatilsView(),
+                  SpaceHelper.verticalSpace10,
+                  _buildTexfiledView(
+                    courierTripController.fareCourierController.value,
+                    'Offer your fare',
+                    prefixIcon: Icon(
+                      Icons.payment,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SpaceHelper.verticalSpace10,
+          _buildBottomButton(),
+        ],
       ),
     );
   }
@@ -151,8 +399,11 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
   }
 
   Widget _buildBottomButton() {
-    return CommonComponents()
-        .commonButton(onPressed: () {}, text: 'Find a courier');
+    return CommonComponents().commonButton(
+        onPressed: () {
+          courierTripController.onPressCreateRequest();
+        },
+        text: 'Find a courier');
   }
 
   Widget _buildTitleView() {
@@ -231,18 +482,27 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
 
   Widget _buildTransportOption(String title, bool selected) {
     return Expanded(
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? ColorHelper.primaryColor : Colors.grey[850],
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Center(
-          child: Text(
-            title,
-            style: TextStyle(
-              color: selected ? Colors.white : Colors.grey,
-              fontWeight: FontWeight.bold,
+      child: InkWell(
+        onTap: () {
+          courierTripController.onPressTransportOption(title);
+        },
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: courierTripController.transportOptionList.contains(title)
+                ? ColorHelper.primaryColor
+                : Colors.grey[850],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Center(
+            child: Text(
+              title,
+              style: TextStyle(
+                color: courierTripController.transportOptionList.contains(title)
+                    ? Colors.white
+                    : Colors.grey,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),

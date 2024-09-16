@@ -21,6 +21,7 @@ import 'package:callandgo/screens/home/views/bid.dart';
 import 'package:callandgo/screens/home/views/select_destination.dart';
 
 import '../../../components/custom_drawer.dart';
+import '../../courier_user/controller/courier_trip_controller.dart';
 
 class PassengerHomeScreen extends StatefulWidget {
   const PassengerHomeScreen({super.key});
@@ -37,6 +38,8 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
       Get.put(CityToCityTripController());
   final FreightTripController freightTripController =
       Get.put(FreightTripController());
+  final CourierTripController courierTripController =
+      Get.put(CourierTripController());
 
   void onSearchTextChanged(String query) async {
     if (query.isNotEmpty) {
@@ -424,8 +427,8 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                         homeController.polylineCoordinates.clear();
                         homeController.tripCalled.value = false;
                         homeController.riderFound.value = false;
-                        PassengerRepository().removeThisTrip(homeController.calledTrip[0].tripId);
-
+                        PassengerRepository().removeThisTrip(
+                            homeController.calledTrip[0].tripId);
                       },
                     )),
               ],
@@ -712,13 +715,12 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                   ? "Cancel Search"
                                   : "Find a driver",
                               onPressed: () {
-                                if(homeController.tripCalled.value==false)
-                                  {
-                                    homeController.callTrip();
-                                  }
-                                else{
-                                  homeController.tripCalled.value=false;
-                                  PassengerRepository().removeThisTrip(homeController.tempTripId);
+                                if (homeController.tripCalled.value == false) {
+                                  homeController.callTrip();
+                                } else {
+                                  homeController.tripCalled.value = false;
+                                  PassengerRepository().removeThisTrip(
+                                      homeController.tempTripId);
                                 }
                               },
                             ))),
@@ -899,8 +901,6 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                       ),
                       InkWell(
                         onTap: () {
-                          // homeController.selectedVehicle.value = "city to city";
-                          // homeController.loadMarkers();
                           cityToCityTripController.getCityToCityTripsForUser();
                           cityToCityTripController
                               .getCityToCityMyTripsForUser();
@@ -955,8 +955,6 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                       ),
                       InkWell(
                         onTap: () {
-                          // homeController.selectedVehicle.value = "freight";
-                          // homeController.loadMarkers();
                           freightTripController.getFreightTripsForUser();
                           freightTripController.getFreightMyTripsForUser();
                           Get.to(() => FreightRequestScreen(),
@@ -1010,8 +1008,8 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                       ),
                       InkWell(
                         onTap: () {
-                          // homeController.selectedVehicle.value = "courier";
-                          // homeController.loadMarkers();
+                          courierTripController.getCourierTripsForUser();
+                          courierTripController.getCourierMyTripsForUser();
                           Get.to(() => CourierRequestScreen(),
                               transition: Transition.rightToLeft);
                         },

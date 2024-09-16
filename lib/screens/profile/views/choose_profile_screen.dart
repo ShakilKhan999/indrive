@@ -1,3 +1,4 @@
+import 'package:callandgo/screens/courier_user/controller/courier_trip_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -22,6 +23,7 @@ import 'package:callandgo/utils/global_toast_service.dart';
 
 import '../../auth_screen/controller/auth_controller.dart';
 import '../../city_to_city_user/views/driver_city_to_city_request_list.dart';
+import '../../courier_user/views/courier_request_for_rider.dart';
 import '../../freight_user/view/freight_request_for_rider.dart';
 
 class ChooseProfileScreen extends StatelessWidget {
@@ -114,7 +116,6 @@ class ChooseProfileScreen extends StatelessWidget {
                           } else if (_profileController
                                   .cityRiderStatus.value.status ==
                               'Verification failed') {}
-
                         },
                         child: ListTile(
                           leading: SizedBox(
@@ -150,8 +151,30 @@ class ChooseProfileScreen extends StatelessWidget {
                     child: Center(
                       child: InkWell(
                         onTap: () {
-                          Get.to(() => CourierTypsScreen(),
-                              transition: Transition.rightToLeft);
+                          fToast.init(context);
+                          if (_profileController.courierStatus.value.status ==
+                              'Registration completed') {
+                            CourierTripController  courierTripController =
+                                Get.put(CourierTripController());
+                            courierTripController.getCourierTrips();
+                            courierTripController.getCourierMyTrips();
+                            Get.to(() => CourierRequesForRider(),
+                                transition: Transition.rightToLeft);
+                          } else if (_profileController
+                                  .courierStatus.value.status ==
+                              'Not Registered') {
+                            Get.to(() => CourierTypsScreen(),
+                                transition: Transition.rightToLeft);
+                          } else if (_profileController
+                                  .courierStatus.value.status ==
+                              'Verification pending') {
+                            showToast(
+                                toastText:
+                                    'Documents submitted but verification pending',
+                                toastColor: ColorHelper.red);
+                          } else if (_profileController
+                                  .courierStatus.value.status ==
+                              'Verification failed') {}
                         },
                         child: ListTile(
                           leading: SizedBox(
@@ -165,8 +188,10 @@ class ChooseProfileScreen extends StatelessWidget {
                               fontWeight: FontWeight.bold),
                           subtitle: CommonComponents().printText(
                               fontSize: 14,
-                              textData: "Not Registered",
-                              color: ColorHelper.greyColor,
+                              textData: _profileController
+                                  .courierStatus.value.status!,
+                              color:
+                                  _profileController.courierStatus.value.color!,
                               fontWeight: FontWeight.normal),
                           trailing: Icon(
                             Icons.arrow_forward_ios,

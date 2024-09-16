@@ -374,8 +374,6 @@ class HomeController extends GetxController {
     motodriverMarkerList.clear();
     cngdriverMarkerList.clear();
 
-    log("driverList: ${driverList[0].uid}      ${driverList[1].uid}");
-
     cardriverMarkerList.addAll(driverList
         .where(
             (driver) => driver.latLng != null && driver.vehicleType == "car")

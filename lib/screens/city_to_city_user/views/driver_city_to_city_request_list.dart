@@ -1,5 +1,4 @@
 import 'package:callandgo/components/confirmation_dialog.dart';
-import 'package:callandgo/utils/database_collection_names.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';

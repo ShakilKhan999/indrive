@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CourierTripModel {
   final String? id;
+  final List? transportOptionList;
   final String? from;
   final String? to;
   final String? date;
@@ -30,7 +31,6 @@ class CourierTripModel {
   final String? cancelReason;
   final String? cancelBy;
   final String? createdAt;
-
   final bool? isDoorToDoor;
   final String? senderPhone;
   final String? pickupFullAddress;
@@ -42,6 +42,7 @@ class CourierTripModel {
 
   CourierTripModel({
     this.id,
+    this.transportOptionList,
     this.from,
     this.to,
     this.date,
@@ -83,11 +84,9 @@ class CourierTripModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'transportOptionList': transportOptionList,
       'from': from,
       'to': to,
-      'date': date,
-      'truckSize': truckSize,
-      'cargoImage': cargoImage,
       'userPrice': userPrice,
       'finalPrice': finalPrice,
       'userPhone': userPhone,
@@ -125,6 +124,7 @@ class CourierTripModel {
   factory CourierTripModel.fromJson(Map<String, dynamic> json) {
     return CourierTripModel(
       id: json['id'],
+      transportOptionList: json['transportOptionList']! as List<dynamic>?,
       from: json['from'],
       to: json['to'],
       date: json['date'],
