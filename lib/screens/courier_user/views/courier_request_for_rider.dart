@@ -72,7 +72,8 @@ class _CourierRequesForRiderState extends State<CourierRequesForRider>
               _courierTripController.onPressItem(
                   trip: _courierTripController.myTripList[index]);
               Get.to(() => CourierTripDetails(
-                  courierTripModel: _courierTripController.myTripList[index]));
+                  courierTripModel: _courierTripController.myTripList[index],
+                  index: index));
             },
             child: Card(
               color: ColorHelper.blackColor,

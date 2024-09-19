@@ -602,7 +602,6 @@ class CityToCityTripController extends GetxController {
     await MethodHelper().listerUserData(userId: trip.driverUid!).listen(
       (userData) {
         driverData.value = userData;
-        log('lat long : ${userData.latLng!.latitude.toString()} - ${userData.latLng!.longitude.toString()}');
         loadMarkers(trip: trip);
       },
     );
@@ -684,7 +683,7 @@ class CityToCityTripController extends GetxController {
 
   var actionStarted = false.obs;
 
-  onPressPickup({required int index}) async {
+  onPressPickup({required int index, bool fromDetails = false}) async {
     try {
       fToast.init(Get.context!);
       actionStarted.value = true;
@@ -699,6 +698,9 @@ class CityToCityTripController extends GetxController {
         actionStarted.value = false;
         Get.back();
         showToast(toastText: 'Picked up', toastColor: ColorHelper.primaryColor);
+        if (fromDetails) {
+          Get.back();
+        }
       } else {
         actionStarted.value = false;
         Get.back();
@@ -713,7 +715,7 @@ class CityToCityTripController extends GetxController {
     }
   }
 
-  onPressDrop({required int index}) async {
+  onPressDrop({required int index, bool fromDetails = false}) async {
     try {
       fToast.init(Get.context!);
       actionStarted.value = true;
@@ -729,6 +731,9 @@ class CityToCityTripController extends GetxController {
         actionStarted.value = false;
         Get.back();
         showToast(toastText: 'Droped', toastColor: ColorHelper.primaryColor);
+        if (fromDetails) {
+          Get.back();
+        }
       } else {
         actionStarted.value = false;
         Get.back();
@@ -743,7 +748,7 @@ class CityToCityTripController extends GetxController {
     }
   }
 
-  onPressCancel({required int index}) async {
+  onPressCancel({required int index, bool fromDetails = false}) async {
     try {
       fToast.init(Get.context!);
       actionStarted.value = true;
@@ -761,6 +766,9 @@ class CityToCityTripController extends GetxController {
         actionStarted.value = false;
         Get.back();
         showToast(toastText: 'Canceled', toastColor: ColorHelper.primaryColor);
+        if (fromDetails) {
+          Get.back();
+        }
       } else {
         actionStarted.value = false;
         Get.back();
@@ -841,11 +849,13 @@ class CityToCityTripController extends GetxController {
     Set<Marker> markers = locationList.asMap().entries.map((entry) {
       int idx = entry.key;
       LatLng location = entry.value;
-      double rotation = _rotations[idx % _rotations.length];
+      // double rotation = _rotations[idx % _rotations.length];
 
       BitmapDescriptor icon;
+      double angle = 0.0;
       if (idx == 0) {
         icon = markerIconCar;
+        angle = driverData.value.vehicleAngle!;
       } else if (idx == 1) {
         icon = markerIconPickLocation;
       } else {
@@ -856,7 +866,7 @@ class CityToCityTripController extends GetxController {
         markerId: MarkerId(location.toString()),
         position: location,
         icon: icon,
-        rotation: rotation,
+        rotation: angle,
       );
     }).toSet();
     allMarkers.addAll(markers);

@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_compass/flutter_compass.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
@@ -11,7 +14,9 @@ import 'package:callandgo/models/trip_model.dart';
 import 'package:callandgo/screens/driver/driver_home/repository/driver_repository.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../../helpers/method_helper.dart';
 import '../../../../utils/app_config.dart';
+import '../../../../utils/database_collection_names.dart';
 import '../../../auth_screen/controller/auth_controller.dart';
 
 class DriverHomeController extends GetxController {
@@ -24,20 +29,79 @@ class DriverHomeController extends GetxController {
 
   GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
   late GoogleMapController mapController;
- AuthController authController = Get.put(AuthController());
+  AuthController authController = Get.put(AuthController());
   @override
   void onInit() {
     polyLines.clear();
     polylineCoordinates.clear();
-   
+
     authController.getUserData();
     getUserLocation();
+    getAngle();
     listenCall();
     listenToTrips(authController.currentUser.value.uid!);
     super.onInit();
   }
 
   var myActiveTrips = [].obs;
+
+  double? _direction;
+  void getAngle() {
+    FlutterCompass.events?.listen((CompassEvent event) {
+      AuthController authController = Get.find();
+      if (event.heading != null) {
+        _direction = event.heading;
+        if (authController.currentUser.value.vehicleAngle != null) {
+          double previousAngle = authController.currentUser.value.vehicleAngle!;
+
+          if (isSignificantChange(event.heading!, previousAngle)) {
+            updateAngle();
+          }
+        } else {
+          updateAngle();
+        }
+      } else {
+        print('Device does not have a compass');
+      }
+    });
+  }
+
+  Position? _currentPosition;
+  StreamSubscription<Position>? _positionStreamSubscription;
+
+  updateUserLocation({required double lat, required double long}) async {
+    try {
+      Map<String, dynamic> updateData = {
+        "latlng": GeoPoint(
+          lat,
+          long,
+        )
+      };
+      AuthController authController = Get.find();
+      MethodHelper().updateDocFields(
+          docId: authController.currentUser.value.uid!,
+          fieldsToUpdate: updateData,
+          collection: userCollection);
+    } catch (e) {
+      userLocationPicking.value = false;
+      log('Failed to get location: $e');
+    }
+  }
+
+  updateAngle() {
+    AuthController authController = Get.find();
+    Map<String, dynamic> data = {
+      "vehicleAngle": double.parse(_direction!.toStringAsFixed(2)),
+    };
+    MethodHelper().updateDocFields(
+        docId: authController.currentUser.value.uid!,
+        fieldsToUpdate: data,
+        collection: userCollection);
+  }
+
+  bool isSignificantChange(double currentDirection, double lastDirection) {
+    return (currentDirection - lastDirection).abs() >= 5;
+  }
 
   void listenToTrips(String driverId) {
     DriverRepository().getTripsByDriverId(driverId).listen((trips) {
@@ -76,6 +140,17 @@ class DriverHomeController extends GetxController {
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
     }
+
+    _positionStreamSubscription = Geolocator.getPositionStream(
+      locationSettings: LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 1, // Update only if moved 10 meters
+      ),
+    ).listen((Position position) {
+      _currentPosition = position;
+      updateUserLocation(
+          lat: _currentPosition!.latitude, long: _currentPosition!.longitude);
+    });
 
     // When permissions are granted, get the current position.
     return await Geolocator.getCurrentPosition();
@@ -122,12 +197,13 @@ class DriverHomeController extends GetxController {
   var activeCall = [].obs;
   var onTheWay = [].obs;
   Future<void> listenCall() async {
-    DriverRepository().listenToCall(authController.currentUser.value.uid!).listen((event) {
+    DriverRepository()
+        .listenToCall(authController.currentUser.value.uid!)
+        .listen((event) {
       activeCall.value = List.generate(
           event.docs.length,
           (index) =>
               Trip.fromJson(event.docs[index].data() as Map<String, dynamic>));
-
 
       if (activeCall.isNotEmpty) {
         // if(activeCall[0].accepted == true && activeCall[0].picked == false) {

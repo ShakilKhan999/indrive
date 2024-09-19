@@ -9,11 +9,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../../components/confirmation_dialog.dart';
 import '../controller/freight_trip_controller.dart';
 
 class FreightTripDetails extends StatelessWidget {
   final FreightTripModel freightTripModel;
-  FreightTripDetails({required this.freightTripModel});
+  final int index;
+  FreightTripDetails({required this.freightTripModel, required this.index});
 
   FreightTripController _freightTripController = Get.find();
 
@@ -33,9 +35,15 @@ class FreightTripDetails extends StatelessWidget {
             ),
             SpaceHelper.verticalSpace10,
             Column(children: [
-              _buildPickupButtonView(),
+              freightTripModel.tripCurrentStatus == 'accepted'
+                  ? _buildPickupButtonView()
+                  : freightTripModel.tripCurrentStatus == 'picked up'
+                      ? _buildDropButtonView()
+                      : SizedBox(),
               SpaceHelper.verticalSpace10,
-              _buildCancelButtonView(),
+              freightTripModel.tripCurrentStatus == 'accepted'
+                  ? _buildCancelButtonView()
+                  : SizedBox(),
             ]),
           ],
         ),
@@ -95,7 +103,33 @@ class FreightTripDetails extends StatelessWidget {
     return CommonComponents().commonButton(
       text: 'Pick up',
       color: ColorHelper.primaryColor,
-      onPressed: () {},
+      onPressed: () {
+        showConfirmationDialog(
+            title: 'Pickup',
+            onPressConfirm: () async {
+              _freightTripController.onPressPickup(
+                  index: index, fromDetails: true);
+            },
+            onPressCancel: () => Get.back(),
+            controller: _freightTripController);
+      },
+    );
+  }
+
+  Widget _buildDropButtonView() {
+    return CommonComponents().commonButton(
+      text: 'Drop',
+      color: ColorHelper.primaryColor,
+      onPressed: () {
+        showConfirmationDialog(
+            title: 'Drop',
+            onPressConfirm: () async {
+              _freightTripController.onPressDrop(
+                  index: index, fromDetails: true);
+            },
+            onPressCancel: () => Get.back(),
+            controller: _freightTripController);
+      },
     );
   }
 
@@ -103,7 +137,16 @@ class FreightTripDetails extends StatelessWidget {
     return CommonComponents().commonButton(
       text: 'Cancel Ride',
       color: ColorHelper.red,
-      onPressed: () {},
+      onPressed: () {
+        showConfirmationDialog(
+            title: 'Cancel Ride',
+            onPressConfirm: () {
+              _freightTripController.onPressCancel(
+                  index: index, fromDetails: true);
+            },
+            onPressCancel: () => Get.back(),
+            controller: _freightTripController);
+      },
     );
   }
 

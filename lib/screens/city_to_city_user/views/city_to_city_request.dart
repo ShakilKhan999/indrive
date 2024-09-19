@@ -80,6 +80,7 @@ class _CityToCityRequestState extends State<CityToCityRequest>
                 Get.to(() => CityToCityTripDetailsScreen(
                       cityToCityTripModel:
                           _cityToCityTripController.myTripListForUser[index],
+                      index: index,
                     ));
               },
               child: Card(

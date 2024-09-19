@@ -9,10 +9,14 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../components/confirmation_dialog.dart';
+
 class CityToCityTripDetailsScreen extends StatelessWidget {
   final CityToCityTripModel cityToCityTripModel;
+  final int index;
 
-  CityToCityTripDetailsScreen({required this.cityToCityTripModel});
+  CityToCityTripDetailsScreen(
+      {required this.cityToCityTripModel, required this.index});
 
   final _cityToCityTripController = Get.find<CityToCityTripController>();
 
@@ -34,9 +38,15 @@ class CityToCityTripDetailsScreen extends StatelessWidget {
             ),
             SpaceHelper.verticalSpace10,
             Column(children: [
-              _buildPickupButtonView(),
+              cityToCityTripModel.tripCurrentStatus == 'accepted'
+                  ? _buildPickupButtonView()
+                  : cityToCityTripModel.tripCurrentStatus == 'picked up'
+                      ? _buildDropButtonView()
+                      : SizedBox(),
               SpaceHelper.verticalSpace10,
-              _buildCancelButtonView(),
+              cityToCityTripModel.tripCurrentStatus == 'accepted'
+                  ? _buildCancelButtonView()
+                  : SizedBox(),
             ]),
           ],
         ),
@@ -90,7 +100,33 @@ class CityToCityTripDetailsScreen extends StatelessWidget {
     return CommonComponents().commonButton(
       text: 'Pick up',
       color: ColorHelper.primaryColor,
-      onPressed: () {},
+      onPressed: () {
+        showConfirmationDialog(
+            title: 'Pickup',
+            onPressConfirm: () async {
+              _cityToCityTripController.onPressPickup(
+                  index: index, fromDetails: true);
+            },
+            onPressCancel: () => Get.back(),
+            controller: _cityToCityTripController);
+      },
+    );
+  }
+
+  Widget _buildDropButtonView() {
+    return CommonComponents().commonButton(
+      text: 'Drop',
+      color: ColorHelper.primaryColor,
+      onPressed: () {
+        showConfirmationDialog(
+            title: 'Drop',
+            onPressConfirm: () async {
+              _cityToCityTripController.onPressDrop(
+                  index: index, fromDetails: true);
+            },
+            onPressCancel: () => Get.back(),
+            controller: _cityToCityTripController);
+      },
     );
   }
 
@@ -98,7 +134,16 @@ class CityToCityTripDetailsScreen extends StatelessWidget {
     return CommonComponents().commonButton(
       text: 'Cancel Ride',
       color: ColorHelper.red,
-      onPressed: () {},
+      onPressed: () {
+        showConfirmationDialog(
+            title: 'Cancel Ride',
+            onPressConfirm: () {
+              _cityToCityTripController.onPressCancel(
+                  index: index, fromDetails: true);
+            },
+            onPressCancel: () => Get.back(),
+            controller: _cityToCityTripController);
+      },
     );
   }
 

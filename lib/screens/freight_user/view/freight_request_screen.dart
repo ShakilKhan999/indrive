@@ -79,7 +79,7 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
                     trip: _freightController.myTripListForUser[index]);
                 Get.to(() => FreightTripDetails(
                     freightTripModel:
-                        _freightController.myTripListForUser[index]));
+                        _freightController.myTripListForUser[index], index: index,));
               },
               child: Card(
                 color: ColorHelper.blackColor,

@@ -61,6 +61,7 @@ dependencies:
   flutter_polyline_points:
   five_pointed_star: ^1.0.3
   audioplayers:
+  flutter_compass: ^0.8.0
   
 
 

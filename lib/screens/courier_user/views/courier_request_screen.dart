@@ -74,7 +74,7 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
                     trip: courierTripController.myTripListForUser[index]);
                 Get.to(() => CourierTripDetails(
                     courierTripModel:
-                        courierTripController.myTripListForUser[index]));
+                        courierTripController.myTripListForUser[index], index: index,));
               },
               child: Card(
                 color: ColorHelper.blackColor,

@@ -72,8 +72,10 @@ class _DriverCityToCityRequestListState
                   trip: _cityToCityTripController.myTripList[index]);
 
               Get.to(CityToCityTripDetailsScreen(
-                  cityToCityTripModel:
-                      _cityToCityTripController.myTripList[index]));
+                cityToCityTripModel:
+                    _cityToCityTripController.myTripList[index],
+                index: index,
+              ));
             },
             child: Card(
               color: ColorHelper.blackColor,
