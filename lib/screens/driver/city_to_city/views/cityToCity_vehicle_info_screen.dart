@@ -1,9 +1,11 @@
+import 'package:callandgo/components/simple_appbar.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:dropdown_flutter/custom_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:callandgo/components/common_components.dart';
-import 'package:callandgo/components/custom_appbar.dart';
+
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/screens/driver/city_to_city/controller/cityToCity_controller.dart';
 
@@ -18,7 +20,7 @@ class CityToCityVehicleInfoScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     fToast.init(context);
     return Scaffold(
-      appBar: CustomAppbar(titleText: 'Vehicle info', onTap: () {}),
+      appBar: SimpleAppbar(titleText: 'Vehicle info'),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(
@@ -48,7 +50,34 @@ class CityToCityVehicleInfoScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CommonComponents().commonButton(
         onPressed: () {
-          Get.back();
+          if (_cityToCityInfoController.selectedCarBrand.value.isEmpty) {
+            showToast(
+              toastText: "Please select a brand.",
+              toastColor: Colors.red,
+            );
+          } else if (_cityToCityInfoController
+              .carModelNumberController.value.text.isEmpty) {
+            showToast(
+              toastText: "Please enter the model number.",
+              toastColor: Colors.red,
+            );
+          } else if ((_cityToCityInfoController.vehicleType.value == 'car' ||
+                  _cityToCityInfoController.vehicleType.value == 'taxi') &&
+              _cityToCityInfoController.selectedSeatNumber.value.isEmpty) {
+            showToast(
+              toastText: "Please select the seat number.",
+              toastColor: Colors.red,
+            );
+          } else if ((_cityToCityInfoController.vehicleType.value == 'car' ||
+                  _cityToCityInfoController.vehicleType.value == 'taxi') &&
+              _cityToCityInfoController.selectedCarColor.value.isEmpty) {
+            showToast(
+              toastText: "Please select the car color.",
+              toastColor: Colors.red,
+            );
+          } else {
+            Get.back();
+          }
         },
         text: 'Submit',
       ),
@@ -137,29 +166,26 @@ class CityToCityVehicleInfoScreen extends StatelessWidget {
   }
 
   Widget _buildSeatAndColorRow() {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: _buildDropdownSearch(
-            textData: "Numbers of seat",
-            hintText: 'Select seat number',
-            items: _cityToCityInfoController.seatNumbers,
-            searchHintText: 'Search seat numbers...',
-            onChanged: (value) {
-              _cityToCityInfoController.selectedSeatNumber.value = value ?? '';
-            },
-          ),
+        _buildDropdownSearch(
+          textData: "Numbers of seat",
+          hintText: 'Select seat number',
+          items: _cityToCityInfoController.seatNumbers,
+          searchHintText: 'Search seat numbers...',
+          onChanged: (value) {
+            _cityToCityInfoController.selectedSeatNumber.value = value ?? '';
+          },
         ),
-        Expanded(
-          child: _buildDropdownSearch(
-            textData: "Colors of the car",
-            hintText: 'Select car color',
-            items: _cityToCityInfoController.carColors,
-            searchHintText: 'Search car colors...',
-            onChanged: (value) {
-              _cityToCityInfoController.selectedCarColor.value = value ?? '';
-            },
-          ),
+        SpaceHelper.verticalSpace10,
+        _buildDropdownSearch(
+          textData: "Colors of the car",
+          hintText: 'Select car color',
+          items: _cityToCityInfoController.carColors,
+          searchHintText: 'Search car colors...',
+          onChanged: (value) {
+            _cityToCityInfoController.selectedCarColor.value = value ?? '';
+          },
         ),
       ],
     );

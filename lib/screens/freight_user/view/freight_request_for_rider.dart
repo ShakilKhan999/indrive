@@ -71,7 +71,9 @@ class _FreightRequesForRiderState extends State<FreightRequesForRider>
               _freightTripController.onPressItem(
                   trip: _freightTripController.myTripList[index]);
               Get.to(() => FreightTripDetails(
-                  freightTripModel: _freightTripController.myTripList[index]));
+                    freightTripModel: _freightTripController.myTripList[index],
+                    index: index,
+                  ));
             },
             child: Card(
               color: ColorHelper.blackColor,

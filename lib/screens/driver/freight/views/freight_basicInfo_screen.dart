@@ -1,8 +1,10 @@
+import 'package:callandgo/components/simple_appbar.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:callandgo/components/common_components.dart';
-import 'package:callandgo/components/custom_appbar.dart';
+
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/main.dart';
@@ -16,7 +18,7 @@ class FreightBasicinfoScreen extends StatelessWidget {
     fToast.init(context);
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: CustomAppbar(titleText: 'Basic info', onTap: () {}),
+      appBar: SimpleAppbar(titleText: 'Basic info'),
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(
             parent: BouncingScrollPhysics()),
@@ -76,7 +78,7 @@ class FreightBasicinfoScreen extends StatelessWidget {
       imgPath: _freightController.profilePhoto.value != ''
           ? _freightController.profilePhoto.value
           : 'assets/images/addPhotoLogo.png',
-      color: ColorHelper.primaryColor,
+      // color: ColorHelper.primaryColor,
       buttonText: 'Add a photo',
       onButtonPressed: () async {
         _freightController.uploadProfilePhoto();
@@ -154,10 +156,57 @@ class FreightBasicinfoScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CommonComponents().commonButton(
         onPressed: () {
-          Get.back();
+          final firstName = _freightController.firstNameController.value.text;
+          final lastName = _freightController.lastNameController.value.text;
+          final email = _freightController.emailController.value.text;
+          final selectedDate = _freightController.selectedDate.value;
+          final profilePhoto = _freightController.profilePhoto.value;
+
+          if (profilePhoto == '') {
+            showToast(
+              toastText: "Please add a profile photo.",
+              toastColor: ColorHelper.red,
+            );
+          } else if (firstName.isEmpty) {
+            showToast(
+              toastText: "Please enter your first name.",
+              toastColor: ColorHelper.red,
+            );
+          } else if (lastName.isEmpty) {
+            showToast(
+              toastText: "Please enter your last name.",
+              toastColor: ColorHelper.red,
+            );
+          } else if (email.isEmpty) {
+            showToast(
+              toastText: "Please enter your email.",
+              toastColor: ColorHelper.red,
+            );
+          } else if (!_validateEmail(
+              _freightController.emailController.value.text)) {
+            showToast(
+              toastText: "Invalid email format",
+              toastColor: ColorHelper.red,
+            );
+          } else if (selectedDate.isEmpty) {
+            showToast(
+              toastText: "Please select your date of birth.",
+              toastColor: ColorHelper.red,
+            );
+          } else {
+            Get.back();
+          }
         },
         text: 'Submit',
       ),
     );
+  }
+
+  bool _validateEmail(String email) {
+    // Simple email validation regex
+    String emailPattern =
+        r'^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$';
+    RegExp regExp = RegExp(emailPattern);
+    return regExp.hasMatch(email);
   }
 }

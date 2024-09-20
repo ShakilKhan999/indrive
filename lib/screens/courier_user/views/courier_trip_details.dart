@@ -9,11 +9,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../../components/confirmation_dialog.dart';
 import '../controller/courier_trip_controller.dart';
 
 class CourierTripDetails extends StatelessWidget {
   final CourierTripModel courierTripModel;
-  CourierTripDetails({required this.courierTripModel});
+  final int index;
+  CourierTripDetails({required this.courierTripModel, required this.index});
 
   final CourierTripController _courierTripController = Get.find();
 
@@ -33,9 +35,15 @@ class CourierTripDetails extends StatelessWidget {
             ),
             SpaceHelper.verticalSpace10,
             Column(children: [
-              _buildPickupButtonView(),
+              courierTripModel.tripCurrentStatus == 'accepted'
+                  ? _buildPickupButtonView()
+                  : courierTripModel.tripCurrentStatus == 'picked up'
+                      ? _buildDropButtonView()
+                      : SizedBox(),
               SpaceHelper.verticalSpace10,
-              _buildCancelButtonView(),
+              courierTripModel.tripCurrentStatus == 'accepted'
+                  ? _buildCancelButtonView()
+                  : SizedBox(),
             ]),
           ],
         ),
@@ -87,7 +95,33 @@ class CourierTripDetails extends StatelessWidget {
     return CommonComponents().commonButton(
       text: 'Pick up',
       color: ColorHelper.primaryColor,
-      onPressed: () {},
+      onPressed: () {
+        showConfirmationDialog(
+            title: 'Pickup',
+            onPressConfirm: () async {
+              _courierTripController.onPressPickup(
+                  index: index, fromDetails: true);
+            },
+            onPressCancel: () => Get.back(),
+            controller: _courierTripController);
+      },
+    );
+  }
+
+  Widget _buildDropButtonView() {
+    return CommonComponents().commonButton(
+      text: 'Drop',
+      color: ColorHelper.primaryColor,
+      onPressed: () {
+        showConfirmationDialog(
+            title: 'Drop',
+            onPressConfirm: () async {
+              _courierTripController.onPressDrop(
+                  index: index, fromDetails: true);
+            },
+            onPressCancel: () => Get.back(),
+            controller: _courierTripController);
+      },
     );
   }
 
@@ -95,7 +129,16 @@ class CourierTripDetails extends StatelessWidget {
     return CommonComponents().commonButton(
       text: 'Cancel Ride',
       color: ColorHelper.red,
-      onPressed: () {},
+      onPressed: () {
+        showConfirmationDialog(
+            title: 'Cancel Ride',
+            onPressConfirm: () {
+              _courierTripController.onPressCancel(
+                  index: index, fromDetails: true);
+            },
+            onPressCancel: () => Get.back(),
+            controller: _courierTripController);
+      },
     );
   }
 

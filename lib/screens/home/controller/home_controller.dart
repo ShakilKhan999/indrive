@@ -4,6 +4,7 @@ import 'package:callandgo/helpers/method_helper.dart';
 import 'package:callandgo/utils/database_collection_names.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_compass/flutter_compass.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
@@ -43,6 +44,7 @@ class HomeController extends GetxController {
   void onInit() {
     AuthController authController = Get.put(AuthController());
     authController.getUserData();
+    getAngle();
     getDriverList();
     super.onInit();
     ever(thisDriver, (value) {
@@ -60,6 +62,42 @@ class HomeController extends GetxController {
   Map<PolylineId, Polyline> polyLines = {};
   var polylineCoordinates = [].obs;
   var findingRoutes = false.obs;
+  double? _direction;
+  void getAngle() {
+    FlutterCompass.events?.listen((CompassEvent event) {
+      AuthController authController = Get.find();
+      if (event.heading != null) {
+        _direction = event.heading;
+        if (authController.currentUser.value.vehicleAngle != null) {
+          double previousAngle = authController.currentUser.value.vehicleAngle!;
+
+          if (isSignificantChange(event.heading!, previousAngle)) {
+            updateAngle();
+          }
+        } else {
+          updateAngle();
+        }
+      } else {
+        print('Device does not have a compass');
+      }
+    });
+  }
+
+  updateAngle() {
+    AuthController authController = Get.find();
+    Map<String, dynamic> data = {
+      "vehicleAngle": double.parse(_direction!.toStringAsFixed(2)),
+    };
+    MethodHelper().updateDocFields(
+        docId: authController.currentUser.value.uid!,
+        fieldsToUpdate: data,
+        collection: userCollection);
+  }
+
+  bool isSignificantChange(double currentDirection, double lastDirection) {
+    return (currentDirection - lastDirection).abs() >= 5;
+  }
+
   getPolyline() async {
     findingRoutes.value = true;
     polyLines.clear();
@@ -409,24 +447,22 @@ class HomeController extends GetxController {
   }
 
   Future<void> getDriverList() async {
-    PassengerRepository().listenToDriverDocs().listen((event) async{
+    PassengerRepository().listenToDriverDocs().listen((event) async {
       driverList.value = List.generate(event.docs.length,
           (index) => UserModel.fromJson(event.docs[index].data()));
-   await filterRider();
-    
+      await filterRider();
     });
   }
 
-  Future<void> filterRider()async {
+  Future<void> filterRider() async {
     cardriverMarkerList.clear();
     motodriverMarkerList.clear();
     cngdriverMarkerList.clear();
 
     cardriverMarkerList.addAll(driverList
-        .where(
-            (driver) => driver.latLng != null && driver.vehicleType == "car")
-        .map((driver) =>
-        LatLng(driver.latLng.latitude, driver.latLng.longitude))
+        .where((driver) => driver.latLng != null && driver.vehicleType == "car")
+        .map(
+            (driver) => LatLng(driver.latLng.latitude, driver.latLng.longitude))
         .toList());
 
     log("CarDriverList: ${cardriverMarkerList.length.toString()}");
@@ -434,16 +470,15 @@ class HomeController extends GetxController {
     motodriverMarkerList.addAll(driverList
         .where(
             (driver) => driver.latLng != null && driver.vehicleType == "moto")
-        .map((driver) =>
-        LatLng(driver.latLng.latitude, driver.latLng.longitude))
+        .map(
+            (driver) => LatLng(driver.latLng.latitude, driver.latLng.longitude))
         .toList());
     log("MotoDriverList: ${motodriverMarkerList.length.toString()}");
 
     cngdriverMarkerList.addAll(driverList
-        .where(
-            (driver) => driver.latLng != null && driver.vehicleType == "cng")
-        .map((driver) =>
-        LatLng(driver.latLng.latitude, driver.latLng.longitude))
+        .where((driver) => driver.latLng != null && driver.vehicleType == "cng")
+        .map(
+            (driver) => LatLng(driver.latLng.latitude, driver.latLng.longitude))
         .toList());
     log("CngDriverList: ${cngdriverMarkerList.length.toString()}");
 
@@ -512,7 +547,7 @@ class HomeController extends GetxController {
   var thisDriver = [].obs;
   var thisDriverDetails = [].obs;
 
-  var tempTripId="";
+  var tempTripId = "";
 
   Future<void> callTrip() async {
     sortedDriverList.clear();
@@ -534,7 +569,7 @@ class HomeController extends GetxController {
 
     tripCalled.value = true;
     String tripId = generateUniqueId();
-    tempTripId=tripId;
+    tempTripId = tripId;
     Trip trip = Trip(
         userId: "8mCWZ9uBrWME2Bfm9YOCvb0U2EJ3",
         rent: int.parse(offerPriceController.text),
@@ -555,42 +590,27 @@ class HomeController extends GetxController {
 
     listenCalledTrip(tripId);
 
-    for(int i=0;i<60;i++)
-      {
-        if(selectedVehicle=="cng" && cngdriverMarkerList.isEmpty)
-          {
-            showToast("No Taxi available nearby");
-            break;
-          }
-        else if(selectedVehicle=="car" && cardriverMarkerList.isEmpty)
-        {
-          showToast("No Taxi car nearby");
-          break;
-        }
-        else if(selectedVehicle=="moto" && motodriverMarkerList.isEmpty)
-        {
-          showToast("No Moto available nearby");
-          break;
-        }
-        else if(riderFound.value == true &&
-            calledTrip.isNotEmpty)
-          {
-            showToast("Driver found");
-            break;
-          }
-        else if(i==59)
-          {
-            showToast("Busy hours, Please try again later");
-            PassengerRepository().removeThisTrip(tripId);
-          }
-        else if(tripCalled==false)
-          {
-            break;
-          }
-        await Future.delayed(Duration(seconds: 1));
+    for (int i = 0; i < 60; i++) {
+      if (selectedVehicle == "cng" && cngdriverMarkerList.isEmpty) {
+        showToast("No Taxi available nearby");
+        break;
+      } else if (selectedVehicle == "car" && cardriverMarkerList.isEmpty) {
+        showToast("No Taxi car nearby");
+        break;
+      } else if (selectedVehicle == "moto" && motodriverMarkerList.isEmpty) {
+        showToast("No Moto available nearby");
+        break;
+      } else if (riderFound.value == true && calledTrip.isNotEmpty) {
+        showToast("Driver found");
+        break;
+      } else if (i == 59) {
+        showToast("Busy hours, Please try again later");
+        PassengerRepository().removeThisTrip(tripId);
+      } else if (tripCalled == false) {
+        break;
       }
-
-
+      await Future.delayed(Duration(seconds: 1));
+    }
 
     // for (int i = 0; i < sortedDriverList.length; i++) {
     //   if (sortedDriverList[i].latLng != null &&

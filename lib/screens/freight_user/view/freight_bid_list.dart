@@ -5,6 +5,7 @@ import 'package:callandgo/components/simple_appbar.dart';
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import '../../../components/common_components.dart';
+import '../../../components/confirmation_dialog.dart';
 import '../../../models/freight_trip_model.dart';
 import '../controller/freight_trip_controller.dart';
 
@@ -106,8 +107,15 @@ class FreightBidList extends StatelessWidget {
       children: [
         InkWell(
           onTap: () {
-            _freightTripController.selectedBidIndex.value = index;
-            _freightTripController.declineBidForUser();
+            Get.back();
+            showConfirmationDialog(
+                title: 'Decline',
+                onPressConfirm: () async {
+                  _freightTripController.selectedBidIndex.value = index;
+                  _freightTripController.declineBidForUser();
+                },
+                onPressCancel: () => Get.back(),
+                controller: _freightTripController);
           },
           child: Container(
             height: 30.h,
@@ -126,8 +134,15 @@ class FreightBidList extends StatelessWidget {
         ),
         InkWell(
           onTap: () {
-            _freightTripController.selectedBidIndex.value = index;
-            _freightTripController.acceptRideForUser();
+            Get.back();
+            showConfirmationDialog(
+                title: 'Accept',
+                onPressConfirm: () async {
+                  _freightTripController.selectedBidIndex.value = index;
+                  _freightTripController.acceptRideForUser();
+                },
+                onPressCancel: () => Get.back(),
+                controller: _freightTripController);
           },
           child: Container(
             height: 30.h,

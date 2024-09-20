@@ -1,8 +1,8 @@
+import 'package:callandgo/components/simple_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:callandgo/components/common_components.dart';
-import 'package:callandgo/components/custom_appbar.dart';
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/screens/driver/courier/controller/courier_controller.dart';
@@ -20,7 +20,7 @@ class CourierInfoScreen extends StatelessWidget {
     return SafeArea(
         child: Scaffold(
       backgroundColor: Colors.white.withOpacity(0.9),
-      appBar: CustomAppbar(titleText: 'Registration', onTap: () {}),
+      appBar: SimpleAppbar(titleText: 'Registration'),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Column(

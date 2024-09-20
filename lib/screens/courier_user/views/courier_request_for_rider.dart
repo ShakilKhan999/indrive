@@ -71,7 +71,8 @@ class _CourierRequesForRiderState extends State<CourierRequesForRider>
               _courierTripController.onPressItem(
                   trip: _courierTripController.myTripList[index]);
               Get.to(() => CourierTripDetails(
-                  courierTripModel: _courierTripController.myTripList[index]));
+                  courierTripModel: _courierTripController.myTripList[index],
+                  index: index));
             },
             child: Card(
               color: ColorHelper.blackColor,
@@ -466,18 +467,6 @@ class _CourierRequesForRiderState extends State<CourierRequesForRider>
     );
   }
 
-  AppBar _buildAppBarView() {
-    return AppBar(
-      backgroundColor: ColorHelper.blackColor,
-      iconTheme: IconThemeData(color: ColorHelper.whiteColor),
-      centerTitle: true,
-      title: CommonComponents().printText(
-        fontSize: 15,
-        textData: "Freight Requests",
-        fontWeight: FontWeight.bold,
-      ),
-    );
-  }
 
   void _showOfferFareBottomSheet(int index) {
     showModalBottomSheet(

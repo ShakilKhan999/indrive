@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_compass/flutter_compass.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:callandgo/helpers/color_helper.dart';
@@ -29,6 +30,7 @@ class AuthController extends GetxController {
   void onInit() {
     super.onInit();
     checkCurrentUser();
+    getAngle();
     log('date time: ${DateTime.now().toString()}');
   }
 
@@ -64,6 +66,16 @@ class AuthController extends GetxController {
   var isOtpSubmitLoading = false.obs;
   var isUserDataSaving = false.obs;
   var isDriverMode = false.obs;
+  double? _direction;
+
+  void getAngle() {
+    FlutterCompass.events?.listen((CompassEvent event) {
+      if (event.heading != null) {
+        _direction = event.heading;
+      } else {
+      }
+    });
+  }
 
   getUserData() async {
     if (FirebaseAuth.instance.currentUser != null) {
@@ -378,7 +390,7 @@ class AuthController extends GetxController {
           phone: '+${countryCode.value}${phoneNumbercontroller.value.text}',
           signInWith: 'phone',
           vehicleType: null,
-          vehicleAngle: null,
+          vehicleAngle: double.parse(_direction!.toStringAsFixed(2)),
           latLng: null,
           isDriverMode: isDriverMode.value,
           driverStatus: null,
@@ -408,7 +420,7 @@ class AuthController extends GetxController {
           phone: userInfo.phoneNumber,
           signInWith: 'google',
           vehicleType: null,
-          vehicleAngle: null,
+          vehicleAngle: double.parse(_direction!.toStringAsFixed(2)),
           latLng: null,
           isDriverMode: isDriverMode.value,
           driverStatus: null,

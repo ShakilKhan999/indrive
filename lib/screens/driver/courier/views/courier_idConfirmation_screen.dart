@@ -1,8 +1,11 @@
+import 'package:callandgo/components/simple_appbar.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:callandgo/components/common_components.dart';
-import 'package:callandgo/components/custom_appbar.dart';
+
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/main.dart';
 import 'package:callandgo/screens/driver/courier/controller/courier_controller.dart';
@@ -16,7 +19,7 @@ class CourierIdconfirmationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     fToast.init(context);
     return Scaffold(
-      appBar: CustomAppbar(titleText: 'ID confirmation', onTap: () {}),
+      appBar: SimpleAppbar(titleText: 'ID confirmation'),
       backgroundColor: Colors.white,
       body: Obx(
         () => Column(
@@ -37,7 +40,15 @@ class CourierIdconfirmationScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CommonComponents().commonButton(
         onPressed: () {
-          Get.back();
+          fToast.init(Get.context!);
+          if (_courierController.idCardWithFacePhoto.value == '') {
+            showToast(
+              toastText: "ID card photo with face is required",
+              toastColor: ColorHelper.red,
+            );
+          } else {
+            Get.back();
+          }
         },
         text: 'Submit',
       ),

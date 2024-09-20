@@ -84,6 +84,7 @@ class DriverInfoController extends GetxController {
         isApproved: false,
         adminComment: null,
         status: 'pending',
+        
       );
       log('driver info model : ${jsonEncode(driverInfoModel)}');
       var response = await DriverInfoRepository().saveDriverInfoData(
