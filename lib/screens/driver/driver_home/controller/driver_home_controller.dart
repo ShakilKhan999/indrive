@@ -126,7 +126,7 @@ class DriverHomeController extends GetxController {
       activeCall.value = List.generate(
           event.docs.length,
           (index) =>
-              Trip.fromJson(event.docs[index].data() as Map<String, dynamic>));
+              Trip.fromJson(event.docs[index].data()));
 
 
       if (activeCall.isNotEmpty) {

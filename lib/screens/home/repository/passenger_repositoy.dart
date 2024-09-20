@@ -30,6 +30,18 @@ class PassengerRepository {
     }
   }
 
+  Future<void> cancelRide(String docId, String newDriverId) async {
+    try {
+      await _firestore.collection('All Trips').doc(docId).update({
+        'driverId':"",
+        'userCancel': true,
+      });
+      print('Driver ID updated successfully');
+    } catch (e) {
+      print('Error updating Driver ID: $e');
+    }
+  }
+
   Future<void> removeThisTrip( String docId) async {
     try {
       await FirebaseFirestore.instance

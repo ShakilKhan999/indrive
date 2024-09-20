@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/method_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
-import 'package:callandgo/screens/freight_user/controller/freight_trip_controller.dart';
 import '../../../components/common_components.dart';
 import '../../../components/confirmation_dialog.dart';
 import '../controller/courier_trip_controller.dart';

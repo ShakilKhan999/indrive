@@ -45,6 +45,11 @@ class HomeController extends GetxController {
     authController.getUserData();
     getDriverList();
     super.onInit();
+    ever(thisDriver, (value) {
+      if (thisDriver.isNotEmpty) {
+       // getPickupPolyline();
+      }
+    });
   }
 
   final TextEditingController destinationController = TextEditingController();
@@ -59,13 +64,21 @@ class HomeController extends GetxController {
     findingRoutes.value = true;
     polyLines.clear();
     polylineCoordinates.clear;
+
+    LatLng stPoint=
+    LatLng(
+    startPickedCenter.value.latitude, startPickedCenter.value.longitude);
+
+    LatLng endPoint=
+    LatLng(
+    destinationPickedCenter.value.latitude,
+        destinationPickedCenter.value.longitude);
     PolylinePoints polylinePoints = PolylinePoints();
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
       AppConfig.mapApiKey,
-      PointLatLng(
-          startPickedCenter.value.latitude, startPickedCenter.value.longitude),
-      PointLatLng(destinationPickedCenter.value.latitude,
-          destinationPickedCenter.value.longitude),
+
+      PointLatLng(stPoint.latitude,stPoint.longitude),
+      PointLatLng(endPoint.latitude,endPoint.longitude),
       travelMode: TravelMode.driving,
     );
     log("polyLineResponse: ${result.points.length}");
@@ -90,6 +103,40 @@ class HomeController extends GetxController {
             destinationPickedCenter.value.longitude));
 
     offerPriceController.text = minOfferPrice.value.toString();
+  }
+
+
+  getPickupPolyline() async {
+    findingRoutes.value = true;
+    polyLines.clear();
+    polylineCoordinates.clear;
+
+    LatLng stPoint=LatLng(thisDriver[0].latLng.latitude,thisDriver[0].latLng.longitude);
+
+    LatLng endPoint=LatLng(startPickedCenter.value.latitude, startPickedCenter.value.longitude);
+    PolylinePoints polylinePoints = PolylinePoints();
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+      AppConfig.mapApiKey,
+
+      PointLatLng(stPoint.latitude,stPoint.longitude),
+      PointLatLng(endPoint.latitude,endPoint.longitude),
+      travelMode: TravelMode.driving,
+    );
+    log("polyLineResponse: ${result.points.length}");
+    if (result.points.isNotEmpty) {
+      for (var point in result.points) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      }
+    } else {
+      log("${result.errorMessage}");
+    }
+
+    addPolyLine(
+      polylineCoordinates
+          .map((geoPoint) => LatLng(geoPoint.latitude, geoPoint.longitude))
+          .toList(),
+    );
+    findingRoutes.value = false;
   }
 
   addPolyLine(List<LatLng> polylineCoordinates) {
@@ -216,7 +263,10 @@ class HomeController extends GetxController {
 
   void onMapCreated(GoogleMapController controller) {
     mapController = controller;
+
   }
+
+
 
   var changingPickup = false.obs;
   void onMapCreatedTo(GoogleMapController controller) {
@@ -315,9 +365,7 @@ class HomeController extends GetxController {
       userLong.value = position.longitude;
       log("user long ${userLong.value}");
       center.value = LatLng(userLat.value, userLong.value);
-      mapController.animateCamera(
-        CameraUpdate.newLatLng(center.value),
-      );
+
       getPlaceNameFromCoordinates(userLat.value, userLong.value, false);
       userLocationPicking.value = false;
     } catch (e) {
@@ -429,6 +477,8 @@ class HomeController extends GetxController {
 
   var calledTrip = [].obs;
   var bidderList = [].obs;
+
+  int count=0;
   Future<void> listenCalledTrip(String docId) async {
     PassengerRepository().listenToCalledTrip(docId).listen((snapshot) {
       calledTrip.clear();
@@ -648,4 +698,31 @@ class HomeController extends GetxController {
       return '${hours} hours ${minutes.toStringAsFixed(2)} minutes';
     }
   }
+
+
+  var suggestions = [].obs;
+  void onSearchTextChanged(String query) async {
+    if (query.isNotEmpty) {
+      suggestions.clear();
+      var response = await googlePlace.autocomplete.get(query);
+      if (response != null) {
+        AutocompletePrediction autocompletePrediction =
+        response.predictions![0];
+        log("placeDescription : ${autocompletePrediction.description}");
+        var placeDetails = await googlePlace.details
+            .get(autocompletePrediction.placeId.toString());
+        log("LatLong: ${placeDetails!.result!.geometry!.location!.lat}");
+        for (int i = 0; i < response.predictions!.length; i++) {
+            suggestions.add({
+              'placeId': response.predictions![i].placeId.toString(),
+              'description': response.predictions![i].description.toString(),
+            });
+
+        }
+      } else {
+        log("Response is null");
+      }
+    }
+  }
+
 }
