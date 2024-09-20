@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compass/flutter_compass.dart';
@@ -206,15 +207,20 @@ class DriverHomeController extends GetxController {
               Trip.fromJson(event.docs[index].data()));
 
       if (activeCall.isNotEmpty) {
-        // if(activeCall[0].accepted == true && activeCall[0].picked == false) {
-        //   getPolyline(picking: true);
-        // }
+        if(activeCall[0].userCancel == true) {
+
+
+        }
         // else if (activeCall[0].accepted == true && activeCall[0].picked == true) {
         //   getPolyline(picking: false);
         // }
 
         //playSound();
       } else {
+        log("cancelled by user");
+        polylineCoordinates.clear();
+        polyLines.clear();
+        showToast(toastText: "User cancelled this trip");
         // audioPlayer.stop();
         // audioPlayer.dispose();
       }

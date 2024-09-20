@@ -95,7 +95,7 @@ class Trip {
   factory Trip.fromJson(Map<String, dynamic> json) {
     return Trip(
       tripId: json['tripId'] as String,
-      polyLineEncoded: json['polyLineEncoded'] as String,
+      polyLineEncoded: json['polyLineEncoded']==null?null: json['polyLineEncoded'] as String,
       rent: json['rent'] as int,
       userId: json['userId'] as String?,
       driverId: json['driverId'] as String?,

@@ -403,7 +403,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                       onPressed: () async {
                         homeController.polyLines.clear();
                         homeController.polylineCoordinates.clear();
-
+                        homeController.stopListeningToCalledTrip();
                         await PassengerRepository().cancelRide(homeController.calledTrip[0].tripId,""
                         );
                         await Future.delayed(Duration(seconds: 1));
@@ -538,15 +538,16 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                       child: CommonComponents().commonButton(
                         borderRadius: 13,
                         text: "Cancel Ride",
-                        onPressed: () {
+                        onPressed: () async {
                           homeController.polyLines.clear();
                           homeController.polylineCoordinates.clear();
+                          homeController.stopListeningToCalledTrip();
+                          await PassengerRepository().cancelRide(homeController.calledTrip[0].tripId,""
+                          );
+                          await Future.delayed(Duration(seconds: 1));
                           homeController.tripCalled.value = false;
                           homeController.riderFound.value = false;
-                          DriverRepository().updateTripState(
-                              homeController.calledTrip[0].tripId,
-                              "userCancel",
-                              true);
+                          homeController.calledTrip.clear();
                         },
                       )),
                 ],

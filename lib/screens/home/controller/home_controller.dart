@@ -516,8 +516,11 @@ class HomeController extends GetxController {
   var bidderList = [].obs;
 
   int count=0;
+
+  StreamSubscription? _tripSubscription;
+
   Future<void> listenCalledTrip(String docId) async {
-    PassengerRepository().listenToCalledTrip(docId).listen((snapshot) {
+    _tripSubscription = PassengerRepository().listenToCalledTrip(docId).listen((snapshot) {
       calledTrip.clear();
       bidderList.clear();
       if (snapshot.exists) {
@@ -533,17 +536,25 @@ class HomeController extends GetxController {
           riderFound.value = true;
           thisDriver.clear();
           var myRider = sortedDriverList.firstWhere(
-              (driver) => driver.uid == calledTrip[0].driverId,
+                  (driver) => driver.uid == calledTrip[0].driverId,
               orElse: () => null);
           thisDriver.add(myRider);
           tripCalled.value = false;
-          calledTrip[0].picked?getPolyline():
-          getPickupPolyline();
+          calledTrip[0].picked ? getPolyline() : getPickupPolyline();
         }
       } else {
         log('Document does not exist');
       }
     });
+  }
+
+// Method to stop the listener
+  void stopListeningToCalledTrip() {
+    if (_tripSubscription != null) {
+      _tripSubscription!.cancel();
+      _tripSubscription = null;
+      log('Stopped listening to the trip updates');
+    }
   }
 
   var tripCalled = false.obs;

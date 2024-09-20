@@ -1,3 +1,4 @@
+import 'package:callandgo/screens/driver/driver_home/views/driver_home_screen.dart';
 import 'package:callandgo/screens/home/views/passenger_home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -44,9 +45,9 @@ class _MyAppState extends State<MyApp> {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        // home: DriverHomeScreen(),
+         home: RegisterScreen(),
         // home: DriverCategoriesScreen(),
-        home: PassengerHomeScreen(),
+        //home: PassengerHomeScreen(),
         builder: (context, child) {
           return Overlay(
             initialEntries: [
