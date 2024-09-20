@@ -78,7 +78,9 @@ class CustomDrawer extends StatelessWidget {
     return Column(
       children: [
         buildDrawerItem(
-          icon: Icons.maps_home_work_sharp,
+          // icon: Icons.maps_home_work_sharp,
+          imagePath: "assets/images/location.png",
+          colorImg: ColorHelper.primaryColor,
           text: 'City',
           color: Colors.white,
           onTap: () {
@@ -87,7 +89,8 @@ class CustomDrawer extends StatelessWidget {
           },
         ),
         buildDrawerItem(
-          icon: Icons.maps_home_work_sharp,
+          // icon: Icons.maps_home_work_sharp,
+          imagePath: "assets/images/city_to_city.png",
           text: 'City to City',
           color: Colors.white,
           onTap: () {
@@ -101,7 +104,8 @@ class CustomDrawer extends StatelessWidget {
           },
         ),
         buildDrawerItem(
-          icon: Icons.fire_truck,
+          // icon: Icons.fire_truck,
+          imagePath: 'assets/images/freight.png',
           text: 'Freight',
           color: Colors.white,
           onTap: () {
@@ -115,7 +119,8 @@ class CustomDrawer extends StatelessWidget {
           },
         ),
         buildDrawerItem(
-          icon: Icons.fire_truck,
+          // icon: Icons.fire_truck,
+          imagePath: 'assets/images/courier.png',
           text: 'Courier',
           color: Colors.white,
           onTap: () {
@@ -124,15 +129,15 @@ class CustomDrawer extends StatelessWidget {
                 transition: Transition.rightToLeft);
           },
         ),
-        buildDrawerItem(
-          icon: Icons.timer_outlined,
-          text: 'Request history',
-          color: Colors.white,
-          onTap: () {
-            Get.back();
-            Get.to(() => MyRideScreen(), transition: Transition.rightToLeft);
-          },
-        ),
+        // buildDrawerItem(
+        //   icon: Icons.timer_outlined,
+        //   text: 'Request history',
+        //   color: Colors.white,
+        //   onTap: () {
+        //     Get.back();
+        //     Get.to(() => MyRideScreen(), transition: Transition.rightToLeft);
+        //   },
+        // ),
         // buildDrawerItem(
         //   icon: Icons.safety_check,
         //   text: 'Safety',
@@ -143,7 +148,8 @@ class CustomDrawer extends StatelessWidget {
         //   },
         // ),
         buildDrawerItem(
-          icon: Icons.logout_rounded,
+          // icon: Icons.logout_rounded,
+          imagePath: 'assets/images/logout.png',
           text: 'Logout',
           color: Colors.white,
           onTap: () {
@@ -244,16 +250,28 @@ class CustomDrawer extends StatelessWidget {
     );
   }
 
-  ListTile buildDrawerItem(
-      {required IconData icon,
-      required String text,
-      Color? color,
-      required GestureTapCallback onTap}) {
+  ListTile buildDrawerItem({
+    IconData? icon,
+    String? imagePath,
+    required String text,
+    Color? color,
+    Color? colorImg,
+    required GestureTapCallback onTap,
+  }) {
     return ListTile(
-      leading: Icon(
-        icon,
-        color: ColorHelper.whiteColor,
-      ),
+      leading: icon != null
+          ? Icon(
+              icon,
+              color: ColorHelper.whiteColor,
+            )
+          : (imagePath != null
+              ? Image.asset(
+                  imagePath,
+                  width: 28.w,
+                  height: 28.h,
+                  color: colorImg,
+                )
+              : null),
       title: Text(
         text,
         style: TextStyle(color: color),

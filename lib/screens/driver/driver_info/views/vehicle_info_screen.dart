@@ -1,3 +1,6 @@
+import 'package:callandgo/components/simple_appbar.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:dropdown_flutter/custom_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -18,7 +21,7 @@ class VehicleInfoScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     fToast.init(context);
     return Scaffold(
-      appBar: CustomAppbar(titleText: 'Vehicle info', onTap: () {}),
+      appBar: SimpleAppbar(titleText: 'Vehicle info'),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(
@@ -48,7 +51,35 @@ class VehicleInfoScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CommonComponents().commonButton(
         onPressed: () {
-          Get.back();
+          fToast.init(Get.context!);
+          if (_driverInfoController.selectedCarBrand.value.isEmpty) {
+            showToast(
+              toastText: "Brand is required",
+              toastColor: ColorHelper.red,
+            );
+          } else if (_driverInfoController
+              .carModelNumberController.value.text.isEmpty) {
+            showToast(
+              toastText: "Model number is required",
+              toastColor: ColorHelper.red,
+            );
+          } else if ((_driverInfoController.vehicleType.value == 'car' ||
+                  _driverInfoController.vehicleType.value == 'taxi') &&
+              _driverInfoController.selectedSeatNumber.value.isEmpty) {
+            showToast(
+              toastText: "Seat number is required",
+              toastColor: ColorHelper.red,
+            );
+          } else if ((_driverInfoController.vehicleType.value == 'car' ||
+                  _driverInfoController.vehicleType.value == 'taxi') &&
+              _driverInfoController.selectedCarColor.value.isEmpty) {
+            showToast(
+              toastText: "Color is required",
+              toastColor: ColorHelper.red,
+            );
+          } else {
+            Get.back();
+          }
         },
         text: 'Submit',
       ),
@@ -135,29 +166,26 @@ class VehicleInfoScreen extends StatelessWidget {
   }
 
   Widget _buildSeatAndColorRow() {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: _buildDropdownSearch(
-            textData: "Numbers of seat",
-            hintText: 'Select seat number',
-            items: _driverInfoController.seatNumbers,
-            searchHintText: 'Search seat numbers...',
-            onChanged: (value) {
-              _driverInfoController.selectedSeatNumber.value = value ?? '';
-            },
-          ),
+        _buildDropdownSearch(
+          textData: "Numbers of seat",
+          hintText: 'Select seat number',
+          items: _driverInfoController.seatNumbers,
+          searchHintText: 'Search seat numbers...',
+          onChanged: (value) {
+            _driverInfoController.selectedSeatNumber.value = value ?? '';
+          },
         ),
-        Expanded(
-          child: _buildDropdownSearch(
-            textData: "Colors of the car",
-            hintText: 'Select car color',
-            items: _driverInfoController.carColors,
-            searchHintText: 'Search car colors...',
-            onChanged: (value) {
-              _driverInfoController.selectedCarColor.value = value ?? '';
-            },
-          ),
+        SpaceHelper.verticalSpace10,
+        _buildDropdownSearch(
+          textData: "Colors of the car",
+          hintText: 'Select car color',
+          items: _driverInfoController.carColors,
+          searchHintText: 'Search car colors...',
+          onChanged: (value) {
+            _driverInfoController.selectedCarColor.value = value ?? '';
+          },
         ),
       ],
     );

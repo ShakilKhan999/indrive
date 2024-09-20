@@ -1,8 +1,10 @@
+import 'package:callandgo/components/simple_appbar.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:callandgo/components/common_components.dart';
-import 'package:callandgo/components/custom_appbar.dart';
+
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/main.dart';
@@ -16,7 +18,9 @@ class FreightDriverlicenceScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     fToast.init(context);
     return Scaffold(
-      appBar: CustomAppbar(titleText: 'Driver licence', onTap: () {}),
+      appBar: SimpleAppbar(
+        titleText: 'Driver licence',
+      ),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(
@@ -46,7 +50,7 @@ class FreightDriverlicenceScreen extends StatelessWidget {
       imgPath: _freightController.licenseFrontPhoto.value != ''
           ? _freightController.licenseFrontPhoto.value
           : 'assets/images/card_front.png',
-      color: ColorHelper.primaryColor,
+      // color: ColorHelper.primaryColor,
       buttonText: 'Add a photo',
       isLoading: _freightController.isLicenseFrontPhotoloading.value,
       onButtonPressed: () {
@@ -65,7 +69,7 @@ class FreightDriverlicenceScreen extends StatelessWidget {
       imgPath: _freightController.licenseBackPhoto.value != ''
           ? _freightController.licenseBackPhoto.value
           : 'assets/images/card_back.png',
-      color: ColorHelper.primaryColor,
+      // color: ColorHelper.primaryColor,
       buttonText: 'Add a photo',
       isLoading: _freightController.isLicenseBackPhotoloading.value,
       onButtonPressed: () {
@@ -92,7 +96,31 @@ class FreightDriverlicenceScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CommonComponents().commonButton(
         onPressed: () {
-          Get.back();
+          final driverLicenseNumber =
+              _freightController.driverLicenseController.value.text;
+          final licenseFrontPhoto = _freightController.licenseFrontPhoto.value;
+          final licenseBackPhoto = _freightController.licenseBackPhoto.value;
+
+          if (driverLicenseNumber.isEmpty) {
+            showToast(
+              toastText: "Please enter your driver license number.",
+              toastColor: ColorHelper.red,
+            );
+          } else if (licenseFrontPhoto == '') {
+            showToast(
+              toastText:
+                  "Please add a photo of the front of the driver’s license.",
+              toastColor: ColorHelper.red,
+            );
+          } else if (licenseBackPhoto == '') {
+            showToast(
+              toastText:
+                  "Please add a photo of the back of the driver’s license.",
+              toastColor: ColorHelper.red,
+            );
+          } else {
+            Get.back();
+          }
         },
         text: 'Submit',
       ),

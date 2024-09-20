@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:callandgo/main.dart';
 import 'package:callandgo/screens/freight_user/view/freight_trip_details.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -254,7 +258,7 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
                 children: [
                   SpaceHelper.verticalSpace10,
                   _buildTopImgView(),
-                  _buildTextFiledView('Pickup location',
+                  _buildTextFiledView('Pickup locationn',
                       _freightController.pickUpController.value, true),
                   _buildTextFiledView('Destination',
                       _freightController.destinationController.value, false),
@@ -283,7 +287,46 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
     return CommonComponents().commonButton(
         text: 'Create Request',
         onPressed: () {
-          _freightController.onPressCreateRequest();
+          fToast.init(Get.context!);
+
+          if (_freightController.pickUpController.value.text == '') {
+            showToast(
+              toastText: "Pickup location is required",
+              toastColor: ColorHelper.red,
+            );
+          } else if (_freightController.destinationController.value.text ==
+              '') {
+            showToast(
+              toastText: "Destination is required",
+              toastColor: ColorHelper.red,
+            );
+          } else if (!(_freightController.selectedButtonIndex.value == 0 ||
+              _freightController.selectedButtonIndex.value == 1 ||
+              _freightController.selectedButtonIndex.value == 2)) {
+            showToast(
+              toastText: "Please select a valid delivery time",
+              toastColor: ColorHelper.red,
+            );
+          } else if (_freightController.selectedSize.value.isEmpty) {
+            showToast(
+              toastText: "Please select the cargo size",
+              toastColor: ColorHelper.red,
+            );
+          } else if (_freightController.photoPath.value.isEmpty) {
+            showToast(
+              toastText: "Please add a photo of the cargo",
+              toastColor: ColorHelper.red,
+            );
+          } else if (_freightController.offerFareController.value.text == '') {
+            showToast(
+              toastText: "Please offer your fare",
+              toastColor: ColorHelper.red,
+            );
+          }
+          // If all validations pass
+          else {
+            // _freightController.onPressCreateRequest();
+          }
         });
   }
 
@@ -518,7 +561,7 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
               ),
               style: TextStyle(
                 fontSize: 16.sp,
-                color: ColorHelper.greyColor,
+                color: ColorHelper.whiteColor,
                 fontWeight: FontWeight.w400,
               ),
               icon: Icon(
@@ -561,14 +604,24 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
               height: 100.h,
               width: 100.w,
               decoration: BoxDecoration(
-                  color: ColorHelper.greyIconColor,
-                  borderRadius: BorderRadius.circular(8.r)),
-              child: Icon(
-                Icons.add,
-                color: Colors.black26,
+                color: ColorHelper.greyIconColor,
+                borderRadius: BorderRadius.circular(8.r),
+                image: _freightController.photoPath.value.isNotEmpty
+                    ? DecorationImage(
+                        image:
+                            FileImage(File(_freightController.photoPath.value)),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
               ),
+              child: _freightController.photoPath.value.isEmpty
+                  ? Icon(
+                      Icons.add,
+                      color: Colors.black26,
+                    )
+                  : null,
             ),
-          )
+          ),
         ],
       ),
     );

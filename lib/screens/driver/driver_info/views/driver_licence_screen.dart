@@ -1,3 +1,5 @@
+import 'package:callandgo/components/simple_appbar.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -18,7 +20,7 @@ class DriverLicenceScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     fToast.init(context);
     return Scaffold(
-      appBar: CustomAppbar(titleText: 'Driver licence', onTap: () {}),
+      appBar: SimpleAppbar(titleText: 'Driver licence'),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(
@@ -48,7 +50,7 @@ class DriverLicenceScreen extends StatelessWidget {
       imgPath: _driverInfoController.licenseFrontPhoto.value != ''
           ? _driverInfoController.licenseFrontPhoto.value
           : 'assets/images/card_front.png',
-      color: ColorHelper.primaryColor,
+      // color: ColorHelper.primaryColor,
       buttonText: 'Add a photo',
       isLoading: _driverInfoController.isLicenseFrontPhotoloading.value,
       onButtonPressed: () {
@@ -67,7 +69,7 @@ class DriverLicenceScreen extends StatelessWidget {
       imgPath: _driverInfoController.licenseBackPhoto.value != ''
           ? _driverInfoController.licenseBackPhoto.value
           : 'assets/images/card_back.png',
-      color: ColorHelper.primaryColor,
+      // color: ColorHelper.primaryColor,
       buttonText: 'Add a photo',
       isLoading: _driverInfoController.isLicenseBackPhotoloading.value,
       onButtonPressed: () {
@@ -94,7 +96,26 @@ class DriverLicenceScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CommonComponents().commonButton(
         onPressed: () {
-          Get.back();
+          fToast.init(Get.context!);
+          if (_driverInfoController
+              .driverLicenseController.value.text.isEmpty) {
+            showToast(
+              toastText: 'Driver License is required',
+              toastColor: ColorHelper.red,
+            );
+          } else if (_driverInfoController.licenseFrontPhoto.value.isEmpty) {
+            showToast(
+              toastText: "Driver's license front photo is required",
+              toastColor: ColorHelper.red,
+            );
+          } else if (_driverInfoController.licenseBackPhoto.value.isEmpty) {
+            showToast(
+              toastText: "Driver's license back photo is required",
+              toastColor: ColorHelper.red,
+            );
+          } else {
+            Get.back();
+          }
         },
         text: 'Submit',
       ),

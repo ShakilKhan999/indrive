@@ -1,6 +1,8 @@
 import 'package:callandgo/components/simple_appbar.dart';
+import 'package:callandgo/main.dart';
 import 'package:callandgo/screens/courier_user/controller/courier_trip_controller.dart';
 import 'package:callandgo/screens/courier_user/views/courier_trip_details.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -406,7 +408,99 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
   Widget _buildBottomButton() {
     return CommonComponents().commonButton(
         onPressed: () {
-          courierTripController.onPressCreateRequest();
+          fToast.init(Get.context!);
+
+          if (courierTripController.pickUpController.value.text == '') {
+            showToast(
+              toastText: "Pickup location is required",
+              toastColor: ColorHelper.red,
+            );
+          } else if (courierTripController.destinationController.value.text ==
+              '') {
+            showToast(
+              toastText: "Destination is required",
+              toastColor: ColorHelper.red,
+            );
+          } else if ((courierTripController.isOptionButtonEnabled.value ==
+                  false) &&
+              courierTripController
+                      .pickUpSenderPhoneInfoController.value.text ==
+                  '') {
+            showToast(
+              toastText: "Sender phone number is required",
+              toastColor: ColorHelper.red,
+            );
+          } else if ((courierTripController.isOptionButtonEnabled.value ==
+                  false) &&
+              courierTripController.recipientPhoneController.value.text == '') {
+            showToast(
+              toastText: "Recipient phone number is required",
+              toastColor: ColorHelper.red,
+            );
+          } else if ((courierTripController.isOptionButtonEnabled.value ==
+                  true) &&
+              courierTripController.pickUpStreetInfoController.value.text ==
+                  '') {
+            showToast(
+              toastText: "Street,building is required",
+              toastColor: ColorHelper.red,
+            );
+          } else if ((courierTripController.isOptionButtonEnabled.value ==
+                  true) &&
+              courierTripController.pickUpFloorInfoController.value.text ==
+                  '') {
+            showToast(
+              toastText: "Floor,apartment,entryphone is required",
+              toastColor: ColorHelper.red,
+            );
+          } else if ((courierTripController.isOptionButtonEnabled.value ==
+                  true) &&
+              courierTripController
+                      .pickUpSenderPhoneInfoController.value.text ==
+                  '') {
+            showToast(
+              toastText: "Sender phone number is required",
+              toastColor: ColorHelper.red,
+            );
+          } else if ((courierTripController.isOptionButtonEnabled.value ==
+                  true) &&
+              courierTripController.deliveryStreetInfoController.value.text ==
+                  '') {
+            showToast(
+              toastText: "Street,building is required",
+              toastColor: ColorHelper.red,
+            );
+          } else if ((courierTripController.isOptionButtonEnabled.value ==
+                  true) &&
+              courierTripController.deliveryFloorInfoController.value.text ==
+                  '') {
+            showToast(
+              toastText: "Floor,apartment,entryphone is required",
+              toastColor: ColorHelper.red,
+            );
+          } else if ((courierTripController.isOptionButtonEnabled.value ==
+                  true) &&
+              courierTripController.recipientPhoneController.value.text == '') {
+            showToast(
+              toastText: "Recipient phone number is required",
+              toastColor: ColorHelper.red,
+            );
+          } else if (courierTripController
+                  .descriptionDeliverController.value.text ==
+              '') {
+            showToast(
+              toastText: "Description is required",
+              toastColor: ColorHelper.red,
+            );
+          } else if (courierTripController.fareCourierController.value.text ==
+              '') {
+            showToast(
+              toastText: "Offer your fare is required",
+              toastColor: ColorHelper.red,
+            );
+          } else {
+            courierTripController.onPressCreateRequest();
+          }
         },
         text: 'Find a courier');
   }
@@ -750,9 +844,14 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
             fontSize: 16,
             textData: 'Oder details',
             fontWeight: FontWeight.w600),
-        Icon(
-          Icons.cancel_rounded,
-          color: Colors.grey,
+        InkWell(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Icon(
+            Icons.cancel_rounded,
+            color: Colors.grey,
+          ),
         )
       ],
     );

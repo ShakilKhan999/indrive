@@ -51,7 +51,7 @@ class CourierTypsScreen extends StatelessWidget {
                 leading: SizedBox(
                     height: 40.h,
                     width: 40.h,
-                    child: Image.asset("assets/images/car_courier.png")),
+                    child: Image.asset("assets/images/courier.png")),
                 title: CommonComponents().printText(
                     fontSize: 18,
                     textData: "Car courier",

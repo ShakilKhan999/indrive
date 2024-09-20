@@ -1,4 +1,6 @@
+import 'package:callandgo/main.dart';
 import 'package:callandgo/screens/city_to_city_user/views/cityTocityTripDetails.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -451,7 +453,55 @@ class _CityToCityRequestState extends State<CityToCityRequest>
         child: CommonComponents().commonButton(
           text: 'Find a Rider',
           onPressed: () {
-            _cityToCityTripController.onPressFindRider();
+            fToast.init(Get.context!);
+            if (_cityToCityTripController.fromController.value.text == '') {
+              showToast(
+                toastText: "From is requried",
+                toastColor: ColorHelper.red,
+              );
+            } else if (_cityToCityTripController.toController.value.text ==
+                '') {
+              showToast(
+                toastText: "To is required",
+                toastColor: ColorHelper.red,
+              );
+            } else if (_cityToCityTripController.selectedDate.value == null) {
+              showToast(
+                toastText: "Date is required",
+                toastColor: ColorHelper.red,
+              );
+            } else if ((_cityToCityTripController.selectedOptionIndex.value ==
+                    0) &&
+                _cityToCityTripController.numberOfPassengers.value == 0) {
+              showToast(
+                toastText: "Number of passengers is required",
+                toastColor: ColorHelper.red,
+              );
+            } else if (_cityToCityTripController
+                    .riderFareController.value.text ==
+                '') {
+              showToast(
+                toastText: "Offer your fear is required",
+                toastColor: ColorHelper.red,
+              );
+            } else if ((_cityToCityTripController.selectedOptionIndex.value ==
+                    1) &&
+                _cityToCityTripController.parcelFareController.value.text ==
+                    '') {
+              showToast(
+                toastText: "Offer your fear is required",
+                toastColor: ColorHelper.red,
+              );
+            } else if (_cityToCityTripController
+                    .addDescriptionController.value.text ==
+                '') {
+              showToast(
+                toastText: "Description is required",
+                toastColor: ColorHelper.red,
+              );
+            } else {
+              // _cityToCityTripController.onPressFindRider();
+            }
           },
           disabled:
               _cityToCityTripController.isCityToCityTripCreationLoading.value,

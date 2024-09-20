@@ -1,8 +1,10 @@
+import 'package:callandgo/components/simple_appbar.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:callandgo/components/common_components.dart';
-import 'package:callandgo/components/custom_appbar.dart';
+
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/screens/driver/city_to_city/controller/cityToCity_controller.dart';
@@ -18,7 +20,7 @@ class CityToCityDriverLicenceScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     fToast.init(context);
     return Scaffold(
-      appBar: CustomAppbar(titleText: 'Driver licence', onTap: () {}),
+      appBar: SimpleAppbar(titleText: 'Driver licence'),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(
@@ -48,7 +50,7 @@ class CityToCityDriverLicenceScreen extends StatelessWidget {
       imgPath: _cityToCityInfoController.licenseFrontPhoto.value != ''
           ? _cityToCityInfoController.licenseFrontPhoto.value
           : 'assets/images/card_front.png',
-      color: ColorHelper.primaryColor,
+      // color: ColorHelper.primaryColor,
       buttonText: 'Add a photo',
       isLoading: _cityToCityInfoController.isLicenseFrontPhotoloading.value,
       onButtonPressed: () {
@@ -67,7 +69,7 @@ class CityToCityDriverLicenceScreen extends StatelessWidget {
       imgPath: _cityToCityInfoController.licenseBackPhoto.value != ''
           ? _cityToCityInfoController.licenseBackPhoto.value
           : 'assets/images/card_back.png',
-      color: ColorHelper.primaryColor,
+      // color: ColorHelper.primaryColor,
       buttonText: 'Add a photo',
       isLoading: _cityToCityInfoController.isLicenseBackPhotoloading.value,
       onButtonPressed: () {
@@ -95,7 +97,33 @@ class CityToCityDriverLicenceScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CommonComponents().commonButton(
         onPressed: () {
-          Get.back();
+          final driverLicenseNumber =
+              _cityToCityInfoController.driverLicenseController.value.text;
+          final licenseFrontPhoto =
+              _cityToCityInfoController.licenseFrontPhoto.value;
+          final licenseBackPhoto =
+              _cityToCityInfoController.licenseBackPhoto.value;
+
+          if (driverLicenseNumber.isEmpty) {
+            showToast(
+              toastText: "Please enter your driver license number.",
+              toastColor: ColorHelper.red,
+            );
+          } else if (licenseFrontPhoto == '') {
+            showToast(
+              toastText:
+                  "Please add a photo of the front of the driver’s license.",
+              toastColor: ColorHelper.red,
+            );
+          } else if (licenseBackPhoto == '') {
+            showToast(
+              toastText:
+                  "Please add a photo of the back of the driver’s license.",
+              toastColor: ColorHelper.red,
+            );
+          } else {
+            Get.back();
+          }
         },
         text: 'Submit',
       ),

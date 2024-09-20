@@ -60,16 +60,28 @@ class CommonComponents {
           ),
           if (imgPath != null)
             imgPath.contains('assets')
-                ? Image.asset(
-                    imgPath,
-                    height: 150.h,
-                    width: 150.w,
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0.sp),
+                      child: Image.asset(
+                        imgPath,
+                        height: 150.h,
+                        width: 150.w,
+                      ),
+                    ),
                   )
-                : Image.file(
-                    File(imgPath),
-                    height: 150.h,
-                    width: 150.w,
-                    color: color,
+                : ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0.sp),
+                      child: Image.file(
+                        File(imgPath),
+                        height: 150.h,
+                        width: 150.w,
+                        color: color,
+                      ),
+                    ),
                   ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 80.w),

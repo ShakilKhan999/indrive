@@ -1,3 +1,4 @@
+import 'package:callandgo/components/simple_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -20,11 +21,9 @@ class VehicleTypeScreen extends StatelessWidget {
     fToast.init(context);
     return SafeArea(
       child: Scaffold(
-        appBar: CustomAppbar(
-            titleText: 'Chosse Vehicle Type',
-            onTap: () {
-              Navigator.pop(context);
-            }),
+        appBar: SimpleAppbar(
+          titleText: 'Chosse Vehicle Type',
+        ),
         backgroundColor: ColorHelper.bgColor,
         body: Padding(
           padding: const EdgeInsets.all(16.0),

@@ -154,7 +154,7 @@ class ChooseProfileScreen extends StatelessWidget {
                           fToast.init(context);
                           if (_profileController.courierStatus.value.status ==
                               'Registration completed') {
-                            CourierTripController  courierTripController =
+                            CourierTripController courierTripController =
                                 Get.put(CourierTripController());
                             courierTripController.getCourierTrips();
                             courierTripController.getCourierMyTrips();
@@ -180,8 +180,7 @@ class ChooseProfileScreen extends StatelessWidget {
                           leading: SizedBox(
                               height: 30.h,
                               width: 40.h,
-                              child: Image.asset(
-                                  "assets/images/delivery-courier.png")),
+                              child: Image.asset("assets/images/courier.png")),
                           title: CommonComponents().printText(
                               fontSize: 18,
                               textData: "Courier",
@@ -238,8 +237,7 @@ class ChooseProfileScreen extends StatelessWidget {
                           leading: SizedBox(
                               height: 30.h,
                               width: 40.h,
-                              child: Image.asset(
-                                  "assets/images/freight-delivery.png")),
+                              child: Image.asset("assets/images/freight.png")),
                           title: CommonComponents().printText(
                               fontSize: 18,
                               textData: "Freight",
@@ -299,8 +297,11 @@ class ChooseProfileScreen extends StatelessWidget {
                           leading: SizedBox(
                               height: 30.h,
                               width: 40.h,
-                              child: Image.asset("assets/images/location.png",
-                                  color: ColorHelper.primaryColor)),
+                              child: Image.asset(
+                                "assets/images/city_to_city.png",
+                                height: 30.h,
+                                width: 30.w,
+                              )),
                           title: CommonComponents().printText(
                               fontSize: 18,
                               textData: "City to City",

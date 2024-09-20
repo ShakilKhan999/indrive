@@ -1,8 +1,10 @@
+import 'package:callandgo/components/simple_appbar.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:callandgo/components/common_components.dart';
-import 'package:callandgo/components/custom_appbar.dart';
+
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/main.dart';
@@ -16,8 +18,7 @@ class CourierNationalIdcardbirthScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     fToast.init(context);
     return Scaffold(
-      appBar: CustomAppbar(
-          titleText: 'National Identity OR Birth Certificate', onTap: () {}),
+      appBar: SimpleAppbar(titleText: 'National Identity OR Birth Certificate'),
       backgroundColor: Colors.white,
       body: Obx(
         () => Column(
@@ -39,7 +40,7 @@ class CourierNationalIdcardbirthScreen extends StatelessWidget {
       imgPath: _courierController.nationalIdCardPhoto.value != ''
           ? _courierController.nationalIdCardPhoto.value
           : 'assets/images/card_front.png',
-      color: ColorHelper.primaryColor,
+      // color: ColorHelper.primaryColor,
       buttonText: 'Add a photo',
       isLoading: _courierController.isNationalIdCardPhotoloading.value,
       onButtonPressed: () {
@@ -53,7 +54,16 @@ class CourierNationalIdcardbirthScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CommonComponents().commonButton(
         onPressed: () {
-          Get.back();
+          fToast.init(Get.context!);
+          if (_courierController.nationalIdCardPhoto.value == '') {
+            showToast(
+              toastText:
+                  "National ID card or Birth Certificate photo is required",
+              toastColor: ColorHelper.red,
+            );
+          } else {
+            Get.back();
+          }
         },
         text: 'Submit',
       ),
