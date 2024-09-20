@@ -1,7 +1,10 @@
+import 'dart:convert';
 import 'dart:developer';
 
+import 'package:callandgo/utils/app_config.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart' as http;
 import '../../../models/trip_model.dart';
 
 class PassengerRepository {
@@ -11,6 +14,28 @@ class PassengerRepository {
         .collection('users')
         .where('isDriverMode', isEqualTo: true)
         .snapshots();
+  }
+
+  Future<String> getPolylineFromGoogleMap(LatLng start, LatLng end) async {
+    final String baseUrl = 'https://maps.googleapis.com/maps/api/directions/json';
+    final String url =
+        '$baseUrl?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&key=${AppConfig.mapApiKey}';
+
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+
+      if (data['status'] == 'OK') {
+        // Get the polyline from the routes
+        final polyline = data['routes'][0]['overview_polyline']['points'];
+        return polyline;
+      } else {
+        throw Exception('Failed to get directions: ${data['status']}');
+      }
+    } else {
+      throw Exception('Failed to load directions');
+    }
   }
 
   Stream<DocumentSnapshot<Map<String, dynamic>>> listenToCalledTrip(

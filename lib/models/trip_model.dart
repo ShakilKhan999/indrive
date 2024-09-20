@@ -60,6 +60,7 @@ class Bid {
 
 class Trip {
   String tripId;
+  String? polyLineEncoded;
   String? userId;
   String? driverId;
   String? destination;
@@ -76,6 +77,7 @@ class Trip {
   Trip({
     required this.tripId,
     this.userId,
+    this.polyLineEncoded,
     this.rent,
     this.driverId,
     this.destination,
@@ -93,6 +95,7 @@ class Trip {
   factory Trip.fromJson(Map<String, dynamic> json) {
     return Trip(
       tripId: json['tripId'] as String,
+      polyLineEncoded: json['polyLineEncoded'] as String,
       rent: json['rent'] as int,
       userId: json['userId'] as String?,
       driverId: json['driverId'] as String?,
@@ -116,6 +119,7 @@ class Trip {
   Map<String, dynamic> toJson() {
     return {
       'tripId': tripId,
+      'polyLineEncoded': polyLineEncoded,
       'rent': rent,
       'userId': userId,
       'driverId': driverId,

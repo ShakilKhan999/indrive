@@ -54,6 +54,8 @@ class HomeController extends GetxController {
     });
   }
 
+
+
   final TextEditingController destinationController = TextEditingController();
   final TextEditingController offerPriceController = TextEditingController();
   GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
@@ -549,7 +551,11 @@ class HomeController extends GetxController {
 
   var tempTripId = "";
 
+
+
   Future<void> callTrip() async {
+
+    String polyline= await PassengerRepository().getPolylineFromGoogleMap(startPickedCenter.value, destinationPickedCenter.value);
     sortedDriverList.clear();
     sortedDriverList
         .addAll(sortDriversByDistance(driverList, startPickedCenter.value));
@@ -572,6 +578,7 @@ class HomeController extends GetxController {
     tempTripId = tripId;
     Trip trip = Trip(
         userId: "8mCWZ9uBrWME2Bfm9YOCvb0U2EJ3",
+        polyLineEncoded: polyline,
         rent: int.parse(offerPriceController.text),
         bids: bidList.map((e) => e as Bid).toList(),
         driverId: "",
