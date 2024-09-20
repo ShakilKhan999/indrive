@@ -6,6 +6,7 @@ import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
 import '../../../components/common_components.dart';
+import '../../../components/confirmation_dialog.dart';
 import '../../../models/city_to_city_trip_model.dart';
 
 class BidList extends StatelessWidget {
@@ -102,8 +103,15 @@ class BidList extends StatelessWidget {
       children: [
         InkWell(
           onTap: () {
-            _cityToCityTripController.selectedBidIndex.value = index;
-            _cityToCityTripController.declineBidForUser();
+            Get.back();
+            showConfirmationDialog(
+                title: 'Decline',
+                onPressConfirm: () async {
+                  _cityToCityTripController.selectedBidIndex.value = index;
+                  _cityToCityTripController.declineBidForUser();
+                },
+                onPressCancel: () => Get.back(),
+                controller: _cityToCityTripController);
           },
           child: Container(
             height: 30.h,
@@ -122,8 +130,15 @@ class BidList extends StatelessWidget {
         ),
         InkWell(
           onTap: () {
-            _cityToCityTripController.selectedBidIndex.value = index;
-            _cityToCityTripController.acceptRideForUser();
+            Get.back();
+            showConfirmationDialog(
+                title: 'Accept',
+                onPressConfirm: () async {
+                  _cityToCityTripController.selectedBidIndex.value = index;
+                  _cityToCityTripController.acceptRideForUser();
+                },
+                onPressCancel: () => Get.back(),
+                controller: _cityToCityTripController);
           },
           child: Container(
             height: 30.h,

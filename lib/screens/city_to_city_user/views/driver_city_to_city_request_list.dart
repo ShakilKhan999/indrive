@@ -7,7 +7,6 @@ import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/method_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../components/common_components.dart';
 
 class DriverCityToCityRequestList extends StatefulWidget {
@@ -453,8 +452,14 @@ class _DriverCityToCityRequestListState
       children: [
         InkWell(
           onTap: () {
-            _cityToCityTripController.selectedTripIndex.value = index;
-            _cityToCityTripController.declineRide();
+            showConfirmationDialog(
+                title: 'Decline',
+                onPressConfirm: () async {
+                  _cityToCityTripController.selectedTripIndex.value = index;
+                  _cityToCityTripController.declineRide();
+                },
+                onPressCancel: () => Get.back(),
+                controller: _cityToCityTripController);
           },
           child: Container(
             height: 30.h,
@@ -473,8 +478,14 @@ class _DriverCityToCityRequestListState
         ),
         InkWell(
           onTap: () {
-            _cityToCityTripController.selectedTripIndex.value = index;
-            _cityToCityTripController.acceptRide();
+            showConfirmationDialog(
+                title: 'Accept',
+                onPressConfirm: () async {
+                  _cityToCityTripController.selectedTripIndex.value = index;
+                  _cityToCityTripController.acceptRide();
+                },
+                onPressCancel: () => Get.back(),
+                controller: _cityToCityTripController);
           },
           child: Container(
             height: 30.h,
@@ -619,92 +630,4 @@ class _DriverCityToCityRequestListState
     );
   }
 
-  void _showRideDetailsBottomSheet(int index) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.grey[900],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
-      ),
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 16.0.w,
-            right: 16.0.w,
-            top: 16.0.h,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 16.h,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CommonComponents().printText(
-                  fontSize: 16,
-                  textData: 'Ride Details',
-                  fontWeight: FontWeight.bold),
-              SizedBox(height: 22.h),
-              SingleChildScrollView(
-                physics: BouncingScrollPhysics(
-                    parent: AlwaysScrollableScrollPhysics()),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      height: 200,
-                      color: ColorHelper.whiteColor,
-                      child: Obx(
-                        () => GoogleMap(
-                          onMapCreated: (controller) =>
-                              _cityToCityTripController.onMapCreatedForRide,
-                          onCameraMove: (position) =>
-                              _cityToCityTripController.onCameraMoveForRide,
-                          initialCameraPosition: CameraPosition(
-                            target: _cityToCityTripController.rideRoute.value,
-                            zoom: 12,
-                          ),
-                          polylines: {
-                            Polyline(
-                                polylineId: const PolylineId("poly"),
-                                points: _cityToCityTripController
-                                    .polylineCoordinates
-                                    .map((geoPoint) => LatLng(
-                                        geoPoint.latitude, geoPoint.longitude))
-                                    .toList(),
-                                color: ColorHelper.primaryColor,
-                                width: 7)
-                          },
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10.h),
-                    CommonComponents().printText(
-                        fontSize: 16,
-                        textData:
-                            'Passengers: ${_cityToCityTripController.myTripList[index].numberOfPassengers}',
-                        fontWeight: FontWeight.normal),
-                    CommonComponents().printText(
-                        fontSize: 16,
-                        textData:
-                            'Fare: ${_cityToCityTripController.myTripList[index].finalPrice}',
-                        fontWeight: FontWeight.normal),
-                    CommonComponents().printText(
-                        fontSize: 16,
-                        textData:
-                            'Description: ${_cityToCityTripController.myTripList[index].description}',
-                        fontWeight: FontWeight.normal),
-                  ],
-                ),
-              ),
-              SizedBox(height: 20.h),
-              CommonComponents().commonButton(
-                text: 'Cancel Ride',
-                onPressed: () {},
-              )
-            ],
-          ),
-        );
-      },
-    );
-  }
 }

@@ -1,8 +1,9 @@
+import 'package:callandgo/components/simple_appbar.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:callandgo/components/common_components.dart';
-import 'package:callandgo/components/custom_appbar.dart';
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/main.dart';
@@ -16,7 +17,7 @@ class CourierDriverlicenceScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     fToast.init(context);
     return Scaffold(
-      appBar: CustomAppbar(titleText: 'Driver licence', onTap: () {}),
+      appBar: SimpleAppbar(titleText: 'Driver licence'),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(
@@ -46,7 +47,7 @@ class CourierDriverlicenceScreen extends StatelessWidget {
       imgPath: _courierController.licenseFrontPhoto.value != ''
           ? _courierController.licenseFrontPhoto.value
           : 'assets/images/card_front.png',
-      color: ColorHelper.primaryColor,
+      // color: ColorHelper.primaryColor,
       buttonText: 'Add a photo',
       isLoading: _courierController.isLicenseFrontPhotoloading.value,
       onButtonPressed: () {
@@ -65,7 +66,7 @@ class CourierDriverlicenceScreen extends StatelessWidget {
       imgPath: _courierController.licenseBackPhoto.value != ''
           ? _courierController.licenseBackPhoto.value
           : 'assets/images/card_back.png',
-      color: ColorHelper.primaryColor,
+      // color: ColorHelper.primaryColor,
       buttonText: 'Add a photo',
       isLoading: _courierController.isLicenseBackPhotoloading.value,
       onButtonPressed: () {
@@ -92,7 +93,25 @@ class CourierDriverlicenceScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CommonComponents().commonButton(
         onPressed: () {
-          Get.back();
+          fToast.init(Get.context!);
+          if (_courierController.driverLicenseController.value.text.isEmpty) {
+            showToast(
+              toastText: "Driver license number is required",
+              toastColor: ColorHelper.red,
+            );
+          } else if (_courierController.licenseFrontPhoto.value == '') {
+            showToast(
+              toastText: "Front photo of the driver's license is required",
+              toastColor: ColorHelper.red,
+            );
+          } else if (_courierController.licenseBackPhoto.value == '') {
+            showToast(
+              toastText: "Back photo of the driver's license is required",
+              toastColor: ColorHelper.red,
+            );
+          } else {
+            Get.back();
+          }
         },
         text: 'Submit',
       ),

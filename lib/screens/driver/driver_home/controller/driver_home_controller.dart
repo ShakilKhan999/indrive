@@ -67,7 +67,7 @@ class DriverHomeController extends GetxController {
   }
 
   Position? _currentPosition;
-  StreamSubscription<Position>? _positionStreamSubscription;
+  StreamSubscription<Position>? positionStreamSubscription;
 
   updateUserLocation({required double lat, required double long}) async {
     try {
@@ -141,7 +141,7 @@ class DriverHomeController extends GetxController {
           'Location permissions are permanently denied, we cannot request permissions.');
     }
 
-    _positionStreamSubscription = Geolocator.getPositionStream(
+    positionStreamSubscription = Geolocator.getPositionStream(
       locationSettings: LocationSettings(
         accuracy: LocationAccuracy.high,
         distanceFilter: 1, // Update only if moved 10 meters

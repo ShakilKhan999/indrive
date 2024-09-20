@@ -1,9 +1,11 @@
+import 'package:callandgo/components/simple_appbar.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:dropdown_flutter/custom_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:callandgo/components/common_components.dart';
-import 'package:callandgo/components/custom_appbar.dart';
+
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/screens/driver/freight/controller/freight_controller.dart';
 
@@ -17,7 +19,9 @@ class FreightVehicleinfoScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     fToast.init(context);
     return Scaffold(
-      appBar: CustomAppbar(titleText: 'Vehicle info', onTap: () {}),
+      appBar: SimpleAppbar(
+        titleText: 'Vehicle info',
+      ),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(
@@ -44,7 +48,30 @@ class FreightVehicleinfoScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CommonComponents().commonButton(
         onPressed: () {
-          Get.back();
+          if (_freightController.selectedCarBrand.value.isEmpty) {
+            showToast(
+              toastText: "Please select a truck brand.",
+              toastColor: Colors.red,
+            );
+          } else if (_freightController
+              .carModelNumberController.value.text.isEmpty) {
+            showToast(
+              toastText: "Please enter the car model number.",
+              toastColor: Colors.red,
+            );
+          } else if (_freightController.selectedSeatNumber.value.isEmpty) {
+            showToast(
+              toastText: "Please select the seat number.",
+              toastColor: Colors.red,
+            );
+          } else if (_freightController.selectedCarColor.value.isEmpty) {
+            showToast(
+              toastText: "Please select the car color.",
+              toastColor: Colors.red,
+            );
+          } else {
+            Get.back();
+          }
         },
         text: 'Submit',
       ),
@@ -131,29 +158,26 @@ class FreightVehicleinfoScreen extends StatelessWidget {
   }
 
   Widget _buildSeatAndColorRow() {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: _buildDropdownSearch(
-            textData: "Size of the Track",
-            hintText: 'Select seat number',
-            items: _freightController.seatNumbers,
-            searchHintText: 'Search seat numbers...',
-            onChanged: (value) {
-              _freightController.selectedSeatNumber.value = value ?? '';
-            },
-          ),
+        _buildDropdownSearch(
+          textData: "Size of the Track",
+          hintText: 'Select seat number',
+          items: _freightController.seatNumbers,
+          searchHintText: 'Search seat numbers...',
+          onChanged: (value) {
+            _freightController.selectedSeatNumber.value = value ?? '';
+          },
         ),
-        Expanded(
-          child: _buildDropdownSearch(
-            textData: "Colors of the car",
-            hintText: 'Select car color',
-            items: _freightController.carColors,
-            searchHintText: 'Search car colors...',
-            onChanged: (value) {
-              _freightController.selectedCarColor.value = value ?? '';
-            },
-          ),
+        SpaceHelper.verticalSpace10,
+        _buildDropdownSearch(
+          textData: "Colors of the car",
+          hintText: 'Select car color',
+          items: _freightController.carColors,
+          searchHintText: 'Search car colors...',
+          onChanged: (value) {
+            _freightController.selectedCarColor.value = value ?? '';
+          },
         ),
       ],
     );

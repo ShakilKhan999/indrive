@@ -1,5 +1,4 @@
 import 'package:callandgo/components/common_components.dart';
-import 'package:callandgo/components/custom_appbar.dart';
 import 'package:callandgo/components/simple_appbar.dart';
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
@@ -17,7 +16,7 @@ class FreightTripDetails extends StatelessWidget {
   final int index;
   FreightTripDetails({required this.freightTripModel, required this.index});
 
-  FreightTripController _freightTripController = Get.find();
+  final FreightTripController _freightTripController = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -88,14 +87,6 @@ class FreightTripDetails extends StatelessWidget {
           child: _buildTextInfoView(context),
         )
       ],
-    );
-  }
-
-  Widget _buildTextView() {
-    return CommonComponents().printText(
-      fontSize: 16,
-      textData: 'Ride Details',
-      fontWeight: FontWeight.bold,
     );
   }
 

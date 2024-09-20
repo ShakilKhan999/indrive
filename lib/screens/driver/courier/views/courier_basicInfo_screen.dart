@@ -1,8 +1,9 @@
+import 'package:callandgo/components/simple_appbar.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:callandgo/components/common_components.dart';
-import 'package:callandgo/components/custom_appbar.dart';
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/main.dart';
@@ -16,7 +17,7 @@ class CourierBasicinfoScreen extends StatelessWidget {
     fToast.init(context);
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: CustomAppbar(titleText: 'Basic info', onTap: () {}),
+      appBar: SimpleAppbar(titleText: 'Basic info'),
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(
             parent: BouncingScrollPhysics()),
@@ -76,7 +77,7 @@ class CourierBasicinfoScreen extends StatelessWidget {
       imgPath: _courierController.profilePhoto.value != ''
           ? _courierController.profilePhoto.value
           : 'assets/images/addPhotoLogo.png',
-      color: ColorHelper.primaryColor,
+      // color: ColorHelper.primaryColor,
       buttonText: 'Add a photo',
       onButtonPressed: () async {
         _courierController.uploadProfilePhoto();
@@ -154,10 +155,53 @@ class CourierBasicinfoScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CommonComponents().commonButton(
         onPressed: () {
-          Get.back();
+          fToast.init(Get.context!);
+          if (_courierController.profilePhoto.value == '') {
+            showToast(
+              toastText: "Profile photo is required",
+              toastColor: ColorHelper.red,
+            );
+          } else if (_courierController
+              .firstNameController.value.text.isEmpty) {
+            showToast(
+              toastText: "First name is required",
+              toastColor: ColorHelper.red,
+            );
+          } else if (_courierController.lastNameController.value.text.isEmpty) {
+            showToast(
+              toastText: "Last name is required",
+              toastColor: ColorHelper.red,
+            );
+          } else if (_courierController.emailController.value.text.isEmpty) {
+            showToast(
+              toastText: "Email is required",
+              toastColor: ColorHelper.red,
+            );
+          } else if (!_validateEmail(
+              _courierController.emailController.value.text)) {
+            showToast(
+              toastText: "Invalid email format",
+              toastColor: ColorHelper.red,
+            );
+          } else if (_courierController.selectedDate.value.isEmpty) {
+            showToast(
+              toastText: "Date of birth is required",
+              toastColor: ColorHelper.red,
+            );
+          } else {
+            Get.back(); // Proceed with form submission or navigation
+          }
         },
         text: 'Submit',
       ),
     );
+  }
+
+  bool _validateEmail(String email) {
+    // Simple email validation regex
+    String emailPattern =
+        r'^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$';
+    RegExp regExp = RegExp(emailPattern);
+    return regExp.hasMatch(email);
   }
 }

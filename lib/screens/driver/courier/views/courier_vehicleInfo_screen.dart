@@ -1,9 +1,11 @@
+import 'package:callandgo/components/simple_appbar.dart';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:dropdown_flutter/custom_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:callandgo/components/common_components.dart';
-import 'package:callandgo/components/custom_appbar.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/main.dart';
 import 'package:callandgo/screens/driver/courier/controller/courier_controller.dart';
@@ -16,7 +18,7 @@ class CourierVehicleinfoScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     fToast.init(context);
     return Scaffold(
-      appBar: CustomAppbar(titleText: 'Vehicle info', onTap: () {}),
+      appBar: SimpleAppbar(titleText: 'Vehicle info'),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(
@@ -46,7 +48,32 @@ class CourierVehicleinfoScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CommonComponents().commonButton(
         onPressed: () {
-          Get.back();
+          final carBrand = _courierController.selectedCarBrand.value;
+          final modelNumber =
+              _courierController.carModelNumberController.value.text;
+          final seatNumber = _courierController.selectedSeatNumber.value;
+          final carColor = _courierController.selectedCarColor.value;
+
+          if (carBrand.isEmpty) {
+            showToast(
+              toastText: "Please select a brand.",
+              toastColor: ColorHelper.red,
+            );
+          } else if (modelNumber.isEmpty) {
+            showToast(
+              toastText: "Please enter the model number.",
+              toastColor: ColorHelper.red,
+            );
+          } else if ((_courierController.vehicleType.value == 'car' ||
+                  _courierController.vehicleType.value == 'taxi') &&
+              (seatNumber.isEmpty || carColor.isEmpty)) {
+            showToast(
+              toastText: "Please select seat number and car color.",
+              toastColor: ColorHelper.red,
+            );
+          } else {
+            Get.back();
+          }
         },
         text: 'Submit',
       ),
@@ -133,29 +160,26 @@ class CourierVehicleinfoScreen extends StatelessWidget {
   }
 
   Widget _buildSeatAndColorRow() {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: _buildDropdownSearch(
-            textData: "Numbers of seat",
-            hintText: 'Select seat number',
-            items: _courierController.seatNumbers,
-            searchHintText: 'Search seat numbers...',
-            onChanged: (value) {
-              _courierController.selectedSeatNumber.value = value ?? '';
-            },
-          ),
+        _buildDropdownSearch(
+          textData: "Numbers of seat",
+          hintText: 'Select seat number',
+          items: _courierController.seatNumbers,
+          searchHintText: 'Search seat numbers...',
+          onChanged: (value) {
+            _courierController.selectedSeatNumber.value = value ?? '';
+          },
         ),
-        Expanded(
-          child: _buildDropdownSearch(
-            textData: "Colors of the car",
-            hintText: 'Select car color',
-            items: _courierController.carColors,
-            searchHintText: 'Search car colors...',
-            onChanged: (value) {
-              _courierController.selectedCarColor.value = value ?? '';
-            },
-          ),
+        SpaceHelper.verticalSpace10,
+        _buildDropdownSearch(
+          textData: "Colors of the car",
+          hintText: 'Select car color',
+          items: _courierController.carColors,
+          searchHintText: 'Search car colors...',
+          onChanged: (value) {
+            _courierController.selectedCarColor.value = value ?? '';
+          },
         ),
       ],
     );

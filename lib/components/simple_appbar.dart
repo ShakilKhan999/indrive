@@ -20,7 +20,7 @@ class SimpleAppbar extends StatelessWidget implements PreferredSizeWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             CommonComponents().printText(
-              fontSize: 15,
+              fontSize: 16,
               textData: titleText,
               fontWeight: FontWeight.bold,
             ),

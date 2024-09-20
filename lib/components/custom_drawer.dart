@@ -9,7 +9,6 @@ import 'package:callandgo/components/common_components.dart';
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/screens/auth_screen/controller/auth_controller.dart';
-import 'package:callandgo/screens/drawer_screen/my_ride_screen.dart';
 import 'package:callandgo/screens/freight_user/view/freight_request_screen.dart';
 import 'package:callandgo/screens/home/views/passenger_home.dart';
 import 'package:callandgo/screens/profile/views/choose_profile_screen.dart';
@@ -78,7 +77,9 @@ class CustomDrawer extends StatelessWidget {
     return Column(
       children: [
         buildDrawerItem(
-          icon: Icons.maps_home_work_sharp,
+          // icon: Icons.maps_home_work_sharp,
+          imagePath: "assets/images/location.png",
+          colorImg: ColorHelper.primaryColor,
           text: 'City',
           color: Colors.white,
           onTap: () {
@@ -87,7 +88,8 @@ class CustomDrawer extends StatelessWidget {
           },
         ),
         buildDrawerItem(
-          icon: Icons.maps_home_work_sharp,
+          // icon: Icons.maps_home_work_sharp,
+          imagePath: "assets/images/city_to_city.png",
           text: 'City to City',
           color: Colors.white,
           onTap: () {
@@ -101,7 +103,8 @@ class CustomDrawer extends StatelessWidget {
           },
         ),
         buildDrawerItem(
-          icon: Icons.fire_truck,
+          // icon: Icons.fire_truck,
+          imagePath: 'assets/images/freight.png',
           text: 'Freight',
           color: Colors.white,
           onTap: () {
@@ -115,7 +118,8 @@ class CustomDrawer extends StatelessWidget {
           },
         ),
         buildDrawerItem(
-          icon: Icons.fire_truck,
+          // icon: Icons.fire_truck,
+          imagePath: 'assets/images/courier.png',
           text: 'Courier',
           color: Colors.white,
           onTap: () {
@@ -124,15 +128,15 @@ class CustomDrawer extends StatelessWidget {
                 transition: Transition.rightToLeft);
           },
         ),
-        buildDrawerItem(
-          icon: Icons.timer_outlined,
-          text: 'Request history',
-          color: Colors.white,
-          onTap: () {
-            Get.back();
-            Get.to(() => MyRideScreen(), transition: Transition.rightToLeft);
-          },
-        ),
+        // buildDrawerItem(
+        //   icon: Icons.timer_outlined,
+        //   text: 'Request history',
+        //   color: Colors.white,
+        //   onTap: () {
+        //     Get.back();
+        //     Get.to(() => MyRideScreen(), transition: Transition.rightToLeft);
+        //   },
+        // ),
         // buildDrawerItem(
         //   icon: Icons.safety_check,
         //   text: 'Safety',
@@ -143,7 +147,8 @@ class CustomDrawer extends StatelessWidget {
         //   },
         // ),
         buildDrawerItem(
-          icon: Icons.logout_rounded,
+          // icon: Icons.logout_rounded,
+          imagePath: 'assets/images/logout.png',
           text: 'Logout',
           color: Colors.white,
           onTap: () {
@@ -244,16 +249,28 @@ class CustomDrawer extends StatelessWidget {
     );
   }
 
-  ListTile buildDrawerItem(
-      {required IconData icon,
-      required String text,
-      Color? color,
-      required GestureTapCallback onTap}) {
+  ListTile buildDrawerItem({
+    IconData? icon,
+    String? imagePath,
+    required String text,
+    Color? color,
+    Color? colorImg,
+    required GestureTapCallback onTap,
+  }) {
     return ListTile(
-      leading: Icon(
-        icon,
-        color: ColorHelper.whiteColor,
-      ),
+      leading: icon != null
+          ? Icon(
+              icon,
+              color: ColorHelper.whiteColor,
+            )
+          : (imagePath != null
+              ? Image.asset(
+                  imagePath,
+                  width: 28.w,
+                  height: 28.h,
+                  color: colorImg,
+                )
+              : null),
       title: Text(
         text,
         style: TextStyle(color: color),

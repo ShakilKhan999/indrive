@@ -5,9 +5,9 @@ import 'package:callandgo/components/simple_appbar.dart';
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import '../../../components/common_components.dart';
+import '../../../components/confirmation_dialog.dart';
 import '../../../models/courier_trip_model.dart';
 import '../controller/courier_trip_controller.dart';
-
 
 class CourierBidList extends StatelessWidget {
   CourierBidList({super.key});
@@ -107,8 +107,15 @@ class CourierBidList extends StatelessWidget {
       children: [
         InkWell(
           onTap: () {
-            _courierTripController.selectedBidIndex.value = index;
-            _courierTripController.declineBidForUser();
+            Get.back();
+            showConfirmationDialog(
+                title: 'Decline',
+                onPressConfirm: () async {
+                  _courierTripController.selectedBidIndex.value = index;
+                  _courierTripController.declineBidForUser();
+                },
+                onPressCancel: () => Get.back(),
+                controller: _courierTripController);
           },
           child: Container(
             height: 30.h,
@@ -127,8 +134,15 @@ class CourierBidList extends StatelessWidget {
         ),
         InkWell(
           onTap: () {
-            _courierTripController.selectedBidIndex.value = index;
-            _courierTripController.acceptRideForUser();
+            Get.back();
+            showConfirmationDialog(
+                title: 'Accept',
+                onPressConfirm: () async {
+                  _courierTripController.selectedBidIndex.value = index;
+                  _courierTripController.acceptRideForUser();
+                },
+                onPressCancel: () => Get.back(),
+                controller: _courierTripController);
           },
           child: Container(
             height: 30.h,

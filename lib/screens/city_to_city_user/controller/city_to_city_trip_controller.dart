@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geocoding/geocoding.dart';
@@ -345,7 +344,9 @@ class CityToCityTripController extends GetxController {
   void acceptRideForUser() async {
     try {
       fToast.init(Get.context!);
-      Get.back();
+
+      actionStarted.value = true;
+
       Map<String, dynamic> updateData = {
         'tripCurrentStatus': 'accepted',
         'isTripAccepted': true,
@@ -375,14 +376,19 @@ class CityToCityTripController extends GetxController {
           fieldsToUpdate: updateData,
           collection: cityToCityTripCollection);
       if (result) {
+        actionStarted.value = false;
+        Get.back();
         showToast(
             toastText: 'Ride accepted successfully',
             toastColor: ColorHelper.primaryColor);
       } else {
+        actionStarted.value = false;
+        Get.back();
         showToast(
             toastText: 'Ride accepting failed', toastColor: ColorHelper.red);
       }
     } catch (e) {
+      actionStarted.value = false;
       log("Error while accepting ride for user: $e");
       showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
     }
@@ -407,6 +413,7 @@ class CityToCityTripController extends GetxController {
   void declineBidForUser() async {
     try {
       fToast.init(Get.context!);
+      actionStarted.value = true;
       List<Bids> bids = removeBidFromBidListForUser();
       List<Map<String, dynamic>> newBids =
           bids.map((bid) => bid.toJson()).toList();
@@ -434,15 +441,21 @@ class CityToCityTripController extends GetxController {
       );
 
       if (result) {
+        actionStarted.value = false;
         showToast(
             toastText: 'Ride declined successfully',
             toastColor: ColorHelper.primaryColor);
         Get.back();
       } else {
+        actionStarted.value = false;
+        Get.back();
         showToast(
             toastText: 'Ride declining failed', toastColor: ColorHelper.red);
       }
-    } catch (e) {}
+    } catch (e) {
+      Get.back();
+      actionStarted.value = false;
+    }
   }
 
   List<Bids> removeBidFromBidListForUser() {
@@ -491,6 +504,7 @@ class CityToCityTripController extends GetxController {
   void acceptRide() async {
     try {
       fToast.init(Get.context!);
+      actionStarted.value = true;
       AuthController _authController = Get.find();
       Map<String, dynamic> updateData = {
         'tripCurrentStatus': 'accepted',
@@ -511,14 +525,18 @@ class CityToCityTripController extends GetxController {
           fieldsToUpdate: updateData,
           collection: cityToCityTripCollection);
       if (result) {
+        actionStarted.value = false;
+        Get.back();
         showToast(
             toastText: 'Ride accepted successfully',
             toastColor: ColorHelper.primaryColor);
       } else {
+        actionStarted.value = false;
         showToast(
             toastText: 'Ride accepting failed', toastColor: ColorHelper.red);
       }
     } catch (e) {
+      actionStarted.value = false;
       log("Error while accepting ride: $e");
       showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
     }
@@ -527,6 +545,7 @@ class CityToCityTripController extends GetxController {
   void declineRide() async {
     try {
       fToast.init(Get.context!);
+      actionStarted.value = true;
       AuthController _authController = Get.find();
       List<Bids> bids = [];
       if (checkUserAlreadyOfferedFare()) {
@@ -558,15 +577,18 @@ class CityToCityTripController extends GetxController {
       );
 
       if (result) {
+        actionStarted.value = false;
         showToast(
             toastText: 'Ride declined successfully',
             toastColor: ColorHelper.primaryColor);
         Get.back();
       } else {
+        actionStarted.value = false;
         showToast(
             toastText: 'Ride declining failed', toastColor: ColorHelper.red);
       }
     } catch (e) {
+      actionStarted.value = false;
       log("Error while accepting ride: $e");
       showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
     }
@@ -815,11 +837,6 @@ class CityToCityTripController extends GetxController {
     }
   }
 
-  final List<double> _rotations = [
-    0.0,
-    0.0,
-    0.0,
-  ];
   var allMarkers = <Marker>{}.obs;
   Future<void> loadMarkers({required CityToCityTripModel trip}) async {
     allMarkers.clear();

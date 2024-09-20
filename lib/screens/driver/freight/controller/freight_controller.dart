@@ -232,7 +232,24 @@ class FreightController extends GetxController {
     'Renault'
   ];
 
-  List<String> vehicleBrands = [];
+  // List<String> vehicleBrands = [];
+  List<String> vehicleBrands = [
+    'Ford',
+    'Chevrolet',
+    'Ram',
+    'GMC',
+    'Toyota',
+    'Nissan',
+    'Honda',
+    'Mack',
+    'Kenworth',
+    'Peterbilt',
+    'Freightliner',
+    'International',
+    'Volvo',
+    'Hino',
+    'Isuzu',
+  ];
 
   final List<String> seatNumbers = ["Small", "Medium", "Large"].obs;
   final List<String> carColors = ["Red", "Blue", "Black", "White", "Grey"].obs;
