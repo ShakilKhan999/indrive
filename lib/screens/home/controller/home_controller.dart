@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:callandgo/helpers/method_helper.dart';
 import 'package:callandgo/utils/database_collection_names.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -49,7 +50,7 @@ class HomeController extends GetxController {
     super.onInit();
     ever(thisDriver, (value) {
       if (thisDriver.isNotEmpty) {
-       // getPickupPolyline();
+        // getPickupPolyline();
       }
     });
   }
@@ -84,12 +85,11 @@ class HomeController extends GetxController {
   }
 
   updateAngle() {
-    AuthController authController = Get.find();
     Map<String, dynamic> data = {
       "vehicleAngle": double.parse(_direction!.toStringAsFixed(2)),
     };
     MethodHelper().updateDocFields(
-        docId: authController.currentUser.value.uid!,
+        docId: FirebaseAuth.instance.currentUser!.uid,
         fieldsToUpdate: data,
         collection: userCollection);
   }
@@ -103,20 +103,16 @@ class HomeController extends GetxController {
     polyLines.clear();
     polylineCoordinates.clear;
 
-    LatLng stPoint=
-    LatLng(
-    startPickedCenter.value.latitude, startPickedCenter.value.longitude);
+    LatLng stPoint = LatLng(
+        startPickedCenter.value.latitude, startPickedCenter.value.longitude);
 
-    LatLng endPoint=
-    LatLng(
-    destinationPickedCenter.value.latitude,
+    LatLng endPoint = LatLng(destinationPickedCenter.value.latitude,
         destinationPickedCenter.value.longitude);
     PolylinePoints polylinePoints = PolylinePoints();
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
       AppConfig.mapApiKey,
-
-      PointLatLng(stPoint.latitude,stPoint.longitude),
-      PointLatLng(endPoint.latitude,endPoint.longitude),
+      PointLatLng(stPoint.latitude, stPoint.longitude),
+      PointLatLng(endPoint.latitude, endPoint.longitude),
       travelMode: TravelMode.driving,
     );
     log("polyLineResponse: ${result.points.length}");
@@ -143,21 +139,21 @@ class HomeController extends GetxController {
     offerPriceController.text = minOfferPrice.value.toString();
   }
 
-
   getPickupPolyline() async {
     findingRoutes.value = true;
     polyLines.clear();
     polylineCoordinates.clear;
 
-    LatLng stPoint=LatLng(thisDriver[0].latLng.latitude,thisDriver[0].latLng.longitude);
+    LatLng stPoint =
+        LatLng(thisDriver[0].latLng.latitude, thisDriver[0].latLng.longitude);
 
-    LatLng endPoint=LatLng(startPickedCenter.value.latitude, startPickedCenter.value.longitude);
+    LatLng endPoint = LatLng(
+        startPickedCenter.value.latitude, startPickedCenter.value.longitude);
     PolylinePoints polylinePoints = PolylinePoints();
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
       AppConfig.mapApiKey,
-
-      PointLatLng(stPoint.latitude,stPoint.longitude),
-      PointLatLng(endPoint.latitude,endPoint.longitude),
+      PointLatLng(stPoint.latitude, stPoint.longitude),
+      PointLatLng(endPoint.latitude, endPoint.longitude),
       travelMode: TravelMode.driving,
     );
     log("polyLineResponse: ${result.points.length}");
@@ -301,10 +297,7 @@ class HomeController extends GetxController {
 
   void onMapCreated(GoogleMapController controller) {
     mapController = controller;
-
   }
-
-
 
   var changingPickup = false.obs;
   void onMapCreatedTo(GoogleMapController controller) {
@@ -513,7 +506,7 @@ class HomeController extends GetxController {
   var calledTrip = [].obs;
   var bidderList = [].obs;
 
-  int count=0;
+  int count = 0;
   Future<void> listenCalledTrip(String docId) async {
     PassengerRepository().listenToCalledTrip(docId).listen((snapshot) {
       calledTrip.clear();
@@ -719,7 +712,6 @@ class HomeController extends GetxController {
     }
   }
 
-
   var suggestions = [].obs;
   void onSearchTextChanged(String query) async {
     if (query.isNotEmpty) {
@@ -727,22 +719,20 @@ class HomeController extends GetxController {
       var response = await googlePlace.autocomplete.get(query);
       if (response != null) {
         AutocompletePrediction autocompletePrediction =
-        response.predictions![0];
+            response.predictions![0];
         log("placeDescription : ${autocompletePrediction.description}");
         var placeDetails = await googlePlace.details
             .get(autocompletePrediction.placeId.toString());
         log("LatLong: ${placeDetails!.result!.geometry!.location!.lat}");
         for (int i = 0; i < response.predictions!.length; i++) {
-            suggestions.add({
-              'placeId': response.predictions![i].placeId.toString(),
-              'description': response.predictions![i].description.toString(),
-            });
-
+          suggestions.add({
+            'placeId': response.predictions![i].placeId.toString(),
+            'description': response.predictions![i].description.toString(),
+          });
         }
       } else {
         log("Response is null");
       }
     }
   }
-
 }

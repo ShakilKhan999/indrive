@@ -72,8 +72,7 @@ class AuthController extends GetxController {
     FlutterCompass.events?.listen((CompassEvent event) {
       if (event.heading != null) {
         _direction = event.heading;
-      } else {
-      }
+      } else {}
     });
   }
 
@@ -155,6 +154,7 @@ class AuthController extends GetxController {
         );
       } else {
         isCheckingCurrentUser.value = false;
+        signOut();
       }
     } catch (e) {
       isCheckingCurrentUser.value = false;

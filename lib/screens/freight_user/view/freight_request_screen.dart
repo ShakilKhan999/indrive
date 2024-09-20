@@ -11,6 +11,7 @@ import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/method_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import '../../../components/confirmation_dialog.dart';
+import '../../../components/location_pick_bottom_sheet.dart';
 import '../../../components/simple_appbar.dart';
 import '../controller/freight_trip_controller.dart';
 import 'freight_bid_list.dart';
@@ -139,7 +140,6 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
                               : SizedBox()
                         ],
                       ),
-
                       SpaceHelper.verticalSpace10,
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -226,25 +226,6 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
                         ],
                       ),
                       SpaceHelper.verticalSpace10,
-                      // ListTile(
-
-                      //     contentPadding: EdgeInsets.zero,
-                      //     leading: Icon(Icons.radio_button_checked,
-                      //         color: ColorHelper.primaryColor),
-                      //     title: CommonComponents().printText(
-                      //         fontSize: 12,
-                      //         textData:
-                      //             '${_freightController.myTripListForUser[index].from!}',
-                      //         fontWeight: FontWeight.normal)),
-                      // ListTile(
-                      //     contentPadding: EdgeInsets.zero,
-                      //     leading: Icon(Icons.radio_button_checked,
-                      //         color: ColorHelper.blueColor),
-                      //     title: CommonComponents().printText(
-                      //         fontSize: 12,
-                      //         textData:
-                      //             '${_freightController.myTripListForUser[index].to!}',
-                      //         fontWeight: FontWeight.normal)),
                     ],
                   ),
                 ),
@@ -317,10 +298,8 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
                 children: [
                   SpaceHelper.verticalSpace10,
                   _buildTopImgView(),
-                  _buildTextFiledView('Pickup locationn',
-                      _freightController.pickUpController.value, true),
-                  _buildTextFiledView('Destination',
-                      _freightController.destinationController.value, false),
+                  _buildFromSelectView(),
+                  _buildToSelectView(),
                   _buildSelectionButtons(),
                   _buildDropdownFieldView('Select Size'),
                   SpaceHelper.verticalSpace10,
@@ -342,6 +321,66 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
     );
   }
 
+  Widget _buildFromSelectView() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.sp, 10.h, 16.sp, 0.sp),
+      child: GestureDetector(
+        onTap: () {
+          buildDestinationBottomSheet(
+              controller: _freightController, isFrom: true, from: 'freight');
+        },
+        child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 10.sp),
+            height: 45.h,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: ColorHelper.secondaryBgColor,
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CommonComponents().printText(
+                    fontSize: 16,
+                    textData: 'From: ' + _freightController.fromPlaceName.value,
+                    fontWeight: FontWeight.normal),
+              ],
+            )),
+      ),
+    );
+  }
+
+  Widget _buildToSelectView() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.sp, 10.h, 16.sp, 0.sp),
+      child: GestureDetector(
+        onTap: () {
+          buildDestinationBottomSheet(
+              controller: _freightController, isFrom: false, from: 'freight');
+        },
+        child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 10.sp),
+            height: 45.h,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: ColorHelper.secondaryBgColor,
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CommonComponents().printText(
+                    fontSize: 16,
+                    textData: 'To: ' + _freightController.toPlaceName.value,
+                    fontWeight: FontWeight.normal),
+              ],
+            )),
+      ),
+    );
+  }
+
   Widget _buildBottomButtom() {
     return Obx(
       () => CommonComponents().commonButton(
@@ -349,13 +388,12 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
           onPressed: () {
             fToast.init(Get.context!);
 
-            if (_freightController.pickUpController.value.text == '') {
+            if (_freightController.fromController.value.text == '') {
               showToast(
                 toastText: "Pickup location is required",
                 toastColor: ColorHelper.red,
               );
-            } else if (_freightController.destinationController.value.text ==
-                '') {
+            } else if (_freightController.toController.value.text == '') {
               showToast(
                 toastText: "Destination is required",
                 toastColor: ColorHelper.red,

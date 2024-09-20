@@ -889,4 +889,28 @@ class CityToCityTripController extends GetxController {
     allMarkers.addAll(markers);
     log("markers len: ${allMarkers.length}");
   }
+
+  var suggestions = [].obs;
+  void onSearchTextChanged(String query) async {
+    if (query.isNotEmpty) {
+      suggestions.clear();
+      var response = await googlePlace.autocomplete.get(query);
+      if (response != null) {
+        AutocompletePrediction autocompletePrediction =
+            response.predictions![0];
+        log("placeDescription : ${autocompletePrediction.description}");
+        var placeDetails = await googlePlace.details
+            .get(autocompletePrediction.placeId.toString());
+        log("LatLong: ${placeDetails!.result!.geometry!.location!.lat}");
+        for (int i = 0; i < response.predictions!.length; i++) {
+          suggestions.add({
+            'placeId': response.predictions![i].placeId.toString(),
+            'description': response.predictions![i].description.toString(),
+          });
+        }
+      } else {
+        log("Response is null");
+      }
+    }
+  }
 }

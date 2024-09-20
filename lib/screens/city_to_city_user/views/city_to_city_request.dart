@@ -10,9 +10,9 @@ import 'package:callandgo/helpers/method_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
 import 'package:callandgo/screens/city_to_city_user/views/bid_list.dart';
-import 'package:callandgo/screens/city_to_city_user/views/city_to_city_select_location.dart';
 
 import '../../../components/confirmation_dialog.dart';
+import '../../../components/location_pick_bottom_sheet.dart';
 
 class CityToCityRequest extends StatefulWidget {
   CityToCityRequest({super.key});
@@ -427,24 +427,81 @@ class _CityToCityRequestState extends State<CityToCityRequest>
           child: SingleChildScrollView(
             physics:
                 BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            child: Column(
-              children: [
-                SpaceHelper.verticalSpace10,
-                _buildTextFiledView('From',
-                    _cityToCityTripController.fromController.value, true),
-                _buildTextFiledView(
-                    'To', _cityToCityTripController.toController.value, false),
-                SpaceHelper.verticalSpace10,
-                _buildSelectableOptionsRow(),
-                SpaceHelper.verticalSpace10,
-                Obx(() => _buildSelectedOptionContainer(
-                    _cityToCityTripController.selectedOptionIndex.value,
-                    context)),
-                _buildTextFiledView(
-                    'Add description',
-                    _cityToCityTripController.addDescriptionController.value,
-                    null),
-              ],
+            child: Obx(
+              () => Column(
+                children: [
+                  SpaceHelper.verticalSpace10,
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16.sp, 10.h, 16.sp, 0.sp),
+                    child: GestureDetector(
+                      onTap: () {
+                        buildDestinationBottomSheet(
+                            controller: _cityToCityTripController,
+                            isFrom: true, from: 'city_to_city');
+                      },
+                      child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 10.sp),
+                          height: 45.h,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: ColorHelper.secondaryBgColor,
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CommonComponents().printText(
+                                  fontSize: 16,
+                                  textData: 'From: '+_cityToCityTripController
+                                      .fromPlaceName.value,
+                                  fontWeight: FontWeight.normal),
+                            ],
+                          )),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16.sp, 10.h, 16.sp, 0.sp),
+                    child: GestureDetector(
+                      onTap: () {
+                        buildDestinationBottomSheet(
+                            controller: _cityToCityTripController,
+                            isFrom: false, from: 'city_to_city');
+                      },
+                      child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 10.sp),
+                          height: 45.h,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: ColorHelper.secondaryBgColor,
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CommonComponents().printText(
+                                  fontSize: 16,
+                                  textData: 'To: '+_cityToCityTripController
+                                      .toPlaceName.value,
+                                  fontWeight: FontWeight.normal),
+                            ],
+                          )),
+                    ),
+                  ),
+                 
+                  SpaceHelper.verticalSpace10,
+                  _buildSelectableOptionsRow(),
+                  SpaceHelper.verticalSpace10,
+                  Obx(() => _buildSelectedOptionContainer(
+                      _cityToCityTripController.selectedOptionIndex.value,
+                      context)),
+                  _buildTextFiledView(
+                      'Add description',
+                      _cityToCityTripController.addDescriptionController.value,
+                      null),
+                ],
+              ),
             ),
           ),
         ),
@@ -549,17 +606,6 @@ class _CityToCityRequestState extends State<CityToCityRequest>
     return Padding(
       padding: EdgeInsets.fromLTRB(16.sp, 10.h, 16.sp, 0.sp),
       child: TextField(
-        onTap: () {
-          if (isFrom!) {
-            _cityToCityTripController.changingPickup.value = isFrom;
-            Get.to(() => CityToCitySelectLocation(),
-                transition: Transition.rightToLeft);
-          } else if (!isFrom) {
-            _cityToCityTripController.changingPickup.value = isFrom;
-            Get.to(() => CityToCitySelectLocation(),
-                transition: Transition.rightToLeft);
-          }
-        },
         controller: controller,
         style: TextStyle(color: Colors.white),
         decoration: InputDecoration(

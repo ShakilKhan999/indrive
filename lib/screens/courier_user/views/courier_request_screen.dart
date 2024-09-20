@@ -15,6 +15,7 @@ import 'package:callandgo/helpers/style_helper.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 
 import '../../../components/confirmation_dialog.dart';
+import '../../../components/location_pick_bottom_sheet.dart';
 import '../../../helpers/method_helper.dart';
 import 'courier_bid_list.dart';
 import 'courier_select_location.dart';
@@ -356,31 +357,31 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
             child: SingleChildScrollView(
               physics: BouncingScrollPhysics(
                   parent: AlwaysScrollableScrollPhysics()),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildOptionsView(),
-                  SpaceHelper.verticalSpace15,
-                  _buildTextFiledView('Pickup location',
-                      courierTripController.pickUpController.value, true),
-                  SpaceHelper.verticalSpace15,
-                  _buildTextFiledView('Destination location',
-                      courierTripController.destinationController.value, false),
-                  SpaceHelper.verticalSpace15,
-                  _buildOptionButton(Icons.door_front_door, 'Door to door'),
-                  SpaceHelper.verticalSpace15,
-                  _buildOderdeatilsView(),
-                  SpaceHelper.verticalSpace10,
-                  _buildTexfiledView(
-                    courierTripController.fareCourierController.value,
-                    'Offer your fare',
-                    prefixIcon: Icon(
-                      Icons.payment,
-                      color: Colors.grey,
+              child: Obx(
+                () => Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildOptionsView(),
+                    SpaceHelper.verticalSpace15,
+                    _buildFromSelectView(),
+                    SpaceHelper.verticalSpace15,
+                    _buildToSelectView(),
+                    SpaceHelper.verticalSpace15,
+                    _buildOptionButton(Icons.door_front_door, 'Door to door'),
+                    SpaceHelper.verticalSpace15,
+                    _buildOderdeatilsView(),
+                    SpaceHelper.verticalSpace10,
+                    _buildTexfiledView(
+                      courierTripController.fareCourierController.value,
+                      'Offer your fare',
+                      prefixIcon: Icon(
+                        Icons.payment,
+                        color: Colors.grey,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -435,13 +436,12 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
         onPressed: () {
           fToast.init(Get.context!);
 
-          if (courierTripController.pickUpController.value.text == '') {
+          if (courierTripController.toController.value.text == '') {
             showToast(
               toastText: "Pickup location is required",
               toastColor: ColorHelper.red,
             );
-          } else if (courierTripController.destinationController.value.text ==
-              '') {
+          } else if (courierTripController.fromController.value.text == '') {
             showToast(
               toastText: "Destination is required",
               toastColor: ColorHelper.red,
@@ -934,6 +934,61 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
           CommonComponents().customTab('My Ride', Icons.list),
         ],
       ),
+    );
+  }
+
+  Widget _buildFromSelectView() {
+    return GestureDetector(
+      onTap: () {
+        buildDestinationBottomSheet(
+            controller: courierTripController, isFrom: true, from: 'courier');
+      },
+      child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 10.sp),
+          height: 45.h,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: ColorHelper.secondaryBgColor,
+            borderRadius: BorderRadius.circular(8.r),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CommonComponents().printText(
+                  fontSize: 16,
+                  textData:
+                      'From: ' + courierTripController.fromPlaceName.value,
+                  fontWeight: FontWeight.normal),
+            ],
+          )),
+    );
+  }
+
+  Widget _buildToSelectView() {
+    return GestureDetector(
+      onTap: () {
+        buildDestinationBottomSheet(
+            controller: courierTripController, isFrom: false, from: 'courier');
+      },
+      child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 10.sp),
+          height: 45.h,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: ColorHelper.secondaryBgColor,
+            borderRadius: BorderRadius.circular(8.r),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CommonComponents().printText(
+                  fontSize: 16,
+                  textData: 'To: ' + courierTripController.toPlaceName.value,
+                  fontWeight: FontWeight.normal),
+            ],
+          )),
     );
   }
 }

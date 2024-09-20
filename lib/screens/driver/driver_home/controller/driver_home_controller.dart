@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -89,12 +90,11 @@ class DriverHomeController extends GetxController {
   }
 
   updateAngle() {
-    AuthController authController = Get.find();
     Map<String, dynamic> data = {
       "vehicleAngle": double.parse(_direction!.toStringAsFixed(2)),
     };
     MethodHelper().updateDocFields(
-        docId: authController.currentUser.value.uid!,
+        docId: FirebaseAuth.instance.currentUser!.uid,
         fieldsToUpdate: data,
         collection: userCollection);
   }
@@ -200,10 +200,8 @@ class DriverHomeController extends GetxController {
     DriverRepository()
         .listenToCall(authController.currentUser.value.uid!)
         .listen((event) {
-      activeCall.value = List.generate(
-          event.docs.length,
-          (index) =>
-              Trip.fromJson(event.docs[index].data()));
+      activeCall.value = List.generate(event.docs.length,
+          (index) => Trip.fromJson(event.docs[index].data()));
 
       if (activeCall.isNotEmpty) {
         // if(activeCall[0].accepted == true && activeCall[0].picked == false) {

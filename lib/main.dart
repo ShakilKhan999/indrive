@@ -1,10 +1,10 @@
+import 'package:callandgo/screens/auth_screen/views/register_screen.dart';
 import 'package:callandgo/screens/home/views/passenger_home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:callandgo/screens/auth_screen/views/register_screen.dart';
 import 'package:callandgo/utils/app_config.dart';
 import 'package:callandgo/utils/navigation_service.dart';
 import 'utils/firebase_option.dart';
@@ -44,9 +44,7 @@ class _MyAppState extends State<MyApp> {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        // home: DriverHomeScreen(),
-        // home: DriverCategoriesScreen(),
-        home: PassengerHomeScreen(),
+        home: RegisterScreen(),
         builder: (context, child) {
           return Overlay(
             initialEntries: [

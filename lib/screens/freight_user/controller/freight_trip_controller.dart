@@ -24,8 +24,8 @@ import '../repository/freight_trip_repository.dart';
 
 class FreightTripController extends GetxController {
   var changingPickup = false.obs;
-  var pickUpController = TextEditingController().obs;
-  var destinationController = TextEditingController().obs;
+  var fromController = TextEditingController().obs;
+  var toController = TextEditingController().obs;
   var offerFareController = TextEditingController().obs;
   var photoPath = ''.obs;
   var isPhotoLoading = false.obs;
@@ -132,10 +132,10 @@ class FreightTripController extends GetxController {
 
         if (destination) {
           toPlaceName.value = location;
-          destinationController.value.text = toPlaceName.value;
+          toController.value.text = toPlaceName.value;
         } else {
           fromPlaceName.value = location;
-          pickUpController.value.text = fromPlaceName.value;
+          fromController.value.text = fromPlaceName.value;
         }
       } else {
         log("Unknown place");
@@ -844,7 +844,7 @@ class FreightTripController extends GetxController {
     polyLines[id] = polyline;
     // moveCameraToPolyline();
   }
-  
+
   var allMarkers = <Marker>{}.obs;
   Future<void> loadMarkers({required FreightTripModel trip}) async {
     allMarkers.clear();
@@ -894,5 +894,29 @@ class FreightTripController extends GetxController {
     }).toSet();
     allMarkers.addAll(markers);
     log("markers len: ${allMarkers.length}");
+  }
+
+  var suggestions = [].obs;
+  void onSearchTextChanged(String query) async {
+    if (query.isNotEmpty) {
+      suggestions.clear();
+      var response = await googlePlace.autocomplete.get(query);
+      if (response != null) {
+        AutocompletePrediction autocompletePrediction =
+            response.predictions![0];
+        log("placeDescription : ${autocompletePrediction.description}");
+        var placeDetails = await googlePlace.details
+            .get(autocompletePrediction.placeId.toString());
+        log("LatLong: ${placeDetails!.result!.geometry!.location!.lat}");
+        for (int i = 0; i < response.predictions!.length; i++) {
+          suggestions.add({
+            'placeId': response.predictions![i].placeId.toString(),
+            'description': response.predictions![i].description.toString(),
+          });
+        }
+      } else {
+        log("Response is null");
+      }
+    }
   }
 }
