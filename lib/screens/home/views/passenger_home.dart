@@ -59,10 +59,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if(homeController.riderFound.value)
-      {
-        homeController.getPickupPolyline();
-      }
+
     return Scaffold(
       key: scaffoldKey,
       drawer: CustomDrawer(),

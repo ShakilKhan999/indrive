@@ -54,8 +54,6 @@ class HomeController extends GetxController {
     });
   }
 
-
-
   final TextEditingController destinationController = TextEditingController();
   final TextEditingController offerPriceController = TextEditingController();
   GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
@@ -123,6 +121,7 @@ class HomeController extends GetxController {
     );
     log("polyLineResponse: ${result.points.length}");
     if (result.points.isNotEmpty) {
+      polylineCoordinates.clear();
       for (var point in result.points) {
         polylineCoordinates.add(LatLng(point.latitude, point.longitude));
       }
@@ -164,6 +163,7 @@ class HomeController extends GetxController {
     );
     log("polyLineResponse: ${result.points.length}");
     if (result.points.isNotEmpty) {
+      polylineCoordinates.clear();
       for (var point in result.points) {
         polylineCoordinates.add(LatLng(point.latitude, point.longitude));
       }
@@ -537,6 +537,8 @@ class HomeController extends GetxController {
               orElse: () => null);
           thisDriver.add(myRider);
           tripCalled.value = false;
+          calledTrip[0].picked?getPolyline():
+          getPickupPolyline();
         }
       } else {
         log('Document does not exist');
