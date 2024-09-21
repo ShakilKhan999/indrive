@@ -14,11 +14,35 @@
       },
       "oauth_client": [
         {
-          "client_id": "59849463899-3cc0lbfrjm2etsidvrutddf2jd6v845c.apps.googleusercontent.com",
+          "client_id": "59849463899-2amevlh8eqdr85fcbm7gonof7n1083vs.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.callandgo.apps",
             "certificate_hash": "acd369b467bf5e9b37df851f50df1d3692e94509"
+          }
+        },
+        {
+          "client_id": "59849463899-6kjfqee4fjbc0u5e4s2aii14p75613ru.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.callandgo.apps",
+            "certificate_hash": "73a9f7f999bf955e8028754bc6efa304ea325d19"
+          }
+        },
+        {
+          "client_id": "59849463899-9qhum5pv3ursdo9hupva9p69i9depqfq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.callandgo.apps",
+            "certificate_hash": "355ae00b79bb81fc4265fafa1bc6cbd7b560dfd1"
+          }
+        },
+        {
+          "client_id": "59849463899-gcsftmrhv24j2cif70rotcr5sv3pm9lf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.callandgo.apps",
+            "certificate_hash": "879b01cf706f2ff78eaa7646e331459083e79890"
           }
         },
         {

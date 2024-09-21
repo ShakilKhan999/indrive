@@ -1,3 +1,4 @@
+import 'package:callandgo/helpers/style_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -195,7 +196,7 @@ class DriverHomeScreen extends StatelessWidget {
           ),
           Align(
               alignment: Alignment.center,
-              child: Obx(() => driverHomeController.myActiveTrips.isEmpty
+              child: Obx(() => driverHomeController.myActiveTrips.isEmpty || driverHomeController.activeCall.isNotEmpty
                   ? SizedBox()
                   : Container(
                       width: 300.w,
@@ -207,8 +208,10 @@ class DriverHomeScreen extends StatelessWidget {
                         physics: NeverScrollableScrollPhysics(),
                         itemCount: driverHomeController.myActiveTrips.length,
                         itemBuilder: (BuildContext context, int index) {
-                          var bid = driverHomeController.myActiveTrips[index];
-
+                          var trip = driverHomeController.myActiveTrips[index];
+                          var bid = trip.bids.firstWhere((mybid) =>
+                          mybid.driverId ==
+                              _authController.currentUser.value.uid);
                           return Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Column(
@@ -216,7 +219,7 @@ class DriverHomeScreen extends StatelessWidget {
                                   SizedBox(
                                     height: 60.h,
                                     width: 300.w,
-                                    child: bid.bids.any((mybid) =>
+                                    child: trip.bids.any((mybid) =>
                                             mybid.driverId ==
                                                 _authController.currentUser.value.uid &&
                                             mybid.offerPrice != null)
@@ -232,7 +235,7 @@ class DriverHomeScreen extends StatelessWidget {
                                               CommonComponents().printText(
                                                   fontSize: 12,
                                                   textData:
-                                                      "To: " + bid.destination,
+                                                      "To: " + trip.destination,
                                                   fontWeight: FontWeight.bold),
                                               SpaceHelper.verticalSpace5,
                                               Row(
@@ -247,30 +250,38 @@ class DriverHomeScreen extends StatelessWidget {
                                                     child: SizedBox(
                                                       height: 30.h,
                                                       width: 50.w,
-                                                      child: TextField(
+                                                      child: Obx(()=>driverHomeController.offeringTrip.value==trip.tripId && driverHomeController.addingOffer.value ?
+                                                      TextField(
                                                         style: TextStyle(
                                                             color: Colors.white,
                                                             fontSize: 15.sp),
                                                         decoration:
-                                                            InputDecoration(
+                                                        InputDecoration(
                                                           hintText:
-                                                              "Offered ${bid.rent.toString()}",
+                                                          "${trip.rent.toString()}",
                                                           hintStyle: TextStyle(
                                                               color:
-                                                                  Colors.white),
+                                                              Colors.grey),
                                                           border: InputBorder
                                                               .none, // No border
                                                         ),
                                                         controller:
-                                                            driverHomeController
-                                                                .offerPriceController,
-                                                      ),
+                                                        driverHomeController
+                                                            .offerPriceController,
+                                                      ):
+                                                      GestureDetector(
+                                                          onTap: (){
+                                                            driverHomeController.addingOffer.value=true;
+                                                            driverHomeController.offeringTrip.value=trip.tripId;
+                                                          },
+                                                          child: Text(" ${trip.rent.toString()} \$",style: StyleHelper.regular14,))
+                                                      ,)
                                                     ),
                                                   ),
                                                   IconButton(
                                                       onPressed: () {
                                                         DriverRepository().offerRent(
-                                                            tripId: bid.tripId,
+                                                            tripId: trip.tripId,
                                                             driverId:
                                                                 _authController.currentUser.value.uid!,
                                                             rent: double.parse(
@@ -288,9 +299,9 @@ class DriverHomeScreen extends StatelessWidget {
                                                           onPressed: () async{
                                                             await DriverRepository()
                                                                 .AcceptTrip(
-                                                                    bid.tripId,
+                                                                trip.tripId,
                                                                     _authController.currentUser.value.uid!,
-                                                                    bid.rent);
+                                                                trip.rent);
                                                             driverHomeController
                                                                 .listenCall();
                                                             driverHomeController.getPolyline(picking: true);

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,9 @@ class DriverHomeController extends GetxController {
   var cameraMoving = false.obs;
   var center = const LatLng(23.80, 90.41).obs;
 
+  var addingOffer=false.obs;
+  var offeringTrip="".obs;
+
   final TextEditingController offerPriceController = TextEditingController();
 
   GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
@@ -35,7 +39,6 @@ class DriverHomeController extends GetxController {
   void onInit() {
     polyLines.clear();
     polylineCoordinates.clear();
-
     authController.getUserData();
     getUserLocation();
     getAngle();
@@ -105,6 +108,9 @@ class DriverHomeController extends GetxController {
 
   void listenToTrips(String driverId) {
     DriverRepository().getTripsByDriverId(driverId).listen((trips) {
+      offerPriceController.text="";
+      //editingIndex.value=1000;
+      addingOffer.value=false;
       myActiveTrips.clear();
       myActiveTrips.addAll(trips);
       // Additional logic here if needed, like updating UI
@@ -204,15 +210,19 @@ class DriverHomeController extends GetxController {
           (index) => Trip.fromJson(event.docs[index].data()));
 
       if (activeCall.isNotEmpty) {
-        // if(activeCall[0].accepted == true && activeCall[0].picked == false) {
-        //   getPolyline(picking: true);
-        // }
+        if(activeCall[0].userCancel == true) {
+
+        }
         // else if (activeCall[0].accepted == true && activeCall[0].picked == true) {
         //   getPolyline(picking: false);
         // }
 
         //playSound();
       } else {
+        log("cancelled by user");
+        polylineCoordinates.clear();
+        polyLines.clear();
+        showToast(toastText: "User cancelled this trip");
         // audioPlayer.stop();
         // audioPlayer.dispose();
       }

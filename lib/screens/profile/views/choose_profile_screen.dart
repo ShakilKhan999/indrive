@@ -95,7 +95,6 @@ class ChooseProfileScreen extends StatelessWidget {
 
                           if (_profileController.cityRiderStatus.value.status ==
                               'Registration completed') {
-                          
                           } else if (_profileController
                                   .cityRiderStatus.value.status ==
                               'Not Registered') {
@@ -378,9 +377,7 @@ class ChooseProfileScreen extends StatelessWidget {
         color: Colors.white,
         child: CommonComponents().printText(
             fontSize: 20,
-            textData: FirebaseAuth.instance.currentUser != null
-                ? FirebaseAuth.instance.currentUser!.displayName!
-                : 'Name',
+            textData: _authController.currentUser.value.name!,
             fontWeight: FontWeight.bold),
       ),
       backgroundColor: ColorHelper.blackColor,

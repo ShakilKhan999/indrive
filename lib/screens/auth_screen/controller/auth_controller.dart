@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
+import 'package:callandgo/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,6 @@ class AuthController extends GetxController {
   void onInit() {
     super.onInit();
     checkCurrentUser();
-    getAngle();
     log('date time: ${DateTime.now().toString()}');
   }
 
@@ -67,14 +67,6 @@ class AuthController extends GetxController {
   var isUserDataSaving = false.obs;
   var isDriverMode = false.obs;
   double? _direction;
-
-  void getAngle() {
-    FlutterCompass.events?.listen((CompassEvent event) {
-      if (event.heading != null) {
-        _direction = event.heading;
-      } else {}
-    });
-  }
 
   getUserData() async {
     if (FirebaseAuth.instance.currentUser != null) {
@@ -124,31 +116,36 @@ class AuthController extends GetxController {
           const Duration(milliseconds: 500),
           () async {
             UserModel? userModel = await getCurrentUser();
-            currentUser.value = userModel!;
-            if (userModel.isDriverMode!) {
-              await MethodHelper()
-                  .listerUserData(
-                      userId: FirebaseAuth.instance.currentUser!.uid)
-                  .listen(
-                (userData) {
-                  currentUser.value = userData;
-                },
-              );
-              Get.offAll(() => DriverHomeScreen(),
-                  transition: Transition.rightToLeft);
+            if (userModel == null) {
               isCheckingCurrentUser.value = false;
+              signOut();
             } else {
-              await MethodHelper()
-                  .listerUserData(
-                      userId: FirebaseAuth.instance.currentUser!.uid)
-                  .listen(
-                (userData) {
-                  currentUser.value = userData;
-                },
-              );
-              Get.offAll(() => const PassengerHomeScreen(),
-                  transition: Transition.rightToLeft);
-              isCheckingCurrentUser.value = false;
+              currentUser.value = userModel;
+              if (userModel.isDriverMode!) {
+                await MethodHelper()
+                    .listerUserData(
+                        userId: FirebaseAuth.instance.currentUser!.uid)
+                    .listen(
+                  (userData) {
+                    currentUser.value = userData;
+                  },
+                );
+                Get.offAll(() => DriverHomeScreen(),
+                    transition: Transition.rightToLeft);
+                isCheckingCurrentUser.value = false;
+              } else {
+                await MethodHelper()
+                    .listerUserData(
+                        userId: FirebaseAuth.instance.currentUser!.uid)
+                    .listen(
+                  (userData) {
+                    currentUser.value = userData;
+                  },
+                );
+                Get.offAll(() => const PassengerHomeScreen(),
+                    transition: Transition.rightToLeft);
+                isCheckingCurrentUser.value = false;
+              }
             }
           },
         );
@@ -374,11 +371,23 @@ class AuthController extends GetxController {
     }
   }
 
+  void getAngle() {
+    FlutterCompass.events?.listen((CompassEvent event) {
+      if (event.heading != null) {
+        _direction = event.heading;
+      } else {
+        print('Device does not have a compass');
+      }
+    });
+  }
+
   Future saveUserData(
       {required UserInfo userInfo, required String loginType}) async {
     try {
       isUserDataSaving.value = true;
+      getAngle();
       UserModel? userModel;
+      fToast.init(Get.context!);
       if (loginType == 'phone') {
         userModel = UserModel(
           uid: FirebaseAuth.instance.currentUser!.uid,
@@ -390,7 +399,9 @@ class AuthController extends GetxController {
           phone: '+${countryCode.value}${phoneNumbercontroller.value.text}',
           signInWith: 'phone',
           vehicleType: null,
-          vehicleAngle: double.parse(_direction!.toStringAsFixed(2)),
+          vehicleAngle: _direction != null
+              ? double.parse(_direction!.toStringAsFixed(2))
+              : null,
           latLng: null,
           isDriverMode: isDriverMode.value,
           driverStatus: null,

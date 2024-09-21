@@ -45,7 +45,7 @@ class HomeController extends GetxController {
   void onInit() {
     AuthController authController = Get.put(AuthController());
     authController.getUserData();
-    getAngle();
+    // getAngle();
     getDriverList();
     super.onInit();
     ever(thisDriver, (value) {
@@ -117,6 +117,7 @@ class HomeController extends GetxController {
     );
     log("polyLineResponse: ${result.points.length}");
     if (result.points.isNotEmpty) {
+      polylineCoordinates.clear();
       for (var point in result.points) {
         polylineCoordinates.add(LatLng(point.latitude, point.longitude));
       }
@@ -158,6 +159,7 @@ class HomeController extends GetxController {
     );
     log("polyLineResponse: ${result.points.length}");
     if (result.points.isNotEmpty) {
+      polylineCoordinates.clear();
       for (var point in result.points) {
         polylineCoordinates.add(LatLng(point.latitude, point.longitude));
       }
@@ -506,9 +508,12 @@ class HomeController extends GetxController {
   var calledTrip = [].obs;
   var bidderList = [].obs;
 
-  int count = 0;
+  int count=0;
+
+  StreamSubscription? _tripSubscription;
+
   Future<void> listenCalledTrip(String docId) async {
-    PassengerRepository().listenToCalledTrip(docId).listen((snapshot) {
+    _tripSubscription = PassengerRepository().listenToCalledTrip(docId).listen((snapshot) {
       calledTrip.clear();
       bidderList.clear();
       if (snapshot.exists) {
@@ -524,15 +529,25 @@ class HomeController extends GetxController {
           riderFound.value = true;
           thisDriver.clear();
           var myRider = sortedDriverList.firstWhere(
-              (driver) => driver.uid == calledTrip[0].driverId,
+                  (driver) => driver.uid == calledTrip[0].driverId,
               orElse: () => null);
           thisDriver.add(myRider);
           tripCalled.value = false;
+          calledTrip[0].picked ? getPolyline() : getPickupPolyline();
         }
       } else {
         log('Document does not exist');
       }
     });
+  }
+
+// Method to stop the listener
+  void stopListeningToCalledTrip() {
+    if (_tripSubscription != null) {
+      _tripSubscription!.cancel();
+      _tripSubscription = null;
+      log('Stopped listening to the trip updates');
+    }
   }
 
   var tripCalled = false.obs;
@@ -542,7 +557,11 @@ class HomeController extends GetxController {
 
   var tempTripId = "";
 
+
+
   Future<void> callTrip() async {
+
+    String polyline= await PassengerRepository().getPolylineFromGoogleMap(startPickedCenter.value, destinationPickedCenter.value);
     sortedDriverList.clear();
     sortedDriverList
         .addAll(sortDriversByDistance(driverList, startPickedCenter.value));
@@ -565,6 +584,7 @@ class HomeController extends GetxController {
     tempTripId = tripId;
     Trip trip = Trip(
         userId: "8mCWZ9uBrWME2Bfm9YOCvb0U2EJ3",
+        polyLineEncoded: polyline,
         rent: int.parse(offerPriceController.text),
         bids: bidList.map((e) => e as Bid).toList(),
         driverId: "",

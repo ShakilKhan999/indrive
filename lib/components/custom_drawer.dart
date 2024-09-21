@@ -15,6 +15,7 @@ import 'package:callandgo/screens/profile/views/choose_profile_screen.dart';
 
 import '../screens/city_to_city_user/views/city_to_city_request.dart';
 import '../screens/courier_user/views/courier_request_screen.dart';
+import '../screens/drawer_screen/my_ride_screen.dart';
 
 class CustomDrawer extends StatelessWidget {
   CustomDrawer({super.key});
@@ -128,24 +129,24 @@ class CustomDrawer extends StatelessWidget {
                 transition: Transition.rightToLeft);
           },
         ),
-        // buildDrawerItem(
-        //   icon: Icons.timer_outlined,
-        //   text: 'Request history',
-        //   color: Colors.white,
-        //   onTap: () {
-        //     Get.back();
-        //     Get.to(() => MyRideScreen(), transition: Transition.rightToLeft);
-        //   },
-        // ),
-        // buildDrawerItem(
-        //   icon: Icons.safety_check,
-        //   text: 'Safety',
-        //   color: Colors.white,
-        //   onTap: () {
-        //     // Get.offAll(() =>
-        //     //     transition: Transition.rightToLeft);
-        //   },
-        // ),
+        buildDrawerItem(
+          icon: Icons.timer_outlined,
+          text: 'Request history',
+          color: Colors.white,
+          onTap: () {
+            Get.back();
+            Get.to(() => MyRideScreen(), transition: Transition.rightToLeft);
+          },
+        ),
+        buildDrawerItem(
+          icon: Icons.safety_check,
+          text: 'Safety',
+          color: Colors.white,
+          onTap: () {
+            // Get.offAll(() =>
+            //     transition: Transition.rightToLeft);
+          },
+        ),
         buildDrawerItem(
           // icon: Icons.logout_rounded,
           imagePath: 'assets/images/logout.png',
