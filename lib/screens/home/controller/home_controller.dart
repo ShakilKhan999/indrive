@@ -45,7 +45,7 @@ class HomeController extends GetxController {
   void onInit() {
     AuthController authController = Get.put(AuthController());
     authController.getUserData();
-    // getAngle();
+    getAngle();
     getDriverList();
     super.onInit();
     ever(thisDriver, (value) {
