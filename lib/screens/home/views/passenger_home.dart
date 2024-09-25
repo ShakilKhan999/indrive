@@ -189,7 +189,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
             ),
             Align(
                 alignment: Alignment.center,
-                child: Obx(() => homeController.bidderList.isEmpty
+                child: Obx(() => homeController.bidderList.isEmpty || homeController.calledTrip.isNotEmpty
                     ? SizedBox()
                     : Container(
                         width: 300.w,
