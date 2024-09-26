@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:callandgo/screens/home/views/ride_progress.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -503,33 +504,9 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                             : SizedBox(),
                       ],
                     ),
-                    Stack(
-                      alignment: Alignment.centerLeft,
-                      children: [
-                        SizedBox(
-                          height: 60.h,
-                        ),
-                        Container(
-                          width: double.infinity,
-                          height: 10.0,
-                          child: LinearProgressIndicator(
-                            value: progress,
-                            backgroundColor: Colors.lightBlueAccent,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              ColorHelper.primaryColor,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          left: 0.0,
-                          child: Image.asset(
-                            'assets/images/car.png',
-                            width: 50.w,
-                            height: 50.h,
-                          ),
-                        ),
-                      ],
-                    ),
+                    ProgressStack(
+                      start: LatLng(homeController.calledTrip[0].pickLatLng.latitude, homeController.calledTrip[0].pickLatLng.longitude),
+                      destination: LatLng(homeController.calledTrip[0].dropLatLng.latitude, homeController.calledTrip[0].dropLatLng.longitude),),
                     CommonComponents().printText(
                         fontSize: 18,
                         textData:

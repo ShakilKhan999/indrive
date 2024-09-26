@@ -42,10 +42,10 @@ class HomeController extends GetxController {
   var startPickedCenter = const LatLng(23.80, 90.41).obs;
 
   var previousTrips=[].obs;
-
+  AuthController authController = Get.put(AuthController());
   @override
   void onInit() {
-    AuthController authController = Get.put(AuthController());
+
     authController.getUserData();
     getAngle();
     getDriverList();
@@ -565,7 +565,9 @@ class HomeController extends GetxController {
     String tripId = generateUniqueId();
     tempTripId = tripId;
     Trip trip = Trip(
-        userId: "8mCWZ9uBrWME2Bfm9YOCvb0U2EJ3",
+        userId: authController.currentUser.value.uid,
+        userName: authController.currentUser.value.name,
+        userImage: authController.currentUser.value.photo,
         polyLineEncoded: polyline,
         rent: int.parse(offerPriceController.text),
         bids: bidList.map((e) => e as Bid).toList(),

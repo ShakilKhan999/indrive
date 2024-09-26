@@ -62,6 +62,8 @@ class Trip {
   String tripId;
   String? polyLineEncoded;
   String? userId;
+  String? userName;
+  String? userImage;
   String? driverId;
   String? destination;
   GeoPoint? pickLatLng;
@@ -77,6 +79,8 @@ class Trip {
   Trip({
     required this.tripId,
     this.userId,
+    this.userName,
+    this.userImage,
     this.polyLineEncoded,
     this.rent,
     this.driverId,
@@ -98,6 +102,8 @@ class Trip {
       polyLineEncoded: json['polyLineEncoded']==null?null: json['polyLineEncoded'] as String,
       rent: json['rent'] as int,
       userId: json['userId'] as String?,
+      userName: json['userName'] as String?,
+      userImage: json['userImage'] as String?,
       driverId: json['driverId'] as String?,
       destination: json['destination'] as String?,
       pickLatLng:
@@ -122,6 +128,8 @@ class Trip {
       'polyLineEncoded': polyLineEncoded,
       'rent': rent,
       'userId': userId,
+      'userName': userName,
+      'userImage': userImage,
       'driverId': driverId,
       'destination': destination,
       'pickLatLng': pickLatLng,
