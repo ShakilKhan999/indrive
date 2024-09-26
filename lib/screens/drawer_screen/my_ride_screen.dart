@@ -1,8 +1,13 @@
+import 'package:callandgo/screens/home/controller/home_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:callandgo/components/common_components.dart';
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
+import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import '../home/views/list_map.dart';
 
 class MyRideScreen extends StatelessWidget {
   const MyRideScreen({super.key});
@@ -27,6 +32,7 @@ class MyRideScreen extends StatelessWidget {
   }
 
   Widget _buildListView() {
+    HomeController homeController=Get.find();
     List<Map<String, String>> rideHistory = [
       {
         "mapImage": "Map Image",
@@ -38,9 +44,9 @@ class MyRideScreen extends StatelessWidget {
 
     return Expanded(
       child: ListView.builder(
-        itemCount: rideHistory.length,
+        itemCount: homeController.previousTrips.length,
         itemBuilder: (context, index) {
-          final ride = rideHistory[index];
+          final ride = homeController.previousTrips[index];
           return Container(
             margin: EdgeInsets.symmetric(vertical: 8.h),
             width: double.infinity,
@@ -54,6 +60,7 @@ class MyRideScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SpaceHelper.verticalSpace15,
+                  // Conditional rendering of Map or Text
                   Container(
                     height: 100.h,
                     width: double.infinity,
@@ -61,28 +68,40 @@ class MyRideScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(6.r),
                       color: Colors.red,
                     ),
-                    child: Center(child: Text(ride["mapImage"]!)),
+                    child: ride.polyLineEncoded == null || ride.polyLineEncoded!.isEmpty
+                        ? Center(
+                      child: Text(
+                        "Route not available there\nView Detail",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    )
+                        : MapWidget(polyLineEncoded: ride.polyLineEncoded!),
                   ),
                   SpaceHelper.verticalSpace5,
                   CommonComponents().printText(
-                      fontSize: 16,
-                      textData: ride["placeName"]!,
-                      fontWeight: FontWeight.bold),
+                    fontSize: 16,
+                    textData: ride.destination!,
+                    fontWeight: FontWeight.bold,
+                  ),
                   SpaceHelper.verticalSpace5,
                   CommonComponents().printText(
-                      fontSize: 14,
-                      textData: ride["time"]!,
-                      fontWeight: FontWeight.w500),
+                    fontSize: 14,
+                    textData: ride.dropped ? "Ride Completed" : "Ride Cancelled",
+                    fontWeight: FontWeight.w500,
+                  ),
                   SpaceHelper.verticalSpace5,
                   CommonComponents().printText(
-                      fontSize: 14,
-                      textData: ride["cost"]!,
-                      fontWeight: FontWeight.w500),
+                    fontSize: 14,
+                    textData: ride.rent.toString() + " \$",
+                    fontWeight: FontWeight.w500,
+                  ),
                   SpaceHelper.verticalSpace10,
                 ],
               ),
             ),
-          );
+          )
+          ;
         },
       ),
     );

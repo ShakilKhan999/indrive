@@ -41,12 +41,15 @@ class HomeController extends GetxController {
   var destinationPickedCenter = const LatLng(23.80, 90.41).obs;
   var startPickedCenter = const LatLng(23.80, 90.41).obs;
 
+  var previousTrips=[].obs;
+
   @override
   void onInit() {
     AuthController authController = Get.put(AuthController());
     authController.getUserData();
     getAngle();
     getDriverList();
+    getPrevTrips();
     super.onInit();
     ever(thisDriver, (value) {
       if (thisDriver.isNotEmpty) {
@@ -202,70 +205,55 @@ class HomeController extends GetxController {
   Future<void> loadMarkers() async {
     await Future.delayed(const Duration(seconds: 1));
     final BitmapDescriptor markerIconCar =
-        await BitmapDescriptor.fromAssetImage(
+    await BitmapDescriptor.fromAssetImage(
       const ImageConfiguration(size: Size(24, 24)),
       'assets/images/marker.png',
     );
     final BitmapDescriptor markerIconMoto =
-        await BitmapDescriptor.fromAssetImage(
+    await BitmapDescriptor.fromAssetImage(
       const ImageConfiguration(size: Size(24, 24)),
       'assets/images/motoMarker.png',
     );
     final BitmapDescriptor markerIconCng =
-        await BitmapDescriptor.fromAssetImage(
+    await BitmapDescriptor.fromAssetImage(
       const ImageConfiguration(size: Size(24, 24)),
       'assets/images/taxiMarker.png',
     );
-    var carListToMarked = cardriverMarkerList;
-    var motoListToMarked = motodriverMarkerList;
-    var cngListToMarked = cngdriverMarkerList;
 
     if (selectedVehicle.value == "car") {
-      Set<Marker> markers = carListToMarked.value.asMap().entries.map((entry) {
-        int idx = entry.key;
-        LatLng location = entry.value;
-        double rotation =
-            _rotations[idx % _rotations.length]; // Cycle through rotations
-
+      Set<Marker> markers = cardriverMarkerList.value.map((driver) {
+        LatLng latLng = LatLng(driver.latLng.latitude, driver.latLng.longitude); // Extract LatLng from driver
         return Marker(
-          markerId: MarkerId(location.toString()),
-          position: location,
+          markerId: MarkerId(latLng.toString()),
+          position: latLng,
           icon: markerIconCar,
-          rotation: rotation,
+          rotation: driver.vehicleAngle??0.0, // Use vehicleAngle for rotation
         );
       }).toSet();
 
       allMarkers.value = markers;
       log("car marker length: ${allMarkers.length}");
     } else if (selectedVehicle.value == "moto") {
-      Set<Marker> markers = motoListToMarked.value.asMap().entries.map((entry) {
-        int idx = entry.key;
-        LatLng location = entry.value;
-        double rotation =
-            _rotations[idx % _rotations.length]; // Cycle through rotations
-
+      Set<Marker> markers = motodriverMarkerList.value.map((driver) {
+        LatLng latLng = LatLng(driver.latLng.latitude, driver.latLng.longitude); // Extract LatLng from driver
         return Marker(
-          markerId: MarkerId(location.toString()),
-          position: location,
+          markerId: MarkerId(latLng.toString()),
+          position: latLng,
           icon: markerIconMoto,
-          rotation: rotation,
+          rotation: driver.vehicleAngle??0.0, // Use vehicleAngle for rotation
         );
       }).toSet();
 
       allMarkers.value = markers;
       log("moto marker length: ${allMarkers.length}");
     } else if (selectedVehicle.value == "cng") {
-      Set<Marker> markers = cngListToMarked.value.asMap().entries.map((entry) {
-        int idx = entry.key;
-        LatLng location = entry.value;
-        double rotation =
-            _rotations[idx % _rotations.length]; // Cycle through rotations
-
+      Set<Marker> markers = cngdriverMarkerList.value.map((driver) {
+        LatLng latLng = LatLng(driver.latLng.latitude, driver.latLng.longitude); // Extract LatLng from driver
         return Marker(
-          markerId: MarkerId(location.toString()),
-          position: location,
+          markerId: MarkerId(latLng.toString()),
+          position: latLng,
           icon: markerIconCng,
-          rotation: rotation,
+          rotation: driver.vehicleAngle??0.0, // Use vehicleAngle for rotation
         );
       }).toSet();
 
@@ -273,6 +261,8 @@ class HomeController extends GetxController {
       log("cng marker length: ${allMarkers.length}");
     }
   }
+
+
 
   void moveCameraToPolyline() {
     if (polylineCoordinates.isEmpty) return;
@@ -398,6 +388,7 @@ class HomeController extends GetxController {
       userLong.value = position.longitude;
       log("user long ${userLong.value}");
       center.value = LatLng(userLat.value, userLong.value);
+      mapController.animateCamera(CameraUpdate.newLatLng(LatLng(center.value.latitude, center.value.longitude)));
 
       getPlaceNameFromCoordinates(userLat.value, userLong.value, false);
       userLocationPicking.value = false;
@@ -455,26 +446,17 @@ class HomeController extends GetxController {
     cngdriverMarkerList.clear();
 
     cardriverMarkerList.addAll(driverList
-        .where((driver) => driver.latLng != null && driver.vehicleType == "car")
-        .map(
-            (driver) => LatLng(driver.latLng.latitude, driver.latLng.longitude))
-        .toList());
+        .where((driver) => driver.latLng != null && driver.vehicleType == "car").toList());
 
     log("CarDriverList: ${cardriverMarkerList.length.toString()}");
 
     motodriverMarkerList.addAll(driverList
         .where(
-            (driver) => driver.latLng != null && driver.vehicleType == "moto")
-        .map(
-            (driver) => LatLng(driver.latLng.latitude, driver.latLng.longitude))
-        .toList());
+            (driver) => driver.latLng != null && driver.vehicleType == "moto").toList());
     log("MotoDriverList: ${motodriverMarkerList.length.toString()}");
 
     cngdriverMarkerList.addAll(driverList
-        .where((driver) => driver.latLng != null && driver.vehicleType == "cng")
-        .map(
-            (driver) => LatLng(driver.latLng.latitude, driver.latLng.longitude))
-        .toList());
+        .where((driver) => driver.latLng != null && driver.vehicleType == "cng").toList());
     log("CngDriverList: ${cngdriverMarkerList.length.toString()}");
 
     loadMarkers();
@@ -755,4 +737,21 @@ class HomeController extends GetxController {
       }
     }
   }
+
+  Future<void> getPrevTrips() async{
+    previousTrips.clear();
+    previousTrips.addAll(await PassengerRepository().getTripHistory("8mCWZ9uBrWME2Bfm9YOCvb0U2EJ3"));
+    log("trip history : ${previousTrips.length.toString()}");
+  }
+
+  List<LatLng> decodePolyline(String encoded) {
+    PolylinePoints polylinePoints = PolylinePoints();
+    List<PointLatLng> points = polylinePoints.decodePolyline(encoded);
+
+    List<LatLng> coordinates = points.map((point) {
+      return LatLng(point.latitude, point.longitude);
+    }).toList();
+    return coordinates;
+  }
+
 }
