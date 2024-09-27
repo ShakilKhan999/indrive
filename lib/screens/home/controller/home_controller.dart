@@ -101,23 +101,41 @@ class HomeController extends GetxController {
     return (currentDirection - lastDirection).abs() >= 5;
   }
 
-  getPolyline() async {
+  getPolyline({ TravelMode travelMode=TravelMode.driving}) async {
     findingRoutes.value = true;
     polyLines.clear();
-    polylineCoordinates.clear;
+    polylineCoordinates.clear();
+    allMarkers.removeWhere((marker) =>
+    marker.markerId == MarkerId("startPoint") ||
+        marker.markerId == MarkerId("endPoint"));
 
     LatLng stPoint = LatLng(
         startPickedCenter.value.latitude, startPickedCenter.value.longitude);
+    LatLng endPoint = LatLng(
+        destinationPickedCenter.value.latitude, destinationPickedCenter.value.longitude);
 
-    LatLng endPoint = LatLng(destinationPickedCenter.value.latitude,
-        destinationPickedCenter.value.longitude);
+    allMarkers.add(Marker(
+      markerId: MarkerId("startPoint"),
+      position: stPoint,
+      infoWindow: InfoWindow(title: "Pickup Point"),
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+    ));
+
+    allMarkers.add(Marker(
+      markerId: MarkerId("endPoint"),
+      position: endPoint,
+      infoWindow: InfoWindow(title: "Destination Point"),
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+    ));
+
     PolylinePoints polylinePoints = PolylinePoints();
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
       AppConfig.mapApiKey,
       PointLatLng(stPoint.latitude, stPoint.longitude),
       PointLatLng(endPoint.latitude, endPoint.longitude),
-      travelMode: TravelMode.driving,
+      travelMode: travelMode,
     );
+
     log("polyLineResponse: ${result.points.length}");
     if (result.points.isNotEmpty) {
       polylineCoordinates.clear();
@@ -133,7 +151,9 @@ class HomeController extends GetxController {
           .map((geoPoint) => LatLng(geoPoint.latitude, geoPoint.longitude))
           .toList(),
     );
+
     findingRoutes.value = false;
+
     minOfferPrice.value = calculateRentPrice(
         point1: GeoPoint(startPickedCenter.value.latitude,
             startPickedCenter.value.longitude),

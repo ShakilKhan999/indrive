@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:callandgo/screens/home/views/ride_progress.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -720,9 +721,11 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                   child: Row(
                     children: [
                       InkWell(
-                        onTap: () {
+                        onTap: () async{
                           homeController.selectedVehicle.value = "car";
-                          homeController.loadMarkers();
+                          await homeController.loadMarkers();
+                          if(homeController.destinationPlaceName!="")
+                          homeController.getPolyline(travelMode: TravelMode.driving);
                         },
                         child: Container(
                             height: 70.h,
@@ -772,9 +775,11 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                             )),
                       ),
                       InkWell(
-                        onTap: () {
+                        onTap: () async{
                           homeController.selectedVehicle.value = "moto";
-                          homeController.loadMarkers();
+                         await  homeController.loadMarkers();
+                          if(homeController.destinationPlaceName!="")
+                          homeController.getPolyline(travelMode: TravelMode.walking);
                         },
                         child: Container(
                             height: 70.h,
@@ -824,9 +829,11 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                             )),
                       ),
                       InkWell(
-                        onTap: () {
+                        onTap: () async{
                           homeController.selectedVehicle.value = "cng";
-                          homeController.loadMarkers();
+                          await homeController.loadMarkers();
+                          if(homeController.destinationPlaceName!="")
+                          homeController.getPolyline(travelMode: TravelMode.driving);
                         },
                         child: Container(
                             height: 70.h,
