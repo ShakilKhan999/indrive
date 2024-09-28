@@ -51,7 +51,7 @@ class FreightTripController extends GetxController {
   var driverData = UserModel().obs;
 
   var selectedSize = 'Small'.obs;
-  final List<String> sizes = ['Small', 'Medium', 'Big'];
+  final List<String> sizes = ['Small', 'Medium', 'Large'];
   void setSelectedSize(String? value) {
     if (value != null) {
       selectedSize.value = value;
@@ -154,10 +154,12 @@ class FreightTripController extends GetxController {
 
   void onMapCreated(GoogleMapController controller) {
     mapController = controller;
+    getCenter(isFrom: true);
   }
 
   void onMapCreatedTo(GoogleMapController controller) {
     mapControllerTO = controller;
+    getCenter(isFrom: false);
   }
 
   void onPressCreateRequest() async {
@@ -221,6 +223,7 @@ class FreightTripController extends GetxController {
       FreightTripRepository()
           .getFreightTripList()
           .listen((List<FreightTripModel> trips) {
+        MethodHelper().sortTripsByCreatedAt(trips);
         filterTrips(trips: trips);
       });
     } catch (e) {
@@ -236,7 +239,9 @@ class FreightTripController extends GetxController {
           trip.userUid != _authController.currentUser.value.uid &&
           trip.declineDriverIds!
                   .contains(_authController.currentUser.value.uid!) ==
-              false) {
+              false &&
+          trip.truckSize ==
+              _authController.currentUser.value.freightVehicleType) {
         filteredTrips.add(trip);
       }
     }
@@ -367,6 +372,7 @@ class FreightTripController extends GetxController {
           .getFreightTripListForUser(
               userId: _authController.currentUser.value.uid!)
           .listen((List<FreightTripModel> trips) {
+        MethodHelper().sortTripsByCreatedAt(trips);
         tripListForUser.assignAll(trips);
         log('tripList: $tripListForUser');
       });
@@ -441,6 +447,7 @@ class FreightTripController extends GetxController {
           .getFreightMyTripListForUser(
               userId: _authController.currentUser.value.uid!)
           .listen((List<FreightTripModel> trips) {
+        MethodHelper().sortTripsByCreatedAt(trips);
         myTripListForUser.assignAll(trips);
         log('my tripList: $tripListForUser');
       });
@@ -846,54 +853,107 @@ class FreightTripController extends GetxController {
   }
 
   var allMarkers = <Marker>{}.obs;
+  // Future<void> loadMarkers({required FreightTripModel trip}) async {
+  //   allMarkers.clear();
+  //   final BitmapDescriptor markerIconCar = await BitmapDescriptor.asset(
+  //     const ImageConfiguration(size: Size(24, 24)),
+  //     'assets/images/marker.png',
+  //   );
+
+  //   final BitmapDescriptor markerIconPickLocation =
+  //       await BitmapDescriptor.asset(
+  //     const ImageConfiguration(size: Size(24, 24)),
+  //     'assets/images/pick_location.png',
+  //   );
+  //   final BitmapDescriptor markerIconDropLocation =
+  //       await BitmapDescriptor.asset(
+  //     const ImageConfiguration(size: Size(24, 24)),
+  //     'assets/images/drop_location.png',
+  //   );
+
+  //   var locationList = [
+  //     LatLng(driverData.value.latLng!.latitude,
+  //         driverData.value.latLng!.longitude),
+  //     LatLng(trip.pickLatLng!.latitude, trip.pickLatLng!.longitude),
+  //     LatLng(trip.dropLatLng!.latitude, trip.dropLatLng!.longitude),
+  //   ];
+
+  //   Set<Marker> markers = locationList.asMap().entries.map((entry) {
+  //     int idx = entry.key;
+  //     LatLng location = entry.value;
+  //     BitmapDescriptor icon;
+  //     double angle = 0.0;
+  //     if (idx == 0) {
+  //       icon = markerIconCar;
+  //       angle = driverData.value.vehicleAngle!;
+  //     } else if (idx == 1) {
+  //       icon = markerIconPickLocation;
+  //     } else {
+  //       icon = markerIconDropLocation;
+  //     }
+
+  //     return Marker(
+  //       markerId: MarkerId(location.toString()),
+  //       position: location,
+  //       icon: icon,
+  //       rotation: angle,
+  //     );
+  //   }).toSet();
+  //   allMarkers.addAll(markers);
+  //   log("markers len: ${allMarkers.length}");
+  // }
   Future<void> loadMarkers({required FreightTripModel trip}) async {
     allMarkers.clear();
-    final BitmapDescriptor markerIconCar = await BitmapDescriptor.asset(
-      const ImageConfiguration(size: Size(24, 24)),
-      'assets/images/marker.png',
-    );
+    await _loadMarker(trip, 0);
+    await _loadMarker(trip, 1);
+    await Future.delayed(Duration(milliseconds: AppConfig.markerTimeDelay));
+    await _loadMarker(trip, 2);
 
-    final BitmapDescriptor markerIconPickLocation =
-        await BitmapDescriptor.asset(
-      const ImageConfiguration(size: Size(24, 24)),
-      'assets/images/pick_location.png',
-    );
-    final BitmapDescriptor markerIconDropLocation =
-        await BitmapDescriptor.asset(
-      const ImageConfiguration(size: Size(24, 24)),
-      'assets/images/drop_location.png',
-    );
-
-    var locationList = [
-      LatLng(driverData.value.latLng!.latitude,
-          driverData.value.latLng!.longitude),
-      LatLng(trip.pickLatLng!.latitude, trip.pickLatLng!.longitude),
-      LatLng(trip.dropLatLng!.latitude, trip.dropLatLng!.longitude),
-    ];
-
-    Set<Marker> markers = locationList.asMap().entries.map((entry) {
-      int idx = entry.key;
-      LatLng location = entry.value;
-      BitmapDescriptor icon;
-      double angle = 0.0;
-      if (idx == 0) {
-        icon = markerIconCar;
-        angle = driverData.value.vehicleAngle!;
-      } else if (idx == 1) {
-        icon = markerIconPickLocation;
-      } else {
-        icon = markerIconDropLocation;
-      }
-
-      return Marker(
-        markerId: MarkerId(location.toString()),
-        position: location,
-        icon: icon,
-        rotation: angle,
-      );
-    }).toSet();
-    allMarkers.addAll(markers);
     log("markers len: ${allMarkers.length}");
+  }
+
+  Future<void> _loadMarker(FreightTripModel trip, int index) async {
+    final BitmapDescriptor icon;
+    final LatLng location;
+    double angle = 0.0;
+
+    switch (index) {
+      case 0:
+        icon = await BitmapDescriptor.asset(
+          const ImageConfiguration(size: Size(24, 24)),
+          'assets/images/drop_location.png',
+        );
+        location =
+            LatLng(trip.dropLatLng!.latitude, trip.dropLatLng!.longitude);
+        break;
+      case 1:
+        icon = await BitmapDescriptor.asset(
+          const ImageConfiguration(size: Size(24, 24)),
+          'assets/images/pick_location.png',
+        );
+        location =
+            LatLng(trip.pickLatLng!.latitude, trip.pickLatLng!.longitude);
+        break;
+      case 2:
+        icon = await BitmapDescriptor.asset(
+          ImageConfiguration(size: AppConfig.vehicleMarkerSize),
+          'assets/images/marker.png',
+        );
+        location = LatLng(driverData.value.latLng!.latitude,
+            driverData.value.latLng!.longitude);
+        angle = driverData.value.vehicleAngle!;
+        break;
+
+      default:
+        return;
+    }
+
+    allMarkers.add(Marker(
+      markerId: MarkerId(location.toString()),
+      position: location,
+      icon: icon,
+      rotation: angle,
+    ));
   }
 
   var suggestions = [].obs;
@@ -917,6 +977,19 @@ class FreightTripController extends GetxController {
       } else {
         log("Response is null");
       }
+    }
+  }
+
+  getCenter({required bool isFrom}) async {
+    LatLng userCentre = await MethodHelper().getUserLocation();
+    center.value = userCentre;
+    if (isFrom) {
+      mapController.animateCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: center.value,
+          zoom: 15.0,
+        ),
+      ));
     }
   }
 }

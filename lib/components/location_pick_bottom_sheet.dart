@@ -184,7 +184,7 @@ void buildDestinationBottomSheet(
                                   contentPadding: EdgeInsets.zero,
                                   leading: Icon(
                                     Icons.location_on_outlined,
-                                    color: ColorHelper.whiteColor,
+                                    color: ColorHelper.primaryColor,
                                   ),
                                   trailing: CommonComponents().printText(
                                       fontSize: 12,

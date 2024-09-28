@@ -1,5 +1,7 @@
 import 'package:callandgo/main.dart';
+import 'package:callandgo/screens/auth_screen/controller/auth_controller.dart';
 import 'package:callandgo/screens/city_to_city_user/views/city_to_city_trip_details.dart';
+import 'package:callandgo/screens/profile/views/profile_screen.dart';
 import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -216,11 +218,11 @@ class _CityToCityRequestState extends State<CityToCityRequest>
                           SpaceHelper.horizontalSpace10,
                           Expanded(
                             child: CommonComponents().printText(
-                              fontSize: 12,
-                              textData:
-                                  '${_cityToCityTripController.myTripListForUser[index].cityFrom!}',
-                              fontWeight: FontWeight.normal,
-                            ),
+                                fontSize: 12,
+                                textData:
+                                    '${_cityToCityTripController.myTripListForUser[index].cityFrom!}',
+                                fontWeight: FontWeight.normal,
+                                maxLine: 2),
                           )
                         ],
                       ),
@@ -233,15 +235,37 @@ class _CityToCityRequestState extends State<CityToCityRequest>
                           SpaceHelper.horizontalSpace10,
                           Expanded(
                             child: CommonComponents().printText(
-                              fontSize: 12,
-                              textData:
-                                  '${_cityToCityTripController.myTripListForUser[index].cityTo!}',
-                              fontWeight: FontWeight.normal,
-                            ),
+                                fontSize: 12,
+                                textData:
+                                    '${_cityToCityTripController.myTripListForUser[index].cityTo!}',
+                                fontWeight: FontWeight.normal,
+                                maxLine: 2),
                           )
                         ],
                       ),
                       SpaceHelper.verticalSpace10,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          CommonComponents().printText(
+                              fontSize: 15,
+                              textData: MethodHelper().timeAgo(
+                                  _cityToCityTripController
+                                      .myTripListForUser[index].createdAt!),
+                              fontWeight: FontWeight.bold),
+                          IconButton(
+                              onPressed: () {
+                                MethodHelper().makePhoneCall(
+                                    _cityToCityTripController
+                                        .myTripListForUser[index].driverPhone);
+                              },
+                              icon: Icon(
+                                Icons.phone,
+                                size: 30,
+                                color: ColorHelper.primaryColor,
+                              ))
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -327,11 +351,11 @@ class _CityToCityRequestState extends State<CityToCityRequest>
                           SpaceHelper.horizontalSpace10,
                           Expanded(
                             child: CommonComponents().printText(
-                              fontSize: 12,
-                              textData:
-                                  '${_cityToCityTripController.tripListForUser[index].cityFrom!}',
-                              fontWeight: FontWeight.normal,
-                            ),
+                                fontSize: 12,
+                                textData:
+                                    '${_cityToCityTripController.tripListForUser[index].cityFrom!}',
+                                fontWeight: FontWeight.normal,
+                                maxLine: 2),
                           )
                         ],
                       ),
@@ -344,14 +368,21 @@ class _CityToCityRequestState extends State<CityToCityRequest>
                           SpaceHelper.horizontalSpace10,
                           Expanded(
                             child: CommonComponents().printText(
-                              fontSize: 12,
-                              textData:
-                                  '${_cityToCityTripController.tripListForUser[index].cityTo!}',
-                              fontWeight: FontWeight.normal,
-                            ),
+                                fontSize: 12,
+                                textData:
+                                    '${_cityToCityTripController.tripListForUser[index].cityTo!}',
+                                fontWeight: FontWeight.normal,
+                                maxLine: 2),
                           )
                         ],
                       ),
+                      SpaceHelper.verticalSpace10,
+                      CommonComponents().printText(
+                          fontSize: 15,
+                          textData: MethodHelper().timeAgo(
+                              _cityToCityTripController
+                                  .tripListForUser[index].createdAt!),
+                          fontWeight: FontWeight.bold),
                       SpaceHelper.verticalSpace10,
                       CommonComponents().commonButton(
                         text: 'Cancel Ride',
@@ -437,7 +468,8 @@ class _CityToCityRequestState extends State<CityToCityRequest>
                       onTap: () {
                         buildDestinationBottomSheet(
                             controller: _cityToCityTripController,
-                            isFrom: true, from: 'city_to_city');
+                            isFrom: true,
+                            from: 'city_to_city');
                       },
                       child: Container(
                           padding: EdgeInsets.symmetric(horizontal: 10.sp),
@@ -453,8 +485,9 @@ class _CityToCityRequestState extends State<CityToCityRequest>
                             children: [
                               CommonComponents().printText(
                                   fontSize: 16,
-                                  textData: 'From: '+_cityToCityTripController
-                                      .fromPlaceName.value,
+                                  textData: 'From: ' +
+                                      _cityToCityTripController
+                                          .fromPlaceName.value,
                                   fontWeight: FontWeight.normal),
                             ],
                           )),
@@ -466,7 +499,8 @@ class _CityToCityRequestState extends State<CityToCityRequest>
                       onTap: () {
                         buildDestinationBottomSheet(
                             controller: _cityToCityTripController,
-                            isFrom: false, from: 'city_to_city');
+                            isFrom: false,
+                            from: 'city_to_city');
                       },
                       child: Container(
                           padding: EdgeInsets.symmetric(horizontal: 10.sp),
@@ -482,14 +516,14 @@ class _CityToCityRequestState extends State<CityToCityRequest>
                             children: [
                               CommonComponents().printText(
                                   fontSize: 16,
-                                  textData: 'To: '+_cityToCityTripController
-                                      .toPlaceName.value,
+                                  textData: 'To: ' +
+                                      _cityToCityTripController
+                                          .toPlaceName.value,
                                   fontWeight: FontWeight.normal),
                             ],
                           )),
                     ),
                   ),
-                 
                   SpaceHelper.verticalSpace10,
                   _buildSelectableOptionsRow(),
                   SpaceHelper.verticalSpace10,
@@ -543,6 +577,14 @@ class _CityToCityRequestState extends State<CityToCityRequest>
           text: 'Find a Rider',
           onPressed: () {
             fToast.init(Get.context!);
+            AuthController authController = Get.find();
+            if (!authController.checkProfile()) {
+              showToast(
+                  toastText: 'Please complete your profile',
+                  toastColor: ColorHelper.red);
+              Get.to(() => ProfileScreen(), transition: Transition.rightToLeft);
+              return;
+            }
             if (_cityToCityTripController.fromController.value.text == '') {
               showToast(
                 toastText: "From is requried",

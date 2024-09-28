@@ -85,12 +85,13 @@ class FreightInfoScreen extends StatelessWidget {
             textIconRow(
               text: "Vehicle Info",
               onTap: () {
+                _freightController.selectedVehicleBrand.value = '';
+                _freightController.selectedVehicleModel.value = '';
+                _freightController.getVehicleBrands();
                 Get.to(FreightVehicleinfoScreen(),
                     transition: Transition.rightToLeft);
               },
             )
-            // const Divider(),
-            // textIconRow(text: "Agent Referral Code"),
           ],
         ),
       ),

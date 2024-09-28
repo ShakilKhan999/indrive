@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -6,6 +8,9 @@ import 'package:callandgo/components/custom_appbar.dart';
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/screens/auth_screen/controller/auth_controller.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
+
+import '../../../helpers/style_helper.dart';
 
 class ProfileScreen extends StatelessWidget {
   ProfileScreen({super.key});
@@ -15,9 +20,11 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ColorHelper.bgColor,
-      appBar: CustomAppbar(titleText: 'Profile settings', onTap: () {
-        Get.back();
-      }),
+      appBar: CustomAppbar(
+          titleText: 'Profile settings',
+          onTap: () {
+            Get.back();
+          }),
       body: Column(
         children: [
           Expanded(
@@ -30,7 +37,18 @@ class ProfileScreen extends StatelessWidget {
                     _buildProfilePictureView(),
                     _buildNameEditView(),
                     _buildEmailEditView(),
-                    _buildLocationEditView(),
+                    InkWell(
+                      onTap: () {
+                        _showPhoneBottomSheet();
+                      },
+                      child: _buildPhoneEditView(),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        _showLocationSelectionSheet();
+                      },
+                      child: _buildLocationEditView(),
+                    ),
                     SpaceHelper.verticalSpace20,
                   ],
                 ),
@@ -91,25 +109,96 @@ class ProfileScreen extends StatelessWidget {
         ));
   }
 
+  Widget _buildPhoneEditView() {
+    return Obx(
+      () => Container(
+        padding: EdgeInsets.only(left: 20.w, top: 20.h),
+        child: Row(
+          children: [
+            Icon(
+              Icons.phone,
+              color: Colors.white30,
+            ),
+            SpaceHelper.horizontalSpace10,
+            CommonComponents().printText(
+                fontSize: 14,
+                textData: _authController.profilePhone.value,
+                fontWeight: FontWeight.bold),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPhoneTextFiled() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Enter mobile no.*',
+          style: StyleHelper.regular14,
+        ),
+        SpaceHelper.verticalSpace10,
+        SizedBox(
+            height: 80.h,
+            width: MediaQuery.of(Get.context!).size.width,
+            child: IntlPhoneField(
+              controller: _authController.phoneNumbercontroller.value,
+              cursorColor: Colors.grey,
+              style: StyleHelper.regular14,
+              dropdownTextStyle: const TextStyle(color: Colors.grey),
+              dropdownIcon: const Icon(
+                Icons.arrow_drop_down,
+                color: Colors.grey,
+              ),
+              decoration: const InputDecoration(
+                labelText: 'Phone Number',
+                labelStyle: TextStyle(color: Colors.grey),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.grey,
+                    width: 1.0,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: ColorHelper.primaryColor,
+                    width: 2.0,
+                  ),
+                ),
+              ),
+              initialCountryCode: 'BD',
+              onCountryChanged: (value) {
+                log(value.dialCode);
+                _authController.countryCode.value = value.dialCode;
+              },
+              onChanged: (phone) {},
+            )),
+      ],
+    );
+  }
+
   Widget _buildLocationEditView() {
     return Container(
-      padding: EdgeInsets.only(left: 20.w, top: 20.h),
+      padding: EdgeInsets.only(left: 20.w, top: 20.h, bottom: 20.h),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const Icon(
-            Icons.location_city,
-            color: Colors.white30,
-          ),
-          SpaceHelper.horizontalSpace10,
-          CommonComponents().printText(
-              fontSize: 14,
-              textData: _authController.selectedLocation.value,
-              fontWeight: FontWeight.bold),
-        ],
+      child: Obx(
+        () => Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.location_city,
+              color: Colors.white30,
+            ),
+            SpaceHelper.horizontalSpace10,
+            CommonComponents().printText(
+                fontSize: 14,
+                textData: _authController.userLocation.value,
+                fontWeight: FontWeight.bold),
+          ],
+        ),
       ),
     );
   }
@@ -163,6 +252,159 @@ class ProfileScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void _showPhoneBottomSheet() {
+    showModalBottomSheet(
+      context: Get.context!,
+      isScrollControlled: true,
+      backgroundColor: Colors.grey[900],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16.0.w,
+            right: 16.0.w,
+            top: 16.0.h,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16.h,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                CommonComponents().printText(
+                    fontSize: 16,
+                    textData: 'Set Your Phone Number',
+                    fontWeight: FontWeight.w600),
+                SizedBox(height: 10.h),
+                _buildPhoneTextFiled(),
+                SizedBox(height: 20.h),
+                ElevatedButton(
+                  onPressed: () {
+                    _authController.updatePhoneNumber();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: ColorHelper.primaryColor,
+                  ),
+                  child: CommonComponents().printText(
+                      fontSize: 16,
+                      textData: 'Update',
+                      fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showLocationSelectionSheet() {
+    showModalBottomSheet(
+      context: Get.context!,
+      isScrollControlled: true,
+      backgroundColor: ColorHelper.bgColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(25.0.sp),
+        ),
+      ),
+      builder: (context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.8,
+          minChildSize: 0.4,
+          maxChildSize: 0.9,
+          expand: false,
+          builder: (context, scrollController) {
+            return SingleChildScrollView(
+              controller: scrollController,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Choose your location',
+                          style: StyleHelper.heading,
+                        ),
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Icon(
+                            Icons.cancel_outlined,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: TextField(
+                      style: StyleHelper.regular14,
+                      controller: _authController.searchCityController.value,
+                      onChanged: (value) {
+                        _authController.onSearchTextChanged(value);
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Search',
+                        hintStyle: StyleHelper.regular14,
+                        prefixIcon: const Icon(Icons.search),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25.0),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Obx(() => SizedBox(
+                          height: 250.h,
+                          child: ListView.builder(
+                              itemCount: _authController.suggestions.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return InkWell(
+                                  onTap: () async {
+                                    _authController.placeName.value =
+                                        _authController.suggestions[index]
+                                            ["description"];
+
+                                    _authController.updateLocation();
+                                  },
+                                  child: ListTile(
+                                      contentPadding: EdgeInsets.zero,
+                                      leading: Icon(
+                                        Icons.location_on_outlined,
+                                        color: ColorHelper.primaryColor,
+                                      ),
+                                      trailing: CommonComponents().printText(
+                                          fontSize: 12,
+                                          textData: "",
+                                          fontWeight: FontWeight.bold),
+                                      title: CommonComponents().printText(
+                                          fontSize: 14,
+                                          maxLine: 2,
+                                          textData:
+                                              _authController.suggestions[index]
+                                                  ["description"],
+                                          fontWeight: FontWeight.bold)),
+                                );
+                              }),
+                        )),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

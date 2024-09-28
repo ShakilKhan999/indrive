@@ -27,8 +27,8 @@ class DriverHomeController extends GetxController {
   var cameraMoving = false.obs;
   var center = const LatLng(23.80, 90.41).obs;
 
-  var addingOffer=false.obs;
-  var offeringTrip="".obs;
+  var addingOffer = false.obs;
+  var offeringTrip = "".obs;
 
   final TextEditingController offerPriceController = TextEditingController();
 
@@ -43,7 +43,7 @@ class DriverHomeController extends GetxController {
     getUserLocation();
     getAngle();
     listenCall();
-    listenToTrips(authController.currentUser.value.uid!);
+    listenToTrips(FirebaseAuth.instance.currentUser!.uid);
     super.onInit();
   }
 
@@ -108,9 +108,9 @@ class DriverHomeController extends GetxController {
 
   void listenToTrips(String driverId) {
     DriverRepository().getTripsByDriverId(driverId).listen((trips) {
-      offerPriceController.text="";
+      offerPriceController.text = "";
       //editingIndex.value=1000;
-      addingOffer.value=false;
+      addingOffer.value = false;
       myActiveTrips.clear();
       myActiveTrips.addAll(trips);
       // Additional logic here if needed, like updating UI
@@ -210,9 +210,7 @@ class DriverHomeController extends GetxController {
           (index) => Trip.fromJson(event.docs[index].data()));
 
       if (activeCall.isNotEmpty) {
-        if(activeCall[0].userCancel == true) {
-
-        }
+        if (activeCall[0].userCancel == true) {}
         // else if (activeCall[0].accepted == true && activeCall[0].picked == true) {
         //   getPolyline(picking: false);
         // }

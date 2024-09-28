@@ -10,6 +10,7 @@ import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/screens/driver/driver_info/controller/driver_info_controller.dart';
 
 import '../../../../main.dart';
+import '../../../../models/vehicle_model.dart';
 
 class VehicleInfoScreen extends StatelessWidget {
   VehicleInfoScreen({super.key});
@@ -28,9 +29,9 @@ class VehicleInfoScreen extends StatelessWidget {
         child: Column(
           children: [
             SpaceHelper.verticalSpace20,
-            _buildCarBrandNameView(),
+            _buildVehicleBrandNameView(),
             SpaceHelper.verticalSpace15,
-            _buildModelNumberTextFiled(),
+            _buildVehicleModelView(),
             SpaceHelper.verticalSpace15,
             _driverInfoController.vehicleType.value == 'car' ||
                     _driverInfoController.vehicleType.value == 'taxi'
@@ -51,13 +52,12 @@ class VehicleInfoScreen extends StatelessWidget {
       child: CommonComponents().commonButton(
         onPressed: () {
           fToast.init(Get.context!);
-          if (_driverInfoController.selectedCarBrand.value.isEmpty) {
+          if (_driverInfoController.selectedVehicleBrand.value.isEmpty) {
             showToast(
               toastText: "Brand is required",
               toastColor: ColorHelper.red,
             );
-          } else if (_driverInfoController
-              .carModelNumberController.value.text.isEmpty) {
+          } else if (_driverInfoController.selectedVehicleModel.value.isEmpty) {
             showToast(
               toastText: "Model number is required",
               toastColor: ColorHelper.red,
@@ -85,15 +85,94 @@ class VehicleInfoScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCarBrandNameView() {
-    return _buildDropdownSearch(
-      textData: "${_driverInfoController.vehicleType.toUpperCase()} Brand ",
+  Widget _buildVehicleBrandNameView() {
+    return _buildBrandView(
+      textData:
+          "${_driverInfoController.vehicleType.value.toUpperCase()} Brand ",
       hintText: 'Select brand',
       items: _driverInfoController.vehicleBrands,
       searchHintText: 'Select brand...',
       onChanged: (value) {
-        _driverInfoController.selectedCarBrand.value = value ?? '';
+        _driverInfoController.selectedVehicleBrand.value = value!.brandName!;
+        _driverInfoController.vehicleModels.value = value.modelList!;
+        _driverInfoController.selectedVehicleModel.value = '';
       },
+    );
+  }
+
+  Widget _buildVehicleModelView() {
+    return _buildDropdownSearch(
+      textData: "Model Number",
+      hintText: 'Select Model Number',
+      items: _driverInfoController.vehicleModels.cast<String>(),
+      searchHintText: 'Select model number...',
+      onChanged: (value) {
+        _driverInfoController.selectedVehicleModel.value = value!;
+      },
+    );
+  }
+
+  Widget _buildBrandView({
+    required String textData,
+    required String hintText,
+    required List<VehicleModel> items,
+    required String searchHintText,
+    required Function(VehicleModel?) onChanged,
+  }) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(6.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SpaceHelper.verticalSpace5,
+          CommonComponents().printText(
+              fontSize: 16,
+              textData: textData,
+              fontWeight: FontWeight.bold,
+              color: Colors.black),
+          Container(
+            margin: EdgeInsets.all(16.sp),
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8.r),
+                border: Border.all(color: Colors.black)),
+            child: DropdownFlutter<VehicleModel>.search(
+              closedHeaderPadding: EdgeInsets.all(20.sp),
+              hintText: hintText,
+              items: items,
+              excludeSelected: false,
+              searchHintText: searchHintText,
+              listItemBuilder: (context, item, isSelected, onTap) {
+                return ListTile(
+                  title: Text(item.brandName!),
+                  selected: isSelected,
+                  onTap: onTap,
+                );
+              },
+              headerBuilder: (context, selectedItem, enabled) {
+                return Text(
+                  selectedItem.brandName!,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                );
+              },
+              onChanged: onChanged,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -155,14 +234,14 @@ class VehicleInfoScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildModelNumberTextFiled() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
-      child: CommonComponents().commonTextPicker(
-          labelText: 'Model Number',
-          textController: _driverInfoController.carModelNumberController.value),
-    );
-  }
+  // Widget _buildModelNumberTextFiled() {
+  //   return Padding(
+  //     padding: EdgeInsets.symmetric(horizontal: 20.w),
+  //     child: CommonComponents().commonTextPicker(
+  //         labelText: 'Model Number',
+  //         textController: _driverInfoController.carModelNumberController.value),
+  //   );
+  // }
 
   Widget _buildSeatAndColorRow() {
     return Column(

@@ -1,12 +1,21 @@
 import 'dart:developer';
 import 'dart:io';
+import 'package:callandgo/helpers/color_helper.dart';
+import 'package:callandgo/main.dart';
 import 'package:callandgo/models/user_model.dart';
 import 'package:callandgo/utils/database_collection_names.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../models/vehicle_model.dart';
 
 class MethodHelper {
   Future<File?> pickImage() async {
@@ -123,7 +132,7 @@ class MethodHelper {
     trips.sort((a, b) {
       DateTime dateA = DateTime.parse(a.createdAt);
       DateTime dateB = DateTime.parse(b.createdAt);
-      return dateA.compareTo(dateB);
+      return dateB.compareTo(dateA); // Reversed the comparison
     });
   }
 
@@ -139,5 +148,95 @@ class MethodHelper {
       color = Colors.yellow;
     }
     return color;
+  }
+
+  Future<LatLng> getUserLocation() async {
+    log("getUserLocation called");
+    try {
+      Position position = await getCurrentLocation();
+      return LatLng(position.latitude, position.longitude);
+    } catch (e) {
+      log('Failed to get location: $e');
+      return LatLng(0, 0);
+    }
+  }
+
+  Future<Position> getCurrentLocation() async {
+    log("getCurrentLocation called");
+
+    checkLocationServiceAndPermission();
+    LocationPermission permission;
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied.');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    return await Geolocator.getCurrentPosition();
+  }
+
+  Future<void> checkLocationServiceAndPermission() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return;
+    }
+  }
+
+  String timeAgo(String dateTime) {
+    final createdDateTime = DateTime.parse(dateTime);
+    final currentTime = DateTime.now();
+    final difference = currentTime.difference(createdDateTime);
+
+    if (difference.inDays >= 1) {
+      return "${difference.inDays} day${difference.inDays > 1 ? 's' : ''} ago";
+    } else if (difference.inHours >= 1) {
+      return "${difference.inHours} hour${difference.inHours > 1 ? 's' : ''} ago";
+    } else if (difference.inMinutes >= 1) {
+      return "${difference.inMinutes} minute${difference.inMinutes > 1 ? 's' : ''} ago";
+    } else {
+      return "Just now";
+    }
+  }
+
+  Future<void> makePhoneCall(String? phoneNumber) async {
+    fToast.init(Get.context!);
+    if (phoneNumber == null) {
+      showToast(
+          toastText: 'Phone call not available', toastColor: ColorHelper.red);
+      return;
+    }
+    if (phoneNumber.toLowerCase() == 'none') {
+      showToast(
+          toastText: 'Phone call not available', toastColor: ColorHelper.red);
+      return;
+    } else {
+      final Uri launchUri = Uri(
+        scheme: 'tel',
+        path: phoneNumber,
+      );
+      await launchUrl(launchUri);
+    }
+  }
+
+  Future<List<VehicleModel>> getVehicleBrands(
+      {required String collection}) async {
+    try {
+      final snapshot =
+          await FirebaseFirestore.instance.collection(collection).get();
+
+      return snapshot.docs
+          .map((doc) => VehicleModel.fromJson(doc.data()))
+          .toList();
+    } catch (e) {
+      log('Error while getting vehicle models: $e');
+      return [];
+    }
   }
 }

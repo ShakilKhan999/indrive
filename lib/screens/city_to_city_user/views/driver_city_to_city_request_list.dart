@@ -203,11 +203,11 @@ class _DriverCityToCityRequestListState
                         SpaceHelper.horizontalSpace10,
                         Expanded(
                           child: CommonComponents().printText(
-                            fontSize: 12,
-                            textData:
-                                '${_cityToCityTripController.myTripList[index].cityFrom}',
-                            fontWeight: FontWeight.normal,
-                          ),
+                              fontSize: 12,
+                              textData:
+                                  '${_cityToCityTripController.myTripList[index].cityFrom}',
+                              fontWeight: FontWeight.normal,
+                              maxLine: 2),
                         )
                       ],
                     ),
@@ -220,12 +220,35 @@ class _DriverCityToCityRequestListState
                         SpaceHelper.horizontalSpace10,
                         Expanded(
                           child: CommonComponents().printText(
-                            fontSize: 12,
-                            textData:
-                                '${_cityToCityTripController.myTripList[index].cityTo}',
-                            fontWeight: FontWeight.normal,
-                          ),
+                              fontSize: 12,
+                              textData:
+                                  '${_cityToCityTripController.myTripList[index].cityTo}',
+                              fontWeight: FontWeight.normal,
+                              maxLine: 2),
                         )
+                      ],
+                    ),
+                    SpaceHelper.verticalSpace10,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CommonComponents().printText(
+                            fontSize: 15,
+                            textData: MethodHelper().timeAgo(
+                                _cityToCityTripController
+                                    .myTripList[index].createdAt!),
+                            fontWeight: FontWeight.bold),
+                        IconButton(
+                            onPressed: () {
+                              MethodHelper().makePhoneCall(
+                                  _cityToCityTripController
+                                      .myTripList[index].userPhone);
+                            },
+                            icon: Icon(
+                              Icons.phone,
+                              size: 30,
+                              color: ColorHelper.primaryColor,
+                            ))
                       ],
                     ),
                   ],
@@ -406,7 +429,8 @@ class _DriverCityToCityRequestListState
                                     fontSize: 12,
                                     textData:
                                         '${_cityToCityTripController.tripList[index].cityFrom!}',
-                                    fontWeight: FontWeight.normal))
+                                    fontWeight: FontWeight.normal,
+                                    maxLine: 2))
                           ],
                         ),
                         SpaceHelper.verticalSpace5,
@@ -421,10 +445,18 @@ class _DriverCityToCityRequestListState
                                     fontSize: 12,
                                     textData:
                                         '${_cityToCityTripController.tripList[index].cityTo!}',
-                                    fontWeight: FontWeight.normal))
+                                    fontWeight: FontWeight.normal,
+                                    maxLine: 2))
                           ],
                         ),
-                        SpaceHelper.verticalSpace15,
+                        SpaceHelper.verticalSpace10,
+                        CommonComponents().printText(
+                            fontSize: 15,
+                            textData: MethodHelper().timeAgo(
+                                _cityToCityTripController
+                                    .tripList[index].createdAt!),
+                            fontWeight: FontWeight.bold),
+                        SpaceHelper.verticalSpace10,
                         _buildOfferYourFareView(index: index),
                         SpaceHelper.verticalSpace10,
                         _buildActionView(index: index)
@@ -629,5 +661,4 @@ class _DriverCityToCityRequestListState
       },
     );
   }
-
 }

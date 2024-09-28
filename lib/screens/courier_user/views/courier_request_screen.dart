@@ -17,8 +17,9 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import '../../../components/confirmation_dialog.dart';
 import '../../../components/location_pick_bottom_sheet.dart';
 import '../../../helpers/method_helper.dart';
+import '../../auth_screen/controller/auth_controller.dart';
+import '../../profile/views/profile_screen.dart';
 import 'courier_bid_list.dart';
-import 'courier_select_location.dart';
 
 class CourierRequestScreen extends StatefulWidget {
   CourierRequestScreen({super.key});
@@ -180,11 +181,11 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
                           SpaceHelper.horizontalSpace10,
                           Expanded(
                             child: CommonComponents().printText(
-                              fontSize: 12,
-                              textData:
-                                  '${courierTripController.myTripListForUser[index].from!}',
-                              fontWeight: FontWeight.normal,
-                            ),
+                                fontSize: 12,
+                                textData:
+                                    '${courierTripController.myTripListForUser[index].from!}',
+                                fontWeight: FontWeight.normal,
+                                maxLine: 2),
                           )
                         ],
                       ),
@@ -197,15 +198,37 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
                           SpaceHelper.horizontalSpace10,
                           Expanded(
                             child: CommonComponents().printText(
-                              fontSize: 12,
-                              textData:
-                                  '${courierTripController.myTripListForUser[index].to!}',
-                              fontWeight: FontWeight.normal,
-                            ),
+                                fontSize: 12,
+                                textData:
+                                    '${courierTripController.myTripListForUser[index].to!}',
+                                fontWeight: FontWeight.normal,
+                                maxLine: 2),
                           )
                         ],
                       ),
                       SpaceHelper.verticalSpace10,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          CommonComponents().printText(
+                              fontSize: 15,
+                              textData: MethodHelper().timeAgo(
+                                  courierTripController
+                                      .myTripListForUser[index].createdAt!),
+                              fontWeight: FontWeight.bold),
+                          IconButton(
+                              onPressed: () {
+                                MethodHelper().makePhoneCall(
+                                    courierTripController
+                                        .myTripListForUser[index].driverPhone);
+                              },
+                              icon: Icon(
+                                Icons.phone,
+                                size: 30,
+                                color: ColorHelper.primaryColor,
+                              ))
+                        ],
+                      )
                     ],
                   ),
                 ),
@@ -293,11 +316,11 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
                           SpaceHelper.horizontalSpace10,
                           Expanded(
                             child: CommonComponents().printText(
-                              fontSize: 12,
-                              textData:
-                                  '${courierTripController.tripListForUser[index].from!}',
-                              fontWeight: FontWeight.normal,
-                            ),
+                                fontSize: 12,
+                                textData:
+                                    '${courierTripController.tripListForUser[index].from!}',
+                                fontWeight: FontWeight.normal,
+                                maxLine: 2),
                           )
                         ],
                       ),
@@ -310,14 +333,20 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
                           SpaceHelper.horizontalSpace10,
                           Expanded(
                             child: CommonComponents().printText(
-                              fontSize: 12,
-                              textData:
-                                  '${courierTripController.tripListForUser[index].to!}',
-                              fontWeight: FontWeight.normal,
-                            ),
+                                fontSize: 12,
+                                textData:
+                                    '${courierTripController.tripListForUser[index].to!}',
+                                fontWeight: FontWeight.normal,
+                                maxLine: 2),
                           )
                         ],
                       ),
+                      SpaceHelper.verticalSpace10,
+                      CommonComponents().printText(
+                          fontSize: 15,
+                          textData: MethodHelper().timeAgo(courierTripController
+                              .tripListForUser[index].createdAt!),
+                          fontWeight: FontWeight.bold),
                       SpaceHelper.verticalSpace10,
                       CommonComponents().commonButton(
                         text: 'Cancel Ride',
@@ -392,50 +421,19 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
     );
   }
 
-  Widget _buildTextFiledView(
-      String hintText, TextEditingController controller, bool? isFrom) {
-    return TextField(
-      style: TextStyle(
-        fontSize: 16.sp,
-        color: Colors.white,
-        fontWeight: FontWeight.w400,
-        decoration: TextDecoration.none,
-      ),
-      onTap: () {
-        if (isFrom!) {
-          courierTripController.changingPickup.value = isFrom;
-          Get.to(() => CourierSelectLocation(),
-              transition: Transition.rightToLeft);
-        } else if (!isFrom) {
-          courierTripController.changingPickup.value = isFrom;
-          Get.to(() => CourierSelectLocation(),
-              transition: Transition.rightToLeft);
-        }
-      },
-      controller: controller,
-      decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: TextStyle(color: Colors.grey),
-        filled: true,
-        fillColor: ColorHelper.grey850,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide.none,
-        ),
-        suffixIcon: Icon(
-          Icons.arrow_forward_ios,
-          color: ColorHelper.greyColor,
-        ),
-      ),
-    );
-  }
-
   Widget _buildBottomButton() {
     return Obx(
       () => CommonComponents().commonButton(
         onPressed: () {
           fToast.init(Get.context!);
-
+          AuthController authController = Get.find();
+          if (!authController.checkProfile()) {
+            showToast(
+                toastText: 'Please complete your profile',
+                toastColor: ColorHelper.red);
+            Get.to(() => ProfileScreen(), transition: Transition.rightToLeft);
+            return;
+          }
           if (courierTripController.toController.value.text == '') {
             showToast(
               toastText: "Pickup location is required",

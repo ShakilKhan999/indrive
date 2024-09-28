@@ -1,5 +1,4 @@
 import 'package:callandgo/screens/auth_screen/views/register_screen.dart';
-import 'package:callandgo/screens/home/views/passenger_home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

@@ -50,6 +50,8 @@ class CitytocityTypesScreen extends StatelessWidget {
             child: InkWell(
               onTap: () {
                 _cityToCityInfoController.vehicleType.value = 'car';
+                _cityToCityInfoController.selectedVehicleBrand.value = '';
+                _cityToCityInfoController.selectedVehicleModel.value = '';
                 _cityToCityInfoController.setVehicleType(vehicleType: 'car');
                 Get.to(CitytocityInfoScreen(),
                     transition: Transition.rightToLeft);
@@ -80,6 +82,8 @@ class CitytocityTypesScreen extends StatelessWidget {
             child: InkWell(
               onTap: () {
                 _cityToCityInfoController.vehicleType.value = 'taxi';
+                _cityToCityInfoController.selectedVehicleBrand.value = '';
+                _cityToCityInfoController.selectedVehicleModel.value = '';
                 _cityToCityInfoController.setVehicleType(vehicleType: 'taxi');
                 Get.to(CitytocityInfoScreen(),
                     transition: Transition.rightToLeft);
@@ -112,6 +116,8 @@ class CitytocityTypesScreen extends StatelessWidget {
             child: InkWell(
               onTap: () {
                 _cityToCityInfoController.vehicleType.value = 'moto';
+                _cityToCityInfoController.selectedVehicleBrand.value = '';
+                _cityToCityInfoController.selectedVehicleModel.value = '';
                 _cityToCityInfoController.setVehicleType(vehicleType: 'moto');
                 Get.to(CitytocityInfoScreen(),
                     transition: Transition.rightToLeft);

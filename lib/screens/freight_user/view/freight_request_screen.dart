@@ -13,6 +13,8 @@ import 'package:callandgo/helpers/space_helper.dart';
 import '../../../components/confirmation_dialog.dart';
 import '../../../components/location_pick_bottom_sheet.dart';
 import '../../../components/simple_appbar.dart';
+import '../../auth_screen/controller/auth_controller.dart';
+import '../../profile/views/profile_screen.dart';
 import '../controller/freight_trip_controller.dart';
 import 'freight_bid_list.dart';
 import 'freight_select_location.dart';
@@ -200,11 +202,11 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
                           SpaceHelper.horizontalSpace10,
                           Expanded(
                             child: CommonComponents().printText(
-                              fontSize: 12,
-                              textData:
-                                  '${_freightController.myTripListForUser[index].from!}',
-                              fontWeight: FontWeight.normal,
-                            ),
+                                fontSize: 12,
+                                textData:
+                                    '${_freightController.myTripListForUser[index].from!}',
+                                fontWeight: FontWeight.normal,
+                                maxLine: 2),
                           )
                         ],
                       ),
@@ -217,15 +219,36 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
                           SpaceHelper.horizontalSpace10,
                           Expanded(
                             child: CommonComponents().printText(
-                              fontSize: 12,
-                              textData:
-                                  '${_freightController.myTripListForUser[index].to!}',
-                              fontWeight: FontWeight.normal,
-                            ),
+                                fontSize: 12,
+                                textData:
+                                    '${_freightController.myTripListForUser[index].to!}',
+                                fontWeight: FontWeight.normal,
+                                maxLine: 2),
                           )
                         ],
                       ),
                       SpaceHelper.verticalSpace10,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          CommonComponents().printText(
+                              fontSize: 15,
+                              textData: MethodHelper().timeAgo(
+                                  _freightController
+                                      .myTripListForUser[index].createdAt!),
+                              fontWeight: FontWeight.bold),
+                          IconButton(
+                              onPressed: () {
+                                MethodHelper().makePhoneCall(_freightController
+                                    .myTripListForUser[index].driverPhone);
+                              },
+                              icon: Icon(
+                                Icons.phone,
+                                size: 30,
+                                color: ColorHelper.primaryColor,
+                              ))
+                        ],
+                      )
                     ],
                   ),
                 ),
@@ -387,7 +410,14 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
           text: 'Create Request',
           onPressed: () {
             fToast.init(Get.context!);
-
+            AuthController authController = Get.find();
+            if (!authController.checkProfile()) {
+              showToast(
+                  toastText: 'Please complete your profile',
+                  toastColor: ColorHelper.red);
+              Get.to(() => ProfileScreen(), transition: Transition.rightToLeft);
+              return;
+            }
             if (_freightController.fromController.value.text == '') {
               showToast(
                 toastText: "Pickup location is required",
@@ -492,11 +522,11 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
                           SpaceHelper.horizontalSpace10,
                           Expanded(
                             child: CommonComponents().printText(
-                              fontSize: 12,
-                              textData:
-                                  '${_freightController.tripListForUser[index].from!}',
-                              fontWeight: FontWeight.normal,
-                            ),
+                                fontSize: 12,
+                                textData:
+                                    '${_freightController.tripListForUser[index].from!}',
+                                fontWeight: FontWeight.normal,
+                                maxLine: 2),
                           )
                         ],
                       ),
@@ -509,33 +539,20 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
                           SpaceHelper.horizontalSpace10,
                           Expanded(
                             child: CommonComponents().printText(
-                              fontSize: 12,
-                              textData:
-                                  '${_freightController.tripListForUser[index].to!}',
-                              fontWeight: FontWeight.normal,
-                            ),
+                                fontSize: 12,
+                                textData:
+                                    '${_freightController.tripListForUser[index].to!}',
+                                fontWeight: FontWeight.normal,
+                                maxLine: 2),
                           )
                         ],
                       ),
-
-                      // ListTile(
-                      //     contentPadding: EdgeInsets.zero,
-                      //     leading: Icon(Icons.radio_button_checked,
-                      //         color: ColorHelper.primaryColor),
-                      //     title: CommonComponents().printText(
-                      //         fontSize: 12,
-                      //         textData:
-                      //             '${_freightController.tripListForUser[index].from!}',
-                      //         fontWeight: FontWeight.normal)),
-                      // ListTile(
-                      //     contentPadding: EdgeInsets.zero,
-                      //     leading: Icon(Icons.radio_button_checked,
-                      //         color: ColorHelper.blueColor),
-                      //     title: CommonComponents().printText(
-                      //         fontSize: 12,
-                      //         textData:
-                      //             '${_freightController.tripListForUser[index].to!}',
-                      //         fontWeight: FontWeight.normal)),
+                      SpaceHelper.verticalSpace10,
+                      CommonComponents().printText(
+                          fontSize: 15,
+                          textData: MethodHelper().timeAgo(_freightController
+                              .tripListForUser[index].createdAt!),
+                          fontWeight: FontWeight.bold),
                       SpaceHelper.verticalSpace15,
                       CommonComponents().commonButton(
                         text: 'Cancel Ride',
@@ -654,9 +671,11 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
         child: Obx(() => DropdownButtonFormField<String>(
               value: _freightController.selectedSize.value,
               isDense: true,
+              
               decoration: InputDecoration(
                 border: InputBorder.none,
                 hintText: hintText,
+                
                 hintStyle: TextStyle(
                   fontSize: 16.sp,
                   color: ColorHelper.greyColor,
@@ -668,19 +687,22 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
               ),
               style: TextStyle(
                 fontSize: 16.sp,
-                color: ColorHelper.whiteColor,
+                color: ColorHelper.blackColor,
                 fontWeight: FontWeight.w400,
               ),
               icon: Icon(
                 Icons.arrow_forward_ios,
                 color: ColorHelper.greyColor,
               ),
-              dropdownColor: ColorHelper.whiteColor,
+              dropdownColor: ColorHelper.grey850,
               items: _freightController.sizes
                   .map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
-                  child: Text(value),
+                  child: CommonComponents().printText(
+                      fontSize: 15,
+                      textData: value,
+                      fontWeight: FontWeight.bold,),
                 );
               }).toList(),
               onChanged: _freightController.setSelectedSize,

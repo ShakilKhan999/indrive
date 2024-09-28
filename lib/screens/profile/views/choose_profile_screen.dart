@@ -1,5 +1,4 @@
 import 'package:callandgo/screens/courier_user/controller/courier_trip_controller.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -150,6 +149,15 @@ class ChooseProfileScreen extends StatelessWidget {
                               'Registration completed') {
                             CourierTripController courierTripController =
                                 Get.put(CourierTripController());
+                            AuthController authController = Get.find();
+                            if (!authController.checkProfile()) {
+                              showToast(
+                                  toastText: 'Please complete your profile',
+                                  toastColor: ColorHelper.red);
+                              Get.to(() => ProfileScreen(),
+                                  transition: Transition.rightToLeft);
+                              return;
+                            }
                             courierTripController.getCourierTrips();
                             courierTripController.getCourierMyTrips();
                             Get.to(() => CourierRequesForRider(),
@@ -207,6 +215,15 @@ class ChooseProfileScreen extends StatelessWidget {
                               'Registration completed') {
                             FreightTripController _freightTripController =
                                 Get.put(FreightTripController());
+                            AuthController authController = Get.find();
+                            if (!authController.checkProfile()) {
+                              showToast(
+                                  toastText: 'Please complete your profile',
+                                  toastColor: ColorHelper.red);
+                              Get.to(() => ProfileScreen(),
+                                  transition: Transition.rightToLeft);
+                              return;
+                            }
                             _freightTripController.getFreightTrips();
                             _freightTripController.getFreightMyTrips();
                             Get.to(() => FreightRequesForRider(),
@@ -267,6 +284,15 @@ class ChooseProfileScreen extends StatelessWidget {
                               'Registration completed') {
                             CityToCityTripController _cityToCityTripController =
                                 Get.put(CityToCityTripController());
+                            AuthController authController = Get.find();
+                            if (!authController.checkProfile()) {
+                              showToast(
+                                  toastText: 'Please complete your profile',
+                                  toastColor: ColorHelper.red);
+                              Get.to(() => ProfileScreen(),
+                                  transition: Transition.rightToLeft);
+                              return;
+                            }
                             _cityToCityTripController.getCityToCityTrips();
                             _cityToCityTripController.getCityToCityMyTrips();
                             Get.to(() => DriverCityToCityRequestList(),

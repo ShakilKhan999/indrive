@@ -43,6 +43,8 @@ class CourierTypsScreen extends StatelessWidget {
             child: InkWell(
               onTap: () {
                 _courierController.vehicleType.value = 'car';
+                _courierController.selectedVehicleBrand.value = '';
+                _courierController.selectedVehicleModel.value = '';
                 _courierController.setVehicleType(
                     vehicleType: _courierController.vehicleType.value);
                 Get.to(CourierInfoScreen(), transition: Transition.rightToLeft);
@@ -75,6 +77,8 @@ class CourierTypsScreen extends StatelessWidget {
             child: InkWell(
               onTap: () {
                 _courierController.vehicleType.value = 'moto';
+                _courierController.selectedVehicleBrand.value = '';
+                _courierController.selectedVehicleModel.value = '';
                 _courierController.setVehicleType(
                     vehicleType: _courierController.vehicleType.value);
                 Get.to(CourierInfoScreen(), transition: Transition.rightToLeft);

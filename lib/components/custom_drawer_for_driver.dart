@@ -1,4 +1,7 @@
 import 'package:callandgo/main.dart';
+import 'package:callandgo/screens/courier_user/controller/courier_trip_controller.dart';
+import 'package:callandgo/screens/courier_user/views/courier_request_for_rider.dart';
+import 'package:callandgo/screens/driver/courier/views/courier_types_screen.dart';
 import 'package:callandgo/screens/driver/driver_home/views/driver_home_screen.dart';
 import 'package:callandgo/screens/profile/controller/profile_controller.dart';
 import 'package:five_pointed_star/five_pointed_star.dart';
@@ -14,10 +17,10 @@ import 'package:callandgo/screens/profile/views/choose_profile_screen.dart';
 import '../screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
 import '../screens/city_to_city_user/views/driver_city_to_city_request_list.dart';
 import '../screens/driver/city_to_city/views/cityToCity_types_screen.dart';
-import '../screens/courier_user/views/courier_request_screen.dart';
 import '../screens/driver/freight/views/freight_info_screen.dart';
 import '../screens/freight_user/controller/freight_trip_controller.dart';
 import '../screens/freight_user/view/freight_request_for_rider.dart';
+import '../screens/profile/views/profile_screen.dart';
 import '../utils/global_toast_service.dart';
 
 class CustomDrawerForDriver extends StatelessWidget {
@@ -105,6 +108,15 @@ class CustomDrawerForDriver extends StatelessWidget {
                 'Registration completed') {
               CityToCityTripController _cityToCityTripController =
                   Get.put(CityToCityTripController());
+              AuthController authController = Get.find();
+              if (!authController.checkProfile()) {
+                showToast(
+                    toastText: 'Please complete your profile',
+                    toastColor: ColorHelper.red);
+                Get.to(() => ProfileScreen(),
+                    transition: Transition.rightToLeft);
+                return;
+              }
               _cityToCityTripController.getCityToCityTrips();
               _cityToCityTripController.getCityToCityMyTrips();
               Get.to(() => DriverCityToCityRequestList(),
@@ -134,8 +146,17 @@ class CustomDrawerForDriver extends StatelessWidget {
                 'Registration completed') {
               FreightTripController _freightTripController =
                   Get.put(FreightTripController());
+              AuthController authController = Get.find();
+              if (!authController.checkProfile()) {
+                showToast(
+                    toastText: 'Please complete your profile',
+                    toastColor: ColorHelper.red);
+                Get.to(() => ProfileScreen(),
+                    transition: Transition.rightToLeft);
+                return;
+              }
               _freightTripController.getFreightTrips();
-              _freightTripController.getFreightTrips();
+              _freightTripController.getFreightMyTrips();
               Get.to(() => FreightRequesForRider(),
                   transition: Transition.rightToLeft);
             } else if (_profileController.freightStatus.value.status ==
@@ -152,14 +173,40 @@ class CustomDrawerForDriver extends StatelessWidget {
           },
         ),
         buildDrawerItem(
-          // icon: Icons.fire_truck,
           imagePath: 'assets/images/courier.png',
           text: 'Courier',
           color: Colors.white,
-          onTap: () {
-            // Get.back();
-            Get.to(() => CourierRequestScreen(),
-                transition: Transition.rightToLeft);
+          onTap: () async {
+            fToast.init(Get.context!);
+            await _profileController.getUserProfile();
+            if (_profileController.courierStatus.value.status ==
+                'Registration completed') {
+              CourierTripController _courierTripController =
+                  Get.put(CourierTripController());
+              AuthController authController = Get.find();
+              if (!authController.checkProfile()) {
+                showToast(
+                    toastText: 'Please complete your profile',
+                    toastColor: ColorHelper.red);
+                Get.to(() => ProfileScreen(),
+                    transition: Transition.rightToLeft);
+                return;
+              }
+              _courierTripController.getCourierTrips();
+              _courierTripController.getCourierMyTrips();
+              Get.to(() => CourierRequesForRider(),
+                  transition: Transition.rightToLeft);
+            } else if (_profileController.freightStatus.value.status ==
+                'Not Registered') {
+              Get.to(() => CourierTypsScreen(),
+                  transition: Transition.rightToLeft);
+            } else if (_profileController.freightStatus.value.status ==
+                'Verification pending') {
+              showToast(
+                  toastText: 'Documents submitted but verification pending',
+                  toastColor: ColorHelper.red);
+            } else if (_profileController.freightStatus.value.status ==
+                'Verification failed') {}
           },
         ),
         // buildDrawerItem(

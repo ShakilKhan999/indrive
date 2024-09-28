@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -88,7 +87,7 @@ class RegisterScreen extends StatelessWidget {
               height: 60.h,
               width: MediaQuery.of(context).size.width,
               child: IntlPhoneField(
-                controller: _authController.phoneNumbercontroller,
+                controller: _authController.phoneNumbercontroller.value,
                 cursorColor: Colors.grey,
                 style: StyleHelper.regular14,
                 dropdownTextStyle: const TextStyle(color: Colors.grey),

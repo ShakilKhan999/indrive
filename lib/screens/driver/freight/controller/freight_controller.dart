@@ -14,6 +14,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../../main.dart';
 import '../../../../models/driver_info_model.dart';
+import '../../../../models/vehicle_model.dart';
 import '../../../../utils/database_collection_names.dart';
 import '../repository/freight_repository.dart';
 
@@ -51,7 +52,7 @@ class FreightController extends GetxController {
 
   // vhicle info------>>>>>>
   var carModelNumberController = TextEditingController().obs;
-  var selectedSeatNumber = ''.obs;
+  var selectedTruckSize = ''.obs;
   var selectedCarColor = ''.obs;
   var selectedCarBrand = ''.obs;
 
@@ -189,69 +190,38 @@ class FreightController extends GetxController {
   }
 
   final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
-  final List<String> carBrands = [
-    'Toyota',
-    'Honda',
-    'Ford',
-    'Chevrolet',
-    'Nissan',
-    'BMW',
-    'Mercedes-Benz',
-    'Volkswagen',
-    'Audi',
-    'Hyundai',
-  ].obs;
-
-  List<String> bikeBrands = [
-    'Harley-Davidson',
-    'Honda',
-    'Yamaha',
-    'Kawasaki',
-    'Ducati',
-    'BMW Motorrad',
-    'Suzuki',
-    'KTM',
-    'Triumph',
-    'Aprilia',
-    'Indian Motorcycle',
-    'Royal Enfield',
-    'MV Agusta',
-    'Moto Guzzi',
-    'Husqvarna'
-  ];
-  List<String> taxiBrands = [
-    'Maruti Suzuki',
-    'Hyundai',
-    'Tata Motors',
-    'Mahindra',
-    'Honda',
-    'Toyota',
-    'Ford',
-    'Chevrolet',
-    'Nissan',
-    'Renault'
-  ];
 
   // List<String> vehicleBrands = [];
-  List<String> vehicleBrands = [
-    'Ford',
-    'Chevrolet',
-    'Ram',
-    'GMC',
-    'Toyota',
-    'Nissan',
-    'Honda',
-    'Mack',
-    'Kenworth',
-    'Peterbilt',
-    'Freightliner',
-    'International',
-    'Volvo',
-    'Hino',
-    'Isuzu',
-  ];
+  // List<String> vehicleBrands = [
+  //   'Ford',
+  //   'Chevrolet',
+  //   'Ram',
+  //   'GMC',
+  //   'Toyota',
+  //   'Nissan',
+  //   'Honda',
+  //   'Mack',
+  //   'Kenworth',
+  //   'Peterbilt',
+  //   'Freightliner',
+  //   'International',
+  //   'Volvo',
+  //   'Hino',
+  //   'Isuzu',
+  // ];
 
-  final List<String> seatNumbers = ["Small", "Medium", "Large"].obs;
+  RxList<VehicleModel> vehicleBrands = <VehicleModel>[].obs;
+  var selectedVehicleBrand = ''.obs;
+  var selectedVehicleModel = ''.obs;
+  final RxList vehicleModels = [].obs;
+
+  getVehicleBrands() async {
+    vehicleBrands.value =
+        await MethodHelper().getVehicleBrands(collection: truckCollection);
+    log('vehicle models: ${vehicleBrands.length}');
+  }
+
+  final List<String> truckSize = ["Small", "Medium", "Large"].obs;
   final List<String> carColors = ["Red", "Blue", "Black", "White", "Grey"].obs;
 
   Future saveDriverInfo() async {
@@ -273,11 +243,11 @@ class FreightController extends GetxController {
         driverLicenseBackPhoto: licensebackPhotoUrl.value,
         idWithPhoto: idCardWithFacefPhotoUrl.value,
         nid: nationalIdCardPhotoUrl.value,
-        vehicleBrand: selectedCarBrand.value,
-        vehicleNumberOfSeat: selectedSeatNumber.value,
+        vehicleBrand: selectedVehicleBrand.value,
+        vehicleNumberOfSeat: null,
         vehicleColor: selectedCarColor.value,
-        vehicleModelNo: carModelNumberController.value.text,
-        vehicleType: 'freight',
+        vehicleModelNo: selectedVehicleModel.value,
+        vehicleType: selectedTruckSize.value,
         isApproved: false,
         adminComment: null,
         status: 'pending',
@@ -313,7 +283,7 @@ class FreightController extends GetxController {
           fieldsToUpdate: {
             "isFreight": true,
             "freightStatus": "pending",
-            "freightVehicleType": 'freight',
+            "freightVehicleType": selectedTruckSize.value,
           },
           collection: userCollection);
     } catch (e) {

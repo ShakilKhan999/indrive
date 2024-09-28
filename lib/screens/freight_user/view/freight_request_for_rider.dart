@@ -201,11 +201,11 @@ class _FreightRequesForRiderState extends State<FreightRequesForRider>
                         SpaceHelper.horizontalSpace10,
                         Expanded(
                           child: CommonComponents().printText(
-                            fontSize: 12,
-                            textData:
-                                '${_freightTripController.myTripList[index].from}',
-                            fontWeight: FontWeight.normal,
-                          ),
+                              fontSize: 12,
+                              textData:
+                                  '${_freightTripController.myTripList[index].from}',
+                              fontWeight: FontWeight.normal,
+                              maxLine: 2),
                         )
                       ],
                     ),
@@ -218,12 +218,35 @@ class _FreightRequesForRiderState extends State<FreightRequesForRider>
                         SpaceHelper.horizontalSpace10,
                         Expanded(
                           child: CommonComponents().printText(
-                            fontSize: 12,
-                            textData:
-                                '${_freightTripController.myTripList[index].to}',
-                            fontWeight: FontWeight.normal,
-                          ),
+                              fontSize: 12,
+                              textData:
+                                  '${_freightTripController.myTripList[index].to}',
+                              fontWeight: FontWeight.normal,
+                              maxLine: 2),
                         )
+                      ],
+                    ),
+                    SpaceHelper.verticalSpace10,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CommonComponents().printText(
+                            fontSize: 15,
+                            textData: MethodHelper().timeAgo(
+                                _freightTripController
+                                    .myTripList[index].createdAt!),
+                            fontWeight: FontWeight.bold),
+                        IconButton(
+                            onPressed: () {
+                              MethodHelper().makePhoneCall(
+                                  _freightTripController
+                                      .myTripList[index].userPhone);
+                            },
+                            icon: Icon(
+                              Icons.phone,
+                              size: 30,
+                              color: ColorHelper.primaryColor,
+                            ))
                       ],
                     ),
                   ],
@@ -322,11 +345,13 @@ class _FreightRequesForRiderState extends State<FreightRequesForRider>
                             Icon(Icons.radio_button_checked,
                                 color: ColorHelper.primaryColor),
                             SpaceHelper.horizontalSpace10,
-                            CommonComponents().printText(
-                                fontSize: 12,
-                                textData:
-                                    '${_freightTripController.tripList[index].from!}',
-                                fontWeight: FontWeight.normal)
+                            Expanded(
+                                child: CommonComponents().printText(
+                                    fontSize: 12,
+                                    textData:
+                                        '${_freightTripController.tripList[index].from!}',
+                                    fontWeight: FontWeight.normal,
+                                    maxLine: 2))
                           ],
                         ),
                         SpaceHelper.verticalSpace5,
@@ -336,14 +361,23 @@ class _FreightRequesForRiderState extends State<FreightRequesForRider>
                             Icon(Icons.radio_button_checked,
                                 color: ColorHelper.blueColor),
                             SpaceHelper.horizontalSpace10,
-                            CommonComponents().printText(
-                                fontSize: 12,
-                                textData:
-                                    '${_freightTripController.tripList[index].to!}',
-                                fontWeight: FontWeight.normal)
+                            Expanded(
+                                child: CommonComponents().printText(
+                                    fontSize: 12,
+                                    textData:
+                                        '${_freightTripController.tripList[index].to!}',
+                                    fontWeight: FontWeight.normal,
+                                    maxLine: 2))
                           ],
                         ),
-                        SpaceHelper.verticalSpace15,
+                        SpaceHelper.verticalSpace10,
+                        CommonComponents().printText(
+                            fontSize: 15,
+                            textData: MethodHelper().timeAgo(
+                                _freightTripController
+                                    .tripList[index].createdAt!),
+                            fontWeight: FontWeight.bold),
+                        SpaceHelper.verticalSpace10,
                         _buildOfferYourFareView(index: index),
                         SpaceHelper.verticalSpace10,
                         _buildActionView(index: index)
