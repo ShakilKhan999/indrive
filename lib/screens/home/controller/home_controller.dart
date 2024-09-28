@@ -59,6 +59,7 @@ class HomeController extends GetxController {
   }
 
   final TextEditingController destinationController = TextEditingController();
+  final TextEditingController pickupController = TextEditingController();
   final TextEditingController offerPriceController = TextEditingController();
   GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
   late GoogleMapController mapController;
@@ -527,7 +528,20 @@ class HomeController extends GetxController {
           tripCalled.value = false;
           polyLines.clear();
           polylineCoordinates.clear();
-        } else if (calledTrip[0].accepted) {
+        }
+
+        else if(calledTrip[0].accepted==false && calledTrip[0].driverCancel==true)
+          {
+            riderFound.value = false;
+            tripCalled.value = false;
+            polyLines.clear();
+            polylineCoordinates.clear();
+            stopListeningToCalledTrip();
+            calledTrip().clear();
+            showToast("Driver cancelled the trip");
+          }
+
+        else if (calledTrip[0].accepted) {
           riderFound.value = true;
           thisDriver.clear();
           var myRider = sortedDriverList.firstWhere(

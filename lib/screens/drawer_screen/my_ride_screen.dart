@@ -66,12 +66,12 @@ class MyRideScreen extends StatelessWidget {
                     width: double.infinity,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(6.r),
-                      color: Colors.red,
+                      color: ColorHelper.primaryColor,
                     ),
                     child: ride.polyLineEncoded == null || ride.polyLineEncoded!.isEmpty
                         ? Center(
                       child: Text(
-                        "Route not available there\nView Detail",
+                        "Route not available ",
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.white),
                       ),

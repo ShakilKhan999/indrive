@@ -85,6 +85,19 @@ class DriverRepository {
     }
   }
 
+  Future<void> cancelRide(String docId, String newDriverId) async {
+    try {
+      await _firestore.collection('All Trips').doc(docId).update({
+        'driverId': newDriverId + " cancelledbydriver",
+        'accepted': false,
+        'driverCancel':true,
+      });
+      print('Driver ID updated successfully');
+    } catch (e) {
+      print('Error updating Driver ID: $e');
+    }
+  }
+
   Future<void> updateTripState(
       String docId, String fieldName, bool value) async {
     try {
