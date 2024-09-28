@@ -16,6 +16,27 @@ class PassengerRepository {
         .snapshots();
   }
 
+
+  Future<List<Trip>> getTripHistory(String userId) async {
+    try {
+      CollectionReference<Map<String, dynamic>> tripsCollection = FirebaseFirestore.instance.collection('All Trips').withConverter<Map<String, dynamic>>(
+        fromFirestore: (snapshot, _) => snapshot.data()!,
+        toFirestore: (model, _) => model,
+      );
+
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await tripsCollection
+          .where('userId', isEqualTo: userId)
+          .get();
+
+      return querySnapshot.docs.map((doc) {
+        return Trip.fromJson(doc.data()); // Use the fromJson method here
+      }).toList();
+    } catch (e) {
+      print('Error fetching trips: $e');
+      return [];
+    }
+  }
+
   Future<String> getPolylineFromGoogleMap(LatLng start, LatLng end) async {
     final String baseUrl = 'https://maps.googleapis.com/maps/api/directions/json';
     final String url =

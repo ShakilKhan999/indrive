@@ -217,7 +217,7 @@ class DriverHomeScreen extends StatelessWidget {
                               child: Column(
                                 children: [
                                   SizedBox(
-                                    height: 60.h,
+                                    height: 85.h,
                                     width: 300.w,
                                     child: trip.bids.any((mybid) =>
                                             mybid.driverId ==
@@ -232,11 +232,28 @@ class DriverHomeScreen extends StatelessWidget {
                                           )
                                         : Column(
                                             children: [
-                                              CommonComponents().printText(
-                                                  fontSize: 12,
-                                                  textData:
-                                                      "To: " + trip.destination,
-                                                  fontWeight: FontWeight.bold),
+                                              Row(
+                                                children: [
+                                                  CircleAvatar(
+                                                    backgroundImage: NetworkImage(trip.userImage??"https://thumb.ac-illust.com/30/30fa090868a2f8236c55ef8c1361db01_t.jpeg"),
+                                                  ),
+                                                  Column(
+                                                    children: [
+                                                      CommonComponents().printText(
+                                                          fontSize: 12,
+                                                          textData:
+                                                           trip.userName??"",
+                                                          fontWeight: FontWeight.bold),
+                                                      CommonComponents().printText(
+                                                          fontSize: 12,
+                                                          textData:
+                                                          "To: " + trip.destination,
+                                                          fontWeight: FontWeight.bold),
+                                                    ],
+                                                  )
+                                                ],
+                                              ),
+
                                               SpaceHelper.verticalSpace5,
                                               Row(
                                                 mainAxisAlignment:
@@ -359,10 +376,10 @@ class DriverHomeScreen extends StatelessWidget {
                 child: CommonComponents().commonButton(
                     text: "Decline",
                     onPressed: () async {
-                      // await PassengerRepository().callDriver(
-                      //     driverHomeController.activeCall[0].tripId, "");
-                      // driverHomeController.polyLines.clear();
-                      // driverHomeController.polylineCoordinates.clear();
+                      await DriverRepository().cancelRide(
+                          driverHomeController.activeCall[0].tripId, driverHomeController.activeCall[0].driverId);
+                      driverHomeController.polyLines.clear();
+                      driverHomeController.polylineCoordinates.clear();
                     },
                     color: Colors.red,
                     borderRadius: 14)),
