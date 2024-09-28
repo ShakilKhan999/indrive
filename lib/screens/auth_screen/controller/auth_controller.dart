@@ -94,9 +94,9 @@ class AuthController extends GetxController {
   }
 
   checkPhoneNumber({required String? phoneNumber}) async {
-    if (phoneNumber != null) {
+    if (phoneNumber != null && phoneNumber.toLowerCase() != 'none') {
       profilePhone.value = phoneNumber;
-    } else if (phoneNumber == null || phoneNumber.toLowerCase() != 'none') {
+    } else if (phoneNumber == null || phoneNumber.toLowerCase() == 'none') {
       profilePhone.value = 'Phone number not set yet';
     }
   }
