@@ -605,6 +605,7 @@ tripCalling.value=true;
         userId: authController.currentUser.value.uid,
         userName: authController.currentUser.value.name,
         userImage: authController.currentUser.value.photo,
+        userPhone: authController.currentUser.value.phone,
         polyLineEncoded: polyline,
         rent: int.parse(offerPriceController.text),
         bids: bidList.map((e) => e as Bid).toList(),

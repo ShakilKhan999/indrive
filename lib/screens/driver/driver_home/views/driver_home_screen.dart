@@ -1,8 +1,10 @@
 import 'dart:developer';
 
+import 'package:callandgo/helpers/method_helper.dart';
 import 'package:callandgo/helpers/style_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:callandgo/components/common_components.dart';
@@ -502,17 +504,18 @@ class DriverHomeScreen extends StatelessWidget {
                       child: CommonComponents().commonButton(
                           text: "Call",
                           onPressed: () async {
-                            String phoneNumber = "01783080181";
-                                //driverHomeController.activeCall[0].userPhone;
-                            final Uri launchUri = Uri(
-                              scheme: 'tel',
-                              path: phoneNumber,
+                            driverHomeController.activeCall[0].userPhone!=null?
+                            MethodHelper().makePhoneCall(driverHomeController.activeCall[0].userPhone):
+                            Fluttertoast.showToast(
+                              msg: "Number not available",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Colors.black,
+                              textColor: Colors.white,
+                              fontSize: 16.0,
                             );
-                            if (await canLaunchUrl(launchUri)) {
-                              await launchUrl(launchUri);
-                            } else {
-                              log('Could not launch dialer');
-                            }
+
                           },
                           color: ColorHelper.primaryColor,
                           borderRadius: 14)),
