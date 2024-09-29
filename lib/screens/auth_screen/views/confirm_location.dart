@@ -34,29 +34,32 @@ class ConfirmLocationScreen extends StatelessWidget {
   }
 
   Widget _buildBottomButtonView(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.fromLTRB(20.sp, 0.sp, 20.sp, 30.sp),
-          child: commonComponents.commonButton(
-            text: "Yes, I'm here",
-            onPressed: () {
-              Get.offAll(() => UserNameScreen(),
-                  transition: Transition.rightToLeft);
-            },
+    return Obx(
+      () => Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.fromLTRB(20.sp, 0.sp, 20.sp, 30.sp),
+            child: commonComponents.commonButton(
+              text: "Yes, I'm here",
+              onPressed: () {
+                authController.getUserLocation();
+              },
+              isLoading: authController.userLocationPicking.value,
+              disabled: authController.userLocationPicking.value,
+            ),
           ),
-        ),
-        Padding(
-          padding: EdgeInsets.fromLTRB(20.sp, 0.sp, 20.sp, 30.sp),
-          child: commonComponents.commonButton(
-            text: 'No',
-            color: ColorHelper.greyColor,
-            onPressed: () {
-              _showLocationSelectionSheet(context);
-            },
+          Padding(
+            padding: EdgeInsets.fromLTRB(20.sp, 0.sp, 20.sp, 30.sp),
+            child: commonComponents.commonButton(
+              text: 'No',
+              color: ColorHelper.greyColor,
+              onPressed: () {
+                _showLocationSelectionSheet(context);
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -124,6 +127,10 @@ class ConfirmLocationScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: TextField(
                       style: StyleHelper.regular14,
+                      controller: authController.searchCityController.value,
+                      onChanged: (value) {
+                        authController.onSearchTextChanged(value);
+                      },
                       decoration: InputDecoration(
                         hintText: 'Search',
                         hintStyle: StyleHelper.regular14,
@@ -134,25 +141,53 @@ class ConfirmLocationScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Obx(() => ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: authController.locations.length,
-                        itemBuilder: (context, index) {
-                          final location = authController.locations[index];
-                          return ListTile(
-                            title: Text(
-                              location,
-                              style: StyleHelper.regular14,
-                            ),
-                            subtitle: const Text('Dhaka District, Bangladesh'),
-                            onTap: () {
-                              authController.selectedLocation.value = location;
-                              Navigator.pop(context);
-                            },
-                          );
-                        },
-                      )),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Obx(() => SizedBox(
+                          height: 250.h,
+                          child: ListView.builder(
+                              itemCount: authController.suggestions.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return InkWell(
+                                  onTap: () async {
+                                    authController.placeName.value =
+                                        authController.suggestions[index]
+                                            ["description"];
+
+                                    var placeDetails = await authController
+                                        .googlePlace.details
+                                        .get(authController.suggestions[index]
+                                            ["placeId"]);
+
+                                    authController.lat.value = placeDetails!
+                                        .result!.geometry!.location!.lat!;
+                                    authController.long.value = placeDetails
+                                        .result!.geometry!.location!.lng!;
+                                    Get.back();
+                                    Get.to(() => UserNameScreen(),
+                                        transition: Transition.rightToLeft);
+                                  },
+                                  child: ListTile(
+                                      contentPadding: EdgeInsets.zero,
+                                      leading: Icon(
+                                        Icons.location_on_outlined,
+                                        color: ColorHelper.primaryColor,
+                                      ),
+                                      trailing: CommonComponents().printText(
+                                          fontSize: 12,
+                                          textData: "",
+                                          fontWeight: FontWeight.bold),
+                                      title: CommonComponents().printText(
+                                          fontSize: 14,
+                                          maxLine: 2,
+                                          textData:
+                                              authController.suggestions[index]
+                                                  ["description"],
+                                          fontWeight: FontWeight.bold)),
+                                );
+                              }),
+                        )),
+                  ),
                 ],
               ),
             );

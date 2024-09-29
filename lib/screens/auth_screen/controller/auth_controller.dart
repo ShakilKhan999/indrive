@@ -2,11 +2,15 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 import 'package:callandgo/main.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compass/flutter_compass.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:google_place/google_place.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/method_helper.dart';
@@ -23,8 +27,10 @@ import 'package:callandgo/utils/database_collection_names.dart';
 import 'package:callandgo/utils/firebase_option.dart';
 import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:callandgo/utils/shared_preference_keys.dart';
+import '../../../utils/app_config.dart';
 import '../../home/views/passenger_home.dart';
 import '../views/location_permission_screeen.dart';
+import '../views/user_name_screen.dart';
 
 class AuthController extends GetxController {
   @override
@@ -40,6 +46,7 @@ class AuthController extends GetxController {
   var searchController = TextEditingController().obs;
   var firstnameController = TextEditingController().obs;
   var emailController = TextEditingController().obs;
+  // var phoneController = TextEditingController().obs;
   var fullNameController = TextEditingController().obs;
   var selectedLocation = 'Dhaka (ঢাকা)'.obs;
 
@@ -49,7 +56,7 @@ class AuthController extends GetxController {
   var isAgree = true.obs;
   var otpSubmitted = false.obs;
   var otpTime = '02:30'.obs;
-  final TextEditingController phoneNumbercontroller = TextEditingController();
+  var phoneNumbercontroller = TextEditingController().obs;
   final TextEditingController pinPutController = TextEditingController();
   var countryCode = '880'.obs;
   String verificationCode = "";
@@ -67,6 +74,8 @@ class AuthController extends GetxController {
   var isUserDataSaving = false.obs;
   var isDriverMode = false.obs;
   double? _direction;
+  var profilePhone = ''.obs;
+  var userLocation = ''.obs;
 
   getUserData() async {
     if (FirebaseAuth.instance.currentUser != null) {
@@ -75,9 +84,20 @@ class AuthController extends GetxController {
         isDriverMode.value = currentUser.value.isDriverMode!;
         fullNameController.value.text = currentUser.value.name!;
         emailController.value.text = currentUser.value.email!;
+        userLocation.value =
+            currentUser.value.userLocation ?? 'Location not set yet';
+        checkPhoneNumber(phoneNumber: currentUser.value.phone);
       } catch (e) {
         log('Error while fethching user data: $e');
       }
+    }
+  }
+
+  checkPhoneNumber({required String? phoneNumber}) async {
+    if (phoneNumber != null && phoneNumber.toLowerCase() != 'none') {
+      profilePhone.value = phoneNumber;
+    } else if (phoneNumber == null || phoneNumber.toLowerCase() == 'none') {
+      profilePhone.value = 'Phone number not set yet';
     }
   }
 
@@ -396,13 +416,14 @@ class AuthController extends GetxController {
           photo: null,
           lat: null,
           long: null,
+          userLocation: placeName.value,
           phone: '+${countryCode.value}${phoneNumbercontroller.value.text}',
           signInWith: 'phone',
           vehicleType: null,
           vehicleAngle: _direction != null
               ? double.parse(_direction!.toStringAsFixed(2))
               : null,
-          latLng: null,
+          latLng: GeoPoint(lat.value, long.value),
           isDriverMode: isDriverMode.value,
           driverStatus: null,
           driverStatusDescription: null,
@@ -428,11 +449,12 @@ class AuthController extends GetxController {
           photo: userInfo.photoURL,
           lat: null,
           long: null,
+          userLocation: placeName.value,
           phone: userInfo.phoneNumber,
           signInWith: 'google',
           vehicleType: null,
           vehicleAngle: double.parse(_direction!.toStringAsFixed(2)),
-          latLng: null,
+          latLng: GeoPoint(lat.value, long.value),
           isDriverMode: isDriverMode.value,
           driverStatus: null,
           driverStatusDescription: null,
@@ -553,6 +575,144 @@ class AuthController extends GetxController {
       showToast(toastText: 'Something went worng', toastColor: ColorHelper.red);
       log('Error while checking user: $e');
       return null;
+    }
+  }
+
+  var searchCityController = TextEditingController().obs;
+  GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
+  var placeName = ''.obs;
+  var suggestions = [].obs;
+  var lat = 0.0.obs;
+  var long = 0.0.obs;
+  void onSearchTextChanged(String query) async {
+    if (query.isNotEmpty) {
+      suggestions.clear();
+      var response = await googlePlace.autocomplete.get(query);
+      if (response != null) {
+        AutocompletePrediction autocompletePrediction =
+            response.predictions![0];
+        log("placeDescription : ${autocompletePrediction.description}");
+        var placeDetails = await googlePlace.details
+            .get(autocompletePrediction.placeId.toString());
+        log("LatLong: ${placeDetails!.result!.geometry!.location!.lat}");
+        for (int i = 0; i < response.predictions!.length; i++) {
+          suggestions.add({
+            'placeId': response.predictions![i].placeId.toString(),
+            'description': response.predictions![i].description.toString(),
+          });
+        }
+      } else {
+        log("Response is null");
+      }
+    }
+  }
+
+  var userLocationPicking = false.obs;
+  void getUserLocation() async {
+    userLocationPicking.value = false;
+    log("getUserLocation called");
+    try {
+      userLocationPicking.value = true;
+      Position position = await getCurrentLocation();
+      lat.value = position.latitude;
+      long.value = position.longitude;
+      String? address = await getCityFromLatLong(lat.value, long.value);
+      placeName.value = address!;
+      userLocationPicking.value = false;
+      Get.to(() => UserNameScreen(), transition: Transition.rightToLeft);
+    } catch (e) {
+      log('Failed to get location: $e');
+      userLocationPicking.value = false;
+    }
+  }
+
+  Future<Position> getCurrentLocation() async {
+    log("getCurrentLocation called");
+
+    checkLocationServiceAndPermission();
+    LocationPermission permission;
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied.');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    return await Geolocator.getCurrentPosition();
+  }
+
+  Future<String?> getCityFromLatLong(double latitude, double longitude) async {
+    try {
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(latitude, longitude);
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks[0];
+        return '${place.locality}, ${place.country}';
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+    return null;
+  }
+
+  Future<void> checkLocationServiceAndPermission() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return;
+    }
+  }
+
+  updatePhoneNumber() async {
+    try {
+      if (phoneNumbercontroller.value.text == '') {
+        fToast.init(Get.context!);
+        showToast(
+            toastText: 'Please enter phone number',
+            toastColor: ColorHelper.red);
+      } else {
+        Map<String, dynamic> data = {
+          'phone': '+${countryCode.value}${phoneNumbercontroller.value.text}',
+        };
+        await MethodHelper().updateDocFields(
+            docId: currentUser.value.uid!,
+            fieldsToUpdate: data,
+            collection: userCollection);
+        profilePhone.value =
+            '+${countryCode.value}${phoneNumbercontroller.value.text}';
+        Get.back();
+      }
+    } catch (e) {
+      log('Error while updating phone number: $e');
+    }
+  }
+
+  updateLocation() async {
+    try {
+      Map<String, dynamic> data = {
+        'userLocation': placeName.value,
+      };
+      await MethodHelper().updateDocFields(
+          docId: currentUser.value.uid!,
+          fieldsToUpdate: data,
+          collection: userCollection);
+      userLocation.value = placeName.value;
+      Get.back();
+    } catch (e) {
+      log('Error while updating location: $e');
+    }
+  }
+
+  checkProfile() {
+    if (profilePhone.value != 'Phone number not set yet') {
+      return true;
+    } else {
+      return false;
     }
   }
 }

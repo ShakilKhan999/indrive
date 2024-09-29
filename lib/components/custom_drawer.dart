@@ -1,4 +1,5 @@
 import 'package:callandgo/screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
+import 'package:callandgo/screens/courier_user/controller/courier_trip_controller.dart';
 import 'package:callandgo/screens/freight_user/controller/freight_trip_controller.dart';
 import 'package:callandgo/screens/profile/controller/profile_controller.dart';
 import 'package:five_pointed_star/five_pointed_star.dart';
@@ -78,7 +79,6 @@ class CustomDrawer extends StatelessWidget {
     return Column(
       children: [
         buildDrawerItem(
-          // icon: Icons.maps_home_work_sharp,
           imagePath: "assets/images/location.png",
           colorImg: ColorHelper.primaryColor,
           text: 'City',
@@ -89,12 +89,10 @@ class CustomDrawer extends StatelessWidget {
           },
         ),
         buildDrawerItem(
-          // icon: Icons.maps_home_work_sharp,
           imagePath: "assets/images/city_to_city.png",
           text: 'City to City',
           color: Colors.white,
           onTap: () {
-            // Get.back();
             CityToCityTripController cityToCityTripController =
                 Get.put(CityToCityTripController());
             cityToCityTripController.getCityToCityTripsForUser();
@@ -104,12 +102,11 @@ class CustomDrawer extends StatelessWidget {
           },
         ),
         buildDrawerItem(
-          // icon: Icons.fire_truck,
           imagePath: 'assets/images/freight.png',
           text: 'Freight',
           color: Colors.white,
           onTap: () {
-            // Get.back();
+         
             FreightTripController freightTripController =
                 Get.put(FreightTripController());
             freightTripController.getFreightTripsForUser();
@@ -119,12 +116,15 @@ class CustomDrawer extends StatelessWidget {
           },
         ),
         buildDrawerItem(
-          // icon: Icons.fire_truck,
           imagePath: 'assets/images/courier.png',
           text: 'Courier',
           color: Colors.white,
           onTap: () {
-            // Get.back();
+         
+            CourierTripController courierTripController =
+                Get.put(CourierTripController());
+            courierTripController.getCourierTripsForUser();
+            courierTripController.getCourierMyTripsForUser();
             Get.to(() => CourierRequestScreen(),
                 transition: Transition.rightToLeft);
           },

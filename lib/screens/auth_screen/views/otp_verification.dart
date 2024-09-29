@@ -40,7 +40,7 @@ class OTPVerificationPage extends StatelessWidget {
                     text: 'Enter the code from the sms we sent to ',
                   ),
                   TextSpan(
-                    text: '${_authController.phoneNumbercontroller.text} ',
+                    text: '${_authController.phoneNumbercontroller.value.text} ',
                   ),
                 ],
               ),

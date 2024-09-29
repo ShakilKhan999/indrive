@@ -10,6 +10,8 @@ import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/main.dart';
 import 'package:callandgo/screens/driver/courier/controller/courier_controller.dart';
 
+import '../../../../models/vehicle_model.dart';
+
 class CourierVehicleinfoScreen extends StatelessWidget {
   CourierVehicleinfoScreen({super.key});
   final CourierController _courierController = Get.put(CourierController());
@@ -26,9 +28,9 @@ class CourierVehicleinfoScreen extends StatelessWidget {
         child: Column(
           children: [
             SpaceHelper.verticalSpace20,
-            _buildCarBrandNameView(),
+            _buildVehicleBrandNameView(),
             SpaceHelper.verticalSpace15,
-            _buildModelNumberTextFiled(),
+            _buildVehicleModelView(),
             SpaceHelper.verticalSpace15,
             _courierController.vehicleType.value == 'car' ||
                     _courierController.vehicleType.value == 'taxi'
@@ -48,9 +50,8 @@ class CourierVehicleinfoScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CommonComponents().commonButton(
         onPressed: () {
-          final carBrand = _courierController.selectedCarBrand.value;
-          final modelNumber =
-              _courierController.carModelNumberController.value.text;
+          final carBrand = _courierController.selectedVehicleBrand.value;
+          final modelNumber = _courierController.selectedVehicleModel.value;
           final seatNumber = _courierController.selectedSeatNumber.value;
           final carColor = _courierController.selectedCarColor.value;
 
@@ -80,15 +81,81 @@ class CourierVehicleinfoScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCarBrandNameView() {
-    return _buildDropdownSearch(
+  Widget _buildVehicleBrandNameView() {
+    return _buildBrandView(
       textData: "${_courierController.vehicleType.value.toUpperCase()} Brand ",
       hintText: 'Select brand',
       items: _courierController.vehicleBrands,
       searchHintText: 'Select brand...',
       onChanged: (value) {
-        _courierController.selectedCarBrand.value = value ?? '';
+        _courierController.selectedVehicleBrand.value = value!.brandName!;
+        _courierController.vehicleModels.value = value.modelList!;
+        _courierController.selectedVehicleModel.value = '';
       },
+    );
+  }
+
+  Widget _buildBrandView({
+    required String textData,
+    required String hintText,
+    required List<VehicleModel> items,
+    required String searchHintText,
+    required Function(VehicleModel?) onChanged,
+  }) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(6.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SpaceHelper.verticalSpace5,
+          CommonComponents().printText(
+              fontSize: 16,
+              textData: textData,
+              fontWeight: FontWeight.bold,
+              color: Colors.black),
+          Container(
+            margin: EdgeInsets.all(16.sp),
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8.r),
+                border: Border.all(color: Colors.black)),
+            child: DropdownFlutter<VehicleModel>.search(
+              closedHeaderPadding: EdgeInsets.all(20.sp),
+              hintText: hintText,
+              items: items,
+              excludeSelected: false,
+              searchHintText: searchHintText,
+              listItemBuilder: (context, item, isSelected, onTap) {
+                return ListTile(
+                  title: Text(item.brandName!),
+                  selected: isSelected,
+                  onTap: onTap,
+                );
+              },
+              headerBuilder: (context, selectedItem, enabled) {
+                return Text(
+                  selectedItem.brandName!,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                );
+              },
+              onChanged: onChanged,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -150,12 +217,24 @@ class CourierVehicleinfoScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildModelNumberTextFiled() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
-      child: CommonComponents().commonTextPicker(
-          labelText: 'Model Number',
-          textController: _courierController.carModelNumberController.value),
+  // Widget _buildModelNumberTextFiled() {
+  //   return Padding(
+  //     padding: EdgeInsets.symmetric(horizontal: 20.w),
+  //     child: CommonComponents().commonTextPicker(
+  //         labelText: 'Model Number',
+  //         textController: _courierController.carModelNumberController.value),
+  //   );
+  // }
+
+  Widget _buildVehicleModelView() {
+    return _buildDropdownSearch(
+      textData: "Model Number",
+      hintText: 'Select Model Number',
+      items: _courierController.vehicleModels.cast<String>(),
+      searchHintText: 'Select model number...',
+      onChanged: (value) {
+        _courierController.selectedVehicleModel.value = value!;
+      },
     );
   }
 

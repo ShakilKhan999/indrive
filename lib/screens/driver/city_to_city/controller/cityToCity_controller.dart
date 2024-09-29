@@ -15,6 +15,7 @@ import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../../models/vehicle_model.dart';
 import '../../../../utils/database_collection_names.dart';
 import '../repository/city_to_city_repository.dart';
 
@@ -51,10 +52,11 @@ class CityToCityInfoController extends GetxController {
   var isNationalIdCardPhotoloading = false.obs;
 
   // vhicle info------>>>>>>
-  var carModelNumberController = TextEditingController().obs;
+  // var carModelNumberController = TextEditingController().obs;
+  var selectedVehicleModel = ''.obs;
   var selectedSeatNumber = ''.obs;
   var selectedCarColor = ''.obs;
-  var selectedCarBrand = ''.obs;
+  var selectedVehicleBrand = ''.obs;
   void uploadProfilePhoto() async {
     try {
       File? file = await MethodHelper().pickImage();
@@ -215,20 +217,27 @@ class CityToCityInfoController extends GetxController {
     'Renault'
   ];
 
-  List<String> vehicleBrands = [];
-
+  final RxList vehicleModels = [].obs;
   final List<String> seatNumbers = ["2", "4", "5", "7", "8"].obs;
   final List<String> carColors = ["Red", "Blue", "Black", "White", "Grey"].obs;
 
-  setVehicleType({required String vehicleType}) {
+  RxList<VehicleModel> vehicleBrands = <VehicleModel>[].obs;
+
+  setVehicleType({required String vehicleType}) async {
     if (vehicleType == 'car') {
-      vehicleBrands = carBrands;
+      vehicleBrands.value =
+          await MethodHelper().getVehicleBrands(collection: carCollection);
+      log('vehicle models: ${vehicleBrands.length}');
     }
     if (vehicleType == 'taxi') {
-      vehicleBrands = taxiBrands;
+      vehicleBrands.value =
+          await MethodHelper().getVehicleBrands(collection: taxiCollection);
+      log('vehicle models: ${vehicleBrands.length}');
     }
     if (vehicleType == 'moto') {
-      vehicleBrands = bikeBrands;
+      vehicleBrands.value =
+          await MethodHelper().getVehicleBrands(collection: motoCollection);
+      log('vehicle models: ${vehicleBrands.length}');
     }
   }
 
@@ -251,12 +260,12 @@ class CityToCityInfoController extends GetxController {
         driverLicenseBackPhoto: licensebackPhotoUrl.value,
         idWithPhoto: idCardWithFacefPhotoUrl.value,
         nid: nationalIdCardPhotoUrl.value,
-        vehicleBrand: selectedCarBrand.value,
+        vehicleBrand: selectedVehicleBrand.value,
         vehicleNumberOfSeat:
             vehicleType.value == 'moto' ? null : selectedSeatNumber.value,
         vehicleColor:
             vehicleType.value == 'moto' ? null : selectedCarColor.value,
-        vehicleModelNo: carModelNumberController.value.text,
+        vehicleModelNo: selectedVehicleModel.value,
         vehicleType: vehicleType.value,
         isApproved: false,
         adminComment: null,

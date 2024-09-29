@@ -50,6 +50,8 @@ class VehicleTypeScreen extends StatelessWidget {
             child: InkWell(
               onTap: () {
                 _driverInfoController.vehicleType.value = 'car';
+                _driverInfoController.selectedVehicleBrand.value = '';
+                _driverInfoController.selectedVehicleModel.value = '';
                 _driverInfoController.setVehicleType(vehicleType: 'car');
                 Get.to(DriverInfoPage(), transition: Transition.rightToLeft);
               },
@@ -79,6 +81,8 @@ class VehicleTypeScreen extends StatelessWidget {
             child: InkWell(
               onTap: () {
                 _driverInfoController.vehicleType.value = 'taxi';
+                _driverInfoController.selectedVehicleBrand.value = '';
+                _driverInfoController.selectedVehicleModel.value = '';
                 _driverInfoController.setVehicleType(vehicleType: 'taxi');
                 Get.to(DriverInfoPage(), transition: Transition.rightToLeft);
               },
@@ -110,6 +114,8 @@ class VehicleTypeScreen extends StatelessWidget {
             child: InkWell(
               onTap: () {
                 _driverInfoController.vehicleType.value = 'moto';
+                _driverInfoController.selectedVehicleBrand.value = '';
+                _driverInfoController.selectedVehicleModel.value = '';
                 _driverInfoController.setVehicleType(vehicleType: 'moto');
                 Get.to(DriverInfoPage(), transition: Transition.rightToLeft);
               },

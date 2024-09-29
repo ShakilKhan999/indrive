@@ -200,11 +200,11 @@ class _CourierRequesForRiderState extends State<CourierRequesForRider>
                         SpaceHelper.horizontalSpace10,
                         Expanded(
                           child: CommonComponents().printText(
-                            fontSize: 12,
-                            textData:
-                                '${_courierTripController.myTripList[index].from}',
-                            fontWeight: FontWeight.normal,
-                          ),
+                              fontSize: 12,
+                              textData:
+                                  '${_courierTripController.myTripList[index].from}',
+                              fontWeight: FontWeight.normal,
+                              maxLine: 2),
                         )
                       ],
                     ),
@@ -217,12 +217,35 @@ class _CourierRequesForRiderState extends State<CourierRequesForRider>
                         SpaceHelper.horizontalSpace10,
                         Expanded(
                           child: CommonComponents().printText(
-                            fontSize: 12,
-                            textData:
-                                '${_courierTripController.myTripList[index].to}',
-                            fontWeight: FontWeight.normal,
-                          ),
+                              fontSize: 12,
+                              textData:
+                                  '${_courierTripController.myTripList[index].to}',
+                              fontWeight: FontWeight.normal,
+                              maxLine: 2),
                         )
+                      ],
+                    ),
+                    SpaceHelper.verticalSpace10,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CommonComponents().printText(
+                            fontSize: 15,
+                            textData: MethodHelper().timeAgo(
+                                _courierTripController
+                                    .myTripList[index].createdAt!),
+                            fontWeight: FontWeight.bold),
+                        IconButton(
+                            onPressed: () {
+                              MethodHelper().makePhoneCall(
+                                  _courierTripController
+                                      .myTripList[index].userPhone);
+                            },
+                            icon: Icon(
+                              Icons.phone,
+                              size: 30,
+                              color: ColorHelper.primaryColor,
+                            ))
                       ],
                     ),
                   ],
@@ -321,11 +344,13 @@ class _CourierRequesForRiderState extends State<CourierRequesForRider>
                             Icon(Icons.radio_button_checked,
                                 color: ColorHelper.primaryColor),
                             SpaceHelper.horizontalSpace10,
-                            CommonComponents().printText(
-                                fontSize: 12,
-                                textData:
-                                    '${_courierTripController.tripList[index].from!}',
-                                fontWeight: FontWeight.normal)
+                            Expanded(
+                                child: CommonComponents().printText(
+                                    fontSize: 12,
+                                    textData:
+                                        '${_courierTripController.tripList[index].from!}',
+                                    fontWeight: FontWeight.normal,
+                                    maxLine: 2))
                           ],
                         ),
                         SpaceHelper.verticalSpace5,
@@ -335,14 +360,23 @@ class _CourierRequesForRiderState extends State<CourierRequesForRider>
                             Icon(Icons.radio_button_checked,
                                 color: ColorHelper.blueColor),
                             SpaceHelper.horizontalSpace10,
-                            CommonComponents().printText(
-                                fontSize: 12,
-                                textData:
-                                    '${_courierTripController.tripList[index].to!}',
-                                fontWeight: FontWeight.normal)
+                            Expanded(
+                                child: CommonComponents().printText(
+                                    fontSize: 12,
+                                    textData:
+                                        '${_courierTripController.tripList[index].to!}',
+                                    fontWeight: FontWeight.normal,
+                                    maxLine: 2))
                           ],
                         ),
-                        SpaceHelper.verticalSpace15,
+                        SpaceHelper.verticalSpace10,
+                        CommonComponents().printText(
+                            fontSize: 15,
+                            textData: MethodHelper().timeAgo(
+                                _courierTripController
+                                    .tripList[index].createdAt!),
+                            fontWeight: FontWeight.bold),
+                        SpaceHelper.verticalSpace10,
                         _buildOfferYourFareView(index: index),
                         SpaceHelper.verticalSpace10,
                         _buildActionView(index: index)
@@ -466,7 +500,6 @@ class _CourierRequesForRiderState extends State<CourierRequesForRider>
       ),
     );
   }
-
 
   void _showOfferFareBottomSheet(int index) {
     showModalBottomSheet(

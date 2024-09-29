@@ -7,6 +7,7 @@ class UserModel {
   String? photo;
   String? lat;
   String? long;
+  String? userLocation;
   String? phone;
   String? signInWith;
   String? vehicleType;
@@ -37,6 +38,7 @@ class UserModel {
     this.photo,
     this.lat,
     this.long,
+    this.userLocation,
     this.phone,
     this.signInWith,
     this.vehicleType,
@@ -69,6 +71,7 @@ class UserModel {
       'photo': photo,
       'lat': lat,
       'long': long,
+      'userLocation': userLocation,
       'phone': phone,
       'signInWith': signInWith,
       'vehicleType': vehicleType,
@@ -100,6 +103,7 @@ class UserModel {
       photo: json['photo'],
       lat: json['lat'],
       long: json['long'],
+      userLocation: json['userLocation'],
       phone: json['phone'],
       signInWith: json['signInWith'],
       vehicleType: json['vehicleType'],

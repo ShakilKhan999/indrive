@@ -1,4 +1,5 @@
 import 'package:callandgo/components/simple_appbar.dart';
+import 'package:callandgo/models/vehicle_model.dart';
 import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:dropdown_flutter/custom_dropdown.dart';
 import 'package:flutter/material.dart';
@@ -28,9 +29,10 @@ class CityToCityVehicleInfoScreen extends StatelessWidget {
         child: Column(
           children: [
             SpaceHelper.verticalSpace20,
-            _buildCarBrandNameView(),
+            _buildVehicleBrandNameView(),
             SpaceHelper.verticalSpace15,
-            _buildModelNumberTextFiled(),
+            // _buildModelNumberTextFiled(),
+            _buildVehicleModelView(),
             SpaceHelper.verticalSpace15,
             _cityToCityInfoController.vehicleType.value == 'car' ||
                     _cityToCityInfoController.vehicleType.value == 'taxi'
@@ -50,13 +52,13 @@ class CityToCityVehicleInfoScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CommonComponents().commonButton(
         onPressed: () {
-          if (_cityToCityInfoController.selectedCarBrand.value.isEmpty) {
+          if (_cityToCityInfoController.selectedVehicleBrand.value.isEmpty) {
             showToast(
               toastText: "Please select a brand.",
               toastColor: Colors.red,
             );
           } else if (_cityToCityInfoController
-              .carModelNumberController.value.text.isEmpty) {
+              .selectedVehicleModel.value.isEmpty) {
             showToast(
               toastText: "Please enter the model number.",
               toastColor: Colors.red,
@@ -84,16 +86,131 @@ class CityToCityVehicleInfoScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCarBrandNameView() {
-    return _buildDropdownSearch(
+  Widget _buildVehicleBrandNameView() {
+    return _buildBrandView(
       textData:
           "${_cityToCityInfoController.vehicleType.value.toUpperCase()} Brand ",
       hintText: 'Select brand',
       items: _cityToCityInfoController.vehicleBrands,
       searchHintText: 'Select brand...',
       onChanged: (value) {
-        _cityToCityInfoController.selectedCarBrand.value = value ?? '';
+        _cityToCityInfoController.selectedVehicleBrand.value =
+            value!.brandName!;
+        _cityToCityInfoController.vehicleModels.value = value.modelList!;
+        _cityToCityInfoController.selectedVehicleModel.value = '';
       },
+    );
+  }
+
+  Widget _buildVehicleModelView() {
+    return _buildDropdownSearch(
+      textData: "Model Number",
+      hintText: 'Select Model Number',
+      items: _cityToCityInfoController.vehicleModels.cast<String>(),
+      searchHintText: 'Select model number...',
+      onChanged: (value) {
+        _cityToCityInfoController.selectedVehicleModel.value = value!;
+      },
+    );
+  }
+
+  Widget _buildBrandView({
+    required String textData,
+    required String hintText,
+    required List<VehicleModel> items,
+    required String searchHintText,
+    required Function(VehicleModel?) onChanged,
+  }) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(6.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SpaceHelper.verticalSpace5,
+          CommonComponents().printText(
+              fontSize: 16,
+              textData: textData,
+              fontWeight: FontWeight.bold,
+              color: Colors.black),
+          Container(
+            margin: EdgeInsets.all(16.sp),
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8.r),
+                border: Border.all(color: Colors.black)),
+            child: DropdownFlutter<VehicleModel>.search(
+              closedHeaderPadding: EdgeInsets.all(20.sp),
+              hintText: hintText,
+              items: items,
+              excludeSelected: false,
+              searchHintText: searchHintText,
+              listItemBuilder: (context, item, isSelected, onTap) {
+                return ListTile(
+                  title: Text(item.brandName!),
+                  selected: isSelected,
+                  onTap: onTap,
+                );
+              },
+              headerBuilder: (context, selectedItem, enabled) {
+                return Text(
+                  selectedItem.brandName!,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                );
+              },
+              onChanged: onChanged,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Widget _buildModelNumberTextFiled() {
+  //   return Padding(
+  //     padding: EdgeInsets.symmetric(horizontal: 20.w),
+  //     child: CommonComponents().commonTextPicker(
+  //         labelText: 'Model Number',
+  //         textController:
+  //             _cityToCityInfoController.carModelNumberController.value),
+  //   );
+  // }
+
+  Widget _buildSeatAndColorRow() {
+    return Column(
+      children: [
+        _buildDropdownSearch(
+          textData: "Numbers of seat",
+          hintText: 'Select seat number',
+          items: _cityToCityInfoController.seatNumbers,
+          searchHintText: 'Search seat numbers...',
+          onChanged: (value) {
+            _cityToCityInfoController.selectedSeatNumber.value = value ?? '';
+          },
+        ),
+        SpaceHelper.verticalSpace10,
+        _buildDropdownSearch(
+          textData: "Colors of the car",
+          hintText: 'Select car color',
+          items: _cityToCityInfoController.carColors,
+          searchHintText: 'Search car colors...',
+          onChanged: (value) {
+            _cityToCityInfoController.selectedCarColor.value = value ?? '';
+          },
+        ),
+      ],
     );
   }
 
@@ -148,46 +265,16 @@ class CityToCityVehicleInfoScreen extends StatelessWidget {
                 );
               },
               onChanged: onChanged,
+              headerBuilder: (context, selectedItem, enabled) {
+                return Text(
+                  selectedItem,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                );
+              },
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildModelNumberTextFiled() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
-      child: CommonComponents().commonTextPicker(
-          labelText: 'Model Number',
-          textController:
-              _cityToCityInfoController.carModelNumberController.value),
-    );
-  }
-
-  Widget _buildSeatAndColorRow() {
-    return Column(
-      children: [
-        _buildDropdownSearch(
-          textData: "Numbers of seat",
-          hintText: 'Select seat number',
-          items: _cityToCityInfoController.seatNumbers,
-          searchHintText: 'Search seat numbers...',
-          onChanged: (value) {
-            _cityToCityInfoController.selectedSeatNumber.value = value ?? '';
-          },
-        ),
-        SpaceHelper.verticalSpace10,
-        _buildDropdownSearch(
-          textData: "Colors of the car",
-          hintText: 'Select car color',
-          items: _cityToCityInfoController.carColors,
-          searchHintText: 'Search car colors...',
-          onChanged: (value) {
-            _cityToCityInfoController.selectedCarColor.value = value ?? '';
-          },
-        ),
-      ],
     );
   }
 }

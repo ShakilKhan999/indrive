@@ -62,8 +62,7 @@ dependencies:
   five_pointed_star: ^1.0.3
   audioplayers:
   flutter_compass: ^0.8.0
-  url_launcher:
-  
+  url_launcher: ^6.3.0
 
 
 dev_dependencies:
