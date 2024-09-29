@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:callandgo/helpers/style_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -10,6 +12,7 @@ import 'package:callandgo/screens/auth_screen/controller/auth_controller.dart';
 import 'package:callandgo/screens/driver/driver_home/controller/driver_home_controller.dart';
 import 'package:callandgo/screens/driver/driver_home/repository/driver_repository.dart';
 import 'package:callandgo/screens/profile/views/profile_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../components/custom_drawer_for_driver.dart';
 
@@ -237,7 +240,9 @@ class DriverHomeScreen extends StatelessWidget {
                                                   CircleAvatar(
                                                     backgroundImage: NetworkImage(trip.userImage??"https://thumb.ac-illust.com/30/30fa090868a2f8236c55ef8c1361db01_t.jpeg"),
                                                   ),
+                                                  SpaceHelper.horizontalSpace15,
                                                   Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
                                                     children: [
                                                       CommonComponents().printText(
                                                           fontSize: 12,
@@ -247,8 +252,14 @@ class DriverHomeScreen extends StatelessWidget {
                                                       CommonComponents().printText(
                                                           fontSize: 12,
                                                           textData:
+                                                          "From: " + trip.pickUp??"",
+                                                          fontWeight: FontWeight.bold),
+                                                      CommonComponents().printText(
+                                                          fontSize: 12,
+                                                          textData:
                                                           "To: " + trip.destination,
                                                           fontWeight: FontWeight.bold),
+
                                                     ],
                                                   )
                                                 ],
@@ -321,6 +332,7 @@ class DriverHomeScreen extends StatelessWidget {
                                                                 trip.rent);
                                                             driverHomeController
                                                                 .listenCall();
+                                                            await Future.delayed(Duration(seconds: 1));
                                                             driverHomeController.getPolyline(picking: true);
                                                           })
                                                 ],
@@ -442,14 +454,10 @@ class DriverHomeScreen extends StatelessWidget {
                       child: CommonComponents().commonButton(
                           text: "Cancel",
                           onPressed: () async {
-                            DriverRepository().updateTripState(
-                                driverHomeController.activeCall[0].tripId,
-                                "driverCancel",
-                                true);
-                            DriverRepository().updateTripState(
-                                driverHomeController.activeCall[0].tripId,
-                                "accepted",
-                                false);
+                            await DriverRepository().cancelRide(
+                                driverHomeController.activeCall[0].tripId, driverHomeController.activeCall[0].driverId);
+                            driverHomeController.polyLines.clear();
+                            driverHomeController.polylineCoordinates.clear();
                           },
                           color: Colors.red,
                           borderRadius: 14)),
@@ -481,14 +489,10 @@ class DriverHomeScreen extends StatelessWidget {
                       child: CommonComponents().commonButton(
                           text: "Cancel",
                           onPressed: () async {
-                            DriverRepository().updateTripState(
-                                driverHomeController.activeCall[0].tripId,
-                                "driverCancel",
-                                true);
-                            DriverRepository().updateTripState(
-                                driverHomeController.activeCall[0].tripId,
-                                "accepted",
-                                false);
+                            await DriverRepository().cancelRide(
+                                driverHomeController.activeCall[0].tripId, driverHomeController.activeCall[0].driverId);
+                            driverHomeController.polyLines.clear();
+                            driverHomeController.polylineCoordinates.clear();
                           },
                           color: Colors.red,
                           borderRadius: 14)),
@@ -497,7 +501,19 @@ class DriverHomeScreen extends StatelessWidget {
                       height: 40.h,
                       child: CommonComponents().commonButton(
                           text: "Call",
-                          onPressed: () async {},
+                          onPressed: () async {
+                            String phoneNumber = "01783080181";
+                                //driverHomeController.activeCall[0].userPhone;
+                            final Uri launchUri = Uri(
+                              scheme: 'tel',
+                              path: phoneNumber,
+                            );
+                            if (await canLaunchUrl(launchUri)) {
+                              await launchUrl(launchUri);
+                            } else {
+                              log('Could not launch dialer');
+                            }
+                          },
                           color: ColorHelper.primaryColor,
                           borderRadius: 14)),
                   SpaceHelper.horizontalSpace10,

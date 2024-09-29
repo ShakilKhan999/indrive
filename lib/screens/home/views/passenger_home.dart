@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:callandgo/screens/auth_screen/controller/auth_controller.dart';
 import 'package:callandgo/screens/home/views/ride_progress.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,7 @@ import 'package:callandgo/screens/home/views/select_destination.dart';
 
 import '../../../components/custom_drawer.dart';
 import '../../courier_user/controller/courier_trip_controller.dart';
+import '../../profile/views/profile_screen.dart';
 
 class PassengerHomeScreen extends StatefulWidget {
   const PassengerHomeScreen({super.key});
@@ -42,12 +44,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
       Get.put(FreightTripController());
   final CourierTripController courierTripController =
       Get.put(CourierTripController());
-
-  final List<double> _rotations = [
-    0.0, 45.0, 90.0,
-    // Add more rotation values as needed
-  ];
-
+  final AuthController authController=Get.put(AuthController());
   @override
   void initState() {
     if (homeController.myPlaceName.value == "Searching for you on the map..") {
@@ -191,7 +188,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
             ),
             Align(
                 alignment: Alignment.center,
-                child: Obx(() => homeController.bidderList.isEmpty || homeController.calledTrip.isNotEmpty
+                child: Obx(() => homeController.bidderList.isEmpty
                     ? SizedBox()
                     : Container(
                         width: 300.w,
@@ -204,8 +201,6 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                           itemCount: homeController.bidderList.length,
                           itemBuilder: (BuildContext context, int index) {
                             var bid = homeController.bidderList[index];
-
-                            // Ensure offerPrice is not null before rendering the BidItem
                             if (bid.offerPrice == null) {
                               return SizedBox();
                             }
@@ -682,14 +677,24 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                       ? "Cancel Search"
                                       : "Find a driver",
                                   onPressed: () {
-                                    if (homeController.tripCalled.value ==
-                                        false) {
-                                      homeController.callTrip();
-                                    } else {
-                                      homeController.tripCalled.value = false;
-                                      PassengerRepository().removeThisTrip(
-                                          homeController.tempTripId);
-                                    }
+                                    if(authController.currentUser.value.phone==null)
+                                      {
+                                        Get.to(() => ProfileScreen(),
+                                            transition: Transition.rightToLeft);
+                                        homeController.showToast("Update Profile, Add your phone number");
+                                      }
+                                    else
+                                      {
+                                        if (homeController.tripCalled.value ==
+                                            false) {
+                                          homeController.callTrip();
+                                        } else {
+                                          homeController.tripCalled.value = false;
+                                          PassengerRepository().removeThisTrip(
+                                              homeController.tempTripId);
+                                        }
+                                      }
+
                                   },
                                 ))),
                         Icon(

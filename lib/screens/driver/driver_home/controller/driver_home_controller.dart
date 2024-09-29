@@ -210,11 +210,18 @@ class DriverHomeController extends GetxController {
           (index) => Trip.fromJson(event.docs[index].data()));
 
       if (activeCall.isNotEmpty) {
+       if (activeCall[0].accepted == false && activeCall[0].driverCancel == true) {
+          activeCall.clear();
+          polyLines.clear();
+          polylineCoordinates.clear();
+        }
         if(activeCall[0].userCancel == true) {
 
         }
-        // else if (activeCall[0].accepted == true && activeCall[0].picked == true) {
-        //   getPolyline(picking: false);
+        // else if (activeCall[0].accepted == false && activeCall[0].driverCancel == true) {
+        //   activeCall.clear();
+        //   polyLines.clear();
+        //   polylineCoordinates.clear();
         // }
 
         //playSound();

@@ -64,8 +64,10 @@ class Trip {
   String? userId;
   String? userName;
   String? userImage;
+  String? userPhone;
   String? driverId;
   String? destination;
+  String? pickUp;
   GeoPoint? pickLatLng;
   GeoPoint? dropLatLng;
   bool driverCancel;
@@ -81,10 +83,12 @@ class Trip {
     this.userId,
     this.userName,
     this.userImage,
+    this.userPhone,
     this.polyLineEncoded,
     this.rent,
     this.driverId,
     this.destination,
+    this.pickUp,
     this.pickLatLng,
     this.dropLatLng,
     required this.driverCancel,
@@ -103,9 +107,11 @@ class Trip {
       rent: json['rent'] as int,
       userId: json['userId'] as String?,
       userName: json['userName'] as String?,
+      userPhone: json['userPhone'] as String?,
       userImage: json['userImage'] as String?,
       driverId: json['driverId'] as String?,
       destination: json['destination'] as String?,
+      pickUp: json['pickUp'] as String?,
       pickLatLng:
           json['pickLatLng'] != null ? json['pickLatLng'] as GeoPoint : null,
       dropLatLng:
@@ -130,8 +136,10 @@ class Trip {
       'userId': userId,
       'userName': userName,
       'userImage': userImage,
+      'userPhone': userPhone,
       'driverId': driverId,
       'destination': destination,
+      'pickUp': pickUp,
       'pickLatLng': pickLatLng,
       'dropLatLng': dropLatLng,
       'driverCancel': driverCancel,

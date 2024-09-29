@@ -279,6 +279,8 @@ class HomeController extends GetxController {
       }).toSet();
 
       allMarkers.value = markers;
+
+
       log("cng marker length: ${allMarkers.length}");
     }
   }
@@ -436,6 +438,7 @@ class HomeController extends GetxController {
         } else {
           myPlaceName.value =
               '${placemark.street}, ${placemark.subLocality}, ${placemark.locality}';
+          pickupController.text=myPlaceName.value;
         }
 
         log("myPlaceName: ${myPlaceName.value}");
@@ -574,9 +577,9 @@ class HomeController extends GetxController {
   var tempTripId = "";
 
 
-
+var tripCalling=false.obs;
   Future<void> callTrip() async {
-
+tripCalling.value=true;
     String polyline= await PassengerRepository().getPolylineFromGoogleMap(startPickedCenter.value, destinationPickedCenter.value);
     sortedDriverList.clear();
     sortedDriverList
@@ -607,6 +610,7 @@ class HomeController extends GetxController {
         bids: bidList.map((e) => e as Bid).toList(),
         driverId: "",
         destination: destinationController.text,
+        pickUp: myPlaceName.value,
         pickLatLng: GeoPoint(startPickedCenter.value.latitude,
             startPickedCenter.value.longitude),
         dropLatLng: GeoPoint(destinationPickedCenter.value.latitude,
@@ -680,6 +684,7 @@ class HomeController extends GetxController {
     //   await PassengerRepository().callDriver(tripId, "");
     // }
     tripCalled.value = false;
+tripCalling.value=false;
     //loadMarkers();
   }
 
