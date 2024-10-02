@@ -16,6 +16,7 @@ import 'package:callandgo/screens/profile/views/choose_profile_screen.dart';
 
 import '../screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
 import '../screens/city_to_city_user/views/driver_city_to_city_request_list.dart';
+import '../screens/drawer_screen/my_ride_screen.dart';
 import '../screens/driver/city_to_city/views/cityToCity_types_screen.dart';
 import '../screens/driver/freight/views/freight_info_screen.dart';
 import '../screens/freight_user/controller/freight_trip_controller.dart';
@@ -209,15 +210,15 @@ class CustomDrawerForDriver extends StatelessWidget {
                 'Verification failed') {}
           },
         ),
-        // buildDrawerItem(
-        //   icon: Icons.timer_outlined,
-        //   text: 'Request history',
-        //   color: Colors.white,
-        //   onTap: () {
-        //     Get.back();
-        //     Get.to(() => MyRideScreen(), transition: Transition.rightToLeft);
-        //   },
-        // ),
+        buildDrawerItem(
+          icon: Icons.timer_outlined,
+          text: 'Request history',
+          color: Colors.white,
+          onTap: () {
+            Get.back();
+            Get.to(() => MyRideScreen(), transition: Transition.rightToLeft);
+          },
+        ),
         // buildDrawerItem(
         //   icon: Icons.safety_check,
         //   text: 'Safety',

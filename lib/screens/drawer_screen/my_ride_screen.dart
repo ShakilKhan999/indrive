@@ -1,3 +1,5 @@
+import 'package:callandgo/screens/auth_screen/controller/auth_controller.dart';
+import 'package:callandgo/screens/driver/driver_home/controller/driver_home_controller.dart';
 import 'package:callandgo/screens/home/controller/home_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -5,13 +7,14 @@ import 'package:callandgo/components/common_components.dart';
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:get/get.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../home/views/list_map.dart';
 
 class MyRideScreen extends StatelessWidget {
-  const MyRideScreen({super.key});
-
+   MyRideScreen({super.key});
+final AuthController authController=Get.find();
+final DriverHomeController driverHomeController=Get.put(DriverHomeController());
+final HomeController homeController=Get.put(HomeController());
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -23,7 +26,7 @@ class MyRideScreen extends StatelessWidget {
             children: [
               _buidHeadertextView(),
               SpaceHelper.verticalSpace15,
-              _buildListView()
+              _buildListView(authController.isDriverMode.value?driverHomeController.previousTrips: homeController.previousTrips)
             ],
           ),
         ),
@@ -31,22 +34,13 @@ class MyRideScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildListView() {
-    HomeController homeController=Get.find();
-    List<Map<String, String>> rideHistory = [
-      {
-        "mapImage": "Map Image",
-        "placeName": "Place Name",
-        "time": "Time",
-        "cost": "Cost",
-      },
-    ];
+  Widget _buildListView(var rideList) {
 
     return Expanded(
       child: ListView.builder(
-        itemCount: homeController.previousTrips.length,
+        itemCount: rideList.length,
         itemBuilder: (context, index) {
-          final ride = homeController.previousTrips[index];
+          final ride = rideList[index];
           return Container(
             margin: EdgeInsets.symmetric(vertical: 8.h),
             width: double.infinity,

@@ -281,8 +281,27 @@ class HomeController extends GetxController {
       allMarkers.value = markers;
 
 
+
       log("cng marker length: ${allMarkers.length}");
     }
+
+    if(polylineCoordinates.isNotEmpty)
+    {
+      allMarkers.add(Marker(
+        markerId: MarkerId("startPoint"),
+        position: polylineCoordinates[0],
+        infoWindow: InfoWindow(title: "Pickup Point"),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+      ));
+
+      allMarkers.add(Marker(
+        markerId: MarkerId("endPoint"),
+        position: polylineCoordinates[polylineCoordinates.length-1],
+        infoWindow: InfoWindow(title: "Destination Point"),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+      ));
+    }
+
   }
 
 
@@ -515,6 +534,8 @@ class HomeController extends GetxController {
   var bidderList = [].obs;
 
   int count=0;
+  var rateDriver=false.obs;
+  var driverToRate=[].obs;
 
   StreamSubscription? _tripSubscription;
 
@@ -531,6 +552,9 @@ class HomeController extends GetxController {
           tripCalled.value = false;
           polyLines.clear();
           polylineCoordinates.clear();
+
+          driverToRate.add(thisDriver[0]);
+          rateDriver.value=true;
         }
 
         else if(calledTrip[0].accepted==false && calledTrip[0].driverCancel==true)
@@ -782,7 +806,7 @@ tripCalling.value=false;
 
   Future<void> getPrevTrips() async{
     previousTrips.clear();
-    previousTrips.addAll(await PassengerRepository().getTripHistory("8mCWZ9uBrWME2Bfm9YOCvb0U2EJ3"));
+    previousTrips.addAll(await PassengerRepository().getTripHistory(authController.currentUser.value.uid!));
     log("trip history : ${previousTrips.length.toString()}");
   }
 

@@ -29,6 +29,7 @@ class DriverHomeController extends GetxController {
 
   var addingOffer = false.obs;
   var offeringTrip = "".obs;
+  var previousTrips=[].obs;
 
   final TextEditingController offerPriceController = TextEditingController();
 
@@ -41,6 +42,7 @@ class DriverHomeController extends GetxController {
     polylineCoordinates.clear();
     authController.getUserData();
     getUserLocation();
+    getPrevTrips();
     getAngle();
     listenCall();
     listenToTrips(FirebaseAuth.instance.currentUser!.uid);
@@ -306,5 +308,11 @@ class DriverHomeController extends GetxController {
     );
 
     mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 60));
+  }
+
+  Future<void> getPrevTrips() async{
+    previousTrips.clear();
+    previousTrips.addAll(await DriverRepository().getTripHistory(authController.currentUser.value.uid!));
+    log("trip history rider: ${previousTrips.length.toString()}");
   }
 }

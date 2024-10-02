@@ -85,6 +85,33 @@ class DriverRepository {
     }
   }
 
+  Future<List<Trip>> getTripHistory(String driverId) async {
+    try {
+      CollectionReference<Map<String, dynamic>> tripsCollection = FirebaseFirestore.instance.collection('All Trips').withConverter<Map<String, dynamic>>(
+        fromFirestore: (snapshot, _) => snapshot.data()!,
+        toFirestore: (model, _) => model,
+      );
+
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await tripsCollection.get();
+
+      return querySnapshot.docs
+          .where((doc) {
+        final data = doc.data();
+        String tripDriverId = data['driverId'];
+        return tripDriverId == driverId ||
+            tripDriverId == driverId + "dropped" ||
+            tripDriverId == driverId + "cancelledbydriver";
+      })
+          .map((doc) => Trip.fromJson(doc.data()))
+          .toList();
+    } catch (e) {
+      print('Error fetching trips: $e');
+      return [];
+    }
+  }
+
+
+
   Future<void> cancelRide(String docId, String newDriverId) async {
     try {
       await _firestore.collection('All Trips').doc(docId).update({
