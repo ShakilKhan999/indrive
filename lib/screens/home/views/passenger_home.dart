@@ -1,9 +1,11 @@
 import 'dart:developer';
 
+import 'package:callandgo/screens/auth_screen/controller/auth_controller.dart';
 import 'package:callandgo/screens/home/views/ride_progress.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -21,7 +23,9 @@ import 'package:callandgo/screens/home/views/bid.dart';
 import 'package:callandgo/screens/home/views/select_destination.dart';
 
 import '../../../components/custom_drawer.dart';
+import '../../../helpers/method_helper.dart';
 import '../../courier_user/controller/courier_trip_controller.dart';
+import '../../profile/views/profile_screen.dart';
 
 class PassengerHomeScreen extends StatefulWidget {
   const PassengerHomeScreen({super.key});
@@ -40,12 +44,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
       Get.put(FreightTripController());
   final CourierTripController courierTripController =
       Get.put(CourierTripController());
-
-  final List<double> _rotations = [
-    0.0, 45.0, 90.0,
-    // Add more rotation values as needed
-  ];
-
+  final AuthController authController=Get.put(AuthController());
   @override
   void initState() {
     if (homeController.myPlaceName.value == "Searching for you on the map..") {
@@ -114,7 +113,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                     polylines: {
                       Polyline(
                           polylineId: const PolylineId("route"),
-                          points: homeController.polylineCoordinates.value
+                          points: homeController.polylineCoordinates
                               .map((geoPoint) =>
                                   LatLng(geoPoint.latitude, geoPoint.longitude))
                               .toList(),
@@ -175,7 +174,8 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                 )),
             Align(
               alignment: Alignment.bottomCenter,
-              child: Obx(() => AnimatedContainer(
+              child: Obx(() =>homeController.rateDriver.value?_buildRatingBar():
+                  AnimatedContainer(
                     duration: const Duration(microseconds: 200),
                     width: MediaQuery.of(context).size.width,
                     height: homeController.cameraMoving.value ? 0 : 300.h,
@@ -189,7 +189,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
             ),
             Align(
                 alignment: Alignment.center,
-                child: Obx(() => homeController.bidderList.isEmpty || homeController.calledTrip.isNotEmpty
+                child: Obx(() => homeController.bidderList.isEmpty
                     ? SizedBox()
                     : Container(
                         width: 300.w,
@@ -202,8 +202,6 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                           itemCount: homeController.bidderList.length,
                           itemBuilder: (BuildContext context, int index) {
                             var bid = homeController.bidderList[index];
-
-                            // Ensure offerPrice is not null before rendering the BidItem
                             if (bid.offerPrice == null) {
                               return SizedBox();
                             }
@@ -299,11 +297,14 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                             //   ),
                             // ),
                             SpaceHelper.horizontalSpace10,
-                            CommonComponents().printText(
-                                fontSize: 18,
-                                textData:
-                                    homeController.thisDriver[0].name ?? "",
-                                fontWeight: FontWeight.bold),
+                            SizedBox(
+                              width: 180.w,
+                              child: CommonComponents().printText(
+                                  fontSize: 18,
+                                  textData:
+                                      homeController.thisDriver[0].name ?? "",
+                                  fontWeight: FontWeight.bold),
+                            ),
                           ],
                         ),
                         Padding(
@@ -412,7 +413,19 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                             homeController.riderFound.value = false;
                             homeController.calledTrip.clear();
                           },
-                        )),
+                        ))
+                    ,
+                    SpaceHelper.verticalSpace10,
+                    SizedBox(
+                        width: 250.w,
+                        child: CommonComponents().commonButton(
+                          borderRadius: 13,
+                          color: ColorHelper.primaryColor,
+                          text: "Call Rider",
+                          onPressed: () async {
+                            MethodHelper().makePhoneCall(homeController.thisDriver[0].phone ?? "");
+                          },
+                        ))
                   ],
                 ),
               )
@@ -448,11 +461,14 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                               ),
                             ),
                             SpaceHelper.horizontalSpace10,
-                            CommonComponents().printText(
-                                fontSize: 18,
-                                textData:
-                                    homeController.thisDriver[0].name ?? "",
-                                fontWeight: FontWeight.bold),
+                            SizedBox(
+                              width: 180.w,
+                              child: CommonComponents().printText(
+                                  fontSize: 18,
+                                  textData:
+                                      homeController.thisDriver[0].name ?? "",
+                                  fontWeight: FontWeight.bold),
+                            ),
                             SpaceHelper.horizontalSpace10,
                             _buildRentPriceView(initial: false)
                           ],
@@ -545,8 +561,6 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                   InkWell(
                     onTap: () {
                       homeController.changingPickup.value = true;
-                      homeController.polylineCoordinates.clear();
-                      homeController.polyLines.clear();
                       _buildDestinationBottomSheet(context);
                      // Get.to(SelectDestination());
                     },
@@ -598,8 +612,6 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                     child: GestureDetector(
                       onTap: (){
                         homeController.changingPickup.value = false;
-                        homeController.polylineCoordinates.clear();
-                        homeController.polyLines.clear();
                         _buildDestinationBottomSheet(context);
                       },
                       child: Container(
@@ -680,14 +692,24 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                       ? "Cancel Search"
                                       : "Find a driver",
                                   onPressed: () {
-                                    if (homeController.tripCalled.value ==
-                                        false) {
-                                      homeController.callTrip();
-                                    } else {
-                                      homeController.tripCalled.value = false;
-                                      PassengerRepository().removeThisTrip(
-                                          homeController.tempTripId);
-                                    }
+                                    if(authController.checkProfile()==false)
+                                      {
+                                        Get.to(() => ProfileScreen(),
+                                            transition: Transition.rightToLeft);
+                                        homeController.showToast("Update Profile, Add your phone number");
+                                      }
+                                    else
+                                      {
+                                        if (homeController.tripCalled.value ==
+                                            false) {
+                                          homeController.callTrip();
+                                        } else {
+                                          homeController.tripCalled.value = false;
+                                          PassengerRepository().removeThisTrip(
+                                              homeController.tempTripId);
+                                        }
+                                      }
+
                                   },
                                 ))),
                         Icon(
@@ -1053,6 +1075,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
   }
 
   void _buildDestinationBottomSheet(BuildContext context) {
+
     showModalBottomSheet<void>(
       backgroundColor: Colors.transparent,
       scrollControlDisabledMaxHeightRatio: 0.8,
@@ -1257,5 +1280,100 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                 fontWeight: FontWeight.bold),
           ),
         ));
+  }
+
+
+  Widget _buildRatingBar(){
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      child: Stack(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: ColorHelper.bgColor,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  spreadRadius: 5,
+                  blurRadius: 7,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+
+                CommonComponents().printText(
+                  fontSize: 14,
+                  textData: "Rate your driver",
+                  fontWeight: FontWeight.bold,
+                ),
+                SpaceHelper.verticalSpace20,
+                CircleAvatar(
+                  radius: 40,
+                  backgroundImage: NetworkImage( homeController.driverToRate[0].photo??"https://cdn-icons-png.flaticon.com/512/8583/8583437.png",
+                  ),
+                ),
+                SpaceHelper.verticalSpace10,
+                CommonComponents().printText(
+                  fontSize: 18,
+                  textData: homeController.driverToRate[0].name,
+                  fontWeight: FontWeight.bold,
+                ),
+                SpaceHelper.verticalSpace10,
+                RatingBar.builder(
+                  initialRating: 3,
+                  minRating: 1,
+                  direction: Axis.horizontal,
+                  allowHalfRating: false,
+                  unratedColor: ColorHelper.lightGreyColor,
+                  itemCount: 5,
+                  itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+                  itemBuilder: (context, _) => Icon(
+                    Icons.star,
+                    color: ColorHelper.primaryColor,
+                  ),
+                  onRatingUpdate: (rating) {
+                    print(rating);
+                  },
+                ),
+                SpaceHelper.verticalSpace10,
+                SizedBox(
+                  width: double.infinity,
+                  child: CommonComponents().commonButton(
+                    borderRadius: 12,
+                    color: ColorHelper.primaryColor,
+                    text: "Submit",
+                    onPressed: () {
+                      homeController.rateDriver.value=false;
+                      homeController.driverToRate.clear();
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 8,
+            right: 8,
+            child: GestureDetector(
+              onTap: () {
+                homeController.rateDriver.value=false;
+                homeController.driverToRate.clear();
+              },
+              child: Icon(
+                Icons.close,
+                color: Colors.grey,
+                size: 24,
+              ),
+            ),
+          ),
+        ],
+      )
+      ,
+    );
   }
 }

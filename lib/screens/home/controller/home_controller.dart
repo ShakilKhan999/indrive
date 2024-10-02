@@ -49,7 +49,7 @@ class HomeController extends GetxController {
     authController.getUserData();
     getAngle();
     getDriverList();
-    getPrevTrips();
+    // getPrevTrips();
     super.onInit();
     ever(thisDriver, (value) {
       if (thisDriver.isNotEmpty) {
@@ -279,8 +279,29 @@ class HomeController extends GetxController {
       }).toSet();
 
       allMarkers.value = markers;
+
+
+
       log("cng marker length: ${allMarkers.length}");
     }
+
+    if(polylineCoordinates.isNotEmpty)
+    {
+      allMarkers.add(Marker(
+        markerId: MarkerId("startPoint"),
+        position: polylineCoordinates[0],
+        infoWindow: InfoWindow(title: "Pickup Point"),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+      ));
+
+      allMarkers.add(Marker(
+        markerId: MarkerId("endPoint"),
+        position: polylineCoordinates[polylineCoordinates.length-1],
+        infoWindow: InfoWindow(title: "Destination Point"),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+      ));
+    }
+
   }
 
 
@@ -436,6 +457,7 @@ class HomeController extends GetxController {
         } else {
           myPlaceName.value =
               '${placemark.street}, ${placemark.subLocality}, ${placemark.locality}';
+          pickupController.text=myPlaceName.value;
         }
 
         log("myPlaceName: ${myPlaceName.value}");
@@ -512,6 +534,8 @@ class HomeController extends GetxController {
   var bidderList = [].obs;
 
   int count=0;
+  var rateDriver=false.obs;
+  var driverToRate=[].obs;
 
   StreamSubscription? _tripSubscription;
 
@@ -528,6 +552,9 @@ class HomeController extends GetxController {
           tripCalled.value = false;
           polyLines.clear();
           polylineCoordinates.clear();
+
+          driverToRate.add(thisDriver[0]);
+          rateDriver.value=true;
         }
 
         else if(calledTrip[0].accepted==false && calledTrip[0].driverCancel==true)
@@ -574,9 +601,9 @@ class HomeController extends GetxController {
   var tempTripId = "";
 
 
-
+var tripCalling=false.obs;
   Future<void> callTrip() async {
-
+tripCalling.value=true;
     String polyline= await PassengerRepository().getPolylineFromGoogleMap(startPickedCenter.value, destinationPickedCenter.value);
     sortedDriverList.clear();
     sortedDriverList
@@ -602,11 +629,13 @@ class HomeController extends GetxController {
         userId: authController.currentUser.value.uid,
         userName: authController.currentUser.value.name,
         userImage: authController.currentUser.value.photo,
+        userPhone: authController.currentUser.value.phone,
         polyLineEncoded: polyline,
         rent: int.parse(offerPriceController.text),
         bids: bidList.map((e) => e as Bid).toList(),
         driverId: "",
         destination: destinationController.text,
+        pickUp: myPlaceName.value,
         pickLatLng: GeoPoint(startPickedCenter.value.latitude,
             startPickedCenter.value.longitude),
         dropLatLng: GeoPoint(destinationPickedCenter.value.latitude,
@@ -680,6 +709,7 @@ class HomeController extends GetxController {
     //   await PassengerRepository().callDriver(tripId, "");
     // }
     tripCalled.value = false;
+tripCalling.value=false;
     //loadMarkers();
   }
 
@@ -776,7 +806,7 @@ class HomeController extends GetxController {
 
   Future<void> getPrevTrips() async{
     previousTrips.clear();
-    previousTrips.addAll(await PassengerRepository().getTripHistory("8mCWZ9uBrWME2Bfm9YOCvb0U2EJ3"));
+    previousTrips.addAll(await PassengerRepository().getTripHistory(authController.currentUser.value.uid!));
     log("trip history : ${previousTrips.length.toString()}");
   }
 

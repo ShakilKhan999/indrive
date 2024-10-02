@@ -29,6 +29,7 @@ class DriverHomeController extends GetxController {
 
   var addingOffer = false.obs;
   var offeringTrip = "".obs;
+  var previousTrips=[].obs;
 
   final TextEditingController offerPriceController = TextEditingController();
 
@@ -41,6 +42,7 @@ class DriverHomeController extends GetxController {
     polylineCoordinates.clear();
     authController.getUserData();
     getUserLocation();
+    // getPrevTrips();
     getAngle();
     listenCall();
     listenToTrips(FirebaseAuth.instance.currentUser!.uid);
@@ -210,9 +212,18 @@ class DriverHomeController extends GetxController {
           (index) => Trip.fromJson(event.docs[index].data()));
 
       if (activeCall.isNotEmpty) {
-        if (activeCall[0].userCancel == true) {}
-        // else if (activeCall[0].accepted == true && activeCall[0].picked == true) {
-        //   getPolyline(picking: false);
+       if (activeCall[0].accepted == false && activeCall[0].driverCancel == true) {
+          activeCall.clear();
+          polyLines.clear();
+          polylineCoordinates.clear();
+        }
+        if(activeCall[0].userCancel == true) {
+
+        }
+        // else if (activeCall[0].accepted == false && activeCall[0].driverCancel == true) {
+        //   activeCall.clear();
+        //   polyLines.clear();
+        //   polylineCoordinates.clear();
         // }
 
         //playSound();
@@ -297,5 +308,11 @@ class DriverHomeController extends GetxController {
     );
 
     mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 60));
+  }
+
+  Future<void> getPrevTrips() async{
+    previousTrips.clear();
+    previousTrips.addAll(await DriverRepository().getTripHistory(authController.currentUser.value.uid!));
+    log("trip history rider: ${previousTrips.length.toString()}");
   }
 }

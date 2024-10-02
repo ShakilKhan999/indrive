@@ -1,3 +1,6 @@
+import 'package:callandgo/components/simple_appbar.dart';
+import 'package:callandgo/screens/auth_screen/controller/auth_controller.dart';
+import 'package:callandgo/screens/driver/driver_home/controller/driver_home_controller.dart';
 import 'package:callandgo/screens/home/controller/home_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -5,25 +8,30 @@ import 'package:callandgo/components/common_components.dart';
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:get/get.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../home/views/list_map.dart';
 
 class MyRideScreen extends StatelessWidget {
-  const MyRideScreen({super.key});
-
+  MyRideScreen({super.key});
+  final AuthController authController = Get.find();
+  final DriverHomeController driverHomeController =
+      Get.put(DriverHomeController());
+  final HomeController homeController = Get.put(HomeController());
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorHelper.bgColor,
+        appBar: SimpleAppbar(titleText: 'History'),
         body: Padding(
           padding: EdgeInsets.symmetric(vertical: 16.w, horizontal: 20.h),
           child: Column(
             children: [
-              _buidHeadertextView(),
-              SpaceHelper.verticalSpace15,
-              _buildListView()
+              // _buidHeadertextView(),
+              // SpaceHelper.verticalSpace15,
+              Obx(() => _buildListView(authController.isDriverMode.value
+                  ? driverHomeController.previousTrips
+                  : homeController.previousTrips))
             ],
           ),
         ),
@@ -31,22 +39,12 @@ class MyRideScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildListView() {
-    HomeController homeController=Get.find();
-    List<Map<String, String>> rideHistory = [
-      {
-        "mapImage": "Map Image",
-        "placeName": "Place Name",
-        "time": "Time",
-        "cost": "Cost",
-      },
-    ];
-
+  Widget _buildListView(var rideList) {
     return Expanded(
       child: ListView.builder(
-        itemCount: homeController.previousTrips.length,
+        itemCount: rideList.length,
         itemBuilder: (context, index) {
-          final ride = homeController.previousTrips[index];
+          final ride = rideList[index];
           return Container(
             margin: EdgeInsets.symmetric(vertical: 8.h),
             width: double.infinity,
@@ -68,14 +66,15 @@ class MyRideScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(6.r),
                       color: ColorHelper.primaryColor,
                     ),
-                    child: ride.polyLineEncoded == null || ride.polyLineEncoded!.isEmpty
+                    child: ride.polyLineEncoded == null ||
+                            ride.polyLineEncoded!.isEmpty
                         ? Center(
-                      child: Text(
-                        "Route not available ",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    )
+                            child: Text(
+                              "Route not available ",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          )
                         : MapWidget(polyLineEncoded: ride.polyLineEncoded!),
                   ),
                   SpaceHelper.verticalSpace5,
@@ -87,7 +86,8 @@ class MyRideScreen extends StatelessWidget {
                   SpaceHelper.verticalSpace5,
                   CommonComponents().printText(
                     fontSize: 14,
-                    textData: ride.dropped ? "Ride Completed" : "Ride Cancelled",
+                    textData:
+                        ride.dropped ? "Ride Completed" : "Ride Cancelled",
                     fontWeight: FontWeight.w500,
                   ),
                   SpaceHelper.verticalSpace5,
@@ -100,15 +100,9 @@ class MyRideScreen extends StatelessWidget {
                 ],
               ),
             ),
-          )
-          ;
+          );
         },
       ),
     );
-  }
-
-  Widget _buidHeadertextView() {
-    return CommonComponents().printText(
-        fontSize: 26, textData: 'History', fontWeight: FontWeight.w600);
   }
 }
