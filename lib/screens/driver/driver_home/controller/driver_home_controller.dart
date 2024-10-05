@@ -32,6 +32,7 @@ class DriverHomeController extends GetxController {
   var previousTrips=[].obs;
 
   final TextEditingController offerPriceController = TextEditingController();
+  FocusNode offerFocusNode = FocusNode();
 
   GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
   late GoogleMapController mapController;

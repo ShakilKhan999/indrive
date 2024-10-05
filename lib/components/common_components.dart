@@ -137,13 +137,15 @@ class CommonComponents {
     String? imagePath,
     double borderRadius = 24,
     double fontSize = 16,
+    double paddingVertical=12,
+    double paddingHorizontal=24,
     Color color = ColorHelper.primaryColor,
     bool isLoading = false,
   }) {
     return GestureDetector(
       onTap: disabled ? null : onPressed,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+        padding:  EdgeInsets.symmetric(vertical: paddingVertical.h, horizontal: paddingHorizontal.w),
         decoration: BoxDecoration(
           color: disabled
               ? ColorHelper.lightGreyColor
