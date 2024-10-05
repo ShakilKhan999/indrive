@@ -7,8 +7,8 @@ import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/screens/home/controller/home_controller.dart';
 
 // ignore: must_be_immutable
-class SelectDestination extends StatelessWidget {
-  SelectDestination({super.key});
+class MultipleRouteSelect extends StatelessWidget {
+  MultipleRouteSelect({super.key});
 
   HomeController homeController = Get.put(HomeController());
 
@@ -22,18 +22,13 @@ class SelectDestination extends StatelessWidget {
                   height: MediaQuery.of(context).size.height,
                   width: MediaQuery.of(context).size.width,
                   child: GoogleMap(
-                    onCameraMove: homeController.changingPickup.value
-                        ? homeController.onCameraMove
-                        : homeController.onCameraMoveTo,
-                    onCameraIdle: homeController.changingPickup.value
-                        ? homeController.onCameraIdle
-                        : homeController.onCameraIdleTo,
+                    onCameraMove: 
+                        homeController.onMultiCameraMove,
+                    onCameraIdle:  homeController.onMultiCameraIdle,
                     myLocationEnabled: true,
                     myLocationButtonEnabled: true,
                     mapType: MapType.terrain,
-                    onMapCreated: homeController.changingPickup.value
-                        ? homeController.onMapCreated
-                        : homeController.onMapCreatedTo,
+                    onMapCreated: homeController.onMultiMapCreated,
                     initialCameraPosition: CameraPosition(
                       target: homeController.center.value,
                       zoom: 15.0,
@@ -86,7 +81,7 @@ class SelectDestination extends StatelessWidget {
                       borderRadius: 15,
                       onPressed: () {
                         // homeController.getPolyline();
-                        homeController.generateRoutes(isFirst: true);
+                        homeController.generateRoutes();
                         homeController.getPolylineForMultipleRoute();
                         homeController.pickingDestination.value = false;
                         Get.back();

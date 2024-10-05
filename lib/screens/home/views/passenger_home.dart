@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:callandgo/screens/auth_screen/controller/auth_controller.dart';
 import 'package:callandgo/screens/home/views/ride_progress.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -26,6 +25,7 @@ import '../../../components/custom_drawer.dart';
 import '../../../helpers/method_helper.dart';
 import '../../courier_user/controller/courier_trip_controller.dart';
 import '../../profile/views/profile_screen.dart';
+import 'multiple_route_select.dart';
 
 class PassengerHomeScreen extends StatefulWidget {
   const PassengerHomeScreen({super.key});
@@ -44,7 +44,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
       Get.put(FreightTripController());
   final CourierTripController courierTripController =
       Get.put(CourierTripController());
-  final AuthController authController=Get.put(AuthController());
+  final AuthController authController = Get.put(AuthController());
   @override
   void initState() {
     if (homeController.myPlaceName.value == "Searching for you on the map..") {
@@ -110,16 +110,19 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                   width: MediaQuery.of(context).size.width,
                   child: GoogleMap(
                     markers: homeController.allMarkers.cast<Marker>().toSet(),
-                    polylines: {
-                      Polyline(
-                          polylineId: const PolylineId("route"),
-                          points: homeController.polylineCoordinates
-                              .map((geoPoint) =>
-                                  LatLng(geoPoint.latitude, geoPoint.longitude))
-                              .toList(),
-                          color: ColorHelper.primaryColor,
-                          width: 7)
-                    },
+                    // polylines: {
+                    //   Polyline(
+                    //       polylineId: const PolylineId("route"),
+                    //       points: homeController.polylineCoordinates
+                    //           .map((geoPoint) =>
+                    //               LatLng(geoPoint.latitude, geoPoint.longitude))
+                    //           .toList(),
+                    //       color: ColorHelper.primaryColor,
+                    //       width: 5),
+
+                    // },
+                    polylines:
+                        Set<Polyline>.of(homeController.polylines.values),
                     onCameraMove:
                         homeController.polylineCoordinates.isNotEmpty ||
                                 homeController.findingRoutes.value
@@ -174,18 +177,19 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                 )),
             Align(
               alignment: Alignment.bottomCenter,
-              child: Obx(() =>homeController.rateDriver.value?_buildRatingBar():
-                  AnimatedContainer(
-                    duration: const Duration(microseconds: 200),
-                    width: MediaQuery.of(context).size.width,
-                    height: homeController.cameraMoving.value ? 0 : 300.h,
-                    decoration: BoxDecoration(
-                        color: ColorHelper.bgColor,
-                        borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(20),
-                            topRight: Radius.circular(20))),
-                    child: _buildBottomView(context),
-                  )),
+              child: Obx(() => homeController.rateDriver.value
+                  ? _buildRatingBar()
+                  : AnimatedContainer(
+                      duration: const Duration(microseconds: 200),
+                      width: MediaQuery.of(context).size.width,
+                      height: homeController.cameraMoving.value ? 0 : 300.h,
+                      decoration: BoxDecoration(
+                          color: ColorHelper.bgColor,
+                          borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              topRight: Radius.circular(20))),
+                      child: _buildBottomView(context),
+                    )),
             ),
             Align(
                 alignment: Alignment.center,
@@ -413,8 +417,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                             homeController.riderFound.value = false;
                             homeController.calledTrip.clear();
                           },
-                        ))
-                    ,
+                        )),
                     SpaceHelper.verticalSpace10,
                     SizedBox(
                         width: 250.w,
@@ -423,7 +426,8 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                           color: ColorHelper.primaryColor,
                           text: "Call Rider",
                           onPressed: () async {
-                            MethodHelper().makePhoneCall(homeController.thisDriver[0].phone ?? "");
+                            MethodHelper().makePhoneCall(
+                                homeController.thisDriver[0].phone ?? "");
                           },
                         ))
                   ],
@@ -520,8 +524,13 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                       ],
                     ),
                     ProgressStack(
-                      start: LatLng(homeController.calledTrip[0].pickLatLng.latitude, homeController.calledTrip[0].pickLatLng.longitude),
-                      destination: LatLng(homeController.calledTrip[0].dropLatLng.latitude, homeController.calledTrip[0].dropLatLng.longitude),),
+                      start: LatLng(
+                          homeController.calledTrip[0].pickLatLng.latitude,
+                          homeController.calledTrip[0].pickLatLng.longitude),
+                      destination: LatLng(
+                          homeController.calledTrip[0].dropLatLng.latitude,
+                          homeController.calledTrip[0].dropLatLng.longitude),
+                    ),
                     CommonComponents().printText(
                         fontSize: 18,
                         textData:
@@ -562,7 +571,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                     onTap: () {
                       homeController.changingPickup.value = true;
                       _buildDestinationBottomSheet(context);
-                     // Get.to(SelectDestination());
+                      // Get.to(SelectDestination());
                     },
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -610,9 +619,13 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10.sp),
                     child: GestureDetector(
-                      onTap: (){
-                        homeController.changingPickup.value = false;
-                        _buildDestinationBottomSheet(context);
+                      onTap: () {
+                        if (homeController.routes.length <= 1) {
+                          homeController.changingPickup.value = false;
+                          _buildDestinationBottomSheet(context);
+                        } else {
+                          _buildRouteListBottomSheet(context);
+                        }
                       },
                       child: Container(
                         height: 38.h,
@@ -627,10 +640,24 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                 color: Colors.grey), // Search icon
                             SpaceHelper.horizontalSpace10,
                             Expanded(
-                              child: Obx(()=>CommonComponents().printText(
-                                  fontSize: 15, textData: homeController.destinationPlaceName.value,
-                                  fontWeight: FontWeight.w500,color: Colors.white)),
+                              child: Obx(() => CommonComponents().printText(
+                                  fontSize: 15,
+                                  textData: homeController.routes.length <= 1
+                                      ? homeController
+                                          .destinationPlaceName.value
+                                      : '${homeController.routes.length.toString()} Routes',
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white)),
                             ),
+                            SpaceHelper.horizontalSpace10,
+                            homeController.routes.isNotEmpty
+                                ? InkWell(
+                                    onTap: () {
+                                      _buildAddRouteBottomSheet(context);
+                                    },
+                                    child: Icon(Icons.add, color: Colors.grey),
+                                  )
+                                : SizedBox()
                           ],
                         ),
                       ),
@@ -692,24 +719,22 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                       ? "Cancel Search"
                                       : "Find a driver",
                                   onPressed: () {
-                                    if(authController.checkProfile()==false)
-                                      {
-                                        Get.to(() => ProfileScreen(),
-                                            transition: Transition.rightToLeft);
-                                        homeController.showToast("Update Profile, Add your phone number");
+                                    if (authController.checkProfile() ==
+                                        false) {
+                                      Get.to(() => ProfileScreen(),
+                                          transition: Transition.rightToLeft);
+                                      homeController.showToast(
+                                          "Update Profile, Add your phone number");
+                                    } else {
+                                      if (homeController.tripCalled.value ==
+                                          false) {
+                                        homeController.callTrip();
+                                      } else {
+                                        homeController.tripCalled.value = false;
+                                        PassengerRepository().removeThisTrip(
+                                            homeController.tempTripId);
                                       }
-                                    else
-                                      {
-                                        if (homeController.tripCalled.value ==
-                                            false) {
-                                          homeController.callTrip();
-                                        } else {
-                                          homeController.tripCalled.value = false;
-                                          PassengerRepository().removeThisTrip(
-                                              homeController.tempTripId);
-                                        }
-                                      }
-
+                                    }
                                   },
                                 ))),
                         Icon(
@@ -738,11 +763,12 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                   child: Row(
                     children: [
                       InkWell(
-                        onTap: () async{
+                        onTap: () async {
                           homeController.selectedVehicle.value = "car";
                           await homeController.loadMarkers();
-                          if(homeController.destinationPlaceName!="")
-                          homeController.getPolyline(travelMode: TravelMode.driving);
+                          if (homeController.destinationPlaceName != "")
+                            homeController.getPolyline(
+                                travelMode: TravelMode.driving);
                         },
                         child: Container(
                             height: 70.h,
@@ -792,11 +818,12 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                             )),
                       ),
                       InkWell(
-                        onTap: () async{
+                        onTap: () async {
                           homeController.selectedVehicle.value = "moto";
-                         await  homeController.loadMarkers();
-                          if(homeController.destinationPlaceName!="")
-                          homeController.getPolyline(travelMode: TravelMode.walking);
+                          await homeController.loadMarkers();
+                          if (homeController.destinationPlaceName != "")
+                            homeController.getPolyline(
+                                travelMode: TravelMode.walking);
                         },
                         child: Container(
                             height: 70.h,
@@ -846,11 +873,12 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                             )),
                       ),
                       InkWell(
-                        onTap: () async{
+                        onTap: () async {
                           homeController.selectedVehicle.value = "cng";
                           await homeController.loadMarkers();
-                          if(homeController.destinationPlaceName!="")
-                          homeController.getPolyline(travelMode: TravelMode.driving);
+                          if (homeController.destinationPlaceName != "")
+                            homeController.getPolyline(
+                                travelMode: TravelMode.driving);
                         },
                         child: Container(
                             height: 70.h,
@@ -1075,7 +1103,210 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
   }
 
   void _buildDestinationBottomSheet(BuildContext context) {
+    showModalBottomSheet<void>(
+      backgroundColor: Colors.transparent,
+      scrollControlDisabledMaxHeightRatio: 0.8,
+      context: context,
+      builder: (BuildContext context) {
+        return Obx(
+          () => Container(
+            height: 600.h,
+            decoration: BoxDecoration(
+                color: ColorHelper.bgColor,
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(14.sp),
+                    topRight: Radius.circular(14.sp))),
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(18.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    CommonComponents().printText(
+                        fontSize: 18,
+                        textData: "Enter Places",
+                        fontWeight: FontWeight.bold),
+                    SpaceHelper.verticalSpace15,
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[850],
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.circle_outlined,
+                              color: ColorHelper.blueColor),
+                          SpaceHelper.horizontalSpace10,
+                          Expanded(
+                            child: TextField(
+                              controller: homeController.pickupController,
+                              onTap: () {
+                                homeController.changingPickup.value = true;
+                              },
+                              onChanged: (value) {
+                                homeController.changingPickup.value = true;
+                                homeController.onSearchTextChanged(value);
+                              },
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 15.sp),
+                              decoration: const InputDecoration(
+                                hintText: 'From', // Placeholder text
+                                hintStyle: TextStyle(color: Colors.grey),
+                                border: InputBorder.none, // No border
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SpaceHelper.verticalSpace10,
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[850],
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.search, color: Colors.grey),
+                          SpaceHelper.horizontalSpace10,
+                          Expanded(
+                            child: TextField(
+                              controller:
+                                  homeController.destinationController.value,
+                              onTap: () {
+                                homeController.changingPickup.value = false;
+                              },
+                              onChanged: (value) {
+                                homeController.changingPickup.value = false;
+                                homeController.onSearchTextChanged(value);
+                              },
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 15.sp),
+                              decoration: const InputDecoration(
+                                hintText: 'To', // Placeholder text
+                                hintStyle: TextStyle(color: Colors.grey),
+                                border: InputBorder.none, // No border
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SpaceHelper.verticalSpace10,
+                    InkWell(
+                      onTap: () {
+                        Get.back();
+                        homeController.pickingDestination.value = true;
+                        Get.to(SelectDestination(),
+                            transition: Transition.rightToLeft);
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.location_on_outlined,
+                            size: 28.sp,
+                            color: ColorHelper.primaryColor,
+                          ),
+                          SpaceHelper.horizontalSpace5,
+                          CommonComponents().printText(
+                              color: ColorHelper.primaryColor,
+                              fontSize: 16,
+                              textData: "Choose on map",
+                              fontWeight: FontWeight.bold),
+                        ],
+                      ),
+                    ),
+                    SpaceHelper.verticalSpace15,
+                    Obx(() => SizedBox(
+                          height: 250.h,
+                          child: ListView.builder(
+                              itemCount: homeController.suggestions.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return InkWell(
+                                  onTap: () async {
+                                    if (homeController.changingPickup.value) {
+                                      homeController.pickupController.text =
+                                          homeController.suggestions[index]
+                                              ["description"];
+                                      homeController.myPlaceName.value =
+                                          homeController.pickupController.text;
+                                      var placeDetails = await homeController
+                                          .googlePlace.details
+                                          .get(homeController.suggestions[index]
+                                              ["placeId"]);
+                                      log("LatLong: ${placeDetails!.result!.geometry!.location!.lat}");
+                                      double? lat = placeDetails
+                                          .result!.geometry!.location!.lat;
+                                      double? lng = placeDetails
+                                          .result!.geometry!.location!.lng;
+                                      homeController.startPickedCenter.value =
+                                          LatLng(lat!, lng!);
+                                    } else {
+                                      homeController.destinationController.value
+                                              .text =
+                                          homeController.suggestions[index]
+                                              ["description"];
+                                      homeController
+                                              .destinationPlaceName.value =
+                                          homeController
+                                              .destinationController.value.text;
+                                      var placeDetails = await homeController
+                                          .googlePlace.details
+                                          .get(homeController.suggestions[index]
+                                              ["placeId"]);
+                                      log("LatLong: ${placeDetails!.result!.geometry!.location!.lat}");
+                                      double? lat = placeDetails
+                                          .result!.geometry!.location!.lat;
+                                      double? lng = placeDetails
+                                          .result!.geometry!.location!.lng;
+                                      homeController.destinationPickedCenter
+                                          .value = LatLng(lat!, lng!);
 
+                                      homeController.generateRoutes(
+                                          isFirst: true);
+                                    }
+
+                                    if (homeController.myPlaceName.value !=
+                                            "Searching for you on the map.." &&
+                                        homeController
+                                                .destinationPlaceName.value !=
+                                            "") {
+                                      Get.back();
+                                      // homeController.getPolyline();
+                                      homeController
+                                          .getPolylineForMultipleRoute();
+                                    }
+                                  },
+                                  child: ListTile(
+                                      leading: const Icon(
+                                          Icons.location_on_outlined),
+                                      trailing: CommonComponents().printText(
+                                          fontSize: 12,
+                                          textData: "",
+                                          fontWeight: FontWeight.bold),
+                                      title: CommonComponents().printText(
+                                          fontSize: 18,
+                                          textData:
+                                              homeController.suggestions[index]
+                                                  ["description"],
+                                          fontWeight: FontWeight.bold)),
+                                );
+                              }),
+                        )),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _buildAddRouteBottomSheet(BuildContext context) {
     showModalBottomSheet<void>(
       backgroundColor: Colors.transparent,
       scrollControlDisabledMaxHeightRatio: 0.8,
@@ -1099,40 +1330,6 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                       textData: "Enter Places",
                       fontWeight: FontWeight.bold),
                   SpaceHelper.verticalSpace15,
-
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[850],
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      children: [
-                         Icon(Icons.circle_outlined, color: ColorHelper.blueColor),
-                        SpaceHelper.horizontalSpace10,
-                        Expanded(
-                          child: TextField(
-                            controller: homeController.pickupController,
-                            onTap: (){
-                              homeController.changingPickup.value=true;
-                            },
-                            onChanged: (value) {
-                              homeController.changingPickup.value=true;
-                              homeController.onSearchTextChanged(value);
-                            },
-                            style:
-                            TextStyle(color: Colors.white, fontSize: 15.sp),
-                            decoration: const InputDecoration(
-                              hintText: 'From', // Placeholder text
-                              hintStyle: TextStyle(color: Colors.grey),
-                              border: InputBorder.none, // No border
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SpaceHelper.verticalSpace10,
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
@@ -1145,20 +1342,16 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                         SpaceHelper.horizontalSpace10,
                         Expanded(
                           child: TextField(
-                            controller: homeController.destinationController,
-                            onTap: (){
-                              homeController.changingPickup.value=false;
-                            },
+                            controller: homeController.addRouteController,
                             onChanged: (value) {
-                              homeController.changingPickup.value=false;
                               homeController.onSearchTextChanged(value);
                             },
                             style:
                                 TextStyle(color: Colors.white, fontSize: 15.sp),
                             decoration: const InputDecoration(
-                              hintText: 'To', // Placeholder text
+                              hintText: 'To',
                               hintStyle: TextStyle(color: Colors.grey),
-                              border: InputBorder.none, // No border
+                              border: InputBorder.none,
                             ),
                           ),
                         ),
@@ -1169,8 +1362,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                   InkWell(
                     onTap: () {
                       Get.back();
-                      homeController.pickingDestination.value = true;
-                      Get.to(SelectDestination(),
+                      Get.to(MultipleRouteSelect(),
                           transition: Transition.rightToLeft);
                     },
                     child: Row(
@@ -1198,49 +1390,34 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                             itemBuilder: (BuildContext context, int index) {
                               return InkWell(
                                 onTap: () async {
-                                  if(homeController.changingPickup.value)
-                                    {
-                                      homeController.pickupController.text =
+                                  homeController.destinationPlaceName.value =
                                       homeController.suggestions[index]
-                                      ["description"];
-                                      homeController.myPlaceName.value=homeController.pickupController.text;
-                                      var placeDetails = await homeController
-                                          .googlePlace.details
-                                          .get(homeController.suggestions[index]
-                                      ["placeId"]);
-                                      log("LatLong: ${placeDetails!.result!.geometry!.location!.lat}");
-                                      double? lat = placeDetails
-                                          .result!.geometry!.location!.lat;
-                                      double? lng = placeDetails
-                                          .result!.geometry!.location!.lng;
-                                      homeController.startPickedCenter.value =
-                                          LatLng(lat!, lng!);
-                                    }
-                                  else
-                                    {
-                                      homeController.destinationController.text =
-                                      homeController.suggestions[index]
-                                      ["description"];
-                                      homeController.destinationPlaceName.value=homeController.destinationController.text;
-                                      var placeDetails = await homeController
-                                          .googlePlace.details
-                                          .get(homeController.suggestions[index]
-                                      ["placeId"]);
-                                      log("LatLong: ${placeDetails!.result!.geometry!.location!.lat}");
-                                      double? lat = placeDetails
-                                          .result!.geometry!.location!.lat;
-                                      double? lng = placeDetails
-                                          .result!.geometry!.location!.lng;
-                                      homeController.destinationPickedCenter.value =
-                                          LatLng(lat!, lng!);
-                                    }
+                                          ["description"];
+                                  var placeDetails = await homeController
+                                      .googlePlace.details
+                                      .get(homeController.suggestions[index]
+                                          ["placeId"]);
+                                  log("LatLong: ${placeDetails!.result!.geometry!.location!.lat}");
+                                  double? lat = placeDetails
+                                      .result!.geometry!.location!.lat;
+                                  double? lng = placeDetails
+                                      .result!.geometry!.location!.lng;
+                                  homeController.destinationPickedCenter.value =
+                                      LatLng(lat!, lng!);
 
-                                  if(homeController.myPlaceName.value!="Searching for you on the map.." && homeController.destinationPlaceName.value!="")
-                                    {
-                                      Get.back();
-                                      homeController.getPolyline();
-                                    }
+                                  homeController.generateRoutes();
+                                  homeController.getPolylineForMultipleRoute();
 
+                                  Get.back();
+
+                                  // if (homeController.myPlaceName.value !=
+                                  //         "Searching for you on the map.." &&
+                                  //     homeController
+                                  //             .destinationPlaceName.value !=
+                                  //         "") {
+                                  //   Get.back();
+                                  //   homeController.getPolyline();
+                                  // }
                                 },
                                 child: ListTile(
                                     leading:
@@ -1255,6 +1432,105 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                             .suggestions[index]["description"],
                                         fontWeight: FontWeight.bold)),
                               );
+                            }),
+                      )),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _buildRouteListBottomSheet(BuildContext context) {
+    showModalBottomSheet<void>(
+      backgroundColor: Colors.transparent,
+      scrollControlDisabledMaxHeightRatio: 0.8,
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          // height: 600.h,
+          decoration: BoxDecoration(
+              color: ColorHelper.bgColor,
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(14.sp),
+                  topRight: Radius.circular(14.sp))),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(18.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  CommonComponents().printText(
+                      fontSize: 16,
+                      textData: "Selected Route",
+                      fontWeight: FontWeight.bold,
+                      color: ColorHelper.primaryColor),
+                  Obx(() => SizedBox(
+                        height: 250.h,
+                        child: ListView.builder(
+                            itemCount: homeController.routes.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return ListTile(
+                                  leading: const Icon(
+                                    Icons.location_on_outlined,
+                                    color: ColorHelper.primaryColor,
+                                  ),
+                                  trailing: InkWell(
+                                    onTap: () {
+                                      homeController.routes.removeAt(index);
+                                      for (int i = index;
+                                          i < homeController.routes.length;
+                                          i++) {
+                                        if (i > 0) {
+                                          homeController
+                                                  .routes[i].pickupLatLng =
+                                              homeController.routes[i - 1]
+                                                  .destinationLatLng;
+                                          homeController.routes[i].pickupPoint =
+                                              homeController.routes[i - 1]
+                                                  .destinationPoint;
+                                        }
+                                      }
+                                      if (homeController.routes.length == 1) {
+                                        homeController.destinationController
+                                                .value.text =
+                                            homeController
+                                                .routes[0].destinationPoint!;
+                                        homeController
+                                                .destinationPlaceName.value =
+                                            homeController
+                                                .routes[0].destinationPoint!;
+                                        homeController
+                                                .destinationPickedCenter.value =
+                                            LatLng(
+                                                homeController
+                                                    .routes[0]
+                                                    .destinationLatLng!
+                                                    .latitude,
+                                                homeController
+                                                    .routes[0]
+                                                    .destinationLatLng!
+                                                    .longitude);
+                                        homeController
+                                            .getPolylineForMultipleRoute();
+                                      } else {
+                                        homeController
+                                            .getPolylineForMultipleRoute();
+                                      }
+                                    },
+                                    child: Icon(
+                                      Icons.close,
+                                      color: ColorHelper.whiteColor,
+                                    ),
+                                  ),
+                                  title: CommonComponents().printText(
+                                      fontSize: 14,
+                                      maxLine: 2,
+                                      textData: homeController
+                                          .routes[index].destinationPoint!,
+                                      fontWeight: FontWeight.bold));
                             }),
                       )),
                 ],
@@ -1282,8 +1558,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
         ));
   }
 
-
-  Widget _buildRatingBar(){
+  Widget _buildRatingBar() {
     return SizedBox(
       width: MediaQuery.of(context).size.width,
       child: Stack(
@@ -1305,7 +1580,6 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-
                 CommonComponents().printText(
                   fontSize: 14,
                   textData: "Rate your driver",
@@ -1314,7 +1588,9 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                 SpaceHelper.verticalSpace20,
                 CircleAvatar(
                   radius: 40,
-                  backgroundImage: NetworkImage( homeController.driverToRate[0].photo??"https://cdn-icons-png.flaticon.com/512/8583/8583437.png",
+                  backgroundImage: NetworkImage(
+                    homeController.driverToRate[0].photo ??
+                        "https://cdn-icons-png.flaticon.com/512/8583/8583437.png",
                   ),
                 ),
                 SpaceHelper.verticalSpace10,
@@ -1348,7 +1624,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                     color: ColorHelper.primaryColor,
                     text: "Submit",
                     onPressed: () {
-                      homeController.rateDriver.value=false;
+                      homeController.rateDriver.value = false;
                       homeController.driverToRate.clear();
                     },
                   ),
@@ -1361,7 +1637,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
             right: 8,
             child: GestureDetector(
               onTap: () {
-                homeController.rateDriver.value=false;
+                homeController.rateDriver.value = false;
                 homeController.driverToRate.clear();
               },
               child: Icon(
@@ -1372,8 +1648,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
             ),
           ),
         ],
-      )
-      ,
+      ),
     );
   }
 }
