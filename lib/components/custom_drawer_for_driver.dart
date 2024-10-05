@@ -91,8 +91,7 @@ class CustomDrawerForDriver extends StatelessWidget {
           text: 'City',
           color: Colors.white,
           onTap: () {
-            Get.offAll(() => DriverHomeScreen(),
-                transition: Transition.noTransition);
+            Get.back();
           },
         ),
         buildDrawerItem(

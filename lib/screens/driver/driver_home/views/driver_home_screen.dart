@@ -351,6 +351,8 @@ class DriverHomeScreen extends StatelessWidget {
                                   width: 50.w,
                                   child: Obx(()=>driverHomeController.offeringTrip.value==trip.tripId && driverHomeController.addingOffer.value ?
                                   TextField(
+                                      focusNode: focusNode,
+                                      autofocus:true,
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 15.sp),
@@ -603,5 +605,10 @@ class DriverHomeScreen extends StatelessWidget {
               ),
       ],
     );
+  }
+
+  FocusNode focusNode = FocusNode();
+  void openKeyboard(BuildContext context){
+    FocusScope.of(context).requestFocus(focusNode);
   }
 }

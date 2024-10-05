@@ -607,7 +607,9 @@ tripCalling.value=true;
     String polyline= await PassengerRepository().getPolylineFromGoogleMap(startPickedCenter.value, destinationPickedCenter.value);
     sortedDriverList.clear();
     sortedDriverList
-        .addAll(sortDriversByDistance(driverList, startPickedCenter.value));
+        .addAll(sortDriversByDistance(selectedVehicle == "cng"?cngdriverMarkerList:
+    selectedVehicle == "car"?cardriverMarkerList:motodriverMarkerList
+        , startPickedCenter.value));
     var bidList = [];
     for (var driver in sortedDriverList) {
       // await Future.delayed(Duration(seconds: 3));
@@ -646,31 +648,42 @@ tripCalling.value=true;
         accepted: false,
         picked: false,
         dropped: false);
-    await PassengerRepository().addNewTrip(trip);
 
-    listenCalledTrip(tripId);
+if (selectedVehicle == "cng" && cngdriverMarkerList.isEmpty) {
+  showToast("No Taxi available nearby");
+} else if (selectedVehicle == "car" && cardriverMarkerList.isEmpty) {
+  showToast("No Taxi car nearby");
+} else if (selectedVehicle == "moto" && motodriverMarkerList.isEmpty) {
+  showToast("No Moto available nearby");
+}
+else{
+  await PassengerRepository().addNewTrip(trip);
 
-    for (int i = 0; i < 60; i++) {
-      if (selectedVehicle == "cng" && cngdriverMarkerList.isEmpty) {
-        showToast("No Taxi available nearby");
-        break;
-      } else if (selectedVehicle == "car" && cardriverMarkerList.isEmpty) {
-        showToast("No Taxi car nearby");
-        break;
-      } else if (selectedVehicle == "moto" && motodriverMarkerList.isEmpty) {
-        showToast("No Moto available nearby");
-        break;
-      } else if (riderFound.value == true && calledTrip.isNotEmpty) {
-        showToast("Driver found");
-        break;
-      } else if (i == 59) {
-        showToast("Busy hours, Please try again later");
-        PassengerRepository().removeThisTrip(tripId);
-      } else if (tripCalled == false) {
-        break;
-      }
-      await Future.delayed(Duration(seconds: 1));
+  listenCalledTrip(tripId);
+
+  for (int i = 0; i < 60; i++) {
+    if (selectedVehicle == "cng" && cngdriverMarkerList.isEmpty) {
+      showToast("No Taxi available nearby");
+      break;
+    } else if (selectedVehicle == "car" && cardriverMarkerList.isEmpty) {
+      showToast("No Taxi car nearby");
+      break;
+    } else if (selectedVehicle == "moto" && motodriverMarkerList.isEmpty) {
+      showToast("No Moto available nearby");
+      break;
+    } else if (riderFound.value == true && calledTrip.isNotEmpty) {
+      showToast("Driver found");
+      break;
+    } else if (i == 59) {
+      showToast("Busy hours, Please try again later");
+      PassengerRepository().removeThisTrip(tripId);
+    } else if (tripCalled == false) {
+      break;
     }
+    await Future.delayed(Duration(seconds: 1));
+  }
+}
+
 
     // for (int i = 0; i < sortedDriverList.length; i++) {
     //   if (sortedDriverList[i].latLng != null &&

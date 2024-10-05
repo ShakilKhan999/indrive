@@ -217,8 +217,8 @@ class DriverHomeController extends GetxController {
           polyLines.clear();
           polylineCoordinates.clear();
         }
-        if(activeCall[0].userCancel == true) {
-
+        else if(activeCall[0].userCancel == true) {
+         showToast(toastText: "User cancelled this trip");
         }
         // else if (activeCall[0].accepted == false && activeCall[0].driverCancel == true) {
         //   activeCall.clear();
@@ -231,7 +231,7 @@ class DriverHomeController extends GetxController {
         log("cancelled by user");
         polylineCoordinates.clear();
         polyLines.clear();
-        showToast(toastText: "User cancelled this trip");
+
         // audioPlayer.stop();
         // audioPlayer.dispose();
       }
