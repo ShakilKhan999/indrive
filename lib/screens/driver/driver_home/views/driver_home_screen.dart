@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:callandgo/helpers/method_helper.dart';
 import 'package:callandgo/helpers/style_helper.dart';
 import 'package:callandgo/screens/home/controller/home_controller.dart';
+import 'package:callandgo/screens/home/repository/passenger_repositoy.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -349,51 +350,82 @@ class DriverHomeScreen extends StatelessWidget {
                               child: SizedBox(
                                   height: 30.h,
                                   width: 50.w,
-                                  child: Obx(()=>driverHomeController.offeringTrip.value==trip.tripId && driverHomeController.addingOffer.value ?
-                                  TextField(
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 15.sp),
-                                    decoration:
-                                    InputDecoration(
-                                      hintText:
-                                      "${trip.rent.toString()}",
-                                      hintStyle: TextStyle(
-                                          color:
-                                          Colors.grey),
-                                      border: InputBorder
-                                          .none, // No border
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      driverHomeController.addingOffer.value = true;
+                                      driverHomeController.offeringTrip.value = trip.tripId;
+
+                                      showModalBottomSheet(
+                                        context: context,
+                                        backgroundColor: ColorHelper.bgColor,
+                                        isScrollControlled: true,
+                                        builder: (context) {
+                                          return Padding(
+                                            padding: EdgeInsets.only(
+                                              bottom: MediaQuery.of(context).viewInsets.bottom, // To adjust for the keyboard
+                                              left: 16.0,
+                                              right: 16.0,
+                                              top: 16.0,
+                                            ),
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                TextField(
+                                                  focusNode: driverHomeController.offerFocusNode,
+                                                  autofocus: true,
+                                                  style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.w600),
+                                                  decoration: InputDecoration(
+                                                    hintText: "${trip.rent.toString()} \$",
+                                                    hintStyle: TextStyle(color: Colors.grey),
+                                                    border: InputBorder.none, // No border
+                                                  ),
+                                                  controller: driverHomeController.offerPriceController,
+                                                  keyboardType: TextInputType.number,
+                                                ),
+                                               SpaceHelper.verticalSpace10,
+                                                CommonComponents().commonButton(text: "Submit Offer", onPressed: (){
+                                                  driverHomeController.myActiveTrips.contains(trip)?
+                                                  DriverRepository().offerRent(
+                                                      tripId: trip.tripId,
+                                                      driverId:
+                                                      _authController.currentUser.value.uid!,
+                                                      rent: double.parse(
+                                                          driverHomeController
+                                                              .offerPriceController
+                                                              .text)):
+                                                  HomeController().showToast("Request removed or engaged with someone else");
+                                                  Navigator.pop(context);
+                                                }),
+                                                SpaceHelper.verticalSpace10,
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                    child: Text(
+                                      " ${trip.rent.toString()} \$",
+                                      style: StyleHelper.regular14,
                                     ),
-                                    controller:
-                                    driverHomeController
-                                        .offerPriceController,
-                                  ):
-                                  GestureDetector(
-                                      onTap: (){
-                                        driverHomeController.addingOffer.value=true;
-                                        driverHomeController.offeringTrip.value=trip.tripId;
-                                      },
-                                      child: Text(" ${trip.rent.toString()} \$",style: StyleHelper.regular14,))
-                                    ,)
+                                  )
+
                               ),
                             ),
-                            IconButton(
-                                onPressed: () {
-                                  DriverRepository().offerRent(
-                                      tripId: trip.tripId,
-                                      driverId:
-                                      _authController.currentUser.value.uid!,
-                                      rent: double.parse(
-                                          driverHomeController
-                                              .offerPriceController
-                                              .text));
-                                },
-                                icon: Icon(
-                                  Icons.send,
-                                  color: Colors.green,
-                                )),
                             CommonComponents()
                                 .commonButton(
+                              color: Colors.red,
+                                paddingHorizontal: 12, paddingVertical: 6,
+                                text: "Cancel",
+                                onPressed: () async{
+                                  await PassengerRepository().removeBidByDriverId(tripId:trip.tripId , driverId: _authController.currentUser.value.uid!);
+                                  driverHomeController
+                                      .listenCall();
+                                  await Future.delayed(Duration(seconds: 1));
+                                  driverHomeController.getPolyline(picking: true);
+                                }),
+                            CommonComponents()
+                                .commonButton(
+                              paddingHorizontal: 12, paddingVertical: 6,
                                 text: "Accept",
                                 onPressed: () async{
                                   await DriverRepository()
@@ -603,5 +635,10 @@ class DriverHomeScreen extends StatelessWidget {
               ),
       ],
     );
+  }
+
+  FocusNode focusNode = FocusNode();
+  void openKeyboard(BuildContext context){
+    FocusScope.of(context).requestFocus(focusNode);
   }
 }
