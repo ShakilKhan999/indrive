@@ -2,6 +2,7 @@ import 'package:callandgo/main.dart';
 import 'package:callandgo/screens/courier_user/controller/courier_trip_controller.dart';
 import 'package:callandgo/screens/courier_user/views/courier_request_for_rider.dart';
 import 'package:callandgo/screens/driver/courier/views/courier_types_screen.dart';
+import 'package:callandgo/screens/driver/driver_home/controller/driver_home_controller.dart';
 import 'package:callandgo/screens/driver/driver_home/views/driver_home_screen.dart';
 import 'package:callandgo/screens/profile/controller/profile_controller.dart';
 import 'package:five_pointed_star/five_pointed_star.dart';
@@ -28,6 +29,7 @@ class CustomDrawerForDriver extends StatelessWidget {
   CustomDrawerForDriver({super.key});
   final AuthController _authController = Get.find();
   final ProfileController _profileController = Get.put(ProfileController());
+  final DriverHomeController _driverHomeController = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -214,7 +216,8 @@ class CustomDrawerForDriver extends StatelessWidget {
           text: 'Request history',
           color: Colors.white,
           onTap: () {
-            Get.back();
+            // Get.back();
+            _driverHomeController.getPrevTrips();
             Get.to(() => MyRideScreen(), transition: Transition.rightToLeft);
           },
         ),

@@ -43,7 +43,7 @@ class DriverHomeController extends GetxController {
     polylineCoordinates.clear();
     authController.getUserData();
     getUserLocation();
-    getPrevTrips();
+    // getPrevTrips();
     getAngle();
     listenCall();
     listenToTrips(FirebaseAuth.instance.currentUser!.uid);

@@ -320,7 +320,7 @@ class DriverHomeScreen extends StatelessWidget {
                                   child: CommonComponents().printText(
                                       fontSize: 12,
                                       textData:
-                                      "From: " + trip.pickUp??"",
+                                      "From: " + trip.pickUp.toString(),
                                       fontWeight: FontWeight.bold),
                                 ),
                                 SizedBox(

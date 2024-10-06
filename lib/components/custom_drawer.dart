@@ -1,6 +1,7 @@
 import 'package:callandgo/screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
 import 'package:callandgo/screens/courier_user/controller/courier_trip_controller.dart';
 import 'package:callandgo/screens/freight_user/controller/freight_trip_controller.dart';
+import 'package:callandgo/screens/home/controller/home_controller.dart';
 import 'package:callandgo/screens/profile/controller/profile_controller.dart';
 import 'package:five_pointed_star/five_pointed_star.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,7 @@ class CustomDrawer extends StatelessWidget {
   CustomDrawer({super.key});
   final AuthController _authController = Get.find();
   final ProfileController _profileController = Get.put(ProfileController());
+  final HomeController _homeController = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +108,6 @@ class CustomDrawer extends StatelessWidget {
           text: 'Freight',
           color: Colors.white,
           onTap: () {
-         
             FreightTripController freightTripController =
                 Get.put(FreightTripController());
             freightTripController.getFreightTripsForUser();
@@ -120,7 +121,6 @@ class CustomDrawer extends StatelessWidget {
           text: 'Courier',
           color: Colors.white,
           onTap: () {
-         
             CourierTripController courierTripController =
                 Get.put(CourierTripController());
             courierTripController.getCourierTripsForUser();
@@ -134,7 +134,8 @@ class CustomDrawer extends StatelessWidget {
           text: 'Request history',
           color: Colors.white,
           onTap: () {
-            Get.back();
+            // Get.back();
+            _homeController.getPrevTrips();
             Get.to(() => MyRideScreen(), transition: Transition.rightToLeft);
           },
         ),
