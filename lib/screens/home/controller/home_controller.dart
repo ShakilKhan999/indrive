@@ -21,7 +21,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../models/user_model.dart';
 
-class HomeController extends GetxController {
+class HomeController extends GetxController with WidgetsBindingObserver{
   var selectedVehicle = "car".obs;
   var userLat = 0.0.obs;
   var userLong = 0.0.obs;
@@ -51,11 +51,18 @@ class HomeController extends GetxController {
     getDriverList();
     getPrevTrips();
     super.onInit();
+    WidgetsBinding.instance.addObserver(this);
     ever(thisDriver, (value) {
       if (thisDriver.isNotEmpty) {
         // getPickupPolyline();
       }
     });
+  }
+
+  @override
+  void onClose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.onClose();
   }
 
   final TextEditingController destinationController = TextEditingController();
@@ -68,6 +75,17 @@ class HomeController extends GetxController {
   var polylineCoordinates = [].obs;
   var findingRoutes = false.obs;
   double? _direction;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      log("App is paused, perform any action");
+    } else if (state == AppLifecycleState.detached) {
+      PassengerRepository().removeThisTrip("08f9b03306");
+      log("App is being killed, perform cleanup");
+    }
+  }
+
   void getAngle() {
     FlutterCompass.events?.listen((CompassEvent event) {
       AuthController authController = Get.find();
