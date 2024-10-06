@@ -198,7 +198,7 @@ class DriverHomeScreen extends StatelessWidget {
                             textData: "Waiting for the call..",
                             fontWeight: FontWeight.bold)
                         : driverHomeController.activeCall[0].accepted
-                            ? _buildPickactions()
+                            ? _buildPickactions(context)
                             : _buildcallactions(),
                   ),
                 )),
@@ -323,13 +323,36 @@ class DriverHomeScreen extends StatelessWidget {
                                       "From: " + trip.pickUp.toString(),
                                       fontWeight: FontWeight.bold),
                                 ),
-                                SizedBox(
-                                  width: 200.w,
-                                  child: CommonComponents().printText(
-                                      fontSize: 12,
-                                      textData:
-                                      "To: " + trip.destination,
-                                      fontWeight: FontWeight.bold),
+                                GestureDetector(
+                                  onTap: (){
+                                    _showRoutesDialog(context,trip.routes,false);
+                                  },
+                                  child: SizedBox(
+                                    width: 220.w,
+                                    child: Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 160.w,
+                                          child: CommonComponents().printText(
+                                              fontSize: 12,
+                                              textData:
+                                              "To: " + trip.destination,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        trip.routes.length>1?
+                                        Container(
+                                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(90),color: ColorHelper.primaryColor),
+                                          child:    Padding(
+                                            padding: const EdgeInsets.all(3.0),
+                                            child: CommonComponents().printText(
+                                                fontSize: 12,
+                                                textData: "${(trip.routes.length-1).toString()} more",
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ):SizedBox()
+                                      ],
+                                    ),
+                                  ),
                                 ),
 
                               ],
@@ -337,7 +360,7 @@ class DriverHomeScreen extends StatelessWidget {
                           ],
                         ),
 
-                        SpaceHelper.verticalSpace5,
+                        SpaceHelper.verticalSpace10,
                         Row(
                           mainAxisAlignment:
                           MainAxisAlignment
@@ -421,7 +444,7 @@ class DriverHomeScreen extends StatelessWidget {
                                   driverHomeController
                                       .listenCall();
                                   await Future.delayed(Duration(seconds: 1));
-                                  driverHomeController.getPolyline(picking: true);
+                                  //driverHomeController.getPolyline(picking: true);
                                 }),
                             CommonComponents()
                                 .commonButton(
@@ -436,7 +459,8 @@ class DriverHomeScreen extends StatelessWidget {
                                   driverHomeController
                                       .listenCall();
                                   await Future.delayed(Duration(seconds: 1));
-                                  driverHomeController.getPolyline(picking: true);
+                                  driverHomeController.getPolyline(startPoint:GeoPoint(driverHomeController.userLat.value, driverHomeController.userLong.value),
+                                      endPoint:driverHomeController.activeCall[0].pickLatLng );
                                 })
                           ],
                         ),
@@ -505,7 +529,8 @@ class DriverHomeScreen extends StatelessWidget {
                           driverHomeController.activeCall[0].tripId,
                           "accepted",
                           true);
-                      driverHomeController.getPolyline(picking: true);
+                      driverHomeController.getPolyline(startPoint:GeoPoint(driverHomeController.userLat.value, driverHomeController.userLong.value),
+                          endPoint:driverHomeController.activeCall[0].pickLatLng );
                     },
                     color: Colors.green,
                     borderRadius: 14))
@@ -515,31 +540,38 @@ class DriverHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPickactions() {
+  Widget _buildPickactions(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Container(
-          height: 40.h,
-          width: 300.w,
-          decoration: BoxDecoration(
-              color: ColorHelper.lightGreyColor,
-              borderRadius: BorderRadius.circular(12)),
-          child: Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CommonComponents().printText(
-                    fontSize: 18, textData: "To:", fontWeight: FontWeight.bold),
-                SpaceHelper.horizontalSpace10,
-                SizedBox(
-                  width: 210.w,
-                  child: CommonComponents().printText(
-                      fontSize: 18,
-                      textData: driverHomeController.activeCall[0].destination,
-                      fontWeight: FontWeight.normal),
-                ),
-              ],
+        GestureDetector(
+          onTap: (){
+            _showRoutesDialog(context,driverHomeController.activeCall[0].routes,true);
+          },
+          child: Container(
+            height: 40.h,
+            width: 300.w,
+            decoration: BoxDecoration(
+                color: ColorHelper.lightGreyColor,
+                borderRadius: BorderRadius.circular(12)),
+            child: Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CommonComponents().printText(
+                      fontSize: 18, textData: "To:", fontWeight: FontWeight.bold),
+                  SpaceHelper.horizontalSpace10,
+                  SizedBox(
+                    width: 210.w,
+                    child: CommonComponents().printText(
+                        fontSize: 18,
+                        textData: driverHomeController.activeCall[0].routes
+                            .firstWhere((route) => route.currentStatus == "Pending")
+                            .destinationPoint,
+                        fontWeight: FontWeight.normal),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -562,14 +594,39 @@ class DriverHomeScreen extends StatelessWidget {
                           color: Colors.red,
                           borderRadius: 14)),
                   SpaceHelper.horizontalSpace10,
+                  driverHomeController.activeCall[0].routes.any((route) => route.currentStatus == "Pending")
+                  && driverHomeController.activeCall[0].routes.indexWhere((route) => route.currentStatus == "Pending")!=driverHomeController.activeCall[0].routes.length-1
+                      ?
+                  SizedBox(
+                      height: 40.h,
+                      child: CommonComponents().commonButton(
+                          text: "Next",
+                          onPressed: () async {
+                            await DriverRepository().completeRoute(tripId: driverHomeController.activeCall[0].tripId,
+                                encodedPoly: driverHomeController.activeCall[0].routes
+                                .firstWhere((route) => route.currentStatus == "Pending")
+                            .encodedPolyline
+                            );
+                          },
+                          color: Colors.green,
+                          borderRadius: 14)):
                   SizedBox(
                       height: 40.h,
                       child: CommonComponents().commonButton(
                           text: "Drop and Finish",
                           onPressed: () async {
-                            await DriverRepository().completeRide(
-                                driverHomeController.activeCall[0].tripId,
+
+                            String tripId=driverHomeController.activeCall[0].tripId;
+                            String encodedPoly=driverHomeController.activeCall[0].routes
+                                .firstWhere((route) => route.currentStatus == "Pending")
+                                .encodedPolyline;
+
+                            await DriverRepository().completeRide(tripId,
                                 driverHomeController.activeCall[0].driverId);
+
+                            await DriverRepository().completeRoute(tripId: tripId,
+                                encodedPoly: encodedPoly
+                            );
                             driverHomeController.activeCall.clear();
                             driverHomeController.polylineCoordinates.clear();
                             driverHomeController.polyLines.clear();
@@ -627,7 +684,8 @@ class DriverHomeScreen extends StatelessWidget {
                                 driverHomeController.activeCall[0].tripId,
                                 "picked",
                                 true);
-                            driverHomeController.getPolyline(picking: false);
+                            driverHomeController.getPolyline(startPoint:driverHomeController.activeCall[0].pickLatLng,
+                             endPoint:driverHomeController.activeCall[0].routes[0].destinationLatLng );
                           },
                           color: Colors.green,
                           borderRadius: 14))
@@ -635,6 +693,87 @@ class DriverHomeScreen extends StatelessWidget {
               ),
       ],
     );
+  }
+  void _showRoutesDialog(BuildContext context, var routes, bool onGoing) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: ColorHelper.bgColor,
+
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child:  Padding(
+            padding:  EdgeInsets.all(13.sp),
+            child: Container(
+              width: double.maxFinite,
+              height: 100.h,
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.5),
+                    offset: Offset(0, 5),
+                    blurRadius: 10,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: ListView.builder(
+                itemCount: routes.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: 160.w,
+                          child: CommonComponents().printText(
+                              fontSize: 15,
+                              textData: "${routes[index].destinationPoint}",
+                              fontWeight: FontWeight.bold),
+                        ),
+                        onGoing?
+                        buildRouteStatusIcon(routes[index].currentStatus):
+                        CommonComponents().printText(
+                            fontSize: 10,
+                            textData: "${homeController.calculateDistance(
+                                point1: routes[index].pickupLatLng,
+                                point2: routes[index].destinationLatLng)}",
+                            fontWeight: FontWeight.bold),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget buildRouteStatusIcon(String currentStatus) {
+    if (currentStatus == "Pending") {
+      return Icon(
+        Icons.pending_outlined,
+        size: 24.sp,
+        color: Colors.red,
+      );
+    } else if (currentStatus == "OnGoing") {
+      return Icon(
+        Icons.add_road_rounded,
+        size: 24.sp,
+        color: ColorHelper.primaryColor,
+      );
+    } else {
+      return Icon(
+        Icons.check_circle_outline,
+        size: 24.sp,
+        color: Colors.green,
+      );
+    }
   }
 
   FocusNode focusNode = FocusNode();

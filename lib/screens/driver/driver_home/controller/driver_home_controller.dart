@@ -244,22 +244,15 @@ class DriverHomeController extends GetxController {
   Map<PolylineId, Polyline> polyLines = {};
   var polylineCoordinates = [].obs;
 
-  getPolyline({required bool picking}) async {
+  getPolyline({ required GeoPoint startPoint, required GeoPoint endPoint}) async {
     polyLines.clear();
     polylineCoordinates.clear();
     log("making direction polyline");
     PolylinePoints polylinePoints = PolylinePoints();
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
       AppConfig.mapApiKey,
-      picking
-          ? PointLatLng(center.value.latitude, center.value.longitude)
-          : PointLatLng(activeCall[0].pickLatLng.latitude,
-              activeCall[0].pickLatLng.longitude),
-      picking
-          ? PointLatLng(activeCall[0].pickLatLng.latitude,
-              activeCall[0].pickLatLng.longitude)
-          : PointLatLng(activeCall[0].dropLatLng.latitude,
-              activeCall[0].dropLatLng.longitude),
+      PointLatLng(startPoint.latitude, startPoint.longitude),
+   PointLatLng(endPoint.latitude,endPoint.longitude),
       travelMode: TravelMode.driving,
     );
     log("polyLineResponse: ${result.points.length}");
