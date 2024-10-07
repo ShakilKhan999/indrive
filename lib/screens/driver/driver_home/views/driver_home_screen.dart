@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:callandgo/helpers/method_helper.dart';
 import 'package:callandgo/helpers/style_helper.dart';
 import 'package:callandgo/screens/home/controller/home_controller.dart';
@@ -17,7 +15,6 @@ import 'package:callandgo/screens/auth_screen/controller/auth_controller.dart';
 import 'package:callandgo/screens/driver/driver_home/controller/driver_home_controller.dart';
 import 'package:callandgo/screens/driver/driver_home/repository/driver_repository.dart';
 import 'package:callandgo/screens/profile/views/profile_screen.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../components/custom_drawer_for_driver.dart';
 

@@ -22,7 +22,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../models/user_model.dart';
 
-class HomeController extends GetxController with WidgetsBindingObserver{
+class HomeController extends GetxController with WidgetsBindingObserver {
   var selectedVehicle = "car".obs;
   var userLat = 0.0.obs;
   var userLong = 0.0.obs;
@@ -454,12 +454,6 @@ class HomeController extends GetxController with WidgetsBindingObserver{
 
   var allMarkers = <Marker>{}.obs;
 
-  final List<double> _rotations = [
-    0.0,
-    45.0,
-    90.0,
-  ];
-
   var cardriverMarkerList = [].obs;
   var motodriverMarkerList = [].obs;
   var cngdriverMarkerList = [].obs;
@@ -628,7 +622,7 @@ class HomeController extends GetxController with WidgetsBindingObserver{
   }
 
   Position? _currentPosition;
-  StreamSubscription<Position>? _positionStreamSubscription;
+  StreamSubscription<Position>? positionStreamSubscription;
 
   Future<Position> getCurrentLocation() async {
     checkLocationServiceAndPermission();
@@ -644,7 +638,7 @@ class HomeController extends GetxController with WidgetsBindingObserver{
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
     }
-    _positionStreamSubscription = Geolocator.getPositionStream(
+    positionStreamSubscription = Geolocator.getPositionStream(
       locationSettings: LocationSettings(
         accuracy: LocationAccuracy.high,
         distanceFilter: 1, // Update only if moved 10 meters
