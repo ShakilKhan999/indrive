@@ -19,6 +19,7 @@ import 'package:callandgo/screens/driver/driver_home/repository/driver_repositor
 import 'package:callandgo/screens/profile/views/profile_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../components/confirmation_dialog.dart';
 import '../../../../components/custom_drawer_for_driver.dart';
 
 class DriverHomeScreen extends StatelessWidget {
@@ -325,7 +326,7 @@ class DriverHomeScreen extends StatelessWidget {
                                 ),
                                 GestureDetector(
                                   onTap: (){
-                                    _showRoutesDialog(context,trip.routes,false);
+                                    CommonComponents().showRoutesDialog(context,trip.routes,false);
                                   },
                                   child: SizedBox(
                                     width: 220.w,
@@ -546,7 +547,7 @@ class DriverHomeScreen extends StatelessWidget {
       children: [
         GestureDetector(
           onTap: (){
-            _showRoutesDialog(context,driverHomeController.activeCall[0].routes,true);
+            CommonComponents().showRoutesDialog(context,driverHomeController.activeCall[0].routes,true);
           },
           child: Container(
             height: 40.h,
@@ -602,11 +603,23 @@ class DriverHomeScreen extends StatelessWidget {
                       child: CommonComponents().commonButton(
                           text: "Next",
                           onPressed: () async {
-                            await DriverRepository().completeRoute(tripId: driverHomeController.activeCall[0].tripId,
-                                encodedPoly: driverHomeController.activeCall[0].routes
-                                .firstWhere((route) => route.currentStatus == "Pending")
-                            .encodedPolyline
-                            );
+                            showConfirmationDialog(title: "Completed the route?",
+                                onPressConfirm: () async{
+                                  await driverHomeController.completeRoute(tripId: driverHomeController.activeCall[0].tripId,
+                                      encodedPoly: driverHomeController.activeCall[0].routes
+                                          .firstWhere((route) => route.currentStatus == "Pending")
+                                          .encodedPolyline
+                                  );
+                                  await Future.delayed(Duration(seconds: 1));
+                                  var newRoute= driverHomeController.activeCall[0].routes[driverHomeController.activeCall[0].routes.indexWhere((route) => route.currentStatus == "Pending")];
+                                  driverHomeController.getPolyline(
+                                      startPoint: newRoute.pickupLatLng,
+                                      endPoint: newRoute.destinationLatLng);
+                                  Navigator.pop(context);
+                                },
+                                onPressCancel: () { Navigator.pop(context); },
+                                controller: driverHomeController);
+
                           },
                           color: Colors.green,
                           borderRadius: 14)):
@@ -694,87 +707,7 @@ class DriverHomeScreen extends StatelessWidget {
       ],
     );
   }
-  void _showRoutesDialog(BuildContext context, var routes, bool onGoing) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: ColorHelper.bgColor,
 
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child:  Padding(
-            padding:  EdgeInsets.all(13.sp),
-            child: Container(
-              width: double.maxFinite,
-              height: 100.h,
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.5),
-                    offset: Offset(0, 5),
-                    blurRadius: 10,
-                    spreadRadius: 2,
-                  ),
-                ],
-              ),
-              child: ListView.builder(
-                itemCount: routes.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        SizedBox(
-                          width: 160.w,
-                          child: CommonComponents().printText(
-                              fontSize: 15,
-                              textData: "${routes[index].destinationPoint}",
-                              fontWeight: FontWeight.bold),
-                        ),
-                        onGoing?
-                        buildRouteStatusIcon(routes[index].currentStatus):
-                        CommonComponents().printText(
-                            fontSize: 10,
-                            textData: "${homeController.calculateDistance(
-                                point1: routes[index].pickupLatLng,
-                                point2: routes[index].destinationLatLng)}",
-                            fontWeight: FontWeight.bold),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget buildRouteStatusIcon(String currentStatus) {
-    if (currentStatus == "Pending") {
-      return Icon(
-        Icons.pending_outlined,
-        size: 24.sp,
-        color: Colors.red,
-      );
-    } else if (currentStatus == "OnGoing") {
-      return Icon(
-        Icons.add_road_rounded,
-        size: 24.sp,
-        color: ColorHelper.primaryColor,
-      );
-    } else {
-      return Icon(
-        Icons.check_circle_outline,
-        size: 24.sp,
-        color: Colors.green,
-      );
-    }
-  }
 
   FocusNode focusNode = FocusNode();
   void openKeyboard(BuildContext context){

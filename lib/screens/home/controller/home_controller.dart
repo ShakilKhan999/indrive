@@ -129,7 +129,7 @@ class HomeController extends GetxController with WidgetsBindingObserver{
     polyLines.clear();
     polylineCoordinates.clear();
     allMarkers.removeWhere((marker) =>
-        marker.markerId == MarkerId("startPoint") ||
+    marker.markerId == MarkerId("startPoint") ||
         marker.markerId == MarkerId("endPoint"));
 
     LatLng stPoint = LatLng(
@@ -185,7 +185,6 @@ class HomeController extends GetxController with WidgetsBindingObserver{
 
     offerPriceController.text = minOfferPrice.value.toString();
   }
-
   // getPolylineForMultipleRoute(
   //     {TravelMode travelMode = TravelMode.driving}) async {
   //   findingRoutes.value = true;
@@ -440,6 +439,8 @@ class HomeController extends GetxController with WidgetsBindingObserver{
     findingRoutes.value = false;
   }
 
+
+
   addPolyLine(List<LatLng> polylineCoordinates) {
     PolylineId id = const PolylineId("poly");
     Polyline polyline = Polyline(
@@ -465,6 +466,7 @@ class HomeController extends GetxController with WidgetsBindingObserver{
   var cngdriverMarkerList = [].obs;
 
   Future<void> loadMarkers() async {
+
     await Future.delayed(const Duration(seconds: 1));
     final BitmapDescriptor markerIconCar =
         await BitmapDescriptor.fromAssetImage(
@@ -798,7 +800,7 @@ class HomeController extends GetxController with WidgetsBindingObserver{
   var driverToRate = [].obs;
 
   StreamSubscription? _tripSubscription;
-
+var routeIndex=0.obs;
   Future<void> listenCalledTrip(String docId) async {
     _tripSubscription =
         PassengerRepository().listenToCalledTrip(docId).listen((snapshot) {
@@ -813,6 +815,7 @@ class HomeController extends GetxController with WidgetsBindingObserver{
           tripCalled.value = false;
           polyLines.clear();
           polylineCoordinates.clear();
+          allMarkers.clear();
 
           driverToRate.add(thisDriver[0]);
           rateDriver.value = true;
@@ -826,6 +829,7 @@ class HomeController extends GetxController with WidgetsBindingObserver{
           calledTrip().clear();
           showToast("Driver cancelled the trip");
         } else if (calledTrip[0].accepted) {
+          log("jhscscsndmnsmndmmvsdmn");
           riderFound.value = true;
           thisDriver.clear();
           var myRider = sortedDriverList.firstWhere(
@@ -833,12 +837,25 @@ class HomeController extends GetxController with WidgetsBindingObserver{
               orElse: () => null);
           thisDriver.add(myRider);
           tripCalled.value = false;
-          calledTrip[0].picked ? getPolyline() : getPickupPolyline();
+          int index=calledTrip[0].routes.indexWhere((route) => route.currentStatus == "Pending");
+          index>=0?
+           routeIndex.value=index:routeIndex.value=0;
+          calledTrip[0].picked?
+              onGoingPolyLinles(routeIndex: routeIndex.value)
+              : getPickupPolyline();
         }
       } else {
         log('Document does not exist');
       }
     });
+  }
+
+  Future<void> onGoingPolyLinles({required int routeIndex}) async{
+    await Future.delayed(Duration(seconds: 1));
+    log("shiftingRouteinTheTrip");
+    var polyLinePoints= decodePolyline(calledTrip[0].routes[routeIndex].encodedPolyline);
+    polylineCoordinates.value=polyLinePoints;
+  addPolyLineForMultipleRoute(polylineCoordinates, 'Route $routeIndex');
   }
 
 // Method to stop the listener

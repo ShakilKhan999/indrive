@@ -309,4 +309,15 @@ class DriverHomeController extends GetxController {
     previousTrips.addAll(await DriverRepository().getTripHistory(authController.currentUser.value.uid!));
     log("trip history rider: ${previousTrips.length.toString()}");
   }
+  var actionStarted=false.obs;
+  Future<void> completeRoute({ required String tripId, required String encodedPoly}) async{
+    actionStarted.value=true;
+
+    await DriverRepository().completeRoute(tripId: tripId,
+        encodedPoly: encodedPoly
+    );
+    actionStarted.value=false;
+
+  }
+
 }
