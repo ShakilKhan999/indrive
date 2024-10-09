@@ -177,13 +177,13 @@ class HomeController extends GetxController with WidgetsBindingObserver {
 
     findingRoutes.value = false;
 
-    minOfferPrice.value = calculateRentPrice(
-        point1: GeoPoint(startPickedCenter.value.latitude,
-            startPickedCenter.value.longitude),
-        point2: GeoPoint(destinationPickedCenter.value.latitude,
-            destinationPickedCenter.value.longitude));
+    // minOfferPrice.value = calculateRentPrice(
+    //     point1: GeoPoint(startPickedCenter.value.latitude,
+    //         startPickedCenter.value.longitude),
+    //     point2: GeoPoint(destinationPickedCenter.value.latitude,
+    //         destinationPickedCenter.value.longitude));
 
-    offerPriceController.text = minOfferPrice.value.toString();
+    // offerPriceController.text = minOfferPrice.value.toString();
   }
 
   // getPolylineForMultipleRoute(
@@ -356,6 +356,10 @@ class HomeController extends GetxController with WidgetsBindingObserver {
     }
 
     findingRoutes.value = false;
+
+    minOfferPrice.value = calculateRentPrice(routes: routes);
+
+    offerPriceController.text = minOfferPrice.value.toString();
 
     // Update the camera to show all polylines
     // moveCameraToFitPolylines();
@@ -1022,10 +1026,18 @@ class HomeController extends GetxController with WidgetsBindingObserver {
     }
   }
 
-  int calculateRentPrice({required GeoPoint point1, required GeoPoint point2}) {
-    final distanceInMeters = Geolocator.distanceBetween(
-        point1.latitude, point1.longitude, point2.latitude, point2.longitude);
-    return (distanceInMeters * 0.01).ceil();
+  int calculateRentPrice({required List<Routes> routes}) {
+    double totalDistance = 0;
+    for (int i = 0; i < routes.length; i++) {
+      final distanceInMeters = Geolocator.distanceBetween(
+          routes[i].pickupLatLng!.latitude,
+          routes[i].pickupLatLng!.longitude,
+          routes[i].destinationLatLng!.latitude,
+          routes[i].destinationLatLng!.longitude);
+      totalDistance = totalDistance + distanceInMeters;
+    }
+
+    return (totalDistance * 0.01).ceil();
   }
 
   String calculateTravelTime(
