@@ -269,6 +269,22 @@ class DriverHomeController extends GetxController {
         .toList());
   }
 
+  Future<void> makeGoingPolyLinles({required String encodePoly}) async{
+    log("shiftingRouteinTheTripDriver");
+    var polyLinePoints= decodePolyline(encodePoly);
+    polylineCoordinates.value=polyLinePoints;
+  }
+
+  List<LatLng> decodePolyline(String encoded) {
+    PolylinePoints polylinePoints = PolylinePoints();
+    List<PointLatLng> points = polylinePoints.decodePolyline(encoded);
+
+    List<LatLng> coordinates = points.map((point) {
+      return LatLng(point.latitude, point.longitude);
+    }).toList();
+    return coordinates;
+  }
+
   addPolyLine(List<LatLng> polylineCoordinates) {
     PolylineId id = const PolylineId("poly");
     Polyline polyline = Polyline(

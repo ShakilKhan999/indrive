@@ -135,12 +135,12 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                         Set<Polyline>.of(homeController.polylines.values),
                     onCameraMove:
                         homeController.polylineCoordinates.isNotEmpty ||
-                                homeController.findingRoutes.value
+                                homeController.findingRoutes.value || homeController.routes.isNotEmpty
                             ? null
                             : homeController.onCameraMove,
                     onCameraIdle:
                         homeController.polylineCoordinates.isNotEmpty ||
-                                homeController.findingRoutes.value
+                                homeController.findingRoutes.value || homeController.routes.isNotEmpty
                             ? null
                             : homeController.onCameraIdle,
                     myLocationEnabled: true,
@@ -174,7 +174,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                   padding: EdgeInsets.only(bottom: 32.sp),
                   child: Obx(() =>
                       homeController.polylineCoordinates.isNotEmpty ||
-                              homeController.userLocationPicking.value
+                              homeController.userLocationPicking.value || homeController.routes.isNotEmpty
                           ? const SizedBox()
                           : homeController.cameraMoving.value
                               ? Icon(

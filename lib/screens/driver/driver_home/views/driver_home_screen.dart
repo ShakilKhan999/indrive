@@ -67,7 +67,7 @@ class DriverHomeScreen extends StatelessWidget {
                 width: MediaQuery.of(context).size.width,
                 child: GoogleMap(
                   polylines: driverHomeController
-                          .polylineCoordinates.value.isEmpty
+                          .polylineCoordinates.value.isEmpty && driverHomeController.activeCall.isEmpty
                       ? {}
                       : {
                           Polyline(
@@ -460,6 +460,7 @@ class DriverHomeScreen extends StatelessWidget {
                                   driverHomeController
                                       .listenCall();
                                   await Future.delayed(Duration(seconds: 1));
+
                                   driverHomeController.getPolyline(startPoint:GeoPoint(driverHomeController.userLat.value, driverHomeController.userLong.value),
                                       endPoint:driverHomeController.activeCall[0].pickLatLng );
                                 })
@@ -612,9 +613,10 @@ class DriverHomeScreen extends StatelessWidget {
                                   );
                                   await Future.delayed(Duration(seconds: 1));
                                   var newRoute= driverHomeController.activeCall[0].routes[driverHomeController.activeCall[0].routes.indexWhere((route) => route.currentStatus == "Pending")];
-                                  driverHomeController.getPolyline(
-                                      startPoint: newRoute.pickupLatLng,
-                                      endPoint: newRoute.destinationLatLng);
+                                  driverHomeController.makeGoingPolyLinles(encodePoly: newRoute.encodedPolyline);
+                                  // driverHomeController.getPolyline(
+                                  //     startPoint: newRoute.pickupLatLng,
+                                  //     endPoint: newRoute.destinationLatLng);
                                   Navigator.pop(context);
                                 },
                                 onPressCancel: () { Navigator.pop(context); },
@@ -697,8 +699,8 @@ class DriverHomeScreen extends StatelessWidget {
                                 driverHomeController.activeCall[0].tripId,
                                 "picked",
                                 true);
-                            driverHomeController.getPolyline(startPoint:driverHomeController.activeCall[0].pickLatLng,
-                             endPoint:driverHomeController.activeCall[0].routes[0].destinationLatLng );
+                            var newRoute= driverHomeController.activeCall[0].routes[driverHomeController.activeCall[0].routes.indexWhere((route) => route.currentStatus == "Pending")];
+                            driverHomeController.makeGoingPolyLinles(encodePoly: newRoute.encodedPolyline);
                           },
                           color: Colors.green,
                           borderRadius: 14))
