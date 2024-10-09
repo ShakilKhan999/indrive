@@ -221,6 +221,11 @@ class DriverHomeController extends GetxController {
         else if(activeCall[0].userCancel == true) {
          showToast(toastText: "User cancelled this trip");
         }
+        else if(activeCall[0].accepted == false && activeCall[0].driverId==authController.currentUser.value.uid)
+          {
+            getPolyline(startPoint: GeoPoint(userLat.value, userLong.value),
+                endPoint: activeCall[0].pickLatLng);
+          }
         // else if (activeCall[0].accepted == false && activeCall[0].driverCancel == true) {
         //   activeCall.clear();
         //   polyLines.clear();
