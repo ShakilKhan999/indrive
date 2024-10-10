@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/method_helper.dart';
 import 'package:callandgo/utils/database_collection_names.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -21,7 +22,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../models/user_model.dart';
 
-class HomeController extends GetxController {
+class HomeController extends GetxController with WidgetsBindingObserver {
   var selectedVehicle = "car".obs;
   var userLat = 0.0.obs;
   var userLong = 0.0.obs;
@@ -36,21 +37,22 @@ class HomeController extends GetxController {
   var myPlaceName = "Searching for you on the map..".obs;
   var destinationPlaceName = "".obs;
   var minOfferPrice = 0.obs;
-  var center = const LatLng(23.80, 90.41).obs;
-  var lastPickedCenter = const LatLng(23.80, 90.41).obs;
-  var destinationPickedCenter = const LatLng(23.80, 90.41).obs;
-  var startPickedCenter = const LatLng(23.80, 90.41).obs;
+  var center = const LatLng(31.7917, -7.0926).obs;
+  var lastPickedCenter = const LatLng(31.7917, -7.0926).obs;
+  var destinationPickedCenter = const LatLng(31.7917, -7.0926).obs;
+  var startPickedCenter = const LatLng(31.7917, -7.0926).obs;
+  var multiPickedCenter = const LatLng(31.7917, -7.0926).obs;
 
-  var previousTrips=[].obs;
+  var previousTrips = [].obs;
   AuthController authController = Get.put(AuthController());
   @override
   void onInit() {
-
     authController.getUserData();
     getAngle();
     getDriverList();
-    getPrevTrips();
+    // getPrevTrips();
     super.onInit();
+    WidgetsBinding.instance.addObserver(this);
     ever(thisDriver, (value) {
       if (thisDriver.isNotEmpty) {
         // getPickupPolyline();
@@ -58,16 +60,36 @@ class HomeController extends GetxController {
     });
   }
 
-  final TextEditingController destinationController = TextEditingController();
+  @override
+  void onClose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.onClose();
+  }
+
+  //final TextEditingController destinationController = TextEditingController();
+  var destinationController = TextEditingController().obs;
+  final TextEditingController addRouteController = TextEditingController();
   final TextEditingController pickupController = TextEditingController();
   final TextEditingController offerPriceController = TextEditingController();
   GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
   late GoogleMapController mapController;
+  late GoogleMapController mapMultiController;
   late GoogleMapController mapControllerTO;
   Map<PolylineId, Polyline> polyLines = {};
-  var polylineCoordinates = [].obs;
+  var polylineCoordinates = <LatLng>[].obs;
   var findingRoutes = false.obs;
   double? _direction;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      log("App is paused, perform any action");
+    } else if (state == AppLifecycleState.detached) {
+      PassengerRepository().removeThisTrip("08f9b03306");
+      log("App is being killed, perform cleanup");
+    }
+  }
+
   void getAngle() {
     FlutterCompass.events?.listen((CompassEvent event) {
       AuthController authController = Get.find();
@@ -102,18 +124,18 @@ class HomeController extends GetxController {
     return (currentDirection - lastDirection).abs() >= 5;
   }
 
-  getPolyline({ TravelMode travelMode=TravelMode.driving}) async {
+  getPolyline({TravelMode travelMode = TravelMode.driving}) async {
     findingRoutes.value = true;
     polyLines.clear();
     polylineCoordinates.clear();
     allMarkers.removeWhere((marker) =>
-    marker.markerId == MarkerId("startPoint") ||
+        marker.markerId == MarkerId("startPoint") ||
         marker.markerId == MarkerId("endPoint"));
 
     LatLng stPoint = LatLng(
         startPickedCenter.value.latitude, startPickedCenter.value.longitude);
-    LatLng endPoint = LatLng(
-        destinationPickedCenter.value.latitude, destinationPickedCenter.value.longitude);
+    LatLng endPoint = LatLng(destinationPickedCenter.value.latitude,
+        destinationPickedCenter.value.longitude);
 
     allMarkers.add(Marker(
       markerId: MarkerId("startPoint"),
@@ -155,13 +177,235 @@ class HomeController extends GetxController {
 
     findingRoutes.value = false;
 
-    minOfferPrice.value = calculateRentPrice(
-        point1: GeoPoint(startPickedCenter.value.latitude,
-            startPickedCenter.value.longitude),
-        point2: GeoPoint(destinationPickedCenter.value.latitude,
-            destinationPickedCenter.value.longitude));
+    // minOfferPrice.value = calculateRentPrice(
+    //     point1: GeoPoint(startPickedCenter.value.latitude,
+    //         startPickedCenter.value.longitude),
+    //     point2: GeoPoint(destinationPickedCenter.value.latitude,
+    //         destinationPickedCenter.value.longitude));
+
+    // offerPriceController.text = minOfferPrice.value.toString();
+  }
+  // getPolylineForMultipleRoute(
+  //     {TravelMode travelMode = TravelMode.driving}) async {
+  //   findingRoutes.value = true;
+  //   polyLines.clear();
+  //   polylineCoordinates.clear();
+  //   allMarkers.removeWhere((marker) =>
+  //       marker.markerId == MarkerId("startPoint") ||
+  //       marker.markerId == MarkerId("endPoint"));
+
+  //   for (int i = 0; i < routes.length; i++) {
+  //     LatLng stPoint = LatLng(
+  //         routes[i].pickupLatLng!.latitude, routes[i].pickupLatLng!.longitude);
+  //     LatLng endPoint = LatLng(routes[i].destinationLatLng!.latitude,
+  //         routes[i].destinationLatLng!.longitude);
+
+  //     allMarkers.add(Marker(
+  //       markerId: MarkerId("startPoint$i"),
+  //       position: stPoint,
+  //       infoWindow: InfoWindow(title: "Pickup Point"),
+  //       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+  //     ));
+
+  //     allMarkers.add(Marker(
+  //       markerId: MarkerId("endPoint$i"),
+  //       position: endPoint,
+  //       infoWindow: InfoWindow(title: "Destination Point"),
+  //       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+  //     ));
+
+  //     PolylinePoints polylinePoints = PolylinePoints();
+  //     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+  //       AppConfig.mapApiKey,
+  //       PointLatLng(stPoint.latitude, stPoint.longitude),
+  //       PointLatLng(endPoint.latitude, endPoint.longitude),
+  //       travelMode: travelMode,
+  //     );
+
+  //     log("polyLineResponse: ${result.points.length}");
+  //     if (result.points.isNotEmpty) {
+  //       polylineCoordinates.clear();
+  //       for (var point in result.points) {
+  //         polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+  //       }
+  //     } else {
+  //       log("${result.errorMessage}");
+  //     }
+
+  //     addPolyLineForMultipleRoute(polylineCoordinates, 'Route $i');
+  //   }
+
+  //   findingRoutes.value = false;
+
+  //   minOfferPrice.value = calculateRentPrice(
+  //       point1: GeoPoint(startPickedCenter.value.latitude,
+  //           startPickedCenter.value.longitude),
+  //       point2: GeoPoint(destinationPickedCenter.value.latitude,
+  //           destinationPickedCenter.value.longitude));
+
+  //   offerPriceController.text = minOfferPrice.value.toString();
+  // }
+
+  // getPolylineForMultipleRoute(
+  //     {TravelMode travelMode = TravelMode.driving}) async {
+  //   findingRoutes.value = true;
+
+  //   // Remove only start and end markers, keep existing polylines
+  //   allMarkers.removeWhere((marker) =>
+  //       marker.markerId.value.startsWith("startPoint") ||
+  //       marker.markerId.value.startsWith("endPoint"));
+
+  //   for (int i = 0; i < routes.length; i++) {
+  //     LatLng stPoint = LatLng(
+  //         routes[i].pickupLatLng!.latitude, routes[i].pickupLatLng!.longitude);
+  //     LatLng endPoint = LatLng(routes[i].destinationLatLng!.latitude,
+  //         routes[i].destinationLatLng!.longitude);
+
+  //     allMarkers.add(Marker(
+  //       markerId: MarkerId("startPoint$i"),
+  //       position: stPoint,
+  //       infoWindow: InfoWindow(title: "Pickup Point ${i + 1}"),
+  //       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+  //     ));
+
+  //     allMarkers.add(Marker(
+  //       markerId: MarkerId("endPoint$i"),
+  //       position: endPoint,
+  //       infoWindow: InfoWindow(title: "Destination Point ${i + 1}"),
+  //       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+  //     ));
+
+  //     PolylinePoints polylinePoints = PolylinePoints();
+  //     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+  //       AppConfig.mapApiKey,
+  //       PointLatLng(stPoint.latitude, stPoint.longitude),
+  //       PointLatLng(endPoint.latitude, endPoint.longitude),
+  //       travelMode: travelMode,
+  //     );
+
+  //     if (result.points.isNotEmpty) {
+  //       List<LatLng> routePolylineCoordinates = result.points
+  //           .map((point) => LatLng(point.latitude, point.longitude))
+  //           .toList();
+  //       addPolyLineForMultipleRoute(routePolylineCoordinates, 'Route $i');
+  //     } else {
+  //       log("Error for Route $i: ${result.errorMessage}");
+  //     }
+  //   }
+
+  //   findingRoutes.value = false;
+
+  //   // Update the camera to show all polylines
+  //   // moveCameraToFitPolylines();
+  // }
+
+  var polilineString = <String>[].obs;
+
+  getPolylineForMultipleRoute(
+      {TravelMode travelMode = TravelMode.driving}) async {
+    findingRoutes.value = true;
+
+    // Clear all existing markers and polylines
+    // allMarkers.clear();
+    allMarkers.removeWhere((marker) =>
+        marker.markerId.value.contains("startPoint") ||
+        marker.markerId.value.contains("endPoint"));
+    polylines.clear();
+    polilineString.clear();
+
+    for (int i = 0; i < routes.length; i++) {
+      LatLng stPoint = LatLng(
+          routes[i].pickupLatLng!.latitude, routes[i].pickupLatLng!.longitude);
+      LatLng endPoint = LatLng(routes[i].destinationLatLng!.latitude,
+          routes[i].destinationLatLng!.longitude);
+
+      allMarkers.add(Marker(
+        markerId: MarkerId("startPoint$i"),
+        position: stPoint,
+        infoWindow: InfoWindow(title: "Pickup Point ${i + 1}"),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+      ));
+
+      allMarkers.add(Marker(
+        markerId: MarkerId("endPoint$i"),
+        position: endPoint,
+        infoWindow: InfoWindow(title: "Destination Point ${i + 1}"),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+      ));
+
+      PolylinePoints polylinePoints = PolylinePoints();
+      PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+        AppConfig.mapApiKey,
+        PointLatLng(stPoint.latitude, stPoint.longitude),
+        PointLatLng(endPoint.latitude, endPoint.longitude),
+        travelMode: travelMode,
+      );
+
+      if (result.points.isNotEmpty) {
+        List<LatLng> routePolylineCoordinates = result.points
+            .map((point) => LatLng(point.latitude, point.longitude))
+            .toList();
+        String encodedPolyline = encodePolyline(routePolylineCoordinates);
+        polilineString.add(encodedPolyline);
+
+        addPolyLineForMultipleRoute(routePolylineCoordinates, 'Route $i');
+      } else {
+        log("Error for Route $i: ${result.errorMessage}");
+      }
+    }
+
+    findingRoutes.value = false;
+
+    minOfferPrice.value = calculateRentPrice(routes: routes);
 
     offerPriceController.text = minOfferPrice.value.toString();
+
+    // Update the camera to show all polylines
+    // moveCameraToFitPolylines();
+  }
+
+  Map<String, Polyline> polylines = {};
+
+  void addPolyLineForMultipleRoute(
+      List<LatLng> polylineCoordinates, String polylineId) {
+    final id = PolylineId(polylineId);
+    final polyline = Polyline(
+      polylineId: id,
+      color: ColorHelper.primaryColor,
+      points: polylineCoordinates,
+      width: 5,
+    );
+    polylines[polylineId] = polyline;
+  }
+
+  String encodePolyline(List<LatLng> points) {
+    int plat = 0;
+    int plng = 0;
+    String encoded = "";
+
+    for (LatLng point in points) {
+      int late5 = (point.latitude * 1e5).round();
+      int lnge5 = (point.longitude * 1e5).round();
+
+      encoded += _encodeNumber(late5 - plat);
+      encoded += _encodeNumber(lnge5 - plng);
+
+      plat = late5;
+      plng = lnge5;
+    }
+
+    return encoded;
+  }
+
+  String _encodeNumber(int num) {
+    num = (num < 0) ? ~(num << 1) : (num << 1);
+    String result = "";
+    while (num >= 0x20) {
+      result += String.fromCharCode((0x20 | (num & 0x1f)) + 63);
+      num >>= 5;
+    }
+    result += String.fromCharCode(num + 63);
+    return result;
   }
 
   getPickupPolyline() async {
@@ -213,12 +457,6 @@ class HomeController extends GetxController {
 
   var allMarkers = <Marker>{}.obs;
 
-  final List<double> _rotations = [
-    0.0,
-    45.0,
-    90.0,
-  ];
-
   var cardriverMarkerList = [].obs;
   var motodriverMarkerList = [].obs;
   var cngdriverMarkerList = [].obs;
@@ -226,29 +464,30 @@ class HomeController extends GetxController {
   Future<void> loadMarkers() async {
     await Future.delayed(const Duration(seconds: 1));
     final BitmapDescriptor markerIconCar =
-    await BitmapDescriptor.fromAssetImage(
+        await BitmapDescriptor.fromAssetImage(
       const ImageConfiguration(size: Size(24, 24)),
       'assets/images/marker.png',
     );
     final BitmapDescriptor markerIconMoto =
-    await BitmapDescriptor.fromAssetImage(
+        await BitmapDescriptor.fromAssetImage(
       const ImageConfiguration(size: Size(24, 24)),
       'assets/images/motoMarker.png',
     );
     final BitmapDescriptor markerIconCng =
-    await BitmapDescriptor.fromAssetImage(
+        await BitmapDescriptor.fromAssetImage(
       const ImageConfiguration(size: Size(24, 24)),
       'assets/images/taxiMarker.png',
     );
 
     if (selectedVehicle.value == "car") {
       Set<Marker> markers = cardriverMarkerList.value.map((driver) {
-        LatLng latLng = LatLng(driver.latLng.latitude, driver.latLng.longitude); // Extract LatLng from driver
+        LatLng latLng = LatLng(driver.latLng.latitude,
+            driver.latLng.longitude); // Extract LatLng from driver
         return Marker(
           markerId: MarkerId(latLng.toString()),
           position: latLng,
           icon: markerIconCar,
-          rotation: driver.vehicleAngle??0.0, // Use vehicleAngle for rotation
+          rotation: driver.vehicleAngle ?? 0.0, // Use vehicleAngle for rotation
         );
       }).toSet();
 
@@ -256,12 +495,13 @@ class HomeController extends GetxController {
       log("car marker length: ${allMarkers.length}");
     } else if (selectedVehicle.value == "moto") {
       Set<Marker> markers = motodriverMarkerList.value.map((driver) {
-        LatLng latLng = LatLng(driver.latLng.latitude, driver.latLng.longitude); // Extract LatLng from driver
+        LatLng latLng = LatLng(driver.latLng.latitude,
+            driver.latLng.longitude); // Extract LatLng from driver
         return Marker(
           markerId: MarkerId(latLng.toString()),
           position: latLng,
           icon: markerIconMoto,
-          rotation: driver.vehicleAngle??0.0, // Use vehicleAngle for rotation
+          rotation: driver.vehicleAngle ?? 0.0, // Use vehicleAngle for rotation
         );
       }).toSet();
 
@@ -269,21 +509,69 @@ class HomeController extends GetxController {
       log("moto marker length: ${allMarkers.length}");
     } else if (selectedVehicle.value == "cng") {
       Set<Marker> markers = cngdriverMarkerList.value.map((driver) {
-        LatLng latLng = LatLng(driver.latLng.latitude, driver.latLng.longitude); // Extract LatLng from driver
+        LatLng latLng = LatLng(driver.latLng.latitude,
+            driver.latLng.longitude); // Extract LatLng from driver
         return Marker(
           markerId: MarkerId(latLng.toString()),
           position: latLng,
           icon: markerIconCng,
-          rotation: driver.vehicleAngle??0.0, // Use vehicleAngle for rotation
+          rotation: driver.vehicleAngle ?? 0.0, // Use vehicleAngle for rotation
         );
       }).toSet();
 
       allMarkers.value = markers;
+
       log("cng marker length: ${allMarkers.length}");
     }
+
+    // if (polylineCoordinates.isNotEmpty) {
+    //   allMarkers.add(Marker(
+    //     markerId: MarkerId("startPoint"),
+    //     position: polylineCoordinates[0],
+    //     infoWindow: InfoWindow(title: "Pickup Point"),
+    //     icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+    //   ));
+
+    //   allMarkers.add(Marker(
+    //     markerId: MarkerId("endPoint"),
+    //     position: polylineCoordinates[polylineCoordinates.length - 1],
+    //     infoWindow: InfoWindow(title: "Destination Point"),
+    //     icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+    //   ));
+    // }
+    if (routes.isNotEmpty) {
+      for (int i = 0; i < routes.length; i++) {
+        allMarkers.add(Marker(
+          markerId: MarkerId("startPoint$i"),
+          position: LatLng(routes[i].pickupLatLng!.latitude,
+              routes[i].pickupLatLng!.longitude),
+          infoWindow: InfoWindow(title: "Pickup Point ${i + 1}"),
+          icon:
+              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+        ));
+
+        if (i == routes.length - 1) {
+          allMarkers.add(Marker(
+            markerId: MarkerId("endPoint$i"),
+            position: LatLng(routes[i].destinationLatLng!.latitude,
+                routes[i].destinationLatLng!.longitude),
+            infoWindow: InfoWindow(title: "Destination Point ${i + 1}"),
+            icon:
+                BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+          ));
+        } else {
+          allMarkers.add(Marker(
+            markerId: MarkerId("endPoint$i"),
+            position: LatLng(routes[i].destinationLatLng!.latitude,
+                routes[i].destinationLatLng!.longitude),
+            infoWindow: InfoWindow(title: "Destination Point ${i + 1}"),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+                BitmapDescriptor.hueGreen),
+          ));
+        }
+      }
+    }
   }
-
-
 
   void moveCameraToPolyline() {
     if (polylineCoordinates.isEmpty) return;
@@ -312,6 +600,10 @@ class HomeController extends GetxController {
     mapController = controller;
   }
 
+  void onMultiMapCreated(GoogleMapController controller) {
+    mapMultiController = controller;
+  }
+
   var changingPickup = false.obs;
   void onMapCreatedTo(GoogleMapController controller) {
     mapControllerTO = controller;
@@ -320,6 +612,13 @@ class HomeController extends GetxController {
   void onCameraMove(CameraPosition position) {
     log("camera Moving");
     startPickedCenter.value =
+        LatLng(position.target.latitude, position.target.longitude);
+    cameraMoving.value = true;
+  }
+
+  void onMultiCameraMove(CameraPosition position) {
+    log("camera Moving");
+    destinationPickedCenter.value =
         LatLng(position.target.latitude, position.target.longitude);
     cameraMoving.value = true;
   }
@@ -343,6 +642,13 @@ class HomeController extends GetxController {
         startPickedCenter.value.longitude, false);
   }
 
+  void onMultiCameraIdle() {
+    cameraMoving.value = false;
+    log("camera Idle");
+    getPlaceNameFromCoordinates(destinationPickedCenter.value.latitude,
+        destinationPickedCenter.value.longitude, false);
+  }
+
   Future<void> checkLocationServiceAndPermission() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
@@ -351,7 +657,7 @@ class HomeController extends GetxController {
   }
 
   Position? _currentPosition;
-  StreamSubscription<Position>? _positionStreamSubscription;
+  StreamSubscription<Position>? positionStreamSubscription;
 
   Future<Position> getCurrentLocation() async {
     checkLocationServiceAndPermission();
@@ -367,7 +673,7 @@ class HomeController extends GetxController {
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
     }
-    _positionStreamSubscription = Geolocator.getPositionStream(
+    positionStreamSubscription = Geolocator.getPositionStream(
       locationSettings: LocationSettings(
         accuracy: LocationAccuracy.high,
         distanceFilter: 1, // Update only if moved 10 meters
@@ -409,7 +715,8 @@ class HomeController extends GetxController {
       userLong.value = position.longitude;
       log("user long ${userLong.value}");
       center.value = LatLng(userLat.value, userLong.value);
-      mapController.animateCamera(CameraUpdate.newLatLng(LatLng(center.value.latitude, center.value.longitude)));
+      mapController.animateCamera(CameraUpdate.newLatLng(
+          LatLng(center.value.latitude, center.value.longitude)));
 
       getPlaceNameFromCoordinates(userLat.value, userLong.value, false);
       userLocationPicking.value = false;
@@ -432,10 +739,11 @@ class HomeController extends GetxController {
         if (destination) {
           destinationPlaceName.value =
               '${placemark.subLocality}, ${placemark.locality}, ${placemark.administrativeArea}';
-          destinationController.text = destinationPlaceName.value;
+          destinationController.value.text = destinationPlaceName.value;
         } else {
           myPlaceName.value =
               '${placemark.street}, ${placemark.subLocality}, ${placemark.locality}';
+          pickupController.text = myPlaceName.value;
         }
 
         log("myPlaceName: ${myPlaceName.value}");
@@ -467,17 +775,20 @@ class HomeController extends GetxController {
     cngdriverMarkerList.clear();
 
     cardriverMarkerList.addAll(driverList
-        .where((driver) => driver.latLng != null && driver.vehicleType == "car").toList());
+        .where((driver) => driver.latLng != null && driver.vehicleType == "car")
+        .toList());
 
     log("CarDriverList: ${cardriverMarkerList.length.toString()}");
 
     motodriverMarkerList.addAll(driverList
         .where(
-            (driver) => driver.latLng != null && driver.vehicleType == "moto").toList());
+            (driver) => driver.latLng != null && driver.vehicleType == "moto")
+        .toList());
     log("MotoDriverList: ${motodriverMarkerList.length.toString()}");
 
     cngdriverMarkerList.addAll(driverList
-        .where((driver) => driver.latLng != null && driver.vehicleType == "cng").toList());
+        .where((driver) => driver.latLng != null && driver.vehicleType == "cng")
+        .toList());
     log("CngDriverList: ${cngdriverMarkerList.length.toString()}");
 
     loadMarkers();
@@ -511,12 +822,15 @@ class HomeController extends GetxController {
   var calledTrip = [].obs;
   var bidderList = [].obs;
 
-  int count=0;
+  int count = 0;
+  var rateDriver = false.obs;
+  var driverToRate = [].obs;
 
   StreamSubscription? _tripSubscription;
-
+  var routeIndex = 0.obs;
   Future<void> listenCalledTrip(String docId) async {
-    _tripSubscription = PassengerRepository().listenToCalledTrip(docId).listen((snapshot) {
+    _tripSubscription =
+        PassengerRepository().listenToCalledTrip(docId).listen((snapshot) {
       calledTrip.clear();
       bidderList.clear();
       if (snapshot.exists) {
@@ -528,33 +842,49 @@ class HomeController extends GetxController {
           tripCalled.value = false;
           polyLines.clear();
           polylineCoordinates.clear();
-        }
+          allMarkers.clear();
 
-        else if(calledTrip[0].accepted==false && calledTrip[0].driverCancel==true)
-          {
-            riderFound.value = false;
-            tripCalled.value = false;
-            polyLines.clear();
-            polylineCoordinates.clear();
-            stopListeningToCalledTrip();
-            calledTrip().clear();
-            showToast("Driver cancelled the trip");
-          }
-
-        else if (calledTrip[0].accepted) {
+          driverToRate.add(thisDriver[0]);
+          rateDriver.value = true;
+        } else if (calledTrip[0].accepted == false &&
+            calledTrip[0].driverCancel == true) {
+          riderFound.value = false;
+          tripCalled.value = false;
+          polyLines.clear();
+          polylineCoordinates.clear();
+          stopListeningToCalledTrip();
+          calledTrip().clear();
+          showToast("Driver cancelled the trip");
+        } else if (calledTrip[0].accepted) {
+          log("jhscscsndmnsmndmmvsdmn");
           riderFound.value = true;
           thisDriver.clear();
           var myRider = sortedDriverList.firstWhere(
-                  (driver) => driver.uid == calledTrip[0].driverId,
+              (driver) => driver.uid == calledTrip[0].driverId,
               orElse: () => null);
           thisDriver.add(myRider);
           tripCalled.value = false;
-          calledTrip[0].picked ? getPolyline() : getPickupPolyline();
+          int index = calledTrip[0]
+              .routes
+              .indexWhere((route) => route.currentStatus == "Pending");
+          index >= 0 ? routeIndex.value = index : routeIndex.value = 0;
+          calledTrip[0].picked
+              ? onGoingPolyLinles(routeIndex: routeIndex.value)
+              : getPickupPolyline();
         }
       } else {
         log('Document does not exist');
       }
     });
+  }
+
+  Future<void> onGoingPolyLinles({required int routeIndex}) async {
+    await Future.delayed(Duration(seconds: 1));
+    log("shiftingRouteinTheTrip");
+    var polyLinePoints =
+        decodePolyline(calledTrip[0].routes[routeIndex].encodedPolyline);
+    polylineCoordinates.value = polyLinePoints;
+    addPolyLineForMultipleRoute(polylineCoordinates, 'Route $routeIndex');
   }
 
 // Method to stop the listener
@@ -573,14 +903,19 @@ class HomeController extends GetxController {
 
   var tempTripId = "";
 
-
-
+  var tripCalling = false.obs;
   Future<void> callTrip() async {
-
-    String polyline= await PassengerRepository().getPolylineFromGoogleMap(startPickedCenter.value, destinationPickedCenter.value);
+    tripCalling.value = true;
+    String polyline = await PassengerRepository().getPolylineFromGoogleMap(
+        startPickedCenter.value, destinationPickedCenter.value);
     sortedDriverList.clear();
-    sortedDriverList
-        .addAll(sortDriversByDistance(driverList, startPickedCenter.value));
+    sortedDriverList.addAll(sortDriversByDistance(
+        selectedVehicle == "cng"
+            ? cngdriverMarkerList
+            : selectedVehicle == "car"
+                ? cardriverMarkerList
+                : motodriverMarkerList,
+        startPickedCenter.value));
     var bidList = [];
     for (var driver in sortedDriverList) {
       // await Future.delayed(Duration(seconds: 3));
@@ -595,6 +930,10 @@ class HomeController extends GetxController {
           driverPhoto: driver.photo));
     }
 
+    for (int i = 0; i < routes.length; i++) {
+      routes[i].encodedPolyline = polilineString[i];
+    }
+
     tripCalled.value = true;
     String tripId = generateUniqueId();
     tempTripId = tripId;
@@ -602,11 +941,13 @@ class HomeController extends GetxController {
         userId: authController.currentUser.value.uid,
         userName: authController.currentUser.value.name,
         userImage: authController.currentUser.value.photo,
+        userPhone: authController.currentUser.value.phone,
         polyLineEncoded: polyline,
         rent: int.parse(offerPriceController.text),
         bids: bidList.map((e) => e as Bid).toList(),
         driverId: "",
-        destination: destinationController.text,
+        destination: destinationController.value.text,
+        pickUp: myPlaceName.value,
         pickLatLng: GeoPoint(startPickedCenter.value.latitude,
             startPickedCenter.value.longitude),
         dropLatLng: GeoPoint(destinationPickedCenter.value.latitude,
@@ -616,31 +957,41 @@ class HomeController extends GetxController {
         userCancel: false,
         accepted: false,
         picked: false,
-        dropped: false);
-    await PassengerRepository().addNewTrip(trip);
+        dropped: false,
+        routes: routes);
 
-    listenCalledTrip(tripId);
+    if (selectedVehicle == "cng" && cngdriverMarkerList.isEmpty) {
+      showToast("No Taxi available nearby");
+    } else if (selectedVehicle == "car" && cardriverMarkerList.isEmpty) {
+      showToast("No Taxi car nearby");
+    } else if (selectedVehicle == "moto" && motodriverMarkerList.isEmpty) {
+      showToast("No Moto available nearby");
+    } else {
+      await PassengerRepository().addNewTrip(trip);
 
-    for (int i = 0; i < 60; i++) {
-      if (selectedVehicle == "cng" && cngdriverMarkerList.isEmpty) {
-        showToast("No Taxi available nearby");
-        break;
-      } else if (selectedVehicle == "car" && cardriverMarkerList.isEmpty) {
-        showToast("No Taxi car nearby");
-        break;
-      } else if (selectedVehicle == "moto" && motodriverMarkerList.isEmpty) {
-        showToast("No Moto available nearby");
-        break;
-      } else if (riderFound.value == true && calledTrip.isNotEmpty) {
-        showToast("Driver found");
-        break;
-      } else if (i == 59) {
-        showToast("Busy hours, Please try again later");
-        PassengerRepository().removeThisTrip(tripId);
-      } else if (tripCalled == false) {
-        break;
+      listenCalledTrip(tripId);
+
+      for (int i = 0; i < 60; i++) {
+        if (selectedVehicle == "cng" && cngdriverMarkerList.isEmpty) {
+          showToast("No Taxi available nearby");
+          break;
+        } else if (selectedVehicle == "car" && cardriverMarkerList.isEmpty) {
+          showToast("No Taxi car nearby");
+          break;
+        } else if (selectedVehicle == "moto" && motodriverMarkerList.isEmpty) {
+          showToast("No Moto available nearby");
+          break;
+        } else if (riderFound.value == true && calledTrip.isNotEmpty) {
+          showToast("Driver found");
+          break;
+        } else if (i == 59) {
+          showToast("Busy hours, Please try again later");
+          PassengerRepository().removeThisTrip(tripId);
+        } else if (tripCalled == false) {
+          break;
+        }
+        await Future.delayed(Duration(seconds: 1));
       }
-      await Future.delayed(Duration(seconds: 1));
     }
 
     // for (int i = 0; i < sortedDriverList.length; i++) {
@@ -680,6 +1031,7 @@ class HomeController extends GetxController {
     //   await PassengerRepository().callDriver(tripId, "");
     // }
     tripCalled.value = false;
+    tripCalling.value = false;
     //loadMarkers();
   }
 
@@ -722,10 +1074,18 @@ class HomeController extends GetxController {
     }
   }
 
-  int calculateRentPrice({required GeoPoint point1, required GeoPoint point2}) {
-    final distanceInMeters = Geolocator.distanceBetween(
-        point1.latitude, point1.longitude, point2.latitude, point2.longitude);
-    return (distanceInMeters * 0.01).ceil();
+  int calculateRentPrice({required List<Routes> routes}) {
+    double totalDistance = 0;
+    for (int i = 0; i < routes.length; i++) {
+      final distanceInMeters = Geolocator.distanceBetween(
+          routes[i].pickupLatLng!.latitude,
+          routes[i].pickupLatLng!.longitude,
+          routes[i].destinationLatLng!.latitude,
+          routes[i].destinationLatLng!.longitude);
+      totalDistance = totalDistance + distanceInMeters;
+    }
+
+    return (totalDistance * 0.01).ceil();
   }
 
   String calculateTravelTime(
@@ -774,9 +1134,10 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<void> getPrevTrips() async{
+  Future<void> getPrevTrips() async {
     previousTrips.clear();
-    previousTrips.addAll(await PassengerRepository().getTripHistory("8mCWZ9uBrWME2Bfm9YOCvb0U2EJ3"));
+    previousTrips.addAll(await PassengerRepository()
+        .getTripHistory(authController.currentUser.value.uid!));
     log("trip history : ${previousTrips.length.toString()}");
   }
 
@@ -790,4 +1151,45 @@ class HomeController extends GetxController {
     return coordinates;
   }
 
+  var routes = <Routes>[].obs;
+
+  generateRoutes({bool isFirst = false}) {
+    if (routes.isEmpty) {
+      Routes route = Routes(
+        pickupPoint: myPlaceName.value,
+        pickupLatLng: GeoPoint(startPickedCenter.value.latitude,
+            startPickedCenter.value.longitude),
+        destinationPoint: destinationPlaceName.value,
+        destinationLatLng: GeoPoint(destinationPickedCenter.value.latitude,
+            destinationPickedCenter.value.longitude),
+        currentStatus: 'Pending',
+      );
+      routes.add(route);
+    } else {
+      if (isFirst) {
+        routes.clear();
+        Routes route = Routes(
+          pickupPoint: myPlaceName.value,
+          pickupLatLng: GeoPoint(startPickedCenter.value.latitude,
+              startPickedCenter.value.longitude),
+          destinationPoint: destinationPlaceName.value,
+          destinationLatLng: GeoPoint(destinationPickedCenter.value.latitude,
+              destinationPickedCenter.value.longitude),
+          currentStatus: 'Pending',
+        );
+        routes.add(route);
+      } else {
+        Routes route = Routes(
+          pickupPoint: routes.last.destinationPoint,
+          pickupLatLng: routes.last.destinationLatLng,
+          destinationPoint: destinationPlaceName.value,
+          destinationLatLng: GeoPoint(destinationPickedCenter.value.latitude,
+              destinationPickedCenter.value.longitude),
+          currentStatus: 'Pending',
+        );
+        routes.add(route);
+      }
+    }
+    log('Routes: ${routes.map((route) => route.toJson()).toList()}');
+  }
 }

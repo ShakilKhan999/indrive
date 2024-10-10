@@ -20,6 +20,7 @@ import 'package:callandgo/screens/profile/controller/profile_controller.dart';
 import 'package:callandgo/screens/profile/views/profile_screen.dart';
 import 'package:callandgo/utils/global_toast_service.dart';
 
+import '../../../helpers/style_helper.dart';
 import '../../auth_screen/controller/auth_controller.dart';
 import '../../city_to_city_user/views/driver_city_to_city_request_list.dart';
 import '../../courier_user/views/courier_request_for_rider.dart';
@@ -34,15 +35,17 @@ class ChooseProfileScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: ColorHelper.bgColor,
       appBar: _buildAppbarView(),
-      body: Padding(
-        padding: EdgeInsets.all(16.0.sp),
-        child: Column(
-          children: [
-            SpaceHelper.verticalSpace10,
-            _buildSelectionView(context),
-            SpaceHelper.verticalSpace10,
-            _buildLocationView(context)
-          ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(16.0.sp),
+          child: Column(
+            children: [
+              SpaceHelper.verticalSpace10,
+              _buildSelectionView(context),
+              SpaceHelper.verticalSpace10,
+              _buildLocationView(context)
+            ],
+          ),
         ),
       ),
     );
@@ -358,33 +361,147 @@ class ChooseProfileScreen extends StatelessWidget {
   }
 
   Widget _buildLocationView(BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width - 30.w,
-      decoration: BoxDecoration(
-          color: Colors.black, borderRadius: BorderRadius.circular(12.r)),
-      padding: EdgeInsets.all(16.sp),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              CommonComponents().printText(
-                  fontSize: 20, textData: 'Dhaka', fontWeight: FontWeight.bold),
-              CircleAvatar(
-                backgroundColor: Colors.white,
-                child: Icon(Icons.location_on),
-              )
-            ],
-          ),
-          SpaceHelper.verticalSpace5,
-          CommonComponents().printText(
-              fontSize: 16,
-              color: ColorHelper.lightGreyColor,
-              textData: 'Change the city',
-              fontWeight: FontWeight.bold),
-        ],
+    return InkWell(
+      onTap: () {
+        _showLocationSelectionSheet();
+      },
+      child: Container(
+        width: MediaQuery.of(context).size.width - 30.w,
+        decoration: BoxDecoration(
+            color: Colors.black, borderRadius: BorderRadius.circular(12.r)),
+        padding: EdgeInsets.all(16.sp),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Obx(
+                  () => CommonComponents().printText(
+                      fontSize: 20,
+                      textData: _authController.userLocation.value,
+                      fontWeight: FontWeight.bold),
+                ),
+                CircleAvatar(
+                  backgroundColor: Colors.white,
+                  child: Icon(Icons.location_on),
+                )
+              ],
+            ),
+            SpaceHelper.verticalSpace5,
+            CommonComponents().printText(
+                fontSize: 16,
+                color: ColorHelper.lightGreyColor,
+                textData: 'Change the city',
+                fontWeight: FontWeight.bold),
+          ],
+        ),
       ),
+    );
+  }
+
+  void _showLocationSelectionSheet() {
+    showModalBottomSheet(
+      context: Get.context!,
+      isScrollControlled: true,
+      backgroundColor: ColorHelper.bgColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(25.0.sp),
+        ),
+      ),
+      builder: (context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.8,
+          minChildSize: 0.4,
+          maxChildSize: 0.9,
+          expand: false,
+          builder: (context, scrollController) {
+            return SingleChildScrollView(
+              controller: scrollController,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Choose your location',
+                          style: StyleHelper.heading,
+                        ),
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Icon(
+                            Icons.cancel_outlined,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: TextField(
+                      style: StyleHelper.regular14,
+                      controller: _authController.searchCityController.value,
+                      onChanged: (value) {
+                        _authController.onSearchTextChanged(value);
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Search',
+                        hintStyle: StyleHelper.regular14,
+                        prefixIcon: const Icon(Icons.search),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25.0),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Obx(() => SizedBox(
+                          height: 250.h,
+                          child: ListView.builder(
+                              itemCount: _authController.suggestions.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return InkWell(
+                                  onTap: () async {
+                                    _authController.placeName.value =
+                                        _authController.suggestions[index]
+                                            ["description"];
+
+                                    _authController.updateLocation();
+                                  },
+                                  child: ListTile(
+                                      contentPadding: EdgeInsets.zero,
+                                      leading: Icon(
+                                        Icons.location_on_outlined,
+                                        color: ColorHelper.primaryColor,
+                                      ),
+                                      trailing: CommonComponents().printText(
+                                          fontSize: 12,
+                                          textData: "",
+                                          fontWeight: FontWeight.bold),
+                                      title: CommonComponents().printText(
+                                          fontSize: 14,
+                                          maxLine: 2,
+                                          textData:
+                                              _authController.suggestions[index]
+                                                  ["description"],
+                                          fontWeight: FontWeight.bold)),
+                                );
+                              }),
+                        )),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 

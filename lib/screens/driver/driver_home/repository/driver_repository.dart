@@ -38,26 +38,49 @@ class DriverRepository {
       required String driverId,
       required double rent}) async {
     try {
-      // Step 1: Retrieve the document
       DocumentSnapshot tripDoc =
           await _firestore.collection('All Trips').doc(tripId).get();
 
       if (tripDoc.exists) {
-        // Step 2: Extract the list of bids from the document
         List<dynamic> bids = tripDoc.get('bids');
 
-        // Step 3: Filter out the bid with the matching driverId
         int index = bids.indexWhere((bid) => bid['driverId'] == driverId);
         bids[index]["offerPrice"] = rent;
         bids[index]["bidStart"] = DateTime.now();
 
-        // Step 4: Update the document with the modified list
         await _firestore
             .collection('All Trips')
             .doc(tripId)
             .update({'bids': bids});
 
         print("Bid removed successfully from trip with ID: $tripId");
+      } else {
+        print("Trip document with ID $tripId does not exist.");
+      }
+    } catch (e) {
+      print("Error removing bid: $e");
+    }
+  }
+
+  Future<void> completeRoute(
+      {required String tripId,
+        required String encodedPoly}) async {
+    try {
+      DocumentSnapshot tripDoc =
+      await _firestore.collection('All Trips').doc(tripId).get();
+
+      if (tripDoc.exists) {
+        List<dynamic> routes = tripDoc.get('routes');
+
+        int index = routes.indexWhere((route) => route['encodedPolyline'] == encodedPoly);
+        routes[index]["currentStatus"] = "Completed";
+
+        await _firestore
+            .collection('All Trips')
+            .doc(tripId)
+            .update({'routes': routes});
+
+        print("route status update successfully from trip with ID: $tripId");
       } else {
         print("Trip document with ID $tripId does not exist.");
       }
@@ -84,6 +107,33 @@ class DriverRepository {
       print('Error updating Driver ID: $e');
     }
   }
+
+  Future<List<Trip>> getTripHistory(String driverId) async {
+    try {
+      CollectionReference<Map<String, dynamic>> tripsCollection = FirebaseFirestore.instance.collection('All Trips').withConverter<Map<String, dynamic>>(
+        fromFirestore: (snapshot, _) => snapshot.data()!,
+        toFirestore: (model, _) => model,
+      );
+
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await tripsCollection.get();
+
+      return querySnapshot.docs
+          .where((doc) {
+        final data = doc.data();
+        String tripDriverId = data['driverId'];
+        return tripDriverId == driverId ||
+            tripDriverId == driverId + "dropped" ||
+            tripDriverId == driverId + "cancelledbydriver";
+      })
+          .map((doc) => Trip.fromJson(doc.data()))
+          .toList();
+    } catch (e) {
+      print('Error fetching trips: $e');
+      return [];
+    }
+  }
+
+
 
   Future<void> cancelRide(String docId, String newDriverId) async {
     try {

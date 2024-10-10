@@ -37,6 +37,7 @@ class AuthController extends GetxController {
   void onInit() {
     super.onInit();
     checkCurrentUser();
+    getAngle();
     log('date time: ${DateTime.now().toString()}');
   }
 
@@ -395,8 +396,9 @@ class AuthController extends GetxController {
     FlutterCompass.events?.listen((CompassEvent event) {
       if (event.heading != null) {
         _direction = event.heading;
+        // log('Direction: ${_direction.toString()}');
       } else {
-        print('Device does not have a compass');
+        // print('Device does not have a compass');
       }
     });
   }
@@ -405,7 +407,7 @@ class AuthController extends GetxController {
       {required UserInfo userInfo, required String loginType}) async {
     try {
       isUserDataSaving.value = true;
-      getAngle();
+      // getAngle();
       UserModel? userModel;
       fToast.init(Get.context!);
       if (loginType == 'phone') {

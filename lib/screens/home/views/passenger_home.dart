@@ -1,9 +1,10 @@
 import 'dart:developer';
-
+import 'package:callandgo/screens/auth_screen/controller/auth_controller.dart';
 import 'package:callandgo/screens/home/views/ride_progress.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -21,7 +22,10 @@ import 'package:callandgo/screens/home/views/bid.dart';
 import 'package:callandgo/screens/home/views/select_destination.dart';
 
 import '../../../components/custom_drawer.dart';
+import '../../../helpers/method_helper.dart';
 import '../../courier_user/controller/courier_trip_controller.dart';
+import '../../profile/views/profile_screen.dart';
+import 'multiple_route_select.dart';
 
 class PassengerHomeScreen extends StatefulWidget {
   const PassengerHomeScreen({super.key});
@@ -40,12 +44,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
       Get.put(FreightTripController());
   final CourierTripController courierTripController =
       Get.put(CourierTripController());
-
-  final List<double> _rotations = [
-    0.0, 45.0, 90.0,
-    // Add more rotation values as needed
-  ];
-
+  final AuthController authController = Get.put(AuthController());
   @override
   void initState() {
     if (homeController.myPlaceName.value == "Searching for you on the map..") {
@@ -111,24 +110,39 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                   width: MediaQuery.of(context).size.width,
                   child: GoogleMap(
                     markers: homeController.allMarkers.cast<Marker>().toSet(),
-                    polylines: {
-                      Polyline(
-                          polylineId: const PolylineId("route"),
-                          points: homeController.polylineCoordinates.value
-                              .map((geoPoint) =>
-                                  LatLng(geoPoint.latitude, geoPoint.longitude))
-                              .toList(),
-                          color: ColorHelper.primaryColor,
-                          width: 7)
-                    },
+                    // polylines: {
+                    //   Polyline(
+                    //       polylineId: const PolylineId("route"),
+                    //       points: homeController.polylineCoordinates
+                    //           .map((geoPoint) =>
+                    //               LatLng(geoPoint.latitude, geoPoint.longitude))
+                    //           .toList(),
+                    //       color: ColorHelper.primaryColor,
+                    //       width: 5),
+
+                    // },
+                    polylines: homeController.calledTrip.isNotEmpty
+                        ? {
+                            Polyline(
+                                polylineId: const PolylineId("route"),
+                                points: homeController.polylineCoordinates
+                                    .map((geoPoint) => LatLng(
+                                        geoPoint.latitude, geoPoint.longitude))
+                                    .toList(),
+                                color: ColorHelper.primaryColor,
+                                width: 5),
+                          }
+                        : Set<Polyline>.of(homeController.polylines.values),
                     onCameraMove:
                         homeController.polylineCoordinates.isNotEmpty ||
-                                homeController.findingRoutes.value
+                                homeController.findingRoutes.value ||
+                                homeController.routes.isNotEmpty
                             ? null
                             : homeController.onCameraMove,
                     onCameraIdle:
                         homeController.polylineCoordinates.isNotEmpty ||
-                                homeController.findingRoutes.value
+                                homeController.findingRoutes.value ||
+                                homeController.routes.isNotEmpty
                             ? null
                             : homeController.onCameraIdle,
                     myLocationEnabled: true,
@@ -162,7 +176,8 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                   padding: EdgeInsets.only(bottom: 32.sp),
                   child: Obx(() =>
                       homeController.polylineCoordinates.isNotEmpty ||
-                              homeController.userLocationPicking.value
+                              homeController.userLocationPicking.value ||
+                              homeController.routes.isNotEmpty
                           ? const SizedBox()
                           : homeController.cameraMoving.value
                               ? Icon(
@@ -175,21 +190,23 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                 )),
             Align(
               alignment: Alignment.bottomCenter,
-              child: Obx(() => AnimatedContainer(
-                    duration: const Duration(microseconds: 200),
-                    width: MediaQuery.of(context).size.width,
-                    height: homeController.cameraMoving.value ? 0 : 300.h,
-                    decoration: BoxDecoration(
-                        color: ColorHelper.bgColor,
-                        borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(20),
-                            topRight: Radius.circular(20))),
-                    child: _buildBottomView(context),
-                  )),
+              child: Obx(() => homeController.rateDriver.value
+                  ? _buildRatingBar()
+                  : AnimatedContainer(
+                      duration: const Duration(microseconds: 200),
+                      width: MediaQuery.of(context).size.width,
+                      height: homeController.cameraMoving.value ? 0 : 300.h,
+                      decoration: BoxDecoration(
+                          color: ColorHelper.bgColor,
+                          borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              topRight: Radius.circular(20))),
+                      child: _buildBottomView(context),
+                    )),
             ),
             Align(
                 alignment: Alignment.center,
-                child: Obx(() => homeController.bidderList.isEmpty || homeController.calledTrip.isNotEmpty
+                child: Obx(() => homeController.bidderList.isEmpty
                     ? SizedBox()
                     : Container(
                         width: 300.w,
@@ -202,8 +219,6 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                           itemCount: homeController.bidderList.length,
                           itemBuilder: (BuildContext context, int index) {
                             var bid = homeController.bidderList[index];
-
-                            // Ensure offerPrice is not null before rendering the BidItem
                             if (bid.offerPrice == null) {
                               return SizedBox();
                             }
@@ -299,11 +314,14 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                             //   ),
                             // ),
                             SpaceHelper.horizontalSpace10,
-                            CommonComponents().printText(
-                                fontSize: 18,
-                                textData:
-                                    homeController.thisDriver[0].name ?? "",
-                                fontWeight: FontWeight.bold),
+                            SizedBox(
+                              width: 180.w,
+                              child: CommonComponents().printText(
+                                  fontSize: 18,
+                                  textData:
+                                      homeController.thisDriver[0].name ?? "",
+                                  fontWeight: FontWeight.bold),
+                            ),
                           ],
                         ),
                         Padding(
@@ -413,6 +431,18 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                             homeController.calledTrip.clear();
                           },
                         )),
+                    SpaceHelper.verticalSpace10,
+                    SizedBox(
+                        width: 250.w,
+                        child: CommonComponents().commonButton(
+                          borderRadius: 13,
+                          color: ColorHelper.primaryColor,
+                          text: "Call Rider",
+                          onPressed: () async {
+                            MethodHelper().makePhoneCall(
+                                homeController.thisDriver[0].phone ?? "");
+                          },
+                        ))
                   ],
                 ),
               )
@@ -448,11 +478,14 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                               ),
                             ),
                             SpaceHelper.horizontalSpace10,
-                            CommonComponents().printText(
-                                fontSize: 18,
-                                textData:
-                                    homeController.thisDriver[0].name ?? "",
-                                fontWeight: FontWeight.bold),
+                            SizedBox(
+                              width: 180.w,
+                              child: CommonComponents().printText(
+                                  fontSize: 18,
+                                  textData:
+                                      homeController.thisDriver[0].name ?? "",
+                                  fontWeight: FontWeight.bold),
+                            ),
                             SpaceHelper.horizontalSpace10,
                             _buildRentPriceView(initial: false)
                           ],
@@ -503,19 +536,82 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                             : SizedBox(),
                       ],
                     ),
-                    ProgressStack(
-                      start: LatLng(homeController.calledTrip[0].pickLatLng.latitude, homeController.calledTrip[0].pickLatLng.longitude),
-                      destination: LatLng(homeController.calledTrip[0].dropLatLng.latitude, homeController.calledTrip[0].dropLatLng.longitude),),
-                    CommonComponents().printText(
-                        fontSize: 18,
-                        textData:
-                            "${homeController.calculateDistance(point1: homeController.calledTrip[0].pickLatLng, point2: homeController.calledTrip[0].dropLatLng)} to go",
-                        fontWeight: FontWeight.bold),
-                    CommonComponents().printText(
-                        fontSize: 18,
-                        textData:
-                            "Time: ${homeController.calculateTravelTime(point1: homeController.calledTrip[0].pickLatLng, point2: homeController.calledTrip[0].dropLatLng, speedKmh: 10)}",
-                        fontWeight: FontWeight.bold),
+                    Obx(() => Column(
+                          children: [
+                            ProgressStack(
+                              start: LatLng(
+                                  homeController
+                                      .calledTrip[0]
+                                      .routes[homeController.routeIndex.value]
+                                      .pickupLatLng
+                                      .latitude,
+                                  homeController
+                                      .calledTrip[0]
+                                      .routes[homeController.routeIndex.value]
+                                      .pickupLatLng
+                                      .longitude),
+                              destination: LatLng(
+                                  homeController
+                                      .calledTrip[0]
+                                      .routes[homeController.routeIndex.value]
+                                      .destinationLatLng
+                                      .latitude,
+                                  homeController
+                                      .calledTrip[0]
+                                      .routes[homeController.routeIndex.value]
+                                      .destinationLatLng
+                                      .longitude),
+                            ),
+                            CommonComponents().printText(
+                                fontSize: 18,
+                                textData:
+                                    "${homeController.calculateDistance(point1: homeController.calledTrip[0].routes[homeController.routeIndex.value].pickupLatLng, point2: homeController.calledTrip[0].routes[homeController.routeIndex.value].destinationLatLng)} to go",
+                                fontWeight: FontWeight.bold),
+                            CommonComponents().printText(
+                                fontSize: 18,
+                                textData:
+                                    "Time: ${homeController.calculateTravelTime(point1: homeController.calledTrip[0].routes[homeController.routeIndex.value].pickupLatLng, point2: homeController.calledTrip[0].routes[homeController.routeIndex.value].destinationLatLng, speedKmh: 10)}",
+                                fontWeight: FontWeight.bold),
+                            SpaceHelper.verticalSpace10,
+                            GestureDetector(
+                              onTap: () {
+                                CommonComponents().showRoutesDialog(context,
+                                    homeController.calledTrip[0].routes, true);
+                              },
+                              child: Container(
+                                height: 40.h,
+                                width: 300.w,
+                                decoration: BoxDecoration(
+                                    color: ColorHelper.lightGreyColor,
+                                    borderRadius: BorderRadius.circular(12)),
+                                child: Center(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      CommonComponents().printText(
+                                          fontSize: 18,
+                                          textData: "To:",
+                                          fontWeight: FontWeight.bold),
+                                      SpaceHelper.horizontalSpace10,
+                                      SizedBox(
+                                        width: 210.w,
+                                        child: CommonComponents().printText(
+                                            fontSize: 18,
+                                            textData: homeController
+                                                .calledTrip[0].routes
+                                                .firstWhere((route) =>
+                                                    route.currentStatus ==
+                                                    "Pending")
+                                                .destinationPoint,
+                                            fontWeight: FontWeight.normal),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )),
                     SpaceHelper.verticalSpace10,
                     SizedBox(
                         width: 250.w,
@@ -545,10 +641,8 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                   InkWell(
                     onTap: () {
                       homeController.changingPickup.value = true;
-                      homeController.polylineCoordinates.clear();
-                      homeController.polyLines.clear();
                       _buildDestinationBottomSheet(context);
-                     // Get.to(SelectDestination());
+                      // Get.to(SelectDestination());
                     },
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -596,11 +690,13 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10.sp),
                     child: GestureDetector(
-                      onTap: (){
-                        homeController.changingPickup.value = false;
-                        homeController.polylineCoordinates.clear();
-                        homeController.polyLines.clear();
-                        _buildDestinationBottomSheet(context);
+                      onTap: () {
+                        if (homeController.routes.length <= 1) {
+                          homeController.changingPickup.value = false;
+                          _buildDestinationBottomSheet(context);
+                        } else {
+                          _buildRouteListBottomSheet(context);
+                        }
                       },
                       child: Container(
                         height: 38.h,
@@ -615,10 +711,24 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                 color: Colors.grey), // Search icon
                             SpaceHelper.horizontalSpace10,
                             Expanded(
-                              child: Obx(()=>CommonComponents().printText(
-                                  fontSize: 15, textData: homeController.destinationPlaceName.value,
-                                  fontWeight: FontWeight.w500,color: Colors.white)),
+                              child: Obx(() => CommonComponents().printText(
+                                  fontSize: 15,
+                                  textData: homeController.routes.length <= 1
+                                      ? homeController
+                                          .destinationPlaceName.value
+                                      : '${homeController.routes.length.toString()} Routes',
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white)),
                             ),
+                            SpaceHelper.horizontalSpace10,
+                            homeController.routes.isNotEmpty
+                                ? InkWell(
+                                    onTap: () {
+                                      _buildAddRouteBottomSheet(context);
+                                    },
+                                    child: Icon(Icons.add, color: Colors.grey),
+                                  )
+                                : SizedBox()
                           ],
                         ),
                       ),
@@ -680,13 +790,21 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                       ? "Cancel Search"
                                       : "Find a driver",
                                   onPressed: () {
-                                    if (homeController.tripCalled.value ==
+                                    if (authController.checkProfile() ==
                                         false) {
-                                      homeController.callTrip();
+                                      Get.to(() => ProfileScreen(),
+                                          transition: Transition.rightToLeft);
+                                      homeController.showToast(
+                                          "Update Profile, Add your phone number");
                                     } else {
-                                      homeController.tripCalled.value = false;
-                                      PassengerRepository().removeThisTrip(
-                                          homeController.tempTripId);
+                                      if (homeController.tripCalled.value ==
+                                          false) {
+                                        homeController.callTrip();
+                                      } else {
+                                        homeController.tripCalled.value = false;
+                                        PassengerRepository().removeThisTrip(
+                                            homeController.tempTripId);
+                                      }
                                     }
                                   },
                                 ))),
@@ -716,11 +834,12 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                   child: Row(
                     children: [
                       InkWell(
-                        onTap: () async{
+                        onTap: () async {
                           homeController.selectedVehicle.value = "car";
                           await homeController.loadMarkers();
-                          if(homeController.destinationPlaceName!="")
-                          homeController.getPolyline(travelMode: TravelMode.driving);
+                          if (homeController.destinationPlaceName != "")
+                            homeController.getPolyline(
+                                travelMode: TravelMode.driving);
                         },
                         child: Container(
                             height: 70.h,
@@ -770,11 +889,12 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                             )),
                       ),
                       InkWell(
-                        onTap: () async{
+                        onTap: () async {
                           homeController.selectedVehicle.value = "moto";
-                         await  homeController.loadMarkers();
-                          if(homeController.destinationPlaceName!="")
-                          homeController.getPolyline(travelMode: TravelMode.walking);
+                          await homeController.loadMarkers();
+                          if (homeController.destinationPlaceName != "")
+                            homeController.getPolyline(
+                                travelMode: TravelMode.walking);
                         },
                         child: Container(
                             height: 70.h,
@@ -824,11 +944,12 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                             )),
                       ),
                       InkWell(
-                        onTap: () async{
+                        onTap: () async {
                           homeController.selectedVehicle.value = "cng";
                           await homeController.loadMarkers();
-                          if(homeController.destinationPlaceName!="")
-                          homeController.getPolyline(travelMode: TravelMode.driving);
+                          if (homeController.destinationPlaceName != "")
+                            homeController.getPolyline(
+                                travelMode: TravelMode.driving);
                         },
                         child: Container(
                             height: 70.h,
@@ -1058,6 +1179,210 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
       scrollControlDisabledMaxHeightRatio: 0.8,
       context: context,
       builder: (BuildContext context) {
+        return Obx(
+          () => Container(
+            height: 600.h,
+            decoration: BoxDecoration(
+                color: ColorHelper.bgColor,
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(14.sp),
+                    topRight: Radius.circular(14.sp))),
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(18.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    CommonComponents().printText(
+                        fontSize: 18,
+                        textData: "Enter Places",
+                        fontWeight: FontWeight.bold),
+                    SpaceHelper.verticalSpace15,
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[850],
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.circle_outlined,
+                              color: ColorHelper.blueColor),
+                          SpaceHelper.horizontalSpace10,
+                          Expanded(
+                            child: TextField(
+                              controller: homeController.pickupController,
+                              onTap: () {
+                                homeController.changingPickup.value = true;
+                              },
+                              onChanged: (value) {
+                                homeController.changingPickup.value = true;
+                                homeController.onSearchTextChanged(value);
+                              },
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 15.sp),
+                              decoration: const InputDecoration(
+                                hintText: 'From', // Placeholder text
+                                hintStyle: TextStyle(color: Colors.grey),
+                                border: InputBorder.none, // No border
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SpaceHelper.verticalSpace10,
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[850],
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.search, color: Colors.grey),
+                          SpaceHelper.horizontalSpace10,
+                          Expanded(
+                            child: TextField(
+                              controller:
+                                  homeController.destinationController.value,
+                              onTap: () {
+                                homeController.changingPickup.value = false;
+                              },
+                              onChanged: (value) {
+                                homeController.changingPickup.value = false;
+                                homeController.onSearchTextChanged(value);
+                              },
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 15.sp),
+                              decoration: const InputDecoration(
+                                hintText: 'To', // Placeholder text
+                                hintStyle: TextStyle(color: Colors.grey),
+                                border: InputBorder.none, // No border
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SpaceHelper.verticalSpace10,
+                    InkWell(
+                      onTap: () {
+                        Get.back();
+                        homeController.pickingDestination.value = true;
+                        Get.to(SelectDestination(),
+                            transition: Transition.rightToLeft);
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.location_on_outlined,
+                            size: 28.sp,
+                            color: ColorHelper.primaryColor,
+                          ),
+                          SpaceHelper.horizontalSpace5,
+                          CommonComponents().printText(
+                              color: ColorHelper.primaryColor,
+                              fontSize: 16,
+                              textData: "Choose on map",
+                              fontWeight: FontWeight.bold),
+                        ],
+                      ),
+                    ),
+                    SpaceHelper.verticalSpace15,
+                    Obx(() => SizedBox(
+                          height: 250.h,
+                          child: ListView.builder(
+                              itemCount: homeController.suggestions.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return InkWell(
+                                  onTap: () async {
+                                    if (homeController.changingPickup.value) {
+                                      homeController.pickupController.text =
+                                          homeController.suggestions[index]
+                                              ["description"];
+                                      homeController.myPlaceName.value =
+                                          homeController.pickupController.text;
+                                      var placeDetails = await homeController
+                                          .googlePlace.details
+                                          .get(homeController.suggestions[index]
+                                              ["placeId"]);
+                                      log("LatLong: ${placeDetails!.result!.geometry!.location!.lat}");
+                                      double? lat = placeDetails
+                                          .result!.geometry!.location!.lat;
+                                      double? lng = placeDetails
+                                          .result!.geometry!.location!.lng;
+                                      homeController.startPickedCenter.value =
+                                          LatLng(lat!, lng!);
+                                    } else {
+                                      homeController.destinationController.value
+                                              .text =
+                                          homeController.suggestions[index]
+                                              ["description"];
+                                      homeController
+                                              .destinationPlaceName.value =
+                                          homeController
+                                              .destinationController.value.text;
+                                      var placeDetails = await homeController
+                                          .googlePlace.details
+                                          .get(homeController.suggestions[index]
+                                              ["placeId"]);
+                                      log("LatLong: ${placeDetails!.result!.geometry!.location!.lat}");
+                                      double? lat = placeDetails
+                                          .result!.geometry!.location!.lat;
+                                      double? lng = placeDetails
+                                          .result!.geometry!.location!.lng;
+                                      homeController.destinationPickedCenter
+                                          .value = LatLng(lat!, lng!);
+
+                                      homeController.generateRoutes(
+                                          isFirst: true);
+                                    }
+
+                                    if (homeController.myPlaceName.value !=
+                                            "Searching for you on the map.." &&
+                                        homeController
+                                                .destinationPlaceName.value !=
+                                            "") {
+                                      Get.back();
+                                      // homeController.getPolyline();
+                                      homeController
+                                          .getPolylineForMultipleRoute();
+                                    }
+                                  },
+                                  child: ListTile(
+                                      leading: const Icon(
+                                          Icons.location_on_outlined),
+                                      trailing: CommonComponents().printText(
+                                          fontSize: 12,
+                                          textData: "",
+                                          fontWeight: FontWeight.bold),
+                                      title: CommonComponents().printText(
+                                          fontSize: 18,
+                                          textData:
+                                              homeController.suggestions[index]
+                                                  ["description"],
+                                          fontWeight: FontWeight.bold)),
+                                );
+                              }),
+                        )),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _buildAddRouteBottomSheet(BuildContext context) {
+    showModalBottomSheet<void>(
+      backgroundColor: Colors.transparent,
+      scrollControlDisabledMaxHeightRatio: 0.8,
+      context: context,
+      builder: (BuildContext context) {
         return Container(
           height: 600.h,
           decoration: BoxDecoration(
@@ -1076,40 +1401,6 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                       textData: "Enter Places",
                       fontWeight: FontWeight.bold),
                   SpaceHelper.verticalSpace15,
-
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[850],
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      children: [
-                         Icon(Icons.circle_outlined, color: ColorHelper.blueColor),
-                        SpaceHelper.horizontalSpace10,
-                        Expanded(
-                          child: TextField(
-                            controller: homeController.pickupController,
-                            onTap: (){
-                              homeController.changingPickup.value=true;
-                            },
-                            onChanged: (value) {
-                              homeController.changingPickup.value=true;
-                              homeController.onSearchTextChanged(value);
-                            },
-                            style:
-                            TextStyle(color: Colors.white, fontSize: 15.sp),
-                            decoration: const InputDecoration(
-                              hintText: 'From', // Placeholder text
-                              hintStyle: TextStyle(color: Colors.grey),
-                              border: InputBorder.none, // No border
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SpaceHelper.verticalSpace10,
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
@@ -1122,20 +1413,16 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                         SpaceHelper.horizontalSpace10,
                         Expanded(
                           child: TextField(
-                            controller: homeController.destinationController,
-                            onTap: (){
-                              homeController.changingPickup.value=false;
-                            },
+                            controller: homeController.addRouteController,
                             onChanged: (value) {
-                              homeController.changingPickup.value=false;
                               homeController.onSearchTextChanged(value);
                             },
                             style:
                                 TextStyle(color: Colors.white, fontSize: 15.sp),
                             decoration: const InputDecoration(
-                              hintText: 'To', // Placeholder text
+                              hintText: 'To',
                               hintStyle: TextStyle(color: Colors.grey),
-                              border: InputBorder.none, // No border
+                              border: InputBorder.none,
                             ),
                           ),
                         ),
@@ -1146,8 +1433,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                   InkWell(
                     onTap: () {
                       Get.back();
-                      homeController.pickingDestination.value = true;
-                      Get.to(SelectDestination(),
+                      Get.to(MultipleRouteSelect(),
                           transition: Transition.rightToLeft);
                     },
                     child: Row(
@@ -1175,49 +1461,34 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                             itemBuilder: (BuildContext context, int index) {
                               return InkWell(
                                 onTap: () async {
-                                  if(homeController.changingPickup.value)
-                                    {
-                                      homeController.pickupController.text =
+                                  homeController.destinationPlaceName.value =
                                       homeController.suggestions[index]
-                                      ["description"];
-                                      homeController.myPlaceName.value=homeController.pickupController.text;
-                                      var placeDetails = await homeController
-                                          .googlePlace.details
-                                          .get(homeController.suggestions[index]
-                                      ["placeId"]);
-                                      log("LatLong: ${placeDetails!.result!.geometry!.location!.lat}");
-                                      double? lat = placeDetails
-                                          .result!.geometry!.location!.lat;
-                                      double? lng = placeDetails
-                                          .result!.geometry!.location!.lng;
-                                      homeController.startPickedCenter.value =
-                                          LatLng(lat!, lng!);
-                                    }
-                                  else
-                                    {
-                                      homeController.destinationController.text =
-                                      homeController.suggestions[index]
-                                      ["description"];
-                                      homeController.destinationPlaceName.value=homeController.destinationController.text;
-                                      var placeDetails = await homeController
-                                          .googlePlace.details
-                                          .get(homeController.suggestions[index]
-                                      ["placeId"]);
-                                      log("LatLong: ${placeDetails!.result!.geometry!.location!.lat}");
-                                      double? lat = placeDetails
-                                          .result!.geometry!.location!.lat;
-                                      double? lng = placeDetails
-                                          .result!.geometry!.location!.lng;
-                                      homeController.destinationPickedCenter.value =
-                                          LatLng(lat!, lng!);
-                                    }
+                                          ["description"];
+                                  var placeDetails = await homeController
+                                      .googlePlace.details
+                                      .get(homeController.suggestions[index]
+                                          ["placeId"]);
+                                  log("LatLong: ${placeDetails!.result!.geometry!.location!.lat}");
+                                  double? lat = placeDetails
+                                      .result!.geometry!.location!.lat;
+                                  double? lng = placeDetails
+                                      .result!.geometry!.location!.lng;
+                                  homeController.destinationPickedCenter.value =
+                                      LatLng(lat!, lng!);
 
-                                  if(homeController.myPlaceName.value!="Searching for you on the map.." && homeController.destinationPlaceName.value!="")
-                                    {
-                                      Get.back();
-                                      homeController.getPolyline();
-                                    }
+                                  homeController.generateRoutes();
+                                  homeController.getPolylineForMultipleRoute();
 
+                                  Get.back();
+
+                                  // if (homeController.myPlaceName.value !=
+                                  //         "Searching for you on the map.." &&
+                                  //     homeController
+                                  //             .destinationPlaceName.value !=
+                                  //         "") {
+                                  //   Get.back();
+                                  //   homeController.getPolyline();
+                                  // }
                                 },
                                 child: ListTile(
                                     leading:
@@ -1243,6 +1514,105 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
     );
   }
 
+  void _buildRouteListBottomSheet(BuildContext context) {
+    showModalBottomSheet<void>(
+      backgroundColor: Colors.transparent,
+      scrollControlDisabledMaxHeightRatio: 0.8,
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          // height: 600.h,
+          decoration: BoxDecoration(
+              color: ColorHelper.bgColor,
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(14.sp),
+                  topRight: Radius.circular(14.sp))),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(18.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  CommonComponents().printText(
+                      fontSize: 16,
+                      textData: "Selected Route",
+                      fontWeight: FontWeight.bold,
+                      color: ColorHelper.primaryColor),
+                  Obx(() => SizedBox(
+                        height: 250.h,
+                        child: ListView.builder(
+                            itemCount: homeController.routes.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return ListTile(
+                                  leading: const Icon(
+                                    Icons.location_on_outlined,
+                                    color: ColorHelper.primaryColor,
+                                  ),
+                                  trailing: InkWell(
+                                    onTap: () {
+                                      homeController.routes.removeAt(index);
+                                      for (int i = index;
+                                          i < homeController.routes.length;
+                                          i++) {
+                                        if (i > 0) {
+                                          homeController
+                                                  .routes[i].pickupLatLng =
+                                              homeController.routes[i - 1]
+                                                  .destinationLatLng;
+                                          homeController.routes[i].pickupPoint =
+                                              homeController.routes[i - 1]
+                                                  .destinationPoint;
+                                        }
+                                      }
+                                      if (homeController.routes.length == 1) {
+                                        homeController.destinationController
+                                                .value.text =
+                                            homeController
+                                                .routes[0].destinationPoint!;
+                                        homeController
+                                                .destinationPlaceName.value =
+                                            homeController
+                                                .routes[0].destinationPoint!;
+                                        homeController
+                                                .destinationPickedCenter.value =
+                                            LatLng(
+                                                homeController
+                                                    .routes[0]
+                                                    .destinationLatLng!
+                                                    .latitude,
+                                                homeController
+                                                    .routes[0]
+                                                    .destinationLatLng!
+                                                    .longitude);
+                                        homeController
+                                            .getPolylineForMultipleRoute();
+                                      } else {
+                                        homeController
+                                            .getPolylineForMultipleRoute();
+                                      }
+                                    },
+                                    child: Icon(
+                                      Icons.close,
+                                      color: ColorHelper.whiteColor,
+                                    ),
+                                  ),
+                                  title: CommonComponents().printText(
+                                      fontSize: 14,
+                                      maxLine: 2,
+                                      textData: homeController
+                                          .routes[index].destinationPoint!,
+                                      fontWeight: FontWeight.bold));
+                            }),
+                      )),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildRentPriceView({required bool initial}) {
     return Obx(() => Container(
           height: 30.h,
@@ -1257,5 +1627,105 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                 fontWeight: FontWeight.bold),
           ),
         ));
+  }
+
+  Widget _buildRatingBar() {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      child: Stack(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: ColorHelper.bgColor,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  spreadRadius: 5,
+                  blurRadius: 7,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CommonComponents().printText(
+                  fontSize: 14,
+                  textData: "Rate your driver",
+                  fontWeight: FontWeight.bold,
+                ),
+                SpaceHelper.verticalSpace20,
+                CircleAvatar(
+                  radius: 40,
+                  backgroundImage: NetworkImage(
+                    homeController.driverToRate[0].photo ??
+                        "https://cdn-icons-png.flaticon.com/512/8583/8583437.png",
+                  ),
+                ),
+                SpaceHelper.verticalSpace10,
+                CommonComponents().printText(
+                  fontSize: 18,
+                  textData: homeController.driverToRate[0].name,
+                  fontWeight: FontWeight.bold,
+                ),
+                SpaceHelper.verticalSpace10,
+                RatingBar.builder(
+                  initialRating: 3,
+                  minRating: 1,
+                  direction: Axis.horizontal,
+                  allowHalfRating: false,
+                  unratedColor: ColorHelper.lightGreyColor,
+                  itemCount: 5,
+                  itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+                  itemBuilder: (context, _) => Icon(
+                    Icons.star,
+                    color: ColorHelper.primaryColor,
+                  ),
+                  onRatingUpdate: (rating) {
+                    print(rating);
+                  },
+                ),
+                SpaceHelper.verticalSpace10,
+                SizedBox(
+                  width: double.infinity,
+                  child: CommonComponents().commonButton(
+                    borderRadius: 12,
+                    color: ColorHelper.primaryColor,
+                    text: "Submit",
+                    onPressed: () {
+                      homeController.rateDriver.value = false;
+                      homeController.driverToRate.clear();
+                      Get.offAll(() => const PassengerHomeScreen());
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 8,
+            right: 8,
+            child: GestureDetector(
+              onTap: () {
+                homeController.rateDriver.value = false;
+                homeController.driverToRate.clear();
+              },
+              child: InkWell(
+                onTap: () {
+                  Get.offAll(() => const PassengerHomeScreen());
+                },
+                child: Icon(
+                  Icons.close,
+                  color: Colors.grey,
+                  size: 24,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

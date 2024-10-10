@@ -64,8 +64,10 @@ class Trip {
   String? userId;
   String? userName;
   String? userImage;
+  String? userPhone;
   String? driverId;
   String? destination;
+  String? pickUp;
   GeoPoint? pickLatLng;
   GeoPoint? dropLatLng;
   bool driverCancel;
@@ -74,17 +76,20 @@ class Trip {
   bool picked;
   bool dropped;
   int? rent;
-  List<Bid>? bids; // New field added for list of bids
+  List<Bid>? bids;
+  List<Routes>? routes;
 
   Trip({
     required this.tripId,
     this.userId,
     this.userName,
     this.userImage,
+    this.userPhone,
     this.polyLineEncoded,
     this.rent,
     this.driverId,
     this.destination,
+    this.pickUp,
     this.pickLatLng,
     this.dropLatLng,
     required this.driverCancel,
@@ -93,19 +98,24 @@ class Trip {
     required this.picked,
     required this.dropped,
     this.bids,
+    this.routes,
   });
 
   // Convert a Firestore document to a Trip object
   factory Trip.fromJson(Map<String, dynamic> json) {
     return Trip(
       tripId: json['tripId'] as String,
-      polyLineEncoded: json['polyLineEncoded']==null?null: json['polyLineEncoded'] as String,
+      polyLineEncoded: json['polyLineEncoded'] == null
+          ? null
+          : json['polyLineEncoded'] as String,
       rent: json['rent'] as int,
       userId: json['userId'] as String?,
       userName: json['userName'] as String?,
+      userPhone: json['userPhone'] as String?,
       userImage: json['userImage'] as String?,
       driverId: json['driverId'] as String?,
       destination: json['destination'] as String?,
+      pickUp: json['pickUp'] as String?,
       pickLatLng:
           json['pickLatLng'] != null ? json['pickLatLng'] as GeoPoint : null,
       dropLatLng:
@@ -117,6 +127,9 @@ class Trip {
       dropped: json['dropped'] as bool,
       bids: (json['bids'] as List<dynamic>?)
           ?.map((e) => Bid.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      routes: (json['routes'] as List<dynamic>?)
+          ?.map((e) => Routes.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
@@ -130,8 +143,10 @@ class Trip {
       'userId': userId,
       'userName': userName,
       'userImage': userImage,
+      'userPhone': userPhone,
       'driverId': driverId,
       'destination': destination,
+      'pickUp': pickUp,
       'pickLatLng': pickLatLng,
       'dropLatLng': dropLatLng,
       'driverCancel': driverCancel,
@@ -140,6 +155,50 @@ class Trip {
       'picked': picked,
       'dropped': dropped,
       'bids': bids?.map((e) => e.toJson()).toList(),
+      'routes': routes?.map((e) => e.toJson()).toList(),
+    };
+  }
+}
+
+class Routes {
+  String? pickupPoint;
+  GeoPoint? pickupLatLng;
+  String? destinationPoint;
+  GeoPoint? destinationLatLng;
+  String? currentStatus;
+  String? encodedPolyline;
+
+  Routes({
+    this.pickupPoint,
+    this.pickupLatLng,
+    this.destinationPoint,
+    this.destinationLatLng,
+    this.currentStatus,
+    this.encodedPolyline,
+  });
+
+  factory Routes.fromJson(Map<String, dynamic> json) {
+    return Routes(
+      pickupPoint: json['pickupPoint'] as String?,
+      pickupLatLng:
+          json['pickLatLng'] != null ? json['pickLatLng'] as GeoPoint : null,
+      destinationPoint: json['destinationPoint'] as String?,
+      destinationLatLng: json['destinationLatLng'] != null
+          ? json['destinationLatLng'] as GeoPoint
+          : null,
+      currentStatus: json['currentStatus'] as String?,
+      encodedPolyline: json['encodedPolyline'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'pickupPoint': pickupPoint,
+      'pickLatLng': pickupLatLng,
+      'destinationPoint': destinationPoint,
+      'destinationLatLng': destinationLatLng,
+      'currentStatus': currentStatus,
+      'encodedPolyline': encodedPolyline,
     };
   }
 }

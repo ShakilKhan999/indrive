@@ -29,8 +29,10 @@ class DriverHomeController extends GetxController {
 
   var addingOffer = false.obs;
   var offeringTrip = "".obs;
+  var previousTrips=[].obs;
 
   final TextEditingController offerPriceController = TextEditingController();
+  FocusNode offerFocusNode = FocusNode();
 
   GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
   late GoogleMapController mapController;
@@ -41,6 +43,7 @@ class DriverHomeController extends GetxController {
     polylineCoordinates.clear();
     authController.getUserData();
     getUserLocation();
+    // getPrevTrips();
     getAngle();
     listenCall();
     listenToTrips(FirebaseAuth.instance.currentUser!.uid);
@@ -210,9 +213,23 @@ class DriverHomeController extends GetxController {
           (index) => Trip.fromJson(event.docs[index].data()));
 
       if (activeCall.isNotEmpty) {
-        if (activeCall[0].userCancel == true) {}
-        // else if (activeCall[0].accepted == true && activeCall[0].picked == true) {
-        //   getPolyline(picking: false);
+       if (activeCall[0].accepted == false && activeCall[0].driverCancel == true) {
+          activeCall.clear();
+          polyLines.clear();
+          polylineCoordinates.clear();
+        }
+        else if(activeCall[0].userCancel == true) {
+         showToast(toastText: "User cancelled this trip");
+        }
+        else if(activeCall[0].accepted == false && activeCall[0].driverId==authController.currentUser.value.uid)
+          {
+            getPolyline(startPoint: GeoPoint(userLat.value, userLong.value),
+                endPoint: activeCall[0].pickLatLng);
+          }
+        // else if (activeCall[0].accepted == false && activeCall[0].driverCancel == true) {
+        //   activeCall.clear();
+        //   polyLines.clear();
+        //   polylineCoordinates.clear();
         // }
 
         //playSound();
@@ -220,7 +237,7 @@ class DriverHomeController extends GetxController {
         log("cancelled by user");
         polylineCoordinates.clear();
         polyLines.clear();
-        showToast(toastText: "User cancelled this trip");
+
         // audioPlayer.stop();
         // audioPlayer.dispose();
       }
@@ -232,22 +249,15 @@ class DriverHomeController extends GetxController {
   Map<PolylineId, Polyline> polyLines = {};
   var polylineCoordinates = [].obs;
 
-  getPolyline({required bool picking}) async {
+  getPolyline({ required GeoPoint startPoint, required GeoPoint endPoint}) async {
     polyLines.clear();
     polylineCoordinates.clear();
     log("making direction polyline");
     PolylinePoints polylinePoints = PolylinePoints();
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
       AppConfig.mapApiKey,
-      picking
-          ? PointLatLng(center.value.latitude, center.value.longitude)
-          : PointLatLng(activeCall[0].pickLatLng.latitude,
-              activeCall[0].pickLatLng.longitude),
-      picking
-          ? PointLatLng(activeCall[0].pickLatLng.latitude,
-              activeCall[0].pickLatLng.longitude)
-          : PointLatLng(activeCall[0].dropLatLng.latitude,
-              activeCall[0].dropLatLng.longitude),
+      PointLatLng(startPoint.latitude, startPoint.longitude),
+   PointLatLng(endPoint.latitude,endPoint.longitude),
       travelMode: TravelMode.driving,
     );
     log("polyLineResponse: ${result.points.length}");
@@ -262,6 +272,22 @@ class DriverHomeController extends GetxController {
     addPolyLine(polylineCoordinates
         .map((geoPoint) => LatLng(geoPoint.latitude, geoPoint.longitude))
         .toList());
+  }
+
+  Future<void> makeGoingPolyLinles({required String encodePoly}) async{
+    log("shiftingRouteinTheTripDriver");
+    var polyLinePoints= decodePolyline(encodePoly);
+    polylineCoordinates.value=polyLinePoints;
+  }
+
+  List<LatLng> decodePolyline(String encoded) {
+    PolylinePoints polylinePoints = PolylinePoints();
+    List<PointLatLng> points = polylinePoints.decodePolyline(encoded);
+
+    List<LatLng> coordinates = points.map((point) {
+      return LatLng(point.latitude, point.longitude);
+    }).toList();
+    return coordinates;
   }
 
   addPolyLine(List<LatLng> polylineCoordinates) {
@@ -298,4 +324,21 @@ class DriverHomeController extends GetxController {
 
     mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 60));
   }
+
+  Future<void> getPrevTrips() async{
+    previousTrips.clear();
+    previousTrips.addAll(await DriverRepository().getTripHistory(authController.currentUser.value.uid!));
+    log("trip history rider: ${previousTrips.length.toString()}");
+  }
+  var actionStarted=false.obs;
+  Future<void> completeRoute({ required String tripId, required String encodedPoly}) async{
+    actionStarted.value=true;
+
+    await DriverRepository().completeRoute(tripId: tripId,
+        encodedPoly: encodedPoly
+    );
+    actionStarted.value=false;
+
+  }
+
 }
