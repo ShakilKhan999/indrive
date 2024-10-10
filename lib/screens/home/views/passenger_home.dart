@@ -121,16 +121,28 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                     //       width: 5),
 
                     // },
-                    polylines:
-                        Set<Polyline>.of(homeController.polylines.values),
+                    polylines: homeController.calledTrip.isNotEmpty
+                        ? {
+                            Polyline(
+                                polylineId: const PolylineId("route"),
+                                points: homeController.polylineCoordinates
+                                    .map((geoPoint) => LatLng(
+                                        geoPoint.latitude, geoPoint.longitude))
+                                    .toList(),
+                                color: ColorHelper.primaryColor,
+                                width: 5),
+                          }
+                        : Set<Polyline>.of(homeController.polylines.values),
                     onCameraMove:
                         homeController.polylineCoordinates.isNotEmpty ||
-                                homeController.findingRoutes.value
+                                homeController.findingRoutes.value ||
+                                homeController.routes.isNotEmpty
                             ? null
                             : homeController.onCameraMove,
                     onCameraIdle:
                         homeController.polylineCoordinates.isNotEmpty ||
-                                homeController.findingRoutes.value
+                                homeController.findingRoutes.value ||
+                                homeController.routes.isNotEmpty
                             ? null
                             : homeController.onCameraIdle,
                     myLocationEnabled: true,
@@ -164,7 +176,8 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                   padding: EdgeInsets.only(bottom: 32.sp),
                   child: Obx(() =>
                       homeController.polylineCoordinates.isNotEmpty ||
-                              homeController.userLocationPicking.value
+                              homeController.userLocationPicking.value ||
+                              homeController.routes.isNotEmpty
                           ? const SizedBox()
                           : homeController.cameraMoving.value
                               ? Icon(
@@ -523,24 +536,82 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                             : SizedBox(),
                       ],
                     ),
-                    ProgressStack(
-                      start: LatLng(
-                          homeController.calledTrip[0].pickLatLng.latitude,
-                          homeController.calledTrip[0].pickLatLng.longitude),
-                      destination: LatLng(
-                          homeController.calledTrip[0].dropLatLng.latitude,
-                          homeController.calledTrip[0].dropLatLng.longitude),
-                    ),
-                    CommonComponents().printText(
-                        fontSize: 18,
-                        textData:
-                            "${homeController.calculateDistance(point1: homeController.calledTrip[0].pickLatLng, point2: homeController.calledTrip[0].dropLatLng)} to go",
-                        fontWeight: FontWeight.bold),
-                    CommonComponents().printText(
-                        fontSize: 18,
-                        textData:
-                            "Time: ${homeController.calculateTravelTime(point1: homeController.calledTrip[0].pickLatLng, point2: homeController.calledTrip[0].dropLatLng, speedKmh: 10)}",
-                        fontWeight: FontWeight.bold),
+                    Obx(() => Column(
+                          children: [
+                            ProgressStack(
+                              start: LatLng(
+                                  homeController
+                                      .calledTrip[0]
+                                      .routes[homeController.routeIndex.value]
+                                      .pickupLatLng
+                                      .latitude,
+                                  homeController
+                                      .calledTrip[0]
+                                      .routes[homeController.routeIndex.value]
+                                      .pickupLatLng
+                                      .longitude),
+                              destination: LatLng(
+                                  homeController
+                                      .calledTrip[0]
+                                      .routes[homeController.routeIndex.value]
+                                      .destinationLatLng
+                                      .latitude,
+                                  homeController
+                                      .calledTrip[0]
+                                      .routes[homeController.routeIndex.value]
+                                      .destinationLatLng
+                                      .longitude),
+                            ),
+                            CommonComponents().printText(
+                                fontSize: 18,
+                                textData:
+                                    "${homeController.calculateDistance(point1: homeController.calledTrip[0].routes[homeController.routeIndex.value].pickupLatLng, point2: homeController.calledTrip[0].routes[homeController.routeIndex.value].destinationLatLng)} to go",
+                                fontWeight: FontWeight.bold),
+                            CommonComponents().printText(
+                                fontSize: 18,
+                                textData:
+                                    "Time: ${homeController.calculateTravelTime(point1: homeController.calledTrip[0].routes[homeController.routeIndex.value].pickupLatLng, point2: homeController.calledTrip[0].routes[homeController.routeIndex.value].destinationLatLng, speedKmh: 10)}",
+                                fontWeight: FontWeight.bold),
+                            SpaceHelper.verticalSpace10,
+                            GestureDetector(
+                              onTap: () {
+                                CommonComponents().showRoutesDialog(context,
+                                    homeController.calledTrip[0].routes, true);
+                              },
+                              child: Container(
+                                height: 40.h,
+                                width: 300.w,
+                                decoration: BoxDecoration(
+                                    color: ColorHelper.lightGreyColor,
+                                    borderRadius: BorderRadius.circular(12)),
+                                child: Center(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      CommonComponents().printText(
+                                          fontSize: 18,
+                                          textData: "To:",
+                                          fontWeight: FontWeight.bold),
+                                      SpaceHelper.horizontalSpace10,
+                                      SizedBox(
+                                        width: 210.w,
+                                        child: CommonComponents().printText(
+                                            fontSize: 18,
+                                            textData: homeController
+                                                .calledTrip[0].routes
+                                                .firstWhere((route) =>
+                                                    route.currentStatus ==
+                                                    "Pending")
+                                                .destinationPoint,
+                                            fontWeight: FontWeight.normal),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )),
                     SpaceHelper.verticalSpace10,
                     SizedBox(
                         width: 250.w,
@@ -1626,6 +1697,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                     onPressed: () {
                       homeController.rateDriver.value = false;
                       homeController.driverToRate.clear();
+                      Get.offAll(() => const PassengerHomeScreen());
                     },
                   ),
                 ),
@@ -1640,10 +1712,15 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                 homeController.rateDriver.value = false;
                 homeController.driverToRate.clear();
               },
-              child: Icon(
-                Icons.close,
-                color: Colors.grey,
-                size: 24,
+              child: InkWell(
+                onTap: () {
+                  Get.offAll(() => const PassengerHomeScreen());
+                },
+                child: Icon(
+                  Icons.close,
+                  color: Colors.grey,
+                  size: 24,
+                ),
               ),
             ),
           ),

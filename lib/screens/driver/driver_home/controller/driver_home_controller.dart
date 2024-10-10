@@ -221,6 +221,11 @@ class DriverHomeController extends GetxController {
         else if(activeCall[0].userCancel == true) {
          showToast(toastText: "User cancelled this trip");
         }
+        else if(activeCall[0].accepted == false && activeCall[0].driverId==authController.currentUser.value.uid)
+          {
+            getPolyline(startPoint: GeoPoint(userLat.value, userLong.value),
+                endPoint: activeCall[0].pickLatLng);
+          }
         // else if (activeCall[0].accepted == false && activeCall[0].driverCancel == true) {
         //   activeCall.clear();
         //   polyLines.clear();
@@ -269,6 +274,22 @@ class DriverHomeController extends GetxController {
         .toList());
   }
 
+  Future<void> makeGoingPolyLinles({required String encodePoly}) async{
+    log("shiftingRouteinTheTripDriver");
+    var polyLinePoints= decodePolyline(encodePoly);
+    polylineCoordinates.value=polyLinePoints;
+  }
+
+  List<LatLng> decodePolyline(String encoded) {
+    PolylinePoints polylinePoints = PolylinePoints();
+    List<PointLatLng> points = polylinePoints.decodePolyline(encoded);
+
+    List<LatLng> coordinates = points.map((point) {
+      return LatLng(point.latitude, point.longitude);
+    }).toList();
+    return coordinates;
+  }
+
   addPolyLine(List<LatLng> polylineCoordinates) {
     PolylineId id = const PolylineId("poly");
     Polyline polyline = Polyline(
@@ -309,4 +330,15 @@ class DriverHomeController extends GetxController {
     previousTrips.addAll(await DriverRepository().getTripHistory(authController.currentUser.value.uid!));
     log("trip history rider: ${previousTrips.length.toString()}");
   }
+  var actionStarted=false.obs;
+  Future<void> completeRoute({ required String tripId, required String encodedPoly}) async{
+    actionStarted.value=true;
+
+    await DriverRepository().completeRoute(tripId: tripId,
+        encodedPoly: encodedPoly
+    );
+    actionStarted.value=false;
+
+  }
+
 }

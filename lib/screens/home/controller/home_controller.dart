@@ -185,7 +185,6 @@ class HomeController extends GetxController with WidgetsBindingObserver {
 
     // offerPriceController.text = minOfferPrice.value.toString();
   }
-
   // getPolylineForMultipleRoute(
   //     {TravelMode travelMode = TravelMode.driving}) async {
   //   findingRoutes.value = true;
@@ -525,20 +524,52 @@ class HomeController extends GetxController with WidgetsBindingObserver {
       log("cng marker length: ${allMarkers.length}");
     }
 
-    if (polylineCoordinates.isNotEmpty) {
-      allMarkers.add(Marker(
-        markerId: MarkerId("startPoint"),
-        position: polylineCoordinates[0],
-        infoWindow: InfoWindow(title: "Pickup Point"),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-      ));
+    // if (polylineCoordinates.isNotEmpty) {
+    //   allMarkers.add(Marker(
+    //     markerId: MarkerId("startPoint"),
+    //     position: polylineCoordinates[0],
+    //     infoWindow: InfoWindow(title: "Pickup Point"),
+    //     icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+    //   ));
 
-      allMarkers.add(Marker(
-        markerId: MarkerId("endPoint"),
-        position: polylineCoordinates[polylineCoordinates.length - 1],
-        infoWindow: InfoWindow(title: "Destination Point"),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-      ));
+    //   allMarkers.add(Marker(
+    //     markerId: MarkerId("endPoint"),
+    //     position: polylineCoordinates[polylineCoordinates.length - 1],
+    //     infoWindow: InfoWindow(title: "Destination Point"),
+    //     icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+    //   ));
+    // }
+    if (routes.isNotEmpty) {
+      for (int i = 0; i < routes.length; i++) {
+        allMarkers.add(Marker(
+          markerId: MarkerId("startPoint$i"),
+          position: LatLng(routes[i].pickupLatLng!.latitude,
+              routes[i].pickupLatLng!.longitude),
+          infoWindow: InfoWindow(title: "Pickup Point ${i + 1}"),
+          icon:
+              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+        ));
+
+        if (i == routes.length - 1) {
+          allMarkers.add(Marker(
+            markerId: MarkerId("endPoint$i"),
+            position: LatLng(routes[i].destinationLatLng!.latitude,
+                routes[i].destinationLatLng!.longitude),
+            infoWindow: InfoWindow(title: "Destination Point ${i + 1}"),
+            icon:
+                BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+          ));
+        } else {
+          allMarkers.add(Marker(
+            markerId: MarkerId("endPoint$i"),
+            position: LatLng(routes[i].destinationLatLng!.latitude,
+                routes[i].destinationLatLng!.longitude),
+            infoWindow: InfoWindow(title: "Destination Point ${i + 1}"),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+                BitmapDescriptor.hueGreen),
+          ));
+        }
+      }
     }
   }
 
@@ -796,7 +827,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
   var driverToRate = [].obs;
 
   StreamSubscription? _tripSubscription;
-
+  var routeIndex = 0.obs;
   Future<void> listenCalledTrip(String docId) async {
     _tripSubscription =
         PassengerRepository().listenToCalledTrip(docId).listen((snapshot) {
@@ -811,6 +842,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
           tripCalled.value = false;
           polyLines.clear();
           polylineCoordinates.clear();
+          allMarkers.clear();
 
           driverToRate.add(thisDriver[0]);
           rateDriver.value = true;
@@ -824,6 +856,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
           calledTrip().clear();
           showToast("Driver cancelled the trip");
         } else if (calledTrip[0].accepted) {
+          log("jhscscsndmnsmndmmvsdmn");
           riderFound.value = true;
           thisDriver.clear();
           var myRider = sortedDriverList.firstWhere(
@@ -831,12 +864,27 @@ class HomeController extends GetxController with WidgetsBindingObserver {
               orElse: () => null);
           thisDriver.add(myRider);
           tripCalled.value = false;
-          calledTrip[0].picked ? getPolyline() : getPickupPolyline();
+          int index = calledTrip[0]
+              .routes
+              .indexWhere((route) => route.currentStatus == "Pending");
+          index >= 0 ? routeIndex.value = index : routeIndex.value = 0;
+          calledTrip[0].picked
+              ? onGoingPolyLinles(routeIndex: routeIndex.value)
+              : getPickupPolyline();
         }
       } else {
         log('Document does not exist');
       }
     });
+  }
+
+  Future<void> onGoingPolyLinles({required int routeIndex}) async {
+    await Future.delayed(Duration(seconds: 1));
+    log("shiftingRouteinTheTrip");
+    var polyLinePoints =
+        decodePolyline(calledTrip[0].routes[routeIndex].encodedPolyline);
+    polylineCoordinates.value = polyLinePoints;
+    addPolyLineForMultipleRoute(polylineCoordinates, 'Route $routeIndex');
   }
 
 // Method to stop the listener

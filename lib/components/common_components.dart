@@ -1,9 +1,11 @@
 import 'dart:io';
 
+import 'package:callandgo/screens/home/controller/home_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
+import 'package:get/get.dart';
 
 class CommonComponents {
   Widget printText(
@@ -128,6 +130,91 @@ class CommonComponents {
       ),
     );
   }
+
+  void showRoutesDialog(BuildContext context, var routes, bool onGoing) {
+    HomeController homeController=Get.find();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: ColorHelper.bgColor,
+
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child:  Padding(
+            padding:  EdgeInsets.all(13.sp),
+            child: Container(
+              width: double.maxFinite,
+              height: 100.h,
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.5),
+                    offset: Offset(0, 5),
+                    blurRadius: 10,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: ListView.builder(
+                itemCount: routes.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: 160.w,
+                          child: CommonComponents().printText(
+                              fontSize: 15,
+                              textData: "${routes[index].destinationPoint}",
+                              fontWeight: FontWeight.bold),
+                        ),
+                        onGoing?
+                        buildRouteStatusIcon(routes[index].currentStatus):
+                        CommonComponents().printText(
+                            fontSize: 10,
+                            textData: "${homeController.calculateDistance(
+                                point1: routes[index].pickupLatLng,
+                                point2: routes[index].destinationLatLng)}",
+                            fontWeight: FontWeight.bold),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget buildRouteStatusIcon(String currentStatus) {
+    if (currentStatus == "Pending") {
+      return Icon(
+        Icons.pending_outlined,
+        size: 24.sp,
+        color: Colors.red,
+      );
+    } else if (currentStatus == "OnGoing") {
+      return Icon(
+        Icons.add_road_rounded,
+        size: 24.sp,
+        color: ColorHelper.primaryColor,
+      );
+    } else {
+      return Icon(
+        Icons.check_circle_outline,
+        size: 24.sp,
+        color: Colors.green,
+      );
+    }
+  }
+
+
 
   Widget commonButton({
     required text,
