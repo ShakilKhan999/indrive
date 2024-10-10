@@ -1190,6 +1190,6 @@ class HomeController extends GetxController with WidgetsBindingObserver {
         routes.add(route);
       }
     }
-    log('Routes: ${routes.map((route) => route.toJson()).toList()}');
+    log('All Routes: ${routes.map((route) => route.toJson()).toList()}');
   }
 }
