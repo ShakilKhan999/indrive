@@ -195,7 +195,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                   : AnimatedContainer(
                       duration: const Duration(microseconds: 200),
                       width: MediaQuery.of(context).size.width,
-                      height: homeController.cameraMoving.value ? 0 : 300.h,
+                      height: homeController.cameraMoving.value ? 0 : 310.h,
                       decoration: BoxDecoration(
                           color: ColorHelper.bgColor,
                           borderRadius: const BorderRadius.only(
@@ -650,7 +650,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                         SpaceHelper.horizontalSpace10,
                         Icon(
                           Icons.circle_outlined,
-                          color: ColorHelper.blueColor,
+                          color: ColorHelper.primaryColor,
                           size: 25.sp,
                         ),
                         SpaceHelper.horizontalSpace5,
@@ -658,7 +658,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                               width: 220.w,
                               child: CommonComponents().printText(
                                   maxLine: 2,
-                                  fontSize: 18,
+                                  fontSize: 16,
                                   textData: homeController.myPlaceName.value,
                                   fontWeight:
                                       homeController.myPlaceName.value ==
@@ -668,7 +668,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                   color: homeController.myPlaceName.value ==
                                           "Searching for you on the map.."
                                       ? Colors.grey
-                                      : Colors.white),
+                                      : ColorHelper.whiteColor),
                             )),
                         Container(
                           height: 25.h,
@@ -702,7 +702,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                         height: 38.h,
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         decoration: BoxDecoration(
-                          color: Colors.grey[850], // Dark grey background
+                          color: Colors.grey[850],
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Row(
@@ -842,7 +842,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                 travelMode: TravelMode.driving);
                         },
                         child: Container(
-                            height: 70.h,
+                            // height: 60.h,
                             padding: EdgeInsets.symmetric(horizontal: 5.w),
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(14),
@@ -897,7 +897,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                 travelMode: TravelMode.walking);
                         },
                         child: Container(
-                            height: 70.h,
+                            // height: 70.h,
                             padding: EdgeInsets.symmetric(horizontal: 5.w),
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(14),
@@ -952,7 +952,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                 travelMode: TravelMode.driving);
                         },
                         child: Container(
-                            height: 70.h,
+                            // height: 70.h,
                             padding: EdgeInsets.symmetric(horizontal: 5.w),
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(14),
@@ -1007,7 +1007,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                               transition: Transition.rightToLeft);
                         },
                         child: Container(
-                            height: 70.h,
+                            // height: 70.h,
                             padding: EdgeInsets.symmetric(horizontal: 5.w),
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(14),
@@ -1062,7 +1062,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                               transition: Transition.rightToLeft);
                         },
                         child: Container(
-                            height: 55.h,
+                            // height: 55.h,
                             padding: EdgeInsets.symmetric(horizontal: 5.w),
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(14),
@@ -1114,7 +1114,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                               transition: Transition.rightToLeft);
                         },
                         child: Container(
-                            height: 55.h,
+                            // height: 55.h,
                             padding: EdgeInsets.symmetric(horizontal: 5.w),
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(14),
@@ -1291,8 +1291,9 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                       ),
                     ),
                     SpaceHelper.verticalSpace15,
-                    Obx(() => SizedBox(
-                          height: 250.h,
+                    Obx(() => Expanded(
+                      
+                          // height: 250.h,
                           child: ListView.builder(
                               itemCount: homeController.suggestions.length,
                               itemBuilder: (BuildContext context, int index) {
@@ -1352,17 +1353,23 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                     }
                                   },
                                   child: ListTile(
-                                      leading: const Icon(
-                                          Icons.location_on_outlined),
+                                     contentPadding: EdgeInsets.zero,
+                                     leading: Icon(
+                                    Icons.location_on_outlined,
+                                    color: ColorHelper.primaryColor,
+                                  ),
+                                          
                                       trailing: CommonComponents().printText(
                                           fontSize: 12,
                                           textData: "",
                                           fontWeight: FontWeight.bold),
                                       title: CommonComponents().printText(
-                                          fontSize: 18,
+                                          fontSize: 14,
+                                          maxLine: 2,
                                           textData:
                                               homeController.suggestions[index]
                                                   ["description"],
+
                                           fontWeight: FontWeight.bold)),
                                 );
                               }),

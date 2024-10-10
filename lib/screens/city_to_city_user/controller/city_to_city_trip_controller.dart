@@ -34,15 +34,15 @@ class CityToCityTripController extends GetxController {
   var isCityToCityTripCreationLoading = false.obs;
   var driverOfferYourFareController = <TextEditingController>[].obs;
   var changingPickup = false.obs;
-  var startPickedCenter = const LatLng(23.80, 90.41).obs;
+  var startPickedCenter = const LatLng(31.7917, -7.0926).obs;
   var cameraMoving = false.obs;
-  var destinationPickedCenter = const LatLng(23.80, 90.41).obs;
+  var destinationPickedCenter = const LatLng(31.7917, -7.0926).obs;
   var fromPlaceName = "".obs;
   var toPlaceName = "".obs;
   late GoogleMapController mapController;
   late GoogleMapController mapControllerForRide;
   late GoogleMapController mapControllerTO;
-  var center = const LatLng(23.80, 90.41).obs;
+  var center = const LatLng(31.7917, -7.0926).obs;
   final RxList<CityToCityTripModel> tripList = <CityToCityTripModel>[].obs;
   final RxList<CityToCityTripModel> tripListForUser =
       <CityToCityTripModel>[].obs;
@@ -612,7 +612,7 @@ class CityToCityTripController extends GetxController {
     getDriverData(trip: trip);
   }
 
-  var rideRoute = const LatLng(23.80, 90.41).obs;
+  var rideRoute = const LatLng(31.7917, -7.0926).obs;
   GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
   Map<PolylineId, Polyline> polyLines = {};
   var polylineCoordinates = [].obs;

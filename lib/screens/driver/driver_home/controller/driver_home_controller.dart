@@ -25,7 +25,7 @@ class DriverHomeController extends GetxController {
   var userLat = 0.0.obs;
   var userLong = 0.0.obs;
   var cameraMoving = false.obs;
-  var center = const LatLng(23.80, 90.41).obs;
+  var center = const LatLng(31.7917, -7.0926).obs;
 
   var addingOffer = false.obs;
   var offeringTrip = "".obs;

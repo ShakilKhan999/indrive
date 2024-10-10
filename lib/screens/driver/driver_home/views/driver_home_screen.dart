@@ -26,8 +26,7 @@ class DriverHomeScreen extends StatelessWidget {
   final DriverHomeController driverHomeController =
       Get.put(DriverHomeController());
 
-  final HomeController homeController =
-  Get.put(HomeController());
+  final HomeController homeController = Get.put(HomeController());
   final AuthController _authController = Get.find();
   @override
   Widget build(BuildContext context) {
@@ -64,7 +63,8 @@ class DriverHomeScreen extends StatelessWidget {
                 width: MediaQuery.of(context).size.width,
                 child: GoogleMap(
                   polylines: driverHomeController
-                          .polylineCoordinates.value.isEmpty && driverHomeController.activeCall.isEmpty
+                              .polylineCoordinates.value.isEmpty &&
+                          driverHomeController.activeCall.isEmpty
                       ? {}
                       : {
                           Polyline(
@@ -203,18 +203,18 @@ class DriverHomeScreen extends StatelessWidget {
           ),
           Align(
               alignment: Alignment.center,
-              child: Obx(() => driverHomeController.myActiveTrips.isEmpty || driverHomeController.activeCall.isNotEmpty
+              child: Obx(() => driverHomeController.myActiveTrips.isEmpty ||
+                      driverHomeController.activeCall.isNotEmpty
                   ? SizedBox()
-                  : _authController.checkProfile()?
-                  _buildBidList():_buildNumberUpdateView()
-              )
-          ),
+                  : _authController.checkProfile()
+                      ? _buildBidList()
+                      : _buildNumberUpdateView())),
         ],
       )),
     );
   }
 
-  Widget _buildNumberUpdateView(){
+  Widget _buildNumberUpdateView() {
     return Container(
       width: 300.w,
       height: 200.h,
@@ -226,30 +226,36 @@ class DriverHomeScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Obx(()=>Column(
-              children: [
-                CommonComponents().printText(fontSize: 18, textData: "Incoming ride request ${driverHomeController.myActiveTrips.length.toString()}",
-                    fontWeight: FontWeight.bold),
-                CommonComponents().printText(fontSize: 14, textData: "Update your profile to take actions",
-                    fontWeight: FontWeight.bold),
-              ],
-            )
-            ),
+            Obx(() => Column(
+                  children: [
+                    CommonComponents().printText(
+                        fontSize: 18,
+                        textData:
+                            "Incoming ride request ${driverHomeController.myActiveTrips.length.toString()}",
+                        fontWeight: FontWeight.bold),
+                    CommonComponents().printText(
+                        fontSize: 14,
+                        textData: "Update your profile to take actions",
+                        fontWeight: FontWeight.bold),
+                  ],
+                )),
             SpaceHelper.verticalSpace10,
             SizedBox(
               width: 120.w,
-              child: CommonComponents().commonButton(text: "Update", onPressed: (){
-                Get.to(() => ProfileScreen(),
-                    transition: Transition.rightToLeft);
-              }),
+              child: CommonComponents().commonButton(
+                  text: "Update",
+                  onPressed: () {
+                    Get.to(() => ProfileScreen(),
+                        transition: Transition.rightToLeft);
+                  }),
             )
-                ],
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildBidList(){
+  Widget _buildBidList() {
     return Container(
       width: 300.w,
       decoration: BoxDecoration(
@@ -262,8 +268,7 @@ class DriverHomeScreen extends StatelessWidget {
         itemBuilder: (BuildContext context, int index) {
           var trip = driverHomeController.myActiveTrips[index];
           var bid = trip.bids.firstWhere((mybid) =>
-          mybid.driverId ==
-              _authController.currentUser.value.uid);
+              mybid.driverId == _authController.currentUser.value.uid);
           return Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
@@ -272,199 +277,327 @@ class DriverHomeScreen extends StatelessWidget {
                     height: 85.h,
                     width: 300.w,
                     child: trip.bids.any((mybid) =>
-                    mybid.driverId ==
-                        _authController.currentUser.value.uid &&
-                        mybid.offerPrice != null)
+                            mybid.driverId ==
+                                _authController.currentUser.value.uid &&
+                            mybid.offerPrice != null)
                         ? Center(
-                      child: CommonComponents().printText(
-                          fontSize: 14,
-                          textData:
-                          "Waiting for user action",
-                          fontWeight: FontWeight.bold),
-                    )
+                            child: CommonComponents().printText(
+                                fontSize: 14,
+                                textData: "Waiting for user action",
+                                fontWeight: FontWeight.bold),
+                          )
                         : Column(
-                      children: [
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              backgroundImage: NetworkImage(trip.userImage??"https://thumb.ac-illust.com/30/30fa090868a2f8236c55ef8c1361db01_t.jpeg"),
-                            ),
-                            SpaceHelper.horizontalSpace10,
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  width: 220.w,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  CircleAvatar(
+                                    backgroundImage: NetworkImage(trip
+                                            .userImage ??
+                                        "https://thumb.ac-illust.com/30/30fa090868a2f8236c55ef8c1361db01_t.jpeg"),
+                                  ),
+                                  SpaceHelper.horizontalSpace10,
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      CommonComponents().printText(
-                                          fontSize: 12,
-                                          textData:
-                                          trip.userName??"",
-                                          fontWeight: FontWeight.bold),
-                                      CommonComponents().printText(
-                                          fontSize: 12,
-                                          color: ColorHelper.primaryColor,
-                                          textData:homeController.calculateDistance(
-                                              point1:GeoPoint(driverHomeController.userLat.value, driverHomeController.userLong.value),
-                                              point2: trip.pickLatLng),
-                                          fontWeight: FontWeight.bold)
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 200.w,
-                                  child: CommonComponents().printText(
-                                      fontSize: 12,
-                                      textData:
-                                      "From: " + trip.pickUp.toString(),
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                GestureDetector(
-                                  onTap: (){
-                                    CommonComponents().showRoutesDialog(context,trip.routes,false);
-                                  },
-                                  child: SizedBox(
-                                    width: 220.w,
-                                    child: Row(
-                                      children: [
-                                        SizedBox(
-                                          width: 160.w,
-                                          child: CommonComponents().printText(
-                                              fontSize: 12,
-                                              textData:
-                                              "To: " + trip.destination,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        trip.routes.length>1?
-                                        Container(
-                                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(90),color: ColorHelper.primaryColor),
-                                          child:    Padding(
-                                            padding: const EdgeInsets.all(3.0),
-                                            child: CommonComponents().printText(
+                                      SizedBox(
+                                        width: 220.w,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            CommonComponents().printText(
                                                 fontSize: 12,
-                                                textData: "${(trip.routes.length-1).toString()} more",
+                                                textData: trip.userName ?? "",
                                                 fontWeight: FontWeight.bold),
-                                          ),
-                                        ):SizedBox()
-                                      ],
-                                    ),
-                                  ),
-                                ),
-
-                              ],
-                            )
-                          ],
-                        ),
-
-                        SpaceHelper.verticalSpace10,
-                        Row(
-                          mainAxisAlignment:
-                          MainAxisAlignment
-                              .spaceBetween,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets
-                                  .symmetric(
-                                  horizontal: 10.0),
-                              child: SizedBox(
-                                  height: 30.h,
-                                  width: 50.w,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      driverHomeController.addingOffer.value = true;
-                                      driverHomeController.offeringTrip.value = trip.tripId;
-
-                                      showModalBottomSheet(
-                                        context: context,
-                                        backgroundColor: ColorHelper.bgColor,
-                                        isScrollControlled: true,
-                                        builder: (context) {
-                                          return Padding(
-                                            padding: EdgeInsets.only(
-                                              bottom: MediaQuery.of(context).viewInsets.bottom, // To adjust for the keyboard
-                                              left: 16.0,
-                                              right: 16.0,
-                                              top: 16.0,
-                                            ),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                TextField(
-                                                  focusNode: driverHomeController.offerFocusNode,
-                                                  autofocus: true,
-                                                  style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.w600),
-                                                  decoration: InputDecoration(
-                                                    hintText: "${trip.rent.toString()} \$",
-                                                    hintStyle: TextStyle(color: Colors.grey),
-                                                    border: InputBorder.none, // No border
-                                                  ),
-                                                  controller: driverHomeController.offerPriceController,
-                                                  keyboardType: TextInputType.number,
-                                                ),
-                                               SpaceHelper.verticalSpace10,
-                                                CommonComponents().commonButton(text: "Submit Offer", onPressed: (){
-                                                  driverHomeController.myActiveTrips.contains(trip)?
-                                                  DriverRepository().offerRent(
-                                                      tripId: trip.tripId,
-                                                      driverId:
-                                                      _authController.currentUser.value.uid!,
-                                                      rent: double.parse(
-                                                          driverHomeController
-                                                              .offerPriceController
-                                                              .text)):
-                                                  HomeController().showToast("Request removed or engaged with someone else");
-                                                  Navigator.pop(context);
-                                                }),
-                                                SpaceHelper.verticalSpace10,
-                                              ],
-                                            ),
-                                          );
+                                            CommonComponents().printText(
+                                                fontSize: 12,
+                                                color: ColorHelper.primaryColor,
+                                                textData: homeController
+                                                    .calculateDistance(
+                                                        point1: GeoPoint(
+                                                            driverHomeController
+                                                                .userLat.value,
+                                                            driverHomeController
+                                                                .userLong
+                                                                .value),
+                                                        point2:
+                                                            trip.pickLatLng),
+                                                fontWeight: FontWeight.bold)
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 200.w,
+                                        child: CommonComponents().printText(
+                                            fontSize: 12,
+                                            textData: "From: " +
+                                                trip.pickUp.toString(),
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () {
+                                          CommonComponents().showRoutesDialog(
+                                              context, trip.routes, false);
                                         },
-                                      );
-                                    },
-                                    child: Text(
-                                      " ${trip.rent.toString()} \$",
-                                      style: StyleHelper.regular14,
-                                    ),
+                                        child: SizedBox(
+                                          width: 220.w,
+                                          child: Row(
+                                            children: [
+                                              SizedBox(
+                                                width: 160.w,
+                                                child:
+                                                    CommonComponents().printText(
+                                                        fontSize: 12,
+                                                        textData: "To: " +
+                                                            trip.destination,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                              ),
+                                              trip.routes.length > 1
+                                                  ? Container(
+                                                      decoration: BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(90),
+                                                          color: ColorHelper
+                                                              .primaryColor),
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(3.0),
+                                                        child: CommonComponents()
+                                                            .printText(
+                                                                fontSize: 12,
+                                                                textData:
+                                                                    "${(trip.routes.length - 1).toString()} more",
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                      ),
+                                                    )
+                                                  : SizedBox()
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   )
-
+                                ],
                               ),
-                            ),
-                            CommonComponents()
-                                .commonButton(
-                              color: Colors.red,
-                                paddingHorizontal: 12, paddingVertical: 6,
-                                text: "Cancel",
-                                onPressed: () async{
-                                  await PassengerRepository().removeBidByDriverId(tripId:trip.tripId , driverId: _authController.currentUser.value.uid!);
-                                  driverHomeController
-                                      .listenCall();
-                                  await Future.delayed(Duration(seconds: 1));
-                                  //driverHomeController.getPolyline(picking: true);
-                                }),
-                            CommonComponents()
-                                .commonButton(
-                              paddingHorizontal: 12, paddingVertical: 6,
-                                text: "Accept",
-                                onPressed: () async{
-                                  await DriverRepository()
-                                      .AcceptTrip(
-                                      trip.tripId,
-                                      _authController.currentUser.value.uid!,
-                                      trip.rent);
-                                  driverHomeController
-                                      .listenCall();
-                                  await Future.delayed(Duration(seconds: 1));
+                              SpaceHelper.verticalSpace10,
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10.0),
+                                    child: SizedBox(
+                                        height: 30.h,
+                                        // width: 50.w,
+                                        child: GestureDetector(
+                                            onTap: () {
+                                              driverHomeController
+                                                  .addingOffer.value = true;
+                                              driverHomeController.offeringTrip
+                                                  .value = trip.tripId;
 
-                                  driverHomeController.getPolyline(startPoint:GeoPoint(driverHomeController.userLat.value, driverHomeController.userLong.value),
-                                      endPoint:driverHomeController.activeCall[0].pickLatLng );
-                                })
-                          ],
-                        ),
-                      ],
-                    ),
+                                              showModalBottomSheet(
+                                                context: context,
+                                                backgroundColor:
+                                                    ColorHelper.bgColor,
+                                                isScrollControlled: true,
+                                                builder: (context) {
+                                                  return Padding(
+                                                    padding: EdgeInsets.only(
+                                                      bottom: MediaQuery.of(
+                                                              context)
+                                                          .viewInsets
+                                                          .bottom, // To adjust for the keyboard
+                                                      left: 16.0,
+                                                      right: 16.0,
+                                                      top: 16.0,
+                                                    ),
+                                                    child: Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        SpaceHelper
+                                                            .verticalSpace10,
+                                                        CommonComponents()
+                                                            .printText(
+                                                                fontSize: 18,
+                                                                textData:
+                                                                    "Offer your price",
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                        SpaceHelper
+                                                            .verticalSpace20,
+                                                        TextField(
+                                                          focusNode:
+                                                              driverHomeController
+                                                                  .offerFocusNode,
+                                                          autofocus: true,
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontSize: 18.sp,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600),
+                                                          decoration:
+                                                              InputDecoration(
+                                                            hintText:
+                                                                "${trip.rent.toString()} \$",
+                                                            hintStyle: TextStyle(
+                                                                color: Colors
+                                                                    .grey),
+                                                            filled: true,
+                                                            fillColor:
+                                                                ColorHelper
+                                                                    .grey850,
+                                                            border:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          12),
+                                                              borderSide:
+                                                                  BorderSide
+                                                                      .none,
+                                                            ),
+                                                          ),
+                                                          // decoration:
+                                                          //     InputDecoration(
+
+                                                          //   fillColor:
+                                                          //       ColorHelper
+                                                          //           .grey850,
+                                                          //   border:
+                                                          //       OutlineInputBorder(
+                                                          //     borderRadius:
+                                                          //         BorderRadius
+                                                          //             .circular(
+                                                          //                 8),
+                                                          //     borderSide:
+                                                          //         BorderSide
+                                                          //             .none,
+                                                          //   ),
+                                                          // ),
+                                                          controller:
+                                                              driverHomeController
+                                                                  .offerPriceController,
+                                                          keyboardType:
+                                                              TextInputType
+                                                                  .number,
+                                                        ),
+                                                        SpaceHelper
+                                                            .verticalSpace10,
+                                                        CommonComponents()
+                                                            .commonButton(
+                                                                text:
+                                                                    "Submit Offer",
+                                                                onPressed: () {
+                                                                  driverHomeController
+                                                                          .myActiveTrips
+                                                                          .contains(
+                                                                              trip)
+                                                                      ? DriverRepository().offerRent(
+                                                                          tripId: trip
+                                                                              .tripId,
+                                                                          driverId: _authController
+                                                                              .currentUser
+                                                                              .value
+                                                                              .uid!,
+                                                                          rent: double.parse(driverHomeController
+                                                                              .offerPriceController
+                                                                              .text))
+                                                                      : HomeController()
+                                                                          .showToast(
+                                                                              "Request removed or engaged with someone else");
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                }),
+                                                        SpaceHelper
+                                                            .verticalSpace10,
+                                                      ],
+                                                    ),
+                                                  );
+                                                },
+                                              );
+                                            },
+                                            child: Row(
+                                              children: [
+                                                CommonComponents().printText(
+                                                    fontSize: 14,
+                                                    textData:
+                                                        " ${trip.rent.toString()} \$",
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                                SpaceHelper.horizontalSpace3,
+                                                Icon(
+                                                  Icons.edit_outlined,
+                                                  color: ColorHelper.whiteColor,
+                                                  size: 18.sp,
+                                                )
+                                              ],
+                                            ))),
+                                  ),
+                                  Row(
+                                    children: [
+                                      CommonComponents().commonButton(
+                                          color: ColorHelper.red,
+                                          paddingHorizontal: 15,
+                                          paddingVertical: 7,
+                                          text: "Cancel",
+                                          onPressed: () async {
+                                            await PassengerRepository()
+                                                .removeBidByDriverId(
+                                                    tripId: trip.tripId,
+                                                    driverId: _authController
+                                                        .currentUser
+                                                        .value
+                                                        .uid!);
+                                            driverHomeController.listenCall();
+                                            await Future.delayed(
+                                                Duration(seconds: 1));
+                                            //driverHomeController.getPolyline(picking: true);
+                                          }),
+                                      SpaceHelper.horizontalSpace5,
+                                      CommonComponents().commonButton(
+                                          paddingHorizontal: 15,
+                                          paddingVertical: 6,
+                                          text: "Accept",
+                                          onPressed: () async {
+                                            await DriverRepository().AcceptTrip(
+                                                trip.tripId,
+                                                _authController
+                                                    .currentUser.value.uid!,
+                                                trip.rent);
+                                            driverHomeController.listenCall();
+                                            await Future.delayed(
+                                                Duration(seconds: 1));
+
+                                            driverHomeController.getPolyline(
+                                                startPoint: GeoPoint(
+                                                    driverHomeController
+                                                        .userLat.value,
+                                                    driverHomeController
+                                                        .userLong.value),
+                                                endPoint: driverHomeController
+                                                    .activeCall[0].pickLatLng);
+                                          }),
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ],
+                          ),
                   ),
                   Divider()
                 ],
@@ -512,7 +645,8 @@ class DriverHomeScreen extends StatelessWidget {
                     text: "Decline",
                     onPressed: () async {
                       await DriverRepository().cancelRide(
-                          driverHomeController.activeCall[0].tripId, driverHomeController.activeCall[0].driverId);
+                          driverHomeController.activeCall[0].tripId,
+                          driverHomeController.activeCall[0].driverId);
                       driverHomeController.polyLines.clear();
                       driverHomeController.polylineCoordinates.clear();
                     },
@@ -528,8 +662,12 @@ class DriverHomeScreen extends StatelessWidget {
                           driverHomeController.activeCall[0].tripId,
                           "accepted",
                           true);
-                      driverHomeController.getPolyline(startPoint:GeoPoint(driverHomeController.userLat.value, driverHomeController.userLong.value),
-                          endPoint:driverHomeController.activeCall[0].pickLatLng );
+                      driverHomeController.getPolyline(
+                          startPoint: GeoPoint(
+                              driverHomeController.userLat.value,
+                              driverHomeController.userLong.value),
+                          endPoint:
+                              driverHomeController.activeCall[0].pickLatLng);
                     },
                     color: Colors.green,
                     borderRadius: 14))
@@ -544,8 +682,9 @@ class DriverHomeScreen extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         GestureDetector(
-          onTap: (){
-            CommonComponents().showRoutesDialog(context,driverHomeController.activeCall[0].routes,true);
+          onTap: () {
+            CommonComponents().showRoutesDialog(
+                context, driverHomeController.activeCall[0].routes, true);
           },
           child: Container(
             height: 40.h,
@@ -558,14 +697,17 @@ class DriverHomeScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CommonComponents().printText(
-                      fontSize: 18, textData: "To:", fontWeight: FontWeight.bold),
+                      fontSize: 18,
+                      textData: "To:",
+                      fontWeight: FontWeight.bold),
                   SpaceHelper.horizontalSpace10,
                   SizedBox(
                     width: 210.w,
                     child: CommonComponents().printText(
                         fontSize: 18,
                         textData: driverHomeController.activeCall[0].routes
-                            .firstWhere((route) => route.currentStatus == "Pending")
+                            .firstWhere(
+                                (route) => route.currentStatus == "Pending")
                             .destinationPoint,
                         fontWeight: FontWeight.normal),
                   ),
@@ -586,68 +728,91 @@ class DriverHomeScreen extends StatelessWidget {
                           text: "Cancel",
                           onPressed: () async {
                             await DriverRepository().cancelRide(
-                                driverHomeController.activeCall[0].tripId, driverHomeController.activeCall[0].driverId);
+                                driverHomeController.activeCall[0].tripId,
+                                driverHomeController.activeCall[0].driverId);
                             driverHomeController.polyLines.clear();
                             driverHomeController.polylineCoordinates.clear();
                           },
                           color: Colors.red,
                           borderRadius: 14)),
                   SpaceHelper.horizontalSpace10,
-                  driverHomeController.activeCall[0].routes.any((route) => route.currentStatus == "Pending")
-                  && driverHomeController.activeCall[0].routes.indexWhere((route) => route.currentStatus == "Pending")!=driverHomeController.activeCall[0].routes.length-1
-                      ?
-                  SizedBox(
-                      height: 40.h,
-                      child: CommonComponents().commonButton(
-                          text: "Next",
-                          onPressed: () async {
-                            showConfirmationDialog(title: "Completed the route?",
-                                onPressConfirm: () async{
-                                  await driverHomeController.completeRoute(tripId: driverHomeController.activeCall[0].tripId,
-                                      encodedPoly: driverHomeController.activeCall[0].routes
-                                          .firstWhere((route) => route.currentStatus == "Pending")
-                                          .encodedPolyline
-                                  );
-                                  await Future.delayed(Duration(seconds: 1));
-                                  var newRoute= driverHomeController.activeCall[0].routes[driverHomeController.activeCall[0].routes.indexWhere((route) => route.currentStatus == "Pending")];
-                                  driverHomeController.makeGoingPolyLinles(encodePoly: newRoute.encodedPolyline);
-                                  // driverHomeController.getPolyline(
-                                  //     startPoint: newRoute.pickupLatLng,
-                                  //     endPoint: newRoute.destinationLatLng);
-                                  Navigator.pop(context);
-                                },
-                                onPressCancel: () { Navigator.pop(context); },
-                                controller: driverHomeController);
+                  driverHomeController.activeCall[0].routes.any(
+                              (route) => route.currentStatus == "Pending") &&
+                          driverHomeController.activeCall[0].routes.indexWhere(
+                                  (route) =>
+                                      route.currentStatus == "Pending") !=
+                              driverHomeController.activeCall[0].routes.length -
+                                  1
+                      ? SizedBox(
+                          height: 40.h,
+                          child: CommonComponents().commonButton(
+                              text: "Next",
+                              onPressed: () async {
+                                showConfirmationDialog(
+                                    title: "Completed the route?",
+                                    onPressConfirm: () async {
+                                      await driverHomeController.completeRoute(
+                                          tripId: driverHomeController
+                                              .activeCall[0].tripId,
+                                          encodedPoly: driverHomeController
+                                              .activeCall[0].routes
+                                              .firstWhere((route) =>
+                                                  route.currentStatus ==
+                                                  "Pending")
+                                              .encodedPolyline);
+                                      await Future.delayed(
+                                          Duration(seconds: 1));
+                                      var newRoute = driverHomeController
+                                              .activeCall[0].routes[
+                                          driverHomeController
+                                              .activeCall[0].routes
+                                              .indexWhere((route) =>
+                                                  route.currentStatus ==
+                                                  "Pending")];
+                                      driverHomeController.makeGoingPolyLinles(
+                                          encodePoly: newRoute.encodedPolyline);
+                                      // driverHomeController.getPolyline(
+                                      //     startPoint: newRoute.pickupLatLng,
+                                      //     endPoint: newRoute.destinationLatLng);
+                                      Navigator.pop(context);
+                                    },
+                                    onPressCancel: () {
+                                      Navigator.pop(context);
+                                    },
+                                    controller: driverHomeController);
+                              },
+                              color: Colors.green,
+                              borderRadius: 14))
+                      : SizedBox(
+                          height: 40.h,
+                          child: CommonComponents().commonButton(
+                              text: "Drop and Finish",
+                              onPressed: () async {
+                                String tripId =
+                                    driverHomeController.activeCall[0].tripId;
+                                String encodedPoly = driverHomeController
+                                    .activeCall[0].routes
+                                    .firstWhere((route) =>
+                                        route.currentStatus == "Pending")
+                                    .encodedPolyline;
 
-                          },
-                          color: Colors.green,
-                          borderRadius: 14)):
-                  SizedBox(
-                      height: 40.h,
-                      child: CommonComponents().commonButton(
-                          text: "Drop and Finish",
-                          onPressed: () async {
+                                await DriverRepository().completeRide(
+                                    tripId,
+                                    driverHomeController
+                                        .activeCall[0].driverId);
 
-                            String tripId=driverHomeController.activeCall[0].tripId;
-                            String encodedPoly=driverHomeController.activeCall[0].routes
-                                .firstWhere((route) => route.currentStatus == "Pending")
-                                .encodedPolyline;
-
-                            await DriverRepository().completeRide(tripId,
-                                driverHomeController.activeCall[0].driverId);
-
-                            await DriverRepository().completeRoute(tripId: tripId,
-                                encodedPoly: encodedPoly
-                            );
-                            driverHomeController.activeCall.clear();
-                            driverHomeController.polylineCoordinates.clear();
-                            driverHomeController.polyLines.clear();
-                            driverHomeController.mapController.animateCamera(
-                                CameraUpdate.newLatLng(
-                                    driverHomeController.center.value));
-                          },
-                          color: Colors.green,
-                          borderRadius: 14))
+                                await DriverRepository().completeRoute(
+                                    tripId: tripId, encodedPoly: encodedPoly);
+                                driverHomeController.activeCall.clear();
+                                driverHomeController.polylineCoordinates
+                                    .clear();
+                                driverHomeController.polyLines.clear();
+                                driverHomeController.mapController
+                                    .animateCamera(CameraUpdate.newLatLng(
+                                        driverHomeController.center.value));
+                              },
+                              color: Colors.green,
+                              borderRadius: 14))
                 ],
               )
             : Row(
@@ -659,7 +824,8 @@ class DriverHomeScreen extends StatelessWidget {
                           text: "Cancel",
                           onPressed: () async {
                             await DriverRepository().cancelRide(
-                                driverHomeController.activeCall[0].tripId, driverHomeController.activeCall[0].driverId);
+                                driverHomeController.activeCall[0].tripId,
+                                driverHomeController.activeCall[0].driverId);
                             driverHomeController.polyLines.clear();
                             driverHomeController.polylineCoordinates.clear();
                           },
@@ -671,18 +837,19 @@ class DriverHomeScreen extends StatelessWidget {
                       child: CommonComponents().commonButton(
                           text: "Call",
                           onPressed: () async {
-                            driverHomeController.activeCall[0].userPhone!=null?
-                            MethodHelper().makePhoneCall(driverHomeController.activeCall[0].userPhone):
-                            Fluttertoast.showToast(
-                              msg: "Number not available",
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                              timeInSecForIosWeb: 1,
-                              backgroundColor: Colors.black,
-                              textColor: Colors.white,
-                              fontSize: 16.0,
-                            );
-
+                            driverHomeController.activeCall[0].userPhone != null
+                                ? MethodHelper().makePhoneCall(
+                                    driverHomeController
+                                        .activeCall[0].userPhone)
+                                : Fluttertoast.showToast(
+                                    msg: "Number not available",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.BOTTOM,
+                                    timeInSecForIosWeb: 1,
+                                    backgroundColor: Colors.black,
+                                    textColor: Colors.white,
+                                    fontSize: 16.0,
+                                  );
                           },
                           color: ColorHelper.primaryColor,
                           borderRadius: 14)),
@@ -696,8 +863,13 @@ class DriverHomeScreen extends StatelessWidget {
                                 driverHomeController.activeCall[0].tripId,
                                 "picked",
                                 true);
-                            var newRoute= driverHomeController.activeCall[0].routes[driverHomeController.activeCall[0].routes.indexWhere((route) => route.currentStatus == "Pending")];
-                            driverHomeController.makeGoingPolyLinles(encodePoly: newRoute.encodedPolyline);
+                            var newRoute =
+                                driverHomeController.activeCall[0].routes[
+                                    driverHomeController.activeCall[0].routes
+                                        .indexWhere((route) =>
+                                            route.currentStatus == "Pending")];
+                            driverHomeController.makeGoingPolyLinles(
+                                encodePoly: newRoute.encodedPolyline);
                           },
                           color: Colors.green,
                           borderRadius: 14))
@@ -707,9 +879,8 @@ class DriverHomeScreen extends StatelessWidget {
     );
   }
 
-
   FocusNode focusNode = FocusNode();
-  void openKeyboard(BuildContext context){
+  void openKeyboard(BuildContext context) {
     FocusScope.of(context).requestFocus(focusNode);
   }
 }

@@ -135,8 +135,8 @@ void buildDestinationBottomSheet(
                   ),
                 ),
                 SpaceHelper.verticalSpace15,
-                Obx(() => SizedBox(
-                      height: 250.h,
+                Obx(() => Expanded(
+              
                       child: ListView.builder(
                           itemCount: controller.suggestions.length,
                           itemBuilder: (BuildContext context, int index) {

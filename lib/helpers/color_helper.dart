@@ -18,5 +18,5 @@ class ColorHelper {
   static Color services1stColor = const Color(0xffEEFFC7);
   static Color services2ndColor = const Color(0xffFFEEDF);
   static Color containerBorderColor = const Color.fromARGB(255, 186, 205, 229);
-  static Color red = const Color.fromARGB(255, 185, 26, 14);
+  static Color red = Color.fromARGB(255, 255, 40, 24);
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:callandgo/helpers/color_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -86,52 +87,73 @@ class _BidItemState extends State<BidItem> with SingleTickerProviderStateMixin {
         Container(
           width: 300.w,
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: EdgeInsets.all(8.0.sp),
             child: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
                 children: [
-                  CircleAvatar(
-                    backgroundImage: NetworkImage(
-                        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRx1HTyQi9fvuheXOH2an4_ChcBe-PFTVaekg&s"),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                  SpaceHelper.verticalSpace10,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
+                      CircleAvatar(
+                        backgroundImage: NetworkImage(
+                            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRx1HTyQi9fvuheXOH2an4_ChcBe-PFTVaekg&s"),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          CommonComponents().printText(
-                              fontSize: 13,
-                              textData: widget.bid.driverName.toString(),
-                              fontWeight: FontWeight.bold),
-                          SpaceHelper.horizontalSpace10,
-                          CommonComponents().printText(
-                              fontSize: 13,
-                              textData:
-                                  "Offered: ${widget.bid.offerPrice.toString()}\$",
-                              fontWeight: FontWeight.bold),
+                          Row(
+                            children: [
+                              CommonComponents().printText(
+                                  fontSize: 13,
+                                  textData: widget.bid.driverName.toString(),
+                                  fontWeight: FontWeight.bold),
+                              SpaceHelper.horizontalSpace10,
+                              CommonComponents().printText(
+                                  fontSize: 13,
+                                  textData:
+                                      "Offered: ${widget.bid.offerPrice.toString()}\$",
+                                  fontWeight: FontWeight.bold),
+                            ],
+                          ),
+                          SpaceHelper.verticalSpace5,
+                          Row(
+                            children: [
+                              CommonComponents().printText(
+                                  fontSize: 13,
+                                  textData: 'Your offer price: ',
+                                  fontWeight: FontWeight.bold),
+                              CommonComponents().printText(
+                                  fontSize: 13,
+                                  textData:
+                                      "${widget.bid.offerPrice.toString()}\$",
+                                  fontWeight: FontWeight.bold),
+                            ],
+                          ),
+                          // SpaceHelper.verticalSpace10,
                         ],
-                      ),
-                      SizedBox(
-                        height: 35.h,
-                        width: 100.w,
-                        child: CommonComponents().commonButton(
-                          fontSize: 13,
-                          text: "Accept",
-                          onPressed: () async {
-                            homeController.acceptBid(
-                                driverId: widget.bid.driverId!,
-                                rent: widget.bid.offerPrice!.toInt());
-                          },
-                          color: Colors.green,
-                        ),
                       ),
                     ],
                   ),
-                  Text(
-                    "10",
-                    style: TextStyle(color: Colors.green, fontSize: 15),
+                  Center(
+                    child: Padding(
+                      padding:
+                          EdgeInsets.only(top: 10.h, left: 10.w, right: 10.w),
+                      child: CommonComponents().commonButton(
+                        fontSize: 13,
+                        paddingVertical: 7,
+                        paddingHorizontal: 15,
+                        text: "Accept",
+                        onPressed: () async {
+                          homeController.acceptBid(
+                              driverId: widget.bid.driverId!,
+                              rent: widget.bid.offerPrice!.toInt());
+                        },
+                        color: ColorHelper.primaryColor,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -147,7 +169,8 @@ class _BidItemState extends State<BidItem> with SingleTickerProviderStateMixin {
                 return LinearProgressIndicator(
                   value: _animation.value,
                   backgroundColor: Colors.transparent,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(ColorHelper.primaryColor),
                 );
               },
             ),
