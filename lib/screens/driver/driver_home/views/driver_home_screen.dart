@@ -357,15 +357,24 @@ class DriverHomeScreen extends StatelessWidget {
                                         ),
                                       ),
                                       SizedBox(
-                                        // color: Colors.red,
-                                        width: 200.w,
-                                        child: CommonComponents().printText(
-                                            fontSize: 12,
-                                            textData:
-                                                "A: " + trip.pickUp.toString(),
-                                            maxLine: 3,
-                                            fontWeight: FontWeight.bold),
-                                      ),
+                                          // color: Colors.red,
+                                          width: 200.w,
+                                          child: Text(
+                                            "A: " + trip.pickUp.toString(),
+                                            textAlign: TextAlign.left,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 12,
+                                              color: Colors.white,
+                                            ),
+                                          )
+                                          //  CommonComponents().printText(
+                                          //     fontSize: 12,
+                                          //     textData:
+                                          //         "A: " + trip.pickUp.toString(),
+                                          //     maxLine: 3,
+                                          //     fontWeight: FontWeight.bold),
+                                          ),
                                       GestureDetector(
                                         onTap: () {
                                           CommonComponents().showRoutesDialog(
@@ -374,16 +383,26 @@ class DriverHomeScreen extends StatelessWidget {
                                         child: Row(
                                           children: [
                                             SizedBox(
-                                              width: 160.w,
-                                              child: CommonComponents()
-                                                  .printText(
-                                                      fontSize: 12,
-                                                      textData: "B: " +
-                                                          trip.destination,
-                                                      maxLine: 3,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                            ),
+                                                width: 160.w,
+                                                child: Text(
+                                                  "B: " + trip.destination,
+                                                  textAlign: TextAlign.left,
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 12,
+                                                    color: Colors.white,
+                                                  ),
+                                                )
+                                                // CommonComponents()
+                                                //     .printText(
+                                                //         fontSize: 12,
+                                                //         textData: "B: " +
+                                                //             trip.destination,
+                                                //         // maxLine: 3,
+
+                                                //         fontWeight:
+                                                //             FontWeight.bold),
+                                                ),
                                             trip.routes.length > 1
                                                 ? Container(
                                                     decoration: BoxDecoration(
