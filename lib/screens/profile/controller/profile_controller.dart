@@ -1,9 +1,21 @@
+import 'dart:developer';
+import 'dart:io';
+
+import 'package:callandgo/helpers/method_helper.dart';
+import 'package:callandgo/main.dart';
+import 'package:callandgo/screens/auth_screen/controller/auth_controller.dart';
+import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/models/driver_vehicle_status.dart';
 import 'package:callandgo/models/user_model.dart';
 import 'package:callandgo/screens/profile/repository/profile_repository.dart';
+
+import '../../../utils/database_collection_names.dart';
+import '../../../utils/firebase_image_locations.dart';
 
 class ProfileController extends GetxController {
   // @override
@@ -123,5 +135,91 @@ class ProfileController extends GetxController {
         userData.value.uid!.isNotEmpty &&
         userData.value.name != null &&
         userData.value.name!.isNotEmpty;
+  }
+
+  var isProfileUpdateLoading = false.obs;
+  updateProfileInfo() async {
+    AuthController authController = Get.find();
+    fToast.init(Get.context!);
+    if (authController.fullNameController.value.text.isEmpty) {
+      showToast(toastText: 'Please enter your name');
+      return;
+    }
+
+    try {
+      isProfileUpdateLoading.value = true;
+      Map<String, dynamic> fieldsToUpdate = {
+        'name': authController.fullNameController.value.text,
+      };
+      FocusScope.of(Get.context!).unfocus();
+      bool result = await MethodHelper().updateDocFields(
+          docId: userData.value.uid!,
+          fieldsToUpdate: fieldsToUpdate,
+          collection: userCollection);
+      if (result) {
+        isProfileUpdateLoading.value = false;
+        showToast(
+            toastText: 'Profile updated', toastColor: ColorHelper.primaryColor);
+      } else {
+        isProfileUpdateLoading.value = false;
+        showToast(
+            toastText: 'Profile update failed', toastColor: ColorHelper.red);
+      }
+    } catch (e) {
+      isProfileUpdateLoading.value = false;
+      showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
+      log("Error while updating profile: $e");
+    }
+  }
+
+  var profilePhoto = ''.obs;
+  var isProfilePhotoUploading = false.obs;
+  var profilePhotoUrl = ''.obs;
+  void uploadProfilePhoto() async {
+    try {
+      File? file = await MethodHelper().pickImage();
+      if (file != null) {
+        profilePhoto.value = file.path;
+        isProfilePhotoUploading.value = true;
+        profilePhotoUrl.value = (await MethodHelper()
+            .uploadImage(file: file, imageLocationName: profileImage))!;
+
+        log('Profile image url: ${profilePhotoUrl.value}');
+        updateProfilePhoto();
+      } else {
+        isProfilePhotoUploading.value = false;
+        showToast(toastText: 'Empty Image', toastColor: ColorHelper.red);
+      }
+    } catch (e) {
+      profilePhoto.value = '';
+      isProfilePhotoUploading.value = false;
+      showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
+    }
+  }
+
+  updateProfilePhoto() async {
+    try {
+      fToast.init(Get.context!);
+      Map<String, dynamic> fieldsToUpdate = {
+        'photo': profilePhotoUrl.value,
+      };
+      bool result = await MethodHelper().updateDocFields(
+          docId: userData.value.uid!,
+          fieldsToUpdate: fieldsToUpdate,
+          collection: userCollection);
+      if (result) {
+        isProfilePhotoUploading.value = false;
+        showToast(
+            toastText: 'Profile updated', toastColor: ColorHelper.primaryColor);
+      } else {
+        isProfilePhotoUploading.value = false;
+        showToast(
+            toastText: 'Profile update failed', toastColor: ColorHelper.red);
+      }
+    } catch (e) {
+      isProfilePhotoUploading.value = false;
+      showToast(toastText: 'Something went wrong', toastColor: ColorHelper.red);
+      log("Error while updating profile: $e");
+    }
   }
 }

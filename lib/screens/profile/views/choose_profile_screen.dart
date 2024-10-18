@@ -384,7 +384,10 @@ class ChooseProfileScreen extends StatelessWidget {
                 ),
                 CircleAvatar(
                   backgroundColor: Colors.white,
-                  child: Icon(Icons.location_on),
+                  child: Icon(
+                    Icons.location_on,
+                    color: ColorHelper.primaryColor,
+                  ),
                 )
               ],
             ),
@@ -446,16 +449,31 @@ class ChooseProfileScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: TextField(
                       style: StyleHelper.regular14,
+                      autofocus: true,
                       controller: _authController.searchCityController.value,
                       onChanged: (value) {
                         _authController.onSearchTextChanged(value);
                       },
+                      cursorColor: ColorHelper.primaryColor,
                       decoration: InputDecoration(
                         hintText: 'Search',
                         hintStyle: StyleHelper.regular14,
-                        prefixIcon: const Icon(Icons.search),
+                        prefixIcon: const Icon(
+                          Icons.search,
+                          color: ColorHelper.primaryColor,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(25.0),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25.0),
+                          borderSide:
+                              BorderSide(color: ColorHelper.primaryColor),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25.0),
+                          borderSide: BorderSide(
+                              color: ColorHelper.primaryColor, width: 2.0),
                         ),
                       ),
                     ),
@@ -536,8 +554,8 @@ class ChooseProfileScreen extends StatelessWidget {
               width: 35.h,
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(90),
-                  color: Colors.white,
-                  border: Border.all(color: Colors.white)),
+                  color: ColorHelper.whiteColor,
+                  border: Border.all(color: ColorHelper.whiteColor)),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(90),
                 child: _authController.currentUser.value.photo != null

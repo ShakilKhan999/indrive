@@ -1,3 +1,4 @@
+import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/screens/auth_screen/views/register_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +41,7 @@ class _MyAppState extends State<MyApp> {
         navigatorKey: NavigationService.navigatorKey,
         title: AppConfig.appName,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          colorScheme: ColorScheme.fromSeed(seedColor: ColorHelper.primaryColor),
           useMaterial3: true,
         ),
         home: RegisterScreen(),

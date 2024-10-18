@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:callandgo/screens/profile/controller/profile_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -15,74 +16,91 @@ import '../../../helpers/style_helper.dart';
 class ProfileScreen extends StatelessWidget {
   ProfileScreen({super.key});
   final AuthController _authController = Get.find();
+  final ProfileController _profileController = Get.find();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ColorHelper.bgColor,
-      appBar: CustomAppbar(
-          titleText: 'Profile settings',
-          onTap: () {
-            Get.back();
-          }),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Obx(
-                () => Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SpaceHelper.verticalSpace20,
-                    _buildProfilePictureView(),
-                    _buildNameEditView(),
-                    _buildEmailEditView(),
-                    InkWell(
-                      onTap: () {
-                        _showPhoneBottomSheet();
-                      },
-                      child: _buildPhoneEditView(),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        _showLocationSelectionSheet();
-                      },
-                      child: _buildLocationEditView(),
-                    ),
-                    SpaceHelper.verticalSpace20,
-                  ],
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        backgroundColor: ColorHelper.bgColor,
+        appBar: CustomAppbar(
+            titleText: 'Profile settings',
+            onTap: () {
+              Get.back();
+            }),
+        body: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Obx(
+                  () => Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SpaceHelper.verticalSpace20,
+                      _buildProfilePictureView(),
+                      _buildNameEditView(),
+                      _buildEmailEditView(),
+                      InkWell(
+                        onTap: () {
+                          _showPhoneBottomSheet();
+                        },
+                        child: _buildPhoneEditView(),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          _showLocationSelectionSheet();
+                        },
+                        child: _buildLocationEditView(),
+                      ),
+                      SpaceHelper.verticalSpace20,
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          _buildBottomButtonView()
-        ],
+            _buildBottomButtonView()
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildProfilePictureView() {
-    return Container(
-      height: 100.h,
-      width: 100.h,
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(90),
-          color: Colors.white,
-          border: Border.all(color: Colors.white)),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(90),
-        child: _authController.currentUser.value.photo != null
-            ? Image.network(
-                _authController.currentUser.value.photo!,
-                height: 100.h,
-                width: 100.h,
-                fit: BoxFit.cover,
-              )
-            : Image.asset(
-                "assets/images/person.jpg",
-                height: 100.h,
-                width: 100.h,
-                fit: BoxFit.cover,
+    return InkWell(
+      onTap: () {
+        _profileController.uploadProfilePhoto();
+      },
+      child: Container(
+        height: 100.h,
+        width: 100.h,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(90),
+            color: Colors.white,
+            border: Border.all(color: Colors.white)),
+        child: _profileController.isProfilePhotoUploading.value
+            ? Center(
+                child: CircularProgressIndicator(
+                color: ColorHelper.primaryColor,
+                strokeWidth: 2,
+              ))
+            : ClipRRect(
+                borderRadius: BorderRadius.circular(90),
+                child: _authController.currentUser.value.photo != null
+                    ? Image.network(
+                        _authController.currentUser.value.photo!,
+                        height: 100.h,
+                        width: 100.h,
+                        fit: BoxFit.cover,
+                      )
+                    : Image.asset(
+                        "assets/images/person.jpg",
+                        height: 100.h,
+                        width: 100.h,
+                        fit: BoxFit.cover,
+                      ),
               ),
       ),
     );
@@ -204,10 +222,19 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildBottomButtonView() {
-    return Padding(
-      padding:
-          EdgeInsets.only(left: 16.0.sp, top: 10.h, right: 16.w, bottom: 20.h),
-      child: CommonComponents().commonButton(text: 'Update', onPressed: () {}),
+    return Obx(
+      () => Padding(
+        padding: EdgeInsets.only(
+            left: 16.0.sp, top: 10.h, right: 16.w, bottom: 20.h),
+        child: CommonComponents().commonButton(
+          text: 'Update',
+          onPressed: () {
+            _profileController.updateProfileInfo();
+          },
+          disabled: _profileController.isProfileUpdateLoading.value,
+          isLoading: _profileController.isProfileUpdateLoading.value,
+        ),
+      ),
     );
   }
 
@@ -353,12 +380,27 @@ class ProfileScreen extends StatelessWidget {
                       onChanged: (value) {
                         _authController.onSearchTextChanged(value);
                       },
+                      cursorColor: ColorHelper.primaryColor,
+                      autofocus: true,
                       decoration: InputDecoration(
                         hintText: 'Search',
                         hintStyle: StyleHelper.regular14,
-                        prefixIcon: const Icon(Icons.search),
+                        prefixIcon: const Icon(
+                          Icons.search,
+                          color: ColorHelper.primaryColor,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(25.0),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25.0),
+                          borderSide:
+                              BorderSide(color: ColorHelper.primaryColor),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25.0),
+                          borderSide: BorderSide(
+                              color: ColorHelper.primaryColor, width: 2.0),
                         ),
                       ),
                     ),
@@ -407,5 +449,4 @@ class ProfileScreen extends StatelessWidget {
       },
     );
   }
-
 }

@@ -89,9 +89,17 @@ class CustomDrawerForDriver extends StatelessWidget {
           // icon: Icons.maps_home_work_sharp,
           imagePath: "assets/images/location.png",
           colorImg: ColorHelper.primaryColor,
-          text: 'City',
+          text: 'City Ride',
           color: Colors.white,
           onTap: () {
+            AuthController authController = Get.find();
+            if (!authController.checkProfile()) {
+              showToast(
+                  toastText: 'Please complete your profile',
+                  toastColor: ColorHelper.red);
+              Get.to(() => ProfileScreen(), transition: Transition.rightToLeft);
+              return;
+            }
             Get.back();
           },
         ),
