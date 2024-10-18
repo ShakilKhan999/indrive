@@ -25,8 +25,6 @@ class DriverHomeScreen extends StatelessWidget {
 
   final DriverHomeController driverHomeController =
       Get.put(DriverHomeController());
-
-  final HomeController homeController = Get.put(HomeController());
   final AuthController _authController = Get.find();
   @override
   Widget build(BuildContext context) {
@@ -49,6 +47,35 @@ class DriverHomeScreen extends StatelessWidget {
             }
           },
         ),
+        actions: [
+          Obx(() => Row(
+                children: [
+                  // Custom switch with text inside
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Row(
+                      children: [
+                        CommonComponents().printText(
+                            fontSize: 14,
+                            textData: driverHomeController.isOnline.value
+                                ? 'Online'
+                                : 'Offline',
+                            fontWeight: FontWeight.bold),
+                        Switch(
+                          value: driverHomeController.isOnline.value,
+                          onChanged: (value) {
+                            driverHomeController.toggleOnlineStatus(value);
+                          },
+                          activeColor: Colors.green,
+                          inactiveTrackColor: Colors.red,
+                        ),
+                      ],
+                    ),
+                  ),
+                  SpaceHelper.verticalSpace10,
+                ],
+              )),
+        ],
       ),
       body: Center(
           child: Stack(
@@ -274,7 +301,7 @@ class DriverHomeScreen extends StatelessWidget {
               child: Column(
                 children: [
                   SizedBox(
-                    height: 85.h,
+                    // height: 85.h,
                     width: 300.w,
                     child: trip.bids.any((mybid) =>
                             mybid.driverId ==
@@ -313,7 +340,7 @@ class DriverHomeScreen extends StatelessWidget {
                                             CommonComponents().printText(
                                                 fontSize: 12,
                                                 color: ColorHelper.primaryColor,
-                                                textData: homeController
+                                                textData: driverHomeController
                                                     .calculateDistance(
                                                         point1: GeoPoint(
                                                             driverHomeController
@@ -328,57 +355,76 @@ class DriverHomeScreen extends StatelessWidget {
                                         ),
                                       ),
                                       SizedBox(
-                                        width: 200.w,
-                                        child: CommonComponents().printText(
-                                            fontSize: 12,
-                                            textData: "From: " +
-                                                trip.pickUp.toString(),
-                                            fontWeight: FontWeight.bold),
-                                      ),
+                                          // color: Colors.red,
+                                          width: 200.w,
+                                          child: Text(
+                                            "A: " + trip.pickUp.toString(),
+                                            textAlign: TextAlign.left,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 12,
+                                              color: Colors.white,
+                                            ),
+                                          )
+                                          //  CommonComponents().printText(
+                                          //     fontSize: 12,
+                                          //     textData:
+                                          //         "A: " + trip.pickUp.toString(),
+                                          //     maxLine: 3,
+                                          //     fontWeight: FontWeight.bold),
+                                          ),
                                       GestureDetector(
                                         onTap: () {
                                           CommonComponents().showRoutesDialog(
                                               context, trip.routes, false);
                                         },
-                                        child: SizedBox(
-                                          width: 220.w,
-                                          child: Row(
-                                            children: [
-                                              SizedBox(
+                                        child: Row(
+                                          children: [
+                                            SizedBox(
                                                 width: 160.w,
-                                                child:
-                                                    CommonComponents().printText(
-                                                        fontSize: 12,
-                                                        textData: "To: " +
-                                                            trip.destination,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                              ),
-                                              trip.routes.length > 1
-                                                  ? Container(
-                                                      decoration: BoxDecoration(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(90),
-                                                          color: ColorHelper
-                                                              .primaryColor),
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(3.0),
-                                                        child: CommonComponents()
-                                                            .printText(
-                                                                fontSize: 12,
-                                                                textData:
-                                                                    "${(trip.routes.length - 1).toString()} more",
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                      ),
-                                                    )
-                                                  : SizedBox()
-                                            ],
-                                          ),
+                                                child: Text(
+                                                  "B: " + trip.destination,
+                                                  textAlign: TextAlign.left,
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 12,
+                                                    color: Colors.white,
+                                                  ),
+                                                )
+                                                // CommonComponents()
+                                                //     .printText(
+                                                //         fontSize: 12,
+                                                //         textData: "B: " +
+                                                //             trip.destination,
+                                                //         // maxLine: 3,
+
+                                                //         fontWeight:
+                                                //             FontWeight.bold),
+                                                ),
+                                            trip.routes.length > 1
+                                                ? Container(
+                                                    decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(90),
+                                                        color: ColorHelper
+                                                            .primaryColor),
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              3.0),
+                                                      child: CommonComponents()
+                                                          .printText(
+                                                              fontSize: 12,
+                                                              textData:
+                                                                  "${(trip.routes.length - 1).toString()} more",
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                    ),
+                                                  )
+                                                : SizedBox()
+                                          ],
                                         ),
                                       ),
                                     ],
@@ -411,10 +457,10 @@ class DriverHomeScreen extends StatelessWidget {
                                                 builder: (context) {
                                                   return Padding(
                                                     padding: EdgeInsets.only(
-                                                      bottom: MediaQuery.of(
-                                                              context)
-                                                          .viewInsets
-                                                          .bottom, // To adjust for the keyboard
+                                                      bottom:
+                                                          MediaQuery.of(context)
+                                                              .viewInsets
+                                                              .bottom,
                                                       left: 16.0,
                                                       right: 16.0,
                                                       top: 16.0,
@@ -599,7 +645,7 @@ class DriverHomeScreen extends StatelessWidget {
                             ],
                           ),
                   ),
-                  Divider()
+                  // Divider()
                 ],
               ));
         },

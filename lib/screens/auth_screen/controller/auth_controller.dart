@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 import 'package:callandgo/main.dart';
+import 'package:callandgo/screens/driver/driver_home/controller/driver_home_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -88,10 +89,16 @@ class AuthController extends GetxController {
         userLocation.value =
             currentUser.value.userLocation ?? 'Location not set yet';
         checkPhoneNumber(phoneNumber: currentUser.value.phone);
+        checkOnlineStatus(isOnline: currentUser.value.isOnline!);
       } catch (e) {
         log('Error while fethching user data: $e');
       }
     }
+  }
+
+  checkOnlineStatus({required bool isOnline}) {
+    DriverHomeController driverHomeController = Get.find();
+    driverHomeController.isOnline.value = isOnline;
   }
 
   checkPhoneNumber({required String? phoneNumber}) async {
@@ -442,6 +449,7 @@ class AuthController extends GetxController {
           freightStatus: null,
           freightStatusDescription: null,
           freightVehicleType: null,
+          isOnline: false,
         );
       } else {
         userModel = UserModel(
@@ -473,6 +481,7 @@ class AuthController extends GetxController {
           freightStatus: null,
           freightStatusDescription: null,
           freightVehicleType: null,
+          isOnline: false,
         );
       }
       var response = await AuthRepository().saveUserData(userModel: userModel);

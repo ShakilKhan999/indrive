@@ -30,6 +30,7 @@ class UserModel {
   String? freightStatus;
   String? freightStatusDescription;
   String? freightVehicleType;
+  bool? isOnline;
 
   UserModel({
     this.uid,
@@ -61,6 +62,7 @@ class UserModel {
     this.freightStatus,
     this.freightStatusDescription,
     this.freightVehicleType,
+    this.isOnline,
   });
 
   Map<String, dynamic> toJson() {
@@ -92,6 +94,10 @@ class UserModel {
       'courierVehicleType': courierVehicleType,
       'isFreight': isFreight,
       'freightStatus': freightStatus,
+      'freightStatusDescription': freightStatusDescription,
+      'freightVehicleType': freightVehicleType,
+      'isOnline': isOnline,
+
     };
   }
 
@@ -126,6 +132,7 @@ class UserModel {
       freightStatus: json['freightStatus'],
       freightStatusDescription: json['freightStatusDescription'],
       freightVehicleType: json['freightVehicleType'],
+      isOnline: json['isOnline'] ?? false,
     );
   }
 }

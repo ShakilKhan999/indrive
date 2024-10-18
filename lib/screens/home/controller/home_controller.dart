@@ -43,6 +43,12 @@ class HomeController extends GetxController with WidgetsBindingObserver {
   var startPickedCenter = const LatLng(31.7917, -7.0926).obs;
   var multiPickedCenter = const LatLng(31.7917, -7.0926).obs;
 
+  var isOnline = false.obs;
+
+  void toggleOnlineStatus(bool value) {
+    isOnline.value = value;
+  }
+
   var previousTrips = [].obs;
   AuthController authController = Get.put(AuthController());
   @override
