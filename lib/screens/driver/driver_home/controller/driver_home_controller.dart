@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:callandgo/components/common_components.dart';
 import 'package:callandgo/main.dart';
 import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,6 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -17,10 +19,12 @@ import 'package:callandgo/models/trip_model.dart';
 import 'package:callandgo/screens/driver/driver_home/repository/driver_repository.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../../helpers/color_helper.dart';
 import '../../../../helpers/method_helper.dart';
 import '../../../../utils/app_config.dart';
 import '../../../../utils/database_collection_names.dart';
 import '../../../auth_screen/controller/auth_controller.dart';
+import '../../../profile/views/profile_screen.dart';
 
 class DriverHomeController extends GetxController {
   var userLat = 0.0.obs;
@@ -50,6 +54,7 @@ class DriverHomeController extends GetxController {
     listenToTrips(FirebaseAuth.instance.currentUser!.uid);
     super.onInit();
   }
+
 
   var myActiveTrips = [].obs;
 

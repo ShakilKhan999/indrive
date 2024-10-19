@@ -131,6 +131,29 @@ class CommonComponents {
     );
   }
 
+
+  Widget buildRouteStatusIcon(String currentStatus) {
+    if (currentStatus == "Pending") {
+      return Icon(
+        Icons.pending_outlined,
+        size: 24.sp,
+        color: Colors.red,
+      );
+    } else if (currentStatus == "OnGoing") {
+      return Icon(
+        Icons.add_road_rounded,
+        size: 24.sp,
+        color: ColorHelper.primaryColor,
+      );
+    } else {
+      return Icon(
+        Icons.check_circle_outline,
+        size: 24.sp,
+        color: Colors.green,
+      );
+    }
+  }
+
   void showRoutesDialog(BuildContext context, var routes, bool onGoing) {
     HomeController homeController=Get.find();
     showDialog(
@@ -191,29 +214,6 @@ class CommonComponents {
       },
     );
   }
-
-  Widget buildRouteStatusIcon(String currentStatus) {
-    if (currentStatus == "Pending") {
-      return Icon(
-        Icons.pending_outlined,
-        size: 24.sp,
-        color: Colors.red,
-      );
-    } else if (currentStatus == "OnGoing") {
-      return Icon(
-        Icons.add_road_rounded,
-        size: 24.sp,
-        color: ColorHelper.primaryColor,
-      );
-    } else {
-      return Icon(
-        Icons.check_circle_outline,
-        size: 24.sp,
-        color: Colors.green,
-      );
-    }
-  }
-
 
 
   Widget commonButton({

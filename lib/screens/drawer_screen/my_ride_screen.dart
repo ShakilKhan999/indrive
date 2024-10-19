@@ -75,13 +75,38 @@ class MyRideScreen extends StatelessWidget {
                               style: TextStyle(color: Colors.white),
                             ),
                           )
-                        : MapWidget(polyLineEncoded: ride.polyLineEncoded!),
+                        : MapWidget(polyLineEncodedList: ride.routes.map((route) => route.encodedPolyline).toList()!),
                   ),
                   SpaceHelper.verticalSpace5,
-                  CommonComponents().printText(
-                    fontSize: 16,
-                    textData: ride.destination!,
-                    fontWeight: FontWeight.bold,
+                  GestureDetector(
+                    onTap: (){
+                      CommonComponents().showRoutesDialog(
+                          context, ride.routes, false);
+                    },
+                    child: Row(
+                      children: [
+                        CommonComponents().printText(
+                          fontSize: 16,
+                          textData: ride.destination!,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        SpaceHelper.horizontalSpace3,
+                        ride.routes.length>1?
+                        Container(
+                          height: 20.h, width: 25.h,
+                          decoration: BoxDecoration(
+                            color: ColorHelper.primaryColor,
+                              borderRadius: BorderRadius.circular(90.r)),
+                          child:  Center(
+                            child: CommonComponents().printText(
+                              fontSize: 14,
+                              textData: "${(ride.routes.length-1).toString()}+"!,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ):SizedBox()
+                      ],
+                    ),
                   ),
                   SpaceHelper.verticalSpace5,
                   CommonComponents().printText(

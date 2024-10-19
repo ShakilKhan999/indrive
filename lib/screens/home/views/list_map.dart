@@ -1,11 +1,12 @@
+import 'package:callandgo/helpers/color_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
 class MapWidget extends StatefulWidget {
-  final String polyLineEncoded;
+   var polyLineEncodedList; // Accept a list of polyline encoded strings
 
-  MapWidget({required this.polyLineEncoded});
+  MapWidget({required this.polyLineEncodedList});
 
   @override
   _MapWidgetState createState() => _MapWidgetState();
@@ -16,8 +17,23 @@ class _MapWidgetState extends State<MapWidget> {
 
   @override
   Widget build(BuildContext context) {
-    List<LatLng> polylinePoints = decodePolyline(widget.polyLineEncoded);
-    LatLngBounds bounds = calculateBounds(polylinePoints);
+    List<LatLng> allPolylinePoints = [];
+    List<Polyline> polylines = [];
+
+    // Decode all polylines and add to map
+    for (int i = 0; i < widget.polyLineEncodedList.length; i++) {
+      List<LatLng> polylinePoints = decodePolyline(widget.polyLineEncodedList[i]);
+      allPolylinePoints.addAll(polylinePoints); // Add all points to the combined list
+      polylines.add(Polyline(
+        polylineId: PolylineId('route_$i'),
+        color: ColorHelper.primaryColor,
+        width: 2,
+        points: polylinePoints,
+      ));
+    }
+
+    // Calculate bounds to fit all polylines
+    LatLngBounds bounds = calculateBounds(allPolylinePoints);
     LatLng center = LatLng(
       (bounds.southwest.latitude + bounds.northeast.latitude) / 2,
       (bounds.southwest.longitude + bounds.northeast.longitude) / 2,
@@ -25,21 +41,14 @@ class _MapWidgetState extends State<MapWidget> {
 
     return GoogleMap(
       initialCameraPosition: CameraPosition(
-        target: center, // Center of the polyline
+        target: center, // Center of all polylines
         zoom: calculateZoomLevel(bounds), // Adjusted zoom level
       ),
       onMapCreated: (controller) {
         _mapController = controller;
-        _mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50)); // Animate to fit bounds
+        _mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 5)); // Animate to fit bounds
       },
-      polylines: {
-        Polyline(
-          polylineId: PolylineId('route'),
-          color: Colors.blue,
-          width: 5,
-          points: polylinePoints,
-        )
-      },
+      polylines: Set<Polyline>.of(polylines), // Set of polylines
       zoomControlsEnabled: false,
       myLocationButtonEnabled: false,
       mapType: MapType.normal,
@@ -83,8 +92,6 @@ class _MapWidgetState extends State<MapWidget> {
     if (maxDiff < 0.05) return 17;  // Zoom in for shorter routes
     if (maxDiff < 0.1) return 15;   // Closer zoom for short routes
     if (maxDiff < 0.5) return 13;   // Standard zoom
-    return 11;                       // Default for long routes
+    return 11;                      // Default for long routes
   }
-
-
 }

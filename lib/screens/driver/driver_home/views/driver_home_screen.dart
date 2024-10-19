@@ -219,8 +219,14 @@ class DriverHomeScreen extends StatelessWidget {
                   child: Center(
                     child: driverHomeController.activeCall.isEmpty
                         ? CommonComponents().printText(
-                            fontSize: 20,
-                            textData: "Waiting for the call..",
+                            fontSize: 20,textData:
+
+                            _authController.currentUser.value.isOnline!=null && _authController.currentUser.value.isOnline!?
+                            _authController.currentUser.value.driverStatus==null || _authController.currentUser.value.driverStatus != "approved"?
+                            "Your profile is not verified":
+                            "Waiting for the call..":
+
+                            "You are currently offline",
                             fontWeight: FontWeight.bold)
                         : driverHomeController.activeCall[0].accepted
                             ? _buildPickactions(context)
@@ -233,15 +239,18 @@ class DriverHomeScreen extends StatelessWidget {
               child: Obx(() => driverHomeController.myActiveTrips.isEmpty ||
                       driverHomeController.activeCall.isNotEmpty
                   ? SizedBox()
-                  : _authController.checkProfile()
+                  : readyToBid()
                       ? _buildBidList()
-                      : _buildNumberUpdateView())),
+                      : _buildProfileUpdateView(
+                 number:  _authController.checkProfile(),
+              verified:_authController.currentUser.value.driverStatus!=null && _authController.currentUser.value.driverStatus == "approved"
+              ))),
         ],
       )),
     );
   }
 
-  Widget _buildNumberUpdateView() {
+  Widget _buildProfileUpdateView({required bool verified, required bool number}) {
     return Container(
       width: 300.w,
       height: 200.h,
@@ -257,16 +266,28 @@ class DriverHomeScreen extends StatelessWidget {
                   children: [
                     CommonComponents().printText(
                         fontSize: 18,
-                        textData:
-                            "Incoming ride request ${driverHomeController.myActiveTrips.length.toString()}",
+                        textData:"Incoming ride request ${driverHomeController.myActiveTrips.length.toString()}",
+
                         fontWeight: FontWeight.bold),
+                    if(verified==false)
                     CommonComponents().printText(
+                        fontSize: 18,
+                        textData:"Your Profile is not verified",color:  Colors.red,
+                        fontWeight: FontWeight.bold),
+                    if(number==false)
+                      CommonComponents().printText(
+                          fontSize: 18,
+                          textData:"Phone Number Required",color:  Colors.red,
+                          fontWeight: FontWeight.bold),
+
+                     CommonComponents().printText(
                         fontSize: 14,
-                        textData: "Update your profile to take actions",
+                        textData: number==false? "Update your profile to take actions":"Wait for the approval",
                         fontWeight: FontWeight.bold),
                   ],
                 )),
             SpaceHelper.verticalSpace10,
+            number?SizedBox():
             SizedBox(
               width: 120.w,
               child: CommonComponents().commonButton(
@@ -310,7 +331,8 @@ class DriverHomeScreen extends StatelessWidget {
                         ? Center(
                             child: CommonComponents().printText(
                                 fontSize: 14,
-                                textData: "Waiting for user action",
+                                textData:
+                                "Waiting for user action",
                                 fontWeight: FontWeight.bold),
                           )
                         : Column(
@@ -929,4 +951,11 @@ class DriverHomeScreen extends StatelessWidget {
   void openKeyboard(BuildContext context) {
     FocusScope.of(context).requestFocus(focusNode);
   }
+
+  bool readyToBid()
+  {
+    return _authController.checkProfile() && (_authController.currentUser.value.isOnline!=null && _authController.currentUser.value.isOnline!)
+        && (_authController.currentUser.value.driverStatus!=null && _authController.currentUser.value.driverStatus == "approved");
+  }
+
 }

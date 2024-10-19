@@ -803,9 +803,17 @@ class HomeController extends GetxController with WidgetsBindingObserver {
   var sortedDriverList = [].obs;
 
   List<UserModel> sortDriversByDistance(var originalList, LatLng center) {
-    List<UserModel> sortedList = List.from(originalList);
+    var filteredList = originalList.where((driver) {
+      double distance = Geolocator.distanceBetween(
+        center.latitude,
+        center.longitude,
+        driver.latLng?.latitude ?? 0.0,
+        driver.latLng?.longitude ?? 0.0,
+      );
+      return distance <= 5000; // Filter drivers within 5000 meters
+    }).toList();
 
-    sortedList.sort((a, b) {
+    filteredList.sort((a, b) {
       double distanceA = Geolocator.distanceBetween(
         center.latitude,
         center.longitude,
@@ -822,7 +830,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
       return distanceA.compareTo(distanceB); // Ascending order
     });
 
-    return sortedList;
+    return List<UserModel>.from(filteredList);;
   }
 
   var calledTrip = [].obs;
