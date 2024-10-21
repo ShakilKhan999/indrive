@@ -156,7 +156,7 @@ class _DriverCityToCityRequestListState
                         ),
                       ],
                     ),
-                    SpaceHelper.verticalSpace15,
+                    SpaceHelper.verticalSpace5,
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -176,7 +176,7 @@ class _DriverCityToCityRequestListState
                                     .myTripList[index].tripCurrentStatus!)),
                       ],
                     ),
-                    SpaceHelper.verticalSpace10,
+                    SpaceHelper.verticalSpace5,
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -194,7 +194,25 @@ class _DriverCityToCityRequestListState
                         ),
                       ],
                     ),
-                    SpaceHelper.verticalSpace10,
+                    SpaceHelper.verticalSpace5,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        CommonComponents().printText(
+                          fontSize: 12,
+                          textData: 'Trip Type :',
+                          fontWeight: FontWeight.w600,
+                        ),
+                        SpaceHelper.horizontalSpace10,
+                        CommonComponents().printText(
+                          fontSize: 12,
+                          textData:
+                              '${_cityToCityTripController.myTripList[index].tripType!.toUpperCase()}',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ],
+                    ),
+                    SpaceHelper.verticalSpace5,
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -228,7 +246,7 @@ class _DriverCityToCityRequestListState
                         )
                       ],
                     ),
-                    SpaceHelper.verticalSpace10,
+                    SpaceHelper.verticalSpace5,
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -363,104 +381,116 @@ class _DriverCityToCityRequestListState
       () => _cityToCityTripController.tripList.isNotEmpty
           ? ListView.separated(
               itemBuilder: (context, index) {
-                return Card(
-                  color: ColorHelper.blackColor,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                  height: 35.h,
-                                  width: 35.h,
-                                  decoration: BoxDecoration(
+                return GestureDetector(
+                  onTap: () {
+                    _showDetailsBottomSheet(index);
+                  },
+                  child: Card(
+                    color: ColorHelper.blackColor,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    height: 35.h,
+                                    width: 35.h,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(90),
+                                        color: Colors.white,
+                                        border:
+                                            Border.all(color: Colors.white)),
+                                    child: ClipRRect(
                                       borderRadius: BorderRadius.circular(90),
-                                      color: Colors.white,
-                                      border: Border.all(color: Colors.white)),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(90),
-                                    child: _cityToCityTripController
-                                                .tripList[index].userImage !=
-                                            null
-                                        ? Image.network(
-                                            _cityToCityTripController
-                                                .tripList[index].userImage!,
-                                            height: 35.h,
-                                            width: 35.h,
-                                            fit: BoxFit.cover,
-                                          )
-                                        : Image.asset(
-                                            "assets/images/person.jpg",
-                                            height: 35.h,
-                                            width: 35.h,
-                                            fit: BoxFit.cover,
-                                          ),
+                                      child: _cityToCityTripController
+                                                  .tripList[index].userImage !=
+                                              null
+                                          ? Image.network(
+                                              _cityToCityTripController
+                                                  .tripList[index].userImage!,
+                                              height: 35.h,
+                                              width: 35.h,
+                                              fit: BoxFit.cover,
+                                            )
+                                          : Image.asset(
+                                              "assets/images/person.jpg",
+                                              height: 35.h,
+                                              width: 35.h,
+                                              fit: BoxFit.cover,
+                                            ),
+                                    ),
                                   ),
-                                ),
-                                SpaceHelper.horizontalSpace10,
-                                CommonComponents().printText(
-                                    fontSize: 15,
-                                    textData: _cityToCityTripController
-                                        .tripList[index].userName!,
-                                    fontWeight: FontWeight.bold),
-                              ],
-                            ),
-                            CommonComponents().printText(
-                                fontSize: 15,
-                                textData: _cityToCityTripController
-                                    .tripList[index].userPrice!,
-                                fontWeight: FontWeight.bold),
-                          ],
-                        ),
-                        SpaceHelper.verticalSpace15,
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Icon(Icons.radio_button_checked,
-                                color: ColorHelper.primaryColor),
-                            SpaceHelper.horizontalSpace10,
-                            Expanded(
-                                child: CommonComponents().printText(
-                                    fontSize: 12,
-                                    textData:
-                                        '${_cityToCityTripController.tripList[index].cityFrom!}',
-                                    fontWeight: FontWeight.normal,
-                                    maxLine: 2))
-                          ],
-                        ),
-                        SpaceHelper.verticalSpace5,
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Icon(Icons.radio_button_checked,
-                                color: ColorHelper.blueColor),
-                            SpaceHelper.horizontalSpace10,
-                            Expanded(
-                                child: CommonComponents().printText(
-                                    fontSize: 12,
-                                    textData:
-                                        '${_cityToCityTripController.tripList[index].cityTo!}',
-                                    fontWeight: FontWeight.normal,
-                                    maxLine: 2))
-                          ],
-                        ),
-                        SpaceHelper.verticalSpace10,
-                        CommonComponents().printText(
-                            fontSize: 15,
-                            textData: MethodHelper().timeAgo(
-                                _cityToCityTripController
-                                    .tripList[index].createdAt!),
-                            fontWeight: FontWeight.bold),
-                        SpaceHelper.verticalSpace10,
-                        _buildOfferYourFareView(index: index),
-                        SpaceHelper.verticalSpace10,
-                        _buildActionView(index: index)
-                      ],
+                                  SpaceHelper.horizontalSpace10,
+                                  CommonComponents().printText(
+                                      fontSize: 15,
+                                      textData: _cityToCityTripController
+                                          .tripList[index].userName!,
+                                      fontWeight: FontWeight.bold),
+                                ],
+                              ),
+                              CommonComponents().printText(
+                                  fontSize: 15,
+                                  textData: _cityToCityTripController
+                                      .tripList[index].userPrice!,
+                                  fontWeight: FontWeight.bold),
+                            ],
+                          ),
+                          SpaceHelper.verticalSpace15,
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(Icons.radio_button_checked,
+                                  color: ColorHelper.primaryColor),
+                              SpaceHelper.horizontalSpace10,
+                              Expanded(
+                                  child: CommonComponents().printText(
+                                      fontSize: 12,
+                                      textData:
+                                          '${_cityToCityTripController.tripList[index].cityFrom!}',
+                                      fontWeight: FontWeight.normal,
+                                      maxLine: 2))
+                            ],
+                          ),
+                          SpaceHelper.verticalSpace5,
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(Icons.radio_button_checked,
+                                  color: ColorHelper.blueColor),
+                              SpaceHelper.horizontalSpace10,
+                              Expanded(
+                                  child: CommonComponents().printText(
+                                      fontSize: 12,
+                                      textData:
+                                          '${_cityToCityTripController.tripList[index].cityTo!}',
+                                      fontWeight: FontWeight.normal,
+                                      maxLine: 2))
+                            ],
+                          ),
+                          SpaceHelper.verticalSpace5,
+                          CommonComponents().printText(
+                              fontSize: 12,
+                              textData:
+                                  'Trip Type: ${_cityToCityTripController.tripList[index].tripType!.toUpperCase()}',
+                              fontWeight: FontWeight.bold),
+                          SpaceHelper.verticalSpace5,
+                          CommonComponents().printText(
+                              fontSize: 15,
+                              textData: MethodHelper().timeAgo(
+                                  _cityToCityTripController
+                                      .tripList[index].createdAt!),
+                              fontWeight: FontWeight.bold),
+                          SpaceHelper.verticalSpace10,
+                          _buildOfferYourFareView(index: index),
+                          SpaceHelper.verticalSpace10,
+                          _buildActionView(index: index)
+                        ],
+                      ),
                     ),
                   ),
                 );
@@ -655,6 +685,63 @@ class _DriverCityToCityRequestListState
                       fontWeight: FontWeight.w600),
                 ),
               ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showDetailsBottomSheet(int index) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.grey[900],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16.0.w,
+            right: 16.0.w,
+            top: 16.0.h,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16.h,
+          ),
+          child: SingleChildScrollView(
+            child: Container(
+              width: double.infinity,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CommonComponents().printText(
+                          fontSize: 16,
+                          textData: 'Trip Details',
+                          fontWeight: FontWeight.w600),
+                    ],
+                  ),
+                  SpaceHelper.verticalSpace10,
+                  _cityToCityTripController.tripList[index].tripType == 'ride'
+                      ? CommonComponents().printText(
+                          fontSize: 15,
+                          textData:
+                              'Passengers: ${_cityToCityTripController.tripList[index].numberOfPassengers!}',
+                          fontWeight: FontWeight.normal)
+                      : Container(),
+                  SpaceHelper.verticalSpace10,
+                  Text(
+                    '${_cityToCityTripController.tripList[index].description!}',
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.white,
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         );

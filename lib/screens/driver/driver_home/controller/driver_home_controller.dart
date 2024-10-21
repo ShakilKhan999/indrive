@@ -15,6 +15,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_place/google_place.dart';
 import 'package:callandgo/models/trip_model.dart';
 import 'package:callandgo/screens/driver/driver_home/repository/driver_repository.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../helpers/method_helper.dart';
@@ -385,6 +386,17 @@ class DriverHomeController extends GetxController {
       isOnline.value = !isOnline.value;
       log('Error updating online status: $e');
       showToast(toastText: 'Something went wrong');
+    }
+  }
+
+  void openGoogleMaps(double destinationLat, double destinationLng) async {
+    String googleUrl =
+        'https://www.google.com/maps/dir/?api=1&destination=$destinationLat,$destinationLng&travelmode=driving';
+
+    if (await canLaunch(googleUrl)) {
+      await launch(googleUrl);
+    } else {
+      throw 'Could not open Google Maps.';
     }
   }
 }

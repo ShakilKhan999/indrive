@@ -163,6 +163,7 @@ class ProfileScreen extends StatelessWidget {
             child: IntlPhoneField(
               controller: _authController.phoneNumbercontroller.value,
               cursorColor: Colors.grey,
+              autofocus: true,
               style: StyleHelper.regular14,
               dropdownTextStyle: const TextStyle(color: Colors.grey),
               dropdownIcon: const Icon(

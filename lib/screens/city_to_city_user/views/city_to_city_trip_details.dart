@@ -184,14 +184,17 @@ class CityToCityTripDetailsScreen extends StatelessWidget {
                 )
               ],
             ),
+            SpaceHelper.verticalSpace5,
+            CommonComponents().printText(fontSize: 12, textData: 'Trip Type: ${cityToCityTripModel.tripType!.toUpperCase()}', fontWeight: FontWeight.bold),
             SpaceHelper.verticalSpace10,
+
             Row(
               children: [
                 Expanded(
                   child: CommonComponents().CommonCard(
                     context: context,
                     icon: Icons.person_outline_outlined,
-                    number: '${cityToCityTripModel.numberOfPassengers}',
+                    number: '${cityToCityTripModel.numberOfPassengers ?? 0}',
                     text: 'Passenger',
                     cardColor: ColorHelper.blackColor,
                   ),

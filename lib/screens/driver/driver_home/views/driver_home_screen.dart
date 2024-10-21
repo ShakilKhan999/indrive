@@ -131,17 +131,22 @@ class DriverHomeScreen extends StatelessWidget {
           Positioned(
             top: 30.h,
             left: 10.w,
-            child: Container(
-              height: 40.h,
-              width: 40.h,
-              decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(90)),
-              child: Center(
-                child: Icon(
-                  Icons.search,
-                  size: 20.sp,
-                  color: Colors.white,
+            child: InkWell(
+              onTap: () {
+                driverHomeController.openGoogleMaps(23.798337, 90.352977);
+              },
+              child: Container(
+                height: 40.h,
+                width: 40.h,
+                decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(90)),
+                child: Center(
+                  child: Icon(
+                    Icons.search,
+                    size: 20.sp,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
