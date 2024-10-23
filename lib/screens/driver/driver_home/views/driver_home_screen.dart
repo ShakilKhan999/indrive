@@ -220,12 +220,10 @@ class DriverHomeScreen extends StatelessWidget {
                     child: driverHomeController.activeCall.isEmpty
                         ? CommonComponents().printText(
                             fontSize: 20,textData:
-
                             _authController.currentUser.value.isOnline!=null && _authController.currentUser.value.isOnline!?
                             _authController.currentUser.value.driverStatus==null || _authController.currentUser.value.driverStatus != "approved"?
                             "Your profile is not verified":
                             "Waiting for the call..":
-
                             "You are currently offline",
                             fontWeight: FontWeight.bold)
                         : driverHomeController.activeCall[0].accepted
