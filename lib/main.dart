@@ -7,6 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:callandgo/utils/app_config.dart';
 import 'package:callandgo/utils/navigation_service.dart';
+import 'service/background_service.dart';
 import 'utils/firebase_option.dart';
 
 FToast fToast = FToast();
@@ -14,6 +15,7 @@ FToast fToast = FToast();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await BackgroundService.initializeService();
   runApp(const MyApp());
 }
 
@@ -41,7 +43,8 @@ class _MyAppState extends State<MyApp> {
         navigatorKey: NavigationService.navigatorKey,
         title: AppConfig.appName,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: ColorHelper.primaryColor),
+          colorScheme:
+              ColorScheme.fromSeed(seedColor: ColorHelper.primaryColor),
           useMaterial3: true,
         ),
         home: RegisterScreen(),

@@ -15,6 +15,7 @@ import 'package:callandgo/screens/city_to_city_user/views/bid_list.dart';
 
 import '../../../components/confirmation_dialog.dart';
 import '../../../components/location_pick_bottom_sheet.dart';
+import 'city_to_city_trip_details_for_request.dart';
 
 class CityToCityRequest extends StatefulWidget {
   CityToCityRequest({super.key});
@@ -337,11 +338,34 @@ class _CityToCityRequestState extends State<CityToCityRequest>
                         ],
                       ),
                       SpaceHelper.verticalSpace15,
-                      CommonComponents().printText(
-                          fontSize: 18,
-                          textData:
-                              'Bids: ${_cityToCityTripController.tripListForUser[index].bids!.length}',
-                          fontWeight: FontWeight.bold),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          CommonComponents().printText(
+                              fontSize: 18,
+                              textData:
+                                  'Bids: ${_cityToCityTripController.tripListForUser[index].bids!.length}',
+                              fontWeight: FontWeight.bold),
+                          InkWell(
+                            onTap: () {
+                              Get.to(
+                                  () => CityToCityTripDetailsForRequestScreen(
+                                        cityToCityTripModel:
+                                            _cityToCityTripController
+                                                .tripListForUser[index],
+                                        fromUser: true,
+                                        index: index,
+                                      ),
+                                  transition: Transition.rightToLeft);
+                            },
+                            child: CommonComponents().printText(
+                                fontSize: 16,
+                                textData: 'See Details',
+                                fontWeight: FontWeight.bold,
+                                color: ColorHelper.primaryColor),
+                          )
+                        ],
+                      ),
                       SpaceHelper.verticalSpace15,
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,

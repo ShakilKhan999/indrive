@@ -600,10 +600,16 @@ class CityToCityTripController extends GetxController {
     }
   }
 
-  cancelRideForUser({required String docId}) {
+  var isRideCancelLoading = false.obs;
+
+  cancelRideForUser({required String docId}) async {
     try {
-      MethodHelper().cancelRide(cityToCityTripCollection, docId);
-    } catch (e) {}
+      isRideCancelLoading.value = true;
+      await MethodHelper().cancelRide(cityToCityTripCollection, docId);
+      isRideCancelLoading.value = false;
+    } catch (e) {
+      isRideCancelLoading.value = false;
+    }
   }
 
   onPressItem({required CityToCityTripModel trip}) {

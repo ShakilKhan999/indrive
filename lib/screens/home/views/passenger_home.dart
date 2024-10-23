@@ -3,6 +3,7 @@ import 'package:callandgo/screens/auth_screen/controller/auth_controller.dart';
 import 'package:callandgo/screens/home/views/ride_progress.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -1292,7 +1293,6 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                     ),
                     SpaceHelper.verticalSpace15,
                     Obx(() => Expanded(
-                      
                           // height: 250.h,
                           child: ListView.builder(
                               itemCount: homeController.suggestions.length,
@@ -1353,12 +1353,11 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                     }
                                   },
                                   child: ListTile(
-                                     contentPadding: EdgeInsets.zero,
-                                     leading: Icon(
-                                    Icons.location_on_outlined,
-                                    color: ColorHelper.primaryColor,
-                                  ),
-                                          
+                                      contentPadding: EdgeInsets.zero,
+                                      leading: Icon(
+                                        Icons.location_on_outlined,
+                                        color: ColorHelper.primaryColor,
+                                      ),
                                       trailing: CommonComponents().printText(
                                           fontSize: 12,
                                           textData: "",
@@ -1369,7 +1368,6 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                                           textData:
                                               homeController.suggestions[index]
                                                   ["description"],
-
                                           fontWeight: FontWeight.bold)),
                                 );
                               }),
@@ -1621,17 +1619,28 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
   }
 
   Widget _buildRentPriceView({required bool initial}) {
-    return Obx(() => Container(
-          height: 30.h,
-          width: 50.h,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14.sp),
-              border: Border.all(color: Colors.white)),
-          child: Center(
-            child: CommonComponents().printText(
-                fontSize: 14,
-                textData: "${homeController.minOfferPrice.value} ৳",
-                fontWeight: FontWeight.bold),
+    return Obx(() => InkWell(
+          onTap: () async {
+            // final service = FlutterBackgroundService();
+            // bool isRunning = await service.isRunning();
+            // if (isRunning) {
+            //   service.invoke("stopService");
+            // }
+
+            // await service.startService();
+          },
+          child: Container(
+            height: 30.h,
+            width: 50.h,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14.sp),
+                border: Border.all(color: Colors.white)),
+            child: Center(
+              child: CommonComponents().printText(
+                  fontSize: 14,
+                  textData: "${homeController.minOfferPrice.value} ৳",
+                  fontWeight: FontWeight.bold),
+            ),
           ),
         ));
   }

@@ -8,6 +8,7 @@ import 'package:callandgo/helpers/method_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/screens/city_to_city_user/controller/city_to_city_trip_controller.dart';
 import '../../../components/common_components.dart';
+import 'city_to_city_trip_details_for_request.dart';
 
 class DriverCityToCityRequestList extends StatefulWidget {
   DriverCityToCityRequestList({super.key});
@@ -383,7 +384,14 @@ class _DriverCityToCityRequestListState
               itemBuilder: (context, index) {
                 return GestureDetector(
                   onTap: () {
-                    _showDetailsBottomSheet(index);
+                    Get.to(
+                        () => CityToCityTripDetailsForRequestScreen(
+                              cityToCityTripModel:
+                                  _cityToCityTripController.tripList[index],
+                              fromUser: false,
+                              index: index,
+                            ),
+                        transition: Transition.rightToLeft);
                   },
                   child: Card(
                     color: ColorHelper.blackColor,
