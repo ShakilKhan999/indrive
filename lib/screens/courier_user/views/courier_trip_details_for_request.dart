@@ -2,32 +2,32 @@ import 'package:callandgo/components/common_components.dart';
 import 'package:callandgo/components/simple_appbar.dart';
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
-import 'package:callandgo/models/freight_trip_model.dart';
+import 'package:callandgo/models/courier_trip_model.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../components/confirmation_dialog.dart';
-import '../controller/freight_trip_controller.dart';
+import '../controller/courier_trip_controller.dart';
 
-class FreightTripDetailsForRequest extends StatelessWidget {
-  final FreightTripModel freightTripModel;
+class CourierTripDetailsForRequestScreen extends StatelessWidget {
+  final CourierTripModel courierTripModel;
   final int index;
   final bool fromUser;
-
-  FreightTripDetailsForRequest(
-      {required this.freightTripModel,
+  CourierTripDetailsForRequestScreen(
+      {required this.courierTripModel,
       required this.index,
       required this.fromUser});
 
-  final FreightTripController _freightTripController = Get.find();
+  final CourierTripController _courierTripController = Get.find();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[900],
-      appBar: SimpleAppbar(titleText: 'Freight Trip Details'),
+      appBar: SimpleAppbar(titleText: 'Courier Trip Details'),
       body: Padding(
         padding: EdgeInsets.all(16.0.w),
         child: Column(
@@ -41,14 +41,15 @@ class FreightTripDetailsForRequest extends StatelessWidget {
             fromUser
                 ? _buildUserActionsView()
                 : _buildRiderActionsView(index: index),
+
             // Column(children: [
-            //   freightTripModel.tripCurrentStatus == 'accepted'
+            //   courierTripModel.tripCurrentStatus == 'accepted'
             //       ? _buildPickupButtonView()
-            //       : freightTripModel.tripCurrentStatus == 'picked up'
+            //       : courierTripModel.tripCurrentStatus == 'picked up'
             //           ? _buildDropButtonView()
             //           : SizedBox(),
             //   SpaceHelper.verticalSpace10,
-            //   freightTripModel.tripCurrentStatus == 'accepted'
+            //   courierTripModel.tripCurrentStatus == 'accepted'
             //       ? _buildCancelButtonView()
             //       : SizedBox(),
             // ]),
@@ -149,19 +150,19 @@ class FreightTripDetailsForRequest extends StatelessWidget {
           color: ColorHelper.whiteColor,
           child: Obx(
             () => GoogleMap(
-              markers: _freightTripController.allMarkers.cast<Marker>().toSet(),
+              markers: _courierTripController.allMarkers.cast<Marker>().toSet(),
               onMapCreated: (controller) =>
-                  _freightTripController.onMapCreatedForRide,
+                  _courierTripController.onMapCreatedForRide,
               onCameraMove: (position) =>
-                  _freightTripController.onCameraMoveForRide,
+                  _courierTripController.onCameraMoveForRide,
               initialCameraPosition: CameraPosition(
-                target: _freightTripController.rideRoute.value,
+                target: _courierTripController.rideRoute.value,
                 zoom: 14,
               ),
               polylines: {
                 Polyline(
                   polylineId: const PolylineId("poly"),
-                  points: _freightTripController.polylineCoordinates
+                  points: _courierTripController.polylineCoordinates
                       .map((geoPoint) =>
                           LatLng(geoPoint.latitude, geoPoint.longitude))
                       .toList(),
@@ -188,11 +189,11 @@ class FreightTripDetailsForRequest extends StatelessWidget {
         showConfirmationDialog(
             title: 'Pickup',
             onPressConfirm: () async {
-              _freightTripController.onPressPickup(
+              _courierTripController.onPressPickup(
                   index: index, fromDetails: true);
             },
             onPressCancel: () => Get.back(),
-            controller: _freightTripController);
+            controller: _courierTripController);
       },
     );
   }
@@ -205,11 +206,11 @@ class FreightTripDetailsForRequest extends StatelessWidget {
         showConfirmationDialog(
             title: 'Drop',
             onPressConfirm: () async {
-              _freightTripController.onPressDrop(
+              _courierTripController.onPressDrop(
                   index: index, fromDetails: true);
             },
             onPressCancel: () => Get.back(),
-            controller: _freightTripController);
+            controller: _courierTripController);
       },
     );
   }
@@ -222,11 +223,11 @@ class FreightTripDetailsForRequest extends StatelessWidget {
         showConfirmationDialog(
             title: 'Cancel Ride',
             onPressConfirm: () {
-              _freightTripController.onPressCancel(
+              _courierTripController.onPressCancel(
                   index: index, fromDetails: true);
             },
             onPressCancel: () => Get.back(),
-            controller: _freightTripController);
+            controller: _courierTripController);
       },
     );
   }
@@ -236,105 +237,159 @@ class FreightTripDetailsForRequest extends StatelessWidget {
       height: 200.h,
       child: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SpaceHelper.verticalSpace15,
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+            Column(
               children: [
-                Icon(Icons.radio_button_checked,
-                    color: ColorHelper.primaryColor),
-                SpaceHelper.horizontalSpace10,
-                Expanded(
-                  child: CommonComponents().printText(
-                    fontSize: 12,
-                    textData: '${freightTripModel.from!}',
-                    fontWeight: FontWeight.normal,
-                  ),
-                )
+                SpaceHelper.verticalSpace15,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(Icons.radio_button_checked,
+                        color: ColorHelper.primaryColor),
+                    SpaceHelper.horizontalSpace10,
+                    Expanded(
+                      child: CommonComponents().printText(
+                        fontSize: 12,
+                        textData: '${courierTripModel.from!}',
+                        fontWeight: FontWeight.normal,
+                      ),
+                    )
+                  ],
+                ),
+                SpaceHelper.verticalSpace5,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(Icons.radio_button_checked,
+                        color: ColorHelper.blueColor),
+                    SpaceHelper.horizontalSpace10,
+                    Expanded(
+                      child: CommonComponents().printText(
+                        fontSize: 12,
+                        textData: '${courierTripModel.to!}',
+                        fontWeight: FontWeight.normal,
+                      ),
+                    )
+                  ],
+                ),
+                SpaceHelper.verticalSpace10,
+                _buildPickupInfoView(),
+                _buildDeliverInfoView(),
+                _buildDescriptionView(context),
               ],
             ),
-            SpaceHelper.verticalSpace5,
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Icon(Icons.radio_button_checked, color: ColorHelper.blueColor),
-                SpaceHelper.horizontalSpace10,
-                Expanded(
-                  child: CommonComponents().printText(
-                    fontSize: 12,
-                    textData: '${freightTripModel.to!}',
-                    fontWeight: FontWeight.normal,
-                  ),
-                )
-              ],
-            ),
-            SpaceHelper.verticalSpace10,
-            _buildDateView(context),
-            SpaceHelper.verticalSpace10,
-            _buildFreightSizeView(context),
-            SpaceHelper.verticalSpace10,
-            _buildImageView(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDateView(BuildContext context) {
+  Widget _buildDescriptionView(BuildContext context) {
+    return Column(
+      children: [
+        courierTripModel.description != ''
+            ? CommonComponents().CommonCard(
+                context: context,
+                icon: Icons.description_outlined,
+                number: '${courierTripModel.description}',
+                text: 'Description',
+                cardColor: ColorHelper.blackColor,
+                isDescription: true,
+              )
+            : CommonComponents().CommonCard(
+                context: context,
+                icon: Icons.description_outlined,
+                number: 'Description not found',
+                text: 'Description',
+                cardColor: ColorHelper.blackColor,
+                isDescription: true,
+              ),
+      ],
+    );
+  }
+
+  Widget _buildDeliverInfoView() {
+    return Column(
+      children: [
+        Align(
+          alignment: Alignment.centerLeft,
+          child: CommonComponents().printText(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              textData: 'Deliver Info:',
+              color: ColorHelper.primaryColor),
+        ),
+        courierTripModel.destinationFullAddress != ''
+            ? SpaceHelper.verticalSpace10
+            : SizedBox(),
+        courierTripModel.destinationFullAddress != ''
+            ? _buildInfoTextView(
+                'Street,building :${courierTripModel.destinationFullAddress} ')
+            : SizedBox(),
+        courierTripModel.destinationHomeAddress != ''
+            ? SpaceHelper.verticalSpace10
+            : SizedBox(),
+        courierTripModel.destinationHomeAddress != ''
+            ? _buildInfoTextView(
+                'Floor,apartment,entryphone : ${courierTripModel.destinationHomeAddress}')
+            : SizedBox(),
+        SpaceHelper.verticalSpace5,
+        courierTripModel.recipientPhone != null
+            ? _buildInfoTextView(
+                'Sender phone number : ${courierTripModel.recipientPhone}')
+            : _buildInfoTextView('Sender phone number not found'),
+        SpaceHelper.verticalSpace10,
+      ],
+    );
+  }
+
+  Widget _buildPickupInfoView() {
+    return Column(
+      children: [
+        Align(
+          alignment: Alignment.centerLeft,
+          child: CommonComponents().printText(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              textData: 'Picup Info:',
+              color: ColorHelper.primaryColor),
+        ),
+        courierTripModel.pickupFullAddress != ''
+            ? SpaceHelper.verticalSpace10
+            : SizedBox(),
+        courierTripModel.pickupFullAddress != ''
+            ? _buildInfoTextView(
+                'Street,building :${courierTripModel.pickupFullAddress} ')
+            : SizedBox(),
+        courierTripModel.pickupHomeAddress != ''
+            ? SpaceHelper.verticalSpace10
+            : SizedBox(),
+        courierTripModel.pickupHomeAddress != ''
+            ? _buildInfoTextView(
+                'Floor,apartment,entryphone : ${courierTripModel.pickupHomeAddress}')
+            : SizedBox(),
+        SpaceHelper.verticalSpace5,
+        courierTripModel.senderPhone != null
+            ? _buildInfoTextView(
+                'Sender phone number : ${courierTripModel.senderPhone}')
+            : _buildInfoTextView('Sender phone number not found'),
+        SpaceHelper.verticalSpace10,
+      ],
+    );
+  }
+
+  Widget _buildInfoTextView(String info) {
     return Container(
       height: 50.h,
-      width: MediaQuery.of(context).size.width,
+      width: double.infinity,
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(6.r),
           color: ColorHelper.blackColor),
       alignment: Alignment.centerLeft,
-      padding: EdgeInsets.only(left: 6.w),
-      child: Center(
-          child: freightTripModel.date != null
-              ? CommonComponents().printText(
-                  fontSize: 14,
-                  textData: 'Date : ${freightTripModel.date}',
-                  fontWeight: FontWeight.bold)
-              : CommonComponents().printText(
-                  fontSize: 14,
-                  textData: 'Date not found',
-                  fontWeight: FontWeight.bold)),
-    );
-  }
-
-  Widget _buildFreightSizeView(BuildContext context) {
-    return Container(
-      height: 50.h,
-      width: MediaQuery.of(context).size.width,
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(6.r),
-          color: ColorHelper.blackColor),
-      child: Center(
-          child: freightTripModel.truckSize != null
-              ? CommonComponents().printText(
-                  fontSize: 14,
-                  textData: 'Freight Size : ${freightTripModel.truckSize}',
-                  fontWeight: FontWeight.bold)
-              : CommonComponents().printText(
-                  fontSize: 14,
-                  textData: 'Freight Size not found',
-                  fontWeight: FontWeight.bold)),
-    );
-  }
-
-  Widget _buildImageView() {
-    return Container(
-      height: 100.h,
-      width: 150.w,
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(6.r),
-          color: ColorHelper.blackColor),
-      child: Center(
-          child: freightTripModel.cargoImage != null
-              ? Image.network(freightTripModel.cargoImage!, fit: BoxFit.cover)
-              : Image.asset('assets/images/freight-delivery.png',
-                  fit: BoxFit.cover)),
+      padding: EdgeInsets.only(left: 5.w),
+      child: CommonComponents()
+          .printText(fontSize: 14, textData: info, fontWeight: FontWeight.bold),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:callandgo/main.dart';
 import 'package:callandgo/screens/freight_user/view/freight_trip_details.dart';
+import 'package:callandgo/screens/freight_user/view/freight_trip_details_for_request.dart';
 import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -479,39 +480,69 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(Icons.date_range_sharp,
-                                  color: ColorHelper.whiteColor),
-                              SpaceHelper.horizontalSpace5,
-                              CommonComponents().printText(
-                                  fontSize: 18,
-                                  textData: _freightController.extractDate(
-                                      date: _freightController
-                                          .tripListForUser[index].date!),
-                                  fontWeight: FontWeight.bold),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Icon(Icons.money, color: ColorHelper.whiteColor),
-                              SpaceHelper.horizontalSpace5,
-                              CommonComponents().printText(
-                                  fontSize: 18,
-                                  textData:
-                                      '${_freightController.tripListForUser[index].userPrice!}',
-                                  fontWeight: FontWeight.bold),
-                            ],
-                          ),
-                          CommonComponents().printText(
-                              fontSize: 18,
-                              textData:
-                                  'Bids: ${_freightController.tripListForUser[index].bids!.length}',
-                              fontWeight: FontWeight.bold),
-                        ],
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 5.w),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.date_range_sharp,
+                                    color: ColorHelper.whiteColor),
+                                SpaceHelper.horizontalSpace5,
+                                CommonComponents().printText(
+                                    fontSize: 18,
+                                    textData: _freightController.extractDate(
+                                        date: _freightController
+                                            .tripListForUser[index].date!),
+                                    fontWeight: FontWeight.bold),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Icon(Icons.money,
+                                    color: ColorHelper.whiteColor),
+                                SpaceHelper.horizontalSpace5,
+                                CommonComponents().printText(
+                                    fontSize: 18,
+                                    textData:
+                                        '${_freightController.tripListForUser[index].userPrice!}',
+                                    fontWeight: FontWeight.bold),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      SpaceHelper.verticalSpace15,
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 5.w),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            CommonComponents().printText(
+                                fontSize: 18,
+                                textData:
+                                    'Bids: ${_freightController.tripListForUser[index].bids!.length}',
+                                fontWeight: FontWeight.bold),
+                            InkWell(
+                              onTap: () {
+                                Get.to(
+                                    () => FreightTripDetailsForRequest(
+                                          fromUser: true,
+                                          index: index,
+                                          freightTripModel: _freightController
+                                              .tripListForUser[index],
+                                        ),
+                                    transition: Transition.rightToLeft);
+                              },
+                              child: CommonComponents().printText(
+                                  fontSize: 16,
+                                  textData: 'See Details',
+                                  fontWeight: FontWeight.bold,
+                                  color: ColorHelper.primaryColor),
+                            )
+                          ],
+                        ),
                       ),
                       SpaceHelper.verticalSpace15,
                       Row(
@@ -671,11 +702,9 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
         child: Obx(() => DropdownButtonFormField<String>(
               value: _freightController.selectedSize.value,
               isDense: true,
-              
               decoration: InputDecoration(
                 border: InputBorder.none,
                 hintText: hintText,
-                
                 hintStyle: TextStyle(
                   fontSize: 16.sp,
                   color: ColorHelper.greyColor,
@@ -700,9 +729,10 @@ class _FreightRequestScreenState extends State<FreightRequestScreen>
                 return DropdownMenuItem<String>(
                   value: value,
                   child: CommonComponents().printText(
-                      fontSize: 15,
-                      textData: value,
-                      fontWeight: FontWeight.bold,),
+                    fontSize: 15,
+                    textData: value,
+                    fontWeight: FontWeight.bold,
+                  ),
                 );
               }).toList(),
               onChanged: _freightController.setSelectedSize,

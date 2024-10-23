@@ -4,6 +4,7 @@ import 'package:callandgo/components/simple_appbar.dart';
 import 'package:callandgo/main.dart';
 import 'package:callandgo/screens/courier_user/controller/courier_trip_controller.dart';
 import 'package:callandgo/screens/courier_user/views/courier_trip_details.dart';
+import 'package:callandgo/screens/courier_user/views/courier_trip_details_for_request.dart';
 import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -305,6 +306,23 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
                               textData:
                                   'Bids: ${courierTripController.tripListForUser[index].bids!.length}',
                               fontWeight: FontWeight.bold),
+                          InkWell(
+                            onTap: () {
+                              Get.to(
+                                  () => CourierTripDetailsForRequestScreen(
+                                        fromUser: true,
+                                        index: index,
+                                        courierTripModel: courierTripController
+                                            .tripListForUser[index],
+                                      ),
+                                  transition: Transition.rightToLeft);
+                            },
+                            child: CommonComponents().printText(
+                                fontSize: 16,
+                                textData: 'See Details',
+                                fontWeight: FontWeight.bold,
+                                color: ColorHelper.primaryColor),
+                          )
                         ],
                       ),
                       SpaceHelper.verticalSpace15,
