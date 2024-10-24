@@ -5,6 +5,7 @@ import 'package:callandgo/utils/app_config.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import '../../../helpers/shared_preference_helper.dart';
 import '../../../models/trip_model.dart';
 import '../../../models/trip_review_model.dart';
 
@@ -84,6 +85,8 @@ class PassengerRepository {
         'userCancel': true,
       });
       print('Driver ID updated successfully');
+
+      SharedPreferenceHelper().setString(key: "tripId", value: "");
     } catch (e) {
       print('Error updating Driver ID: $e');
     }

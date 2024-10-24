@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/method_helper.dart';
+import 'package:callandgo/helpers/shared_preference_helper.dart';
 import 'package:callandgo/utils/database_collection_names.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -56,10 +57,8 @@ class HomeController extends GetxController with WidgetsBindingObserver {
   void onInit() {
     authController.getUserData();
     getAngle();
-    getDriverList();
-
-
-
+    //getDriverList();
+   checkOnGoingTrip();
 
     // getPrevTrips();
     super.onInit();
@@ -69,6 +68,22 @@ class HomeController extends GetxController with WidgetsBindingObserver {
         // getPickupPolyline();
       }
     });
+  }
+
+var newSession=false.obs;
+  void checkOnGoingTrip() async{
+    await getDriverList();
+
+    sortedDriverList.clear();
+
+    await Future.delayed(Duration(seconds: 2));
+    var tripId=await SharedPreferenceHelper().getStirng(key: "tripId");
+    if(tripId!=null && tripId!="")
+      {
+        newSession.value=true;
+        listenCalledTrip(tripId);
+        log("tripId : $tripId");
+      }
   }
 
   @override
@@ -427,10 +442,8 @@ class HomeController extends GetxController with WidgetsBindingObserver {
     findingRoutes.value = true;
     polyLines.clear();
     polylineCoordinates.clear;
-
     LatLng stPoint =
         LatLng(thisDriver[0].latLng.latitude, thisDriver[0].latLng.longitude);
-
     LatLng endPoint = LatLng(
         startPickedCenter.value.latitude, startPickedCenter.value.longitude);
     PolylinePoints polylinePoints = PolylinePoints();
@@ -864,6 +877,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
         if (calledTrip[0].dropped) {
           riderFound.value = false;
           tripCalled.value = false;
+          SharedPreferenceHelper().setString(key: "tripId", value: "");
           polyLines.clear();
           polylineCoordinates.clear();
           allMarkers.clear();
@@ -884,7 +898,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
           log("jhscscsndmnsmndmmvsdmn");
           riderFound.value = true;
           thisDriver.clear();
-          var myRider = sortedDriverList.firstWhere(
+          var myRider = driverList.firstWhere(
               (driver) => driver.uid == calledTrip[0].driverId,
               orElse: () => null);
           thisDriver.add(myRider);
@@ -962,6 +976,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
     tripCalled.value = true;
     String tripId = generateUniqueId();
     tempTripId = tripId;
+    SharedPreferenceHelper().setString(key: "tripId", value: tripId);
     Trip trip = Trip(
         userId: authController.currentUser.value.uid,
         userName: authController.currentUser.value.name,
