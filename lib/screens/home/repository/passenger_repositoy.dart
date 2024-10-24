@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import '../../../models/trip_model.dart';
+import '../../../models/trip_review_model.dart';
 
 class PassengerRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -85,6 +86,24 @@ class PassengerRepository {
       print('Driver ID updated successfully');
     } catch (e) {
       print('Error updating Driver ID: $e');
+    }
+  }
+
+
+  Future<void> addTripReview({
+    required String userId,
+    required TripReview tripReview,
+  }) async {
+    try {
+      CollectionReference reviewsCollection = FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('Reviews');
+
+      await reviewsCollection.add(tripReview.toJson());
+      print('Review added successfully!');
+    } catch (e) {
+      print('Error adding review: $e');
     }
   }
 

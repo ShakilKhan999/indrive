@@ -2,7 +2,9 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/main.dart';
+import 'package:callandgo/models/trip_review_model.dart';
 import 'package:callandgo/models/user_model.dart';
+import 'package:callandgo/screens/home/repository/passenger_repositoy.dart';
 import 'package:callandgo/utils/database_collection_names.dart';
 import 'package:callandgo/utils/global_toast_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -225,6 +227,24 @@ class MethodHelper {
     }
   }
 
+  Stream<double> getAverageRating(String userId) {
+    return  FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('Reviews')
+        .snapshots()
+        .map((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        double totalRating = snapshot.docs.fold(0.0, (sum, doc) {
+          return sum + (doc.data()['rating'] );
+        });
+        return totalRating / snapshot.docs.length;
+      } else {
+        return 3.0;
+      }
+    });
+  }
+
   Future<List<VehicleModel>> getVehicleBrands(
       {required String collection}) async {
     try {
@@ -238,5 +258,11 @@ class MethodHelper {
       log('Error while getting vehicle models: $e');
       return [];
     }
+  }
+  var loading=false.obs;
+  Future<void> addTripReview({required String userId,required TripReview tripReview}) async{
+    loading.value=true;
+    await PassengerRepository().addTripReview(userId: userId, tripReview: tripReview);
+    loading.value=false;
   }
 }

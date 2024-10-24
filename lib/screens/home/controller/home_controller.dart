@@ -24,6 +24,7 @@ import '../../../models/user_model.dart';
 
 class HomeController extends GetxController with WidgetsBindingObserver {
   var selectedVehicle = "car".obs;
+  var ratingToAdd=3.0.obs;
   var userLat = 0.0.obs;
   var userLong = 0.0.obs;
   var cameraMoving = false.obs;
@@ -56,6 +57,10 @@ class HomeController extends GetxController with WidgetsBindingObserver {
     authController.getUserData();
     getAngle();
     getDriverList();
+
+
+
+
     // getPrevTrips();
     super.onInit();
     WidgetsBinding.instance.addObserver(this);
@@ -75,6 +80,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
   //final TextEditingController destinationController = TextEditingController();
   var destinationController = TextEditingController().obs;
   final TextEditingController addRouteController = TextEditingController();
+  final TextEditingController reviewController = TextEditingController();
   final TextEditingController pickupController = TextEditingController();
   final TextEditingController offerPriceController = TextEditingController();
   GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
@@ -95,6 +101,9 @@ class HomeController extends GetxController with WidgetsBindingObserver {
       log("App is being killed, perform cleanup");
     }
   }
+
+
+
 
   void getAngle() {
     FlutterCompass.events?.listen((CompassEvent event) {
@@ -839,6 +848,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
   int count = 0;
   var rateDriver = false.obs;
   var driverToRate = [].obs;
+  var lastTrip = "".obs;
 
   StreamSubscription? _tripSubscription;
   var routeIndex = 0.obs;
@@ -859,6 +869,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
           allMarkers.clear();
 
           driverToRate.add(thisDriver[0]);
+          lastTrip.value=calledTrip[0].tripId;
           rateDriver.value = true;
         } else if (calledTrip[0].accepted == false &&
             calledTrip[0].driverCancel == true) {

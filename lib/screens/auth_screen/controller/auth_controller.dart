@@ -78,11 +78,14 @@ class AuthController extends GetxController {
   double? _direction;
   var profilePhone = ''.obs;
   var userLocation = ''.obs;
+  var myRating=4.obs;
 
   getUserData() async {
     if (FirebaseAuth.instance.currentUser != null) {
       try {
+
         currentUser.value = (await getCurrentUser())!;
+        fetchAverageRating(currentUser.value.uid!);
         isDriverMode.value = currentUser.value.isDriverMode!;
         fullNameController.value.text = currentUser.value.name!;
         emailController.value.text = currentUser.value.email!;
@@ -90,10 +93,19 @@ class AuthController extends GetxController {
             currentUser.value.userLocation ?? 'Location not set yet';
         checkPhoneNumber(phoneNumber: currentUser.value.phone);
         checkOnlineStatus(isOnline: currentUser.value.isOnline!);
+
       } catch (e) {
         log('Error while fethching user data: $e');
       }
     }
+  }
+
+  void fetchAverageRating(String userId) {
+    print("sfajsf");
+    MethodHelper().getAverageRating(userId).listen((rating) {
+      myRating.value = rating.floor();
+      log("myRating: ${myRating.value.toString()}");
+    });
   }
 
   checkOnlineStatus({required bool isOnline}) {

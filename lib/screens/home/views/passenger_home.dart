@@ -1,5 +1,7 @@
 import 'dart:developer';
+import 'package:callandgo/models/trip_review_model.dart';
 import 'package:callandgo/screens/auth_screen/controller/auth_controller.dart';
+import 'package:callandgo/screens/auth_screen/views/otp_verification.dart';
 import 'package:callandgo/screens/home/views/ride_progress.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -121,7 +123,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                     //       width: 5),
 
                     // },
-                    polylines: homeController.calledTrip.isNotEmpty
+                    polylines: homeController.calledTrip.isNotEmpty && homeController.thisDriver.isNotEmpty
                         ? {
                             Polyline(
                                 polylineId: const PolylineId("route"),
@@ -1663,7 +1665,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                   textData: "Rate your driver",
                   fontWeight: FontWeight.bold,
                 ),
-                SpaceHelper.verticalSpace20,
+                SpaceHelper.verticalSpace5,
                 CircleAvatar(
                   radius: 40,
                   backgroundImage: NetworkImage(
@@ -1671,7 +1673,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                         "https://cdn-icons-png.flaticon.com/512/8583/8583437.png",
                   ),
                 ),
-                SpaceHelper.verticalSpace10,
+                SpaceHelper.verticalSpace5,
                 CommonComponents().printText(
                   fontSize: 18,
                   textData: homeController.driverToRate[0].name,
@@ -1691,22 +1693,49 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                     color: ColorHelper.primaryColor,
                   ),
                   onRatingUpdate: (rating) {
+                    homeController.ratingToAdd.value = rating;
                     print(rating);
                   },
                 ),
                 SpaceHelper.verticalSpace10,
+                // Add the TextField here
+                TextField(
+                  controller: homeController.reviewController,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: "Write your review",
+                    hintStyle: TextStyle(color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                ),
+                SpaceHelper.verticalSpace10,
                 SizedBox(
                   width: double.infinity,
-                  child: CommonComponents().commonButton(
+                  child: Obx(() => CommonComponents().commonButton(
                     borderRadius: 12,
                     color: ColorHelper.primaryColor,
-                    text: "Submit",
-                    onPressed: () {
+                    text: MethodHelper().loading.value ? "Adding" : "Submit",
+                    onPressed: MethodHelper().loading.value ? () {} : () async {
+                      await MethodHelper().addTripReview(
+                        userId: homeController.driverToRate[0].uid,
+                        tripReview: TripReview(
+                          rating: homeController.ratingToAdd.value,
+                          category: "city",
+                          tripId: homeController.lastTrip.value,
+                          reviews:homeController.reviewController.text.isEmpty?[]: [homeController.reviewController.text], // Collecting review text
+                        ),
+                      );
                       homeController.rateDriver.value = false;
                       homeController.driverToRate.clear();
                       Get.offAll(() => const PassengerHomeScreen());
                     },
-                  ),
+                  )),
                 ),
               ],
             ),
@@ -1735,4 +1764,5 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
       ),
     );
   }
+
 }

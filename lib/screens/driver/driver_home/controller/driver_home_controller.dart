@@ -29,6 +29,7 @@ import '../../../profile/views/profile_screen.dart';
 class DriverHomeController extends GetxController {
   var userLat = 0.0.obs;
   var userLong = 0.0.obs;
+  var ratingToAdd=3.0.obs;
   var cameraMoving = false.obs;
   var center = const LatLng(31.7917, -7.0926).obs;
 
@@ -48,12 +49,16 @@ class DriverHomeController extends GetxController {
     polylineCoordinates.clear();
     authController.getUserData();
     getUserLocation();
+
+
     // getPrevTrips();
     getAngle();
     listenCall();
     listenToTrips(FirebaseAuth.instance.currentUser!.uid);
     super.onInit();
   }
+
+
 
 
   var myActiveTrips = [].obs;

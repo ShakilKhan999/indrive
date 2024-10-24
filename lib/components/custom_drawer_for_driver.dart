@@ -318,11 +318,11 @@ class CustomDrawerForDriver extends StatelessWidget {
                             ),
                           ),
                           SpaceHelper.verticalSpace3,
-                          FivePointedStar(
-                            count: 5,
-                            onChange: (count) {},
-                            disabled: true,
-                          )
+                         Obx(()=> FivePointedStar(
+                           count: _authController.myRating.value.floor(),
+                           onChange: (count) {},
+                           disabled: true,
+                         ))
                         ],
                       ),
                     ],
