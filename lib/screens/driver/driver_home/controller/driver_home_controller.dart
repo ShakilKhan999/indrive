@@ -38,6 +38,8 @@ class DriverHomeController extends GetxController {
   var previousTrips = [].obs;
 
   final TextEditingController offerPriceController = TextEditingController();
+
+  final TextEditingController reviewController = TextEditingController();
   FocusNode offerFocusNode = FocusNode();
 
   GooglePlace googlePlace = GooglePlace(AppConfig.mapApiKey);
@@ -216,6 +218,9 @@ class DriverHomeController extends GetxController {
 
   var activeCall = [].obs;
   var onTheWay = [].obs;
+  var rateDriver = false.obs;
+  var driverToRate = [].obs;
+  var lastTrip = "".obs;
   Future<void> listenCall() async {
     DriverRepository()
         .listenToCall(authController.currentUser.value.uid!)

@@ -102,7 +102,7 @@ class AuthController extends GetxController {
 
   void fetchAverageRating(String userId) {
     print("sfajsf");
-    MethodHelper().getAverageRating(userId).listen((rating) {
+    MethodHelper().getAverageRating(userId, currentUser.value.isDriverMode!).listen((rating) {
       myRating.value = rating.floor();
       log("myRating: ${myRating.value.toString()}");
     });

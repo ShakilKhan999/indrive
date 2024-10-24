@@ -1,5 +1,5 @@
 import 'package:callandgo/helpers/method_helper.dart';
-import 'package:callandgo/helpers/style_helper.dart';
+import 'package:callandgo/models/user_model.dart';
 import 'package:callandgo/screens/home/controller/home_controller.dart';
 import 'package:callandgo/screens/home/repository/passenger_repositoy.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -243,6 +243,12 @@ class DriverHomeScreen extends StatelessWidget {
                  number:  _authController.checkProfile(),
               verified:_authController.currentUser.value.driverStatus!=null && _authController.currentUser.value.driverStatus == "approved"
               ))),
+          Obx(()=>
+              driverHomeController.rateDriver.value?
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                      child: CommonComponents().buildRatingBar(context: context, homeController: driverHomeController, tripType: "city", isDriver: _authController.currentUser.value.isDriverMode!)):SizedBox()
+          )
         ],
       )),
     );
@@ -854,6 +860,16 @@ class DriverHomeScreen extends StatelessWidget {
                           child: CommonComponents().commonButton(
                               text: "Drop and Finish",
                               onPressed: () async {
+
+                                driverHomeController.rateDriver.value=true;
+                                driverHomeController.lastTrip.value=driverHomeController.activeCall[0].tripId;
+
+                                driverHomeController.driverToRate.add(UserModel(
+                                    uid: driverHomeController.activeCall[0].userId,
+                                    name: driverHomeController.activeCall[0].userName,
+                                    photo: driverHomeController.activeCall[0].userImage
+                                ));
+
                                 String tripId =
                                     driverHomeController.activeCall[0].tripId;
                                 String encodedPoly = driverHomeController

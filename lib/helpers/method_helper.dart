@@ -227,23 +227,25 @@ class MethodHelper {
     }
   }
 
-  Stream<double> getAverageRating(String userId) {
-    return  FirebaseFirestore.instance
+  Stream<double> getAverageRating(String userId, bool isDriver) {
+    return FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
         .collection('Reviews')
+        .where('isDriver', isEqualTo: isDriver) // Filter by isDriver
         .snapshots()
         .map((snapshot) {
       if (snapshot.docs.isNotEmpty) {
         double totalRating = snapshot.docs.fold(0.0, (sum, doc) {
-          return sum + (doc.data()['rating'] );
+          return sum + (doc.data()['rating'] as double);
         });
         return totalRating / snapshot.docs.length;
       } else {
-        return 3.0;
+        return 3.0; // Default rating if no documents found
       }
     });
   }
+
 
   Future<List<VehicleModel>> getVehicleBrands(
       {required String collection}) async {

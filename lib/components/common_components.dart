@@ -1,11 +1,17 @@
 import 'dart:io';
 
+import 'package:callandgo/screens/driver/driver_home/views/driver_home_screen.dart';
 import 'package:callandgo/screens/home/controller/home_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:callandgo/helpers/color_helper.dart';
 import 'package:callandgo/helpers/space_helper.dart';
 import 'package:get/get.dart';
+
+import '../helpers/method_helper.dart';
+import '../models/trip_review_model.dart';
+import '../screens/home/views/passenger_home.dart';
 
 class CommonComponents {
   Widget printText(
@@ -153,6 +159,138 @@ class CommonComponents {
       );
     }
   }
+
+  Widget buildRatingBar(
+      {required BuildContext context,required var homeController,required String tripType, required bool isDriver}) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      child: Stack(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: ColorHelper.bgColor,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  spreadRadius: 5,
+                  blurRadius: 7,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                printText(
+                  fontSize: 14,
+                  textData: "Rate your driver",
+                  fontWeight: FontWeight.bold,
+                ),
+                SpaceHelper.verticalSpace5,
+                CircleAvatar(
+                  radius: 40,
+                  backgroundImage: NetworkImage(
+                    homeController.driverToRate[0].photo ??
+                        "https://cdn-icons-png.flaticon.com/512/8583/8583437.png",
+                  ),
+                ),
+                SpaceHelper.verticalSpace5,
+                printText(
+                  fontSize: 18,
+                  textData: homeController.driverToRate[0].name,
+                  fontWeight: FontWeight.bold,
+                ),
+                SpaceHelper.verticalSpace10,
+                RatingBar.builder(
+                  initialRating: 3,
+                  minRating: 1,
+                  direction: Axis.horizontal,
+                  allowHalfRating: false,
+                  unratedColor: ColorHelper.lightGreyColor,
+                  itemCount: 5,
+                  itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+                  itemBuilder: (context, _) => Icon(
+                    Icons.star,
+                    color: ColorHelper.primaryColor,
+                  ),
+                  onRatingUpdate: (rating) {
+                    homeController.ratingToAdd.value = rating;
+                    print(rating);
+                  },
+                ),
+                SpaceHelper.verticalSpace10,
+                // Add the TextField here
+                TextField(
+                  controller: homeController.reviewController,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: "Write your review",
+                    hintStyle: TextStyle(color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                ),
+                SpaceHelper.verticalSpace10,
+                SizedBox(
+                  width: double.infinity,
+                  child: Obx(() =>commonButton(
+                    borderRadius: 12,
+                    color: ColorHelper.primaryColor,
+                    text: MethodHelper().loading.value ? "Adding" : "Submit",
+                    onPressed: MethodHelper().loading.value ? () {} : () async {
+                      await MethodHelper().addTripReview(
+                        userId: homeController.driverToRate[0].uid,
+                        tripReview: TripReview(
+                          isDriver: !isDriver,
+                          rating: homeController.ratingToAdd.value,
+                          category: tripType,
+                          tripId: homeController.lastTrip.value,
+                          reviews:homeController.reviewController.text.isEmpty?[]: [homeController.reviewController.text], // Collecting review text
+                        ),
+                      );
+                      homeController.rateDriver.value = false;
+                      homeController.driverToRate.clear();
+                      homeController== HomeController?
+                      Get.offAll(() => const PassengerHomeScreen()):
+                      Get.offAll(() =>  DriverHomeScreen());
+                    },
+                  )),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 8,
+            right: 8,
+            child: GestureDetector(
+              onTap: () {
+                homeController.rateDriver.value = false;
+                homeController.driverToRate.clear();
+              },
+              child: InkWell(
+                onTap: () {
+                  Get.offAll(() => const PassengerHomeScreen());
+                },
+                child: Icon(
+                  Icons.close,
+                  color: Colors.grey,
+                  size: 24,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   void showRoutesDialog(BuildContext context, var routes, bool onGoing) {
     HomeController homeController=Get.find();
