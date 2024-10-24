@@ -41,18 +41,6 @@ class CourierTripDetailsForRequestScreen extends StatelessWidget {
             fromUser
                 ? _buildUserActionsView()
                 : _buildRiderActionsView(index: index),
-
-            // Column(children: [
-            //   courierTripModel.tripCurrentStatus == 'accepted'
-            //       ? _buildPickupButtonView()
-            //       : courierTripModel.tripCurrentStatus == 'picked up'
-            //           ? _buildDropButtonView()
-            //           : SizedBox(),
-            //   SpaceHelper.verticalSpace10,
-            //   courierTripModel.tripCurrentStatus == 'accepted'
-            //       ? _buildCancelButtonView()
-            //       : SizedBox(),
-            // ]),
           ],
         ),
       ),
@@ -60,20 +48,23 @@ class CourierTripDetailsForRequestScreen extends StatelessWidget {
   }
 
   Widget _buildUserActionsView() {
-    return Obx(
-      () => Container(
+    return Container(
         width: double.infinity,
         child: CommonComponents().commonButton(
           text: 'Cancel Ride',
           onPressed: () {
-            // _cityToCityTripController.cancelRideForUser(
-            //     docId: cityToCityTripModel.id!);
-            // Get.back();
+            showConfirmationDialog(
+                title: 'Cancel Ride',
+                onPressConfirm: () {
+                  _courierTripController.cancelRideForUser(
+                      docId: _courierTripController.tripListForUser[index].id!);
+                  Get.back();
+                },
+                onPressCancel: () => Get.back(),
+                controller: _courierTripController);
           },
-          // isLoading: _cityToCityTripController.isRideCancelLoading.value,
-          // disabled: _cityToCityTripController.isRideCancelLoading.value,
         ),
-      ),
+      
     );
   }
 
@@ -86,13 +77,12 @@ class CourierTripDetailsForRequestScreen extends StatelessWidget {
             showConfirmationDialog(
                 title: 'Decline',
                 onPressConfirm: () async {
-                  // _cityToCityTripController.selectedTripIndex.value = index;
-                  // _cityToCityTripController.declineRide();
-                  // Get.back();
+                  _courierTripController.selectedTripIndex.value = index;
+                  _courierTripController.declineRide();
+                  Get.back();
                 },
                 onPressCancel: () => Get.back(),
-                controller: () //_cityToCityTripController
-                );
+                controller: _courierTripController);
           },
           child: Container(
             height: 30.h,
@@ -114,13 +104,12 @@ class CourierTripDetailsForRequestScreen extends StatelessWidget {
             showConfirmationDialog(
                 title: 'Accept',
                 onPressConfirm: () async {
-                  // _cityToCityTripController.selectedTripIndex.value = index;
-                  // _cityToCityTripController.acceptRide();
-                  // Get.back();
+                  _courierTripController.selectedTripIndex.value = index;
+                  _courierTripController.acceptRide();
+                  Get.back();
                 },
                 onPressCancel: () => Get.back(),
-                controller: () //_cityToCityTripController
-                );
+                controller: _courierTripController);
           },
           child: Container(
             height: 30.h,

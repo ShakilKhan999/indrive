@@ -50,20 +50,23 @@ class CityToCityTripDetailsForRequestScreen extends StatelessWidget {
   }
 
   Widget _buildUserActionsView() {
-    return Obx(
-      () => Container(
+    return Container(
         width: double.infinity,
         child: CommonComponents().commonButton(
           text: 'Cancel Ride',
           onPressed: () {
-            _cityToCityTripController.cancelRideForUser(
-                docId: cityToCityTripModel.id!);
-            Get.back();
+            showConfirmationDialog(
+                title: 'Cancel Ride',
+                onPressConfirm: () async {
+                  _cityToCityTripController.cancelRideForUser(
+                      docId: cityToCityTripModel.id!);
+                  Get.back();
+                },
+                onPressCancel: () => Get.back(),
+                controller: _cityToCityTripController);
           },
-          isLoading: _cityToCityTripController.isRideCancelLoading.value,
-          disabled: _cityToCityTripController.isRideCancelLoading.value,
         ),
-      ),
+      
     );
   }
 

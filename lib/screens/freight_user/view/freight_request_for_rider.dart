@@ -8,6 +8,7 @@ import 'package:callandgo/helpers/space_helper.dart';
 import 'package:callandgo/screens/freight_user/controller/freight_trip_controller.dart';
 import '../../../components/common_components.dart';
 import '../../../components/confirmation_dialog.dart';
+import 'freight_trip_details_for_request.dart';
 
 class FreightRequesForRider extends StatefulWidget {
   FreightRequesForRider({super.key});
@@ -284,104 +285,117 @@ class _FreightRequesForRiderState extends State<FreightRequesForRider>
       () => _freightTripController.tripList.isNotEmpty
           ? ListView.separated(
               itemBuilder: (context, index) {
-                return Card(
-                  color: ColorHelper.blackColor,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                  height: 35.h,
-                                  width: 35.h,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(90),
-                                      color: Colors.white,
-                                      border: Border.all(color: Colors.white)),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(90),
-                                    child: _freightTripController
-                                                .tripList[index].userImage !=
-                                            null
-                                        ? Image.network(
-                                            _freightTripController
-                                                .tripList[index].userImage!,
-                                            height: 35.h,
-                                            width: 35.h,
-                                            fit: BoxFit.cover,
-                                          )
-                                        : Image.asset(
-                                            "assets/images/person.jpg",
-                                            height: 35.h,
-                                            width: 35.h,
-                                            fit: BoxFit.cover,
-                                          ),
-                                  ),
-                                ),
-                                SpaceHelper.horizontalSpace10,
-                                CommonComponents().printText(
-                                    fontSize: 15,
-                                    textData: _freightTripController
-                                        .tripList[index].userName!,
-                                    fontWeight: FontWeight.bold),
-                              ],
+                return InkWell(
+                  onTap: () {
+                    Get.to(
+                        () => FreightTripDetailsForRequest(
+                              freightTripModel:
+                                  _freightTripController.tripList[index],
+                              fromUser: false,
+                              index: index,
                             ),
-                            CommonComponents().printText(
-                                fontSize: 15,
-                                textData: _freightTripController
-                                    .tripList[index].userPrice!,
-                                fontWeight: FontWeight.bold),
-                          ],
-                        ),
-                        SpaceHelper.verticalSpace15,
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Icon(Icons.radio_button_checked,
-                                color: ColorHelper.primaryColor),
-                            SpaceHelper.horizontalSpace10,
-                            Expanded(
-                                child: CommonComponents().printText(
-                                    fontSize: 12,
-                                    textData:
-                                        '${_freightTripController.tripList[index].from!}',
-                                    fontWeight: FontWeight.normal,
-                                    maxLine: 2))
-                          ],
-                        ),
-                        SpaceHelper.verticalSpace5,
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Icon(Icons.radio_button_checked,
-                                color: ColorHelper.blueColor),
-                            SpaceHelper.horizontalSpace10,
-                            Expanded(
-                                child: CommonComponents().printText(
-                                    fontSize: 12,
-                                    textData:
-                                        '${_freightTripController.tripList[index].to!}',
-                                    fontWeight: FontWeight.normal,
-                                    maxLine: 2))
-                          ],
-                        ),
-                        SpaceHelper.verticalSpace10,
-                        CommonComponents().printText(
-                            fontSize: 15,
-                            textData: MethodHelper().timeAgo(
-                                _freightTripController
-                                    .tripList[index].createdAt!),
-                            fontWeight: FontWeight.bold),
-                        SpaceHelper.verticalSpace10,
-                        _buildOfferYourFareView(index: index),
-                        SpaceHelper.verticalSpace10,
-                        _buildActionView(index: index)
-                      ],
+                        transition: Transition.rightToLeft);
+                  },
+                  child: Card(
+                    color: ColorHelper.blackColor,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    height: 35.h,
+                                    width: 35.h,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(90),
+                                        color: Colors.white,
+                                        border:
+                                            Border.all(color: Colors.white)),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(90),
+                                      child: _freightTripController
+                                                  .tripList[index].userImage !=
+                                              null
+                                          ? Image.network(
+                                              _freightTripController
+                                                  .tripList[index].userImage!,
+                                              height: 35.h,
+                                              width: 35.h,
+                                              fit: BoxFit.cover,
+                                            )
+                                          : Image.asset(
+                                              "assets/images/person.jpg",
+                                              height: 35.h,
+                                              width: 35.h,
+                                              fit: BoxFit.cover,
+                                            ),
+                                    ),
+                                  ),
+                                  SpaceHelper.horizontalSpace10,
+                                  CommonComponents().printText(
+                                      fontSize: 15,
+                                      textData: _freightTripController
+                                          .tripList[index].userName!,
+                                      fontWeight: FontWeight.bold),
+                                ],
+                              ),
+                              CommonComponents().printText(
+                                  fontSize: 15,
+                                  textData: _freightTripController
+                                      .tripList[index].userPrice!,
+                                  fontWeight: FontWeight.bold),
+                            ],
+                          ),
+                          SpaceHelper.verticalSpace15,
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(Icons.radio_button_checked,
+                                  color: ColorHelper.primaryColor),
+                              SpaceHelper.horizontalSpace10,
+                              Expanded(
+                                  child: CommonComponents().printText(
+                                      fontSize: 12,
+                                      textData:
+                                          '${_freightTripController.tripList[index].from!}',
+                                      fontWeight: FontWeight.normal,
+                                      maxLine: 2))
+                            ],
+                          ),
+                          SpaceHelper.verticalSpace5,
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(Icons.radio_button_checked,
+                                  color: ColorHelper.blueColor),
+                              SpaceHelper.horizontalSpace10,
+                              Expanded(
+                                  child: CommonComponents().printText(
+                                      fontSize: 12,
+                                      textData:
+                                          '${_freightTripController.tripList[index].to!}',
+                                      fontWeight: FontWeight.normal,
+                                      maxLine: 2))
+                            ],
+                          ),
+                          SpaceHelper.verticalSpace10,
+                          CommonComponents().printText(
+                              fontSize: 15,
+                              textData: MethodHelper().timeAgo(
+                                  _freightTripController
+                                      .tripList[index].createdAt!),
+                              fontWeight: FontWeight.bold),
+                          SpaceHelper.verticalSpace10,
+                          _buildOfferYourFareView(index: index),
+                          SpaceHelper.verticalSpace10,
+                          _buildActionView(index: index)
+                        ],
+                      ),
                     ),
                   ),
                 );

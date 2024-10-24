@@ -369,9 +369,16 @@ class _CourierRequestScreenState extends State<CourierRequestScreen>
                       CommonComponents().commonButton(
                         text: 'Cancel Ride',
                         onPressed: () {
-                          courierTripController.cancelRideForUser(
-                              docId: courierTripController
-                                  .tripListForUser[index].id!);
+                          showConfirmationDialog(
+                              title: 'Cancel Ride',
+                              onPressConfirm: () {
+                                courierTripController.cancelRideForUser(
+                                    docId: courierTripController
+                                        .tripListForUser[index].id!);
+                                Get.back();
+                              },
+                              onPressCancel: () => Get.back(),
+                              controller: courierTripController);
                         },
                       )
                     ],

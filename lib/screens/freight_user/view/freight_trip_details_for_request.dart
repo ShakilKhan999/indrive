@@ -41,17 +41,6 @@ class FreightTripDetailsForRequest extends StatelessWidget {
             fromUser
                 ? _buildUserActionsView()
                 : _buildRiderActionsView(index: index),
-            // Column(children: [
-            //   freightTripModel.tripCurrentStatus == 'accepted'
-            //       ? _buildPickupButtonView()
-            //       : freightTripModel.tripCurrentStatus == 'picked up'
-            //           ? _buildDropButtonView()
-            //           : SizedBox(),
-            //   SpaceHelper.verticalSpace10,
-            //   freightTripModel.tripCurrentStatus == 'accepted'
-            //       ? _buildCancelButtonView()
-            //       : SizedBox(),
-            // ]),
           ],
         ),
       ),
@@ -59,19 +48,21 @@ class FreightTripDetailsForRequest extends StatelessWidget {
   }
 
   Widget _buildUserActionsView() {
-    return Obx(
-      () => Container(
-        width: double.infinity,
-        child: CommonComponents().commonButton(
-          text: 'Cancel Ride',
-          onPressed: () {
-            // _cityToCityTripController.cancelRideForUser(
-            //     docId: cityToCityTripModel.id!);
-            // Get.back();
-          },
-          // isLoading: _cityToCityTripController.isRideCancelLoading.value,
-          // disabled: _cityToCityTripController.isRideCancelLoading.value,
-        ),
+    return Container(
+      width: double.infinity,
+      child: CommonComponents().commonButton(
+        text: 'Cancel Ride',
+        onPressed: () {
+          showConfirmationDialog(
+              title: 'Cancel Ride',
+              onPressConfirm: () {
+                _freightTripController.cancelRideForUser(
+                    docId: _freightTripController.tripListForUser[index].id!);
+                Get.back();
+              },
+              onPressCancel: () => Get.back(),
+              controller: _freightTripController);
+        },
       ),
     );
   }
@@ -85,13 +76,12 @@ class FreightTripDetailsForRequest extends StatelessWidget {
             showConfirmationDialog(
                 title: 'Decline',
                 onPressConfirm: () async {
-                  // _cityToCityTripController.selectedTripIndex.value = index;
-                  // _cityToCityTripController.declineRide();
-                  // Get.back();
+                  _freightTripController.selectedTripIndex.value = index;
+                  _freightTripController.declineRide();
+                  Get.back();
                 },
                 onPressCancel: () => Get.back(),
-                controller: () //_cityToCityTripController
-                );
+                controller: _freightTripController);
           },
           child: Container(
             height: 30.h,
@@ -113,13 +103,12 @@ class FreightTripDetailsForRequest extends StatelessWidget {
             showConfirmationDialog(
                 title: 'Accept',
                 onPressConfirm: () async {
-                  // _cityToCityTripController.selectedTripIndex.value = index;
-                  // _cityToCityTripController.acceptRide();
-                  // Get.back();
+                  _freightTripController.selectedTripIndex.value = index;
+                  _freightTripController.acceptRide();
+                  Get.back();
                 },
                 onPressCancel: () => Get.back(),
-                controller: () //_cityToCityTripController
-                );
+                controller: _freightTripController);
           },
           child: Container(
             height: 30.h,

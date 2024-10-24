@@ -411,9 +411,15 @@ class _CityToCityRequestState extends State<CityToCityRequest>
                       CommonComponents().commonButton(
                         text: 'Cancel Ride',
                         onPressed: () {
-                          _cityToCityTripController.cancelRideForUser(
-                              docId: _cityToCityTripController
-                                  .tripListForUser[index].id!);
+                          showConfirmationDialog(
+                              title: 'Cancel Ride',
+                              onPressConfirm: () {
+                                _cityToCityTripController.cancelRideForUser(
+                                    docId: _cityToCityTripController
+                                        .tripListForUser[index].id!);
+                              },
+                              onPressCancel: () => Get.back(),
+                              controller: _cityToCityTripController);
                         },
                       )
                     ],
